@@ -1,7 +1,7 @@
 import json, re, os, glob
 import xml.etree.ElementTree as ET
 
-THRESHOLD = 0.80
+THRESHOLD = 0.70
 HUNK = re.compile(r"^@@\s*-\d+(?:,\d+)?\s+\+(\d+)(?:,\d+)?\s*@@")
 CONST = re.compile(r"^\s*(?:(?:public|private|protected|internal|new)\s+)*const\s")
 

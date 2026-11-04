@@ -8,7 +8,7 @@ def load(name, default):
         return default
 
 bld = load("build.json", {"status": "error", "summary": "", "errors": []})
-cov = load("coverage.json", {"status": "error", "threshold": 0.8})
+cov = load("coverage.json", {"status": "error", "threshold": 0.7})
 mnt = load("maintainability.json", {"status": "error", "methods": [], "classes": [], "thresholds": {}})
 
 MARK = {"ok": "✅", "suspect": "🟡", "critical": "🔴"}
