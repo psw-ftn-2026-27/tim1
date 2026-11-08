@@ -1,0 +1,28 @@
+<article class="card stack">
+  <h3>Korisnik {{ request().recipientId }}</h3>
+
+  <p class="meta">
+    @switch (request().status) {
+      @case ('Pending') {
+        Na čekanju
+      }
+      @case ('Accepted') {
+        Prihvaćen
+      }
+      @case ('Rejected') {
+        Odbijen
+      }
+    }
+  </p>
+
+  @if (request().status === 'Pending') {
+    <button
+      class="button"
+      type="button"
+      [disabled]="disabled()"
+      (click)="deleteClicked.emit(request().id)"
+    >
+      Obriši
+    </button>
+  }
+</article>

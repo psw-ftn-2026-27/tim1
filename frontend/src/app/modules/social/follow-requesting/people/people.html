@@ -1,0 +1,27 @@
+<div class="stack">
+  <h1>Autori</h1>
+
+  <p><a routerLink="/social/follow-requests" aria-label="Nazad na zahteve">&larr;</a></p>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (authors.isLoading()) {
+    <p>Učitavanje autora...</p>
+  } @else if (authors.error()) {
+    <p class="error">Autori nisu učitani. Prijavi se i pokušaj ponovo.</p>
+  } @else {
+    <div class="grid">
+      @for (author of authors.value()?.items ?? []; track author.authorId) {
+        <app-author-card
+          [author]="author"
+          [disabled]="pending()"
+          (sendClicked)="send($event)"
+        />
+      } @empty {
+        <p>Nema autora koje možeš da zapratiš.</p>
+      }
+    </div>
+  }
+</div>
