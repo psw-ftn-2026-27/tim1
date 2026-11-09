@@ -36,6 +36,26 @@
       <input id="tags" type="text" [formField]="form.tags" />
     </div>
 
+    <div class="field">
+      <label for="group-size-min">Recommended group size, from</label>
+      <input id="group-size-min" type="number" [formField]="form.groupSizeMin" />
+      @if (form.groupSizeMin().touched()) {
+        @for (message of form.groupSizeMin().errors(); track $index) {
+          <p class="error">{{ message.message }}</p>
+        }
+      }
+    </div>
+
+    <div class="field">
+      <label for="group-size-max">Recommended group size, to</label>
+      <input id="group-size-max" type="number" [formField]="form.groupSizeMax" />
+      @if (form.groupSizeMax().touched()) {
+        @for (message of form.groupSizeMax().errors(); track $index) {
+          <p class="error">{{ message.message }}</p>
+        }
+      }
+    </div>
+
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }

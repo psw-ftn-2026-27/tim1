@@ -17,6 +17,8 @@ internal static class TourConfiguration
         builder.Property(tour => tour.Difficulty).HasConversion<string>().HasMaxLength(20);
         builder.Property(tour => tour.Status).HasConversion<string>().HasMaxLength(20);
 
+        builder.ComplexProperty(tour => tour.GroupSize);
+
         builder.OwnsMany(tour => tour.TransportTimes, transportTimes =>
         {
             transportTimes.ToJson();

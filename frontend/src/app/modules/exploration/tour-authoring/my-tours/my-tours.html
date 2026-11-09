@@ -42,7 +42,7 @@
                   class="button button--primary"
                   type="button"
                   [disabled]="pending()"
-                  (click)="publish(tour.id)"
+                  (click)="selectForPublishing(tour.id)"
                 >
                   Publish
                 </button>
@@ -56,6 +56,41 @@
         }
       </tbody>
     </table>
+  }
+
+  @if (publishingTourId()) {
+    <form class="card stack" (submit)="publish($event)">
+      <h2>Publish tour</h2>
+
+      <div class="field">
+        <label for="charge">Pricing</label>
+        <select id="charge" [formField]="publishForm.charge">
+          <option value="Free">Free</option>
+          <option value="Paid">Paid</option>
+        </select>
+      </div>
+
+      @if (publishForm.charge().value() === 'Paid') {
+        <div class="field">
+          <label for="price">Price</label>
+          <input id="price" type="number" step="0.01" [formField]="publishForm.price" />
+          @if (publishForm.price().touched()) {
+            @for (message of publishForm.price().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
+          }
+        </div>
+      }
+
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="!publishForm().valid() || pending()"
+      >
+        Publish
+      </button>
+      <button class="button" type="button" (click)="closePublishing()">Cancel</button>
+    </form>
   }
 
   @if (selectedTourId()) {
@@ -88,6 +123,7 @@
       >
         Save
       </button>
+      <button class="button" type="button" (click)="closeTransportTime()">Cancel</button>
     </form>
   }
 </div>

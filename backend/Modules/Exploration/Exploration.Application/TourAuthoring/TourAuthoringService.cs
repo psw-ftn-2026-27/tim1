@@ -20,7 +20,10 @@ public sealed class TourAuthoringService
 
     public async Task<TourDto> CreateAsync(Guid authorId, CreateTourDto dto)
     {
-        var tour = new Tour(authorId, dto.Name, dto.Description, dto.Difficulty, dto.Tags);
+        var groupSize = dto.GroupSize is not null
+            ? new GroupSize(dto.GroupSize.Min, dto.GroupSize.Max)
+            : null!;
+        var tour = new Tour(authorId, dto.Name, dto.Description, dto.Difficulty, dto.Tags, groupSize);
 
         _tourRepository.Add(tour);
         await _unitOfWork.SaveChangesAsync();
@@ -36,8 +39,13 @@ public sealed class TourAuthoringService
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task PublishAsync(Guid tourId, Guid authorId)
+    public async Task PublishAsync(Guid tourId, Guid authorId, PublishTourDto dto)
     {
+        if (dto is null || !dto.Price.HasValue || dto.Price.Value < 0)
+        {
+            throw new DomainException("Tour price must be defined and greater than or equal to 0.");
+        }
+
         var tour = await GetOwnedTourAsync(tourId, authorId);
 
         tour.Publish();
