@@ -84,12 +84,69 @@ namespace Social.Infrastructure.Persistence.Migrations
                     b.ToTable("Comments", "social");
                 });
 
+            modelBuilder.Entity("Social.Domain.Images.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AttachedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UploaderId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images", "social");
+                });
+
             modelBuilder.Entity("Social.Domain.Blogs.Comment", b =>
                 {
                     b.HasOne("Social.Domain.Blogs.Blog", null)
                         .WithMany("Comments")
                         .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Social.Domain.Images.Image", b =>
+                {
+                    b.OwnsOne("Social.Domain.Images.ImageDimensions", "Dimensions", b1 =>
+                        {
+                            b1.Property<Guid>("ImageId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Height")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Width")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("ImageId");
+
+                            b1.ToTable("Images", "social");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ImageId");
+                        });
+
+                    b.Navigation("Dimensions")
                         .IsRequired();
                 });
 

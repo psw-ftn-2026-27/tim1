@@ -9,7 +9,7 @@ namespace Social.Tests.Unit.Blogs;
 public class BlogTests
 {
     private static Blog CreateBlog() =>
-        new(WellKnownUsers.Explorer, "Utisci sa tvrđave", "Opis obilaska tvrđave.", ["https://example.com/tvrdjava.jpg"]);
+        new(WellKnownUsers.Explorer, "Utisci sa tvrđave", "Opis obilaska tvrđave.", [Guid.NewGuid().ToString()]);
 
     private static Blog CreatePublishedBlog()
     {
@@ -53,6 +53,16 @@ public class BlogTests
     public void New_blog_requires_a_description(string description)
     {
         var creation = () => new Blog(WellKnownUsers.Explorer, "Utisci sa tvrđave", description, []);
+
+        creation.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void New_blog_cannot_have_more_than_ten_images()
+    {
+        var images = Enumerable.Range(0, 11).Select(_ => Guid.NewGuid().ToString()).ToList();
+
+        var creation = () => new Blog(WellKnownUsers.Explorer, "Utisci sa tvrđave", "Opis obilaska tvrđave.", images);
 
         creation.Should().Throw<DomainException>();
     }

@@ -2,3 +2,19 @@
   margin-inline: auto;
   max-width: 32rem;
 }
+
+.image-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  align-items: flex-start;
+}
+
+.image-item img {
+  max-width: 100%;
+  max-height: 12rem;
+}
+
+.meta {
+  margin: 0;
+}

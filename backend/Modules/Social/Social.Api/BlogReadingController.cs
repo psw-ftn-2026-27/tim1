@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.Domain;
 using Social.Application.BlogReading;
 using Social.Application.Blogs;
+using Social.Application.Images;
 
 namespace Social.Api;
 
@@ -28,5 +29,12 @@ public sealed class BlogReadingController : ControllerBase
     public async Task<ActionResult<BlogDto>> GetById(Guid id)
     {
         return await _readingQueries.GetByIdAsync(id);
+    }
+
+    [HttpGet("{blogId:guid}/images/{imageId:guid}")]
+    public async Task<ActionResult<ImageContentDto>> GetPublishedImage(Guid blogId, Guid imageId)
+    {
+        var image = await _readingQueries.GetPublishedImageAsync(blogId, imageId);
+        return File(image.Content, image.ContentType);
     }
 }

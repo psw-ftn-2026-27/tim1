@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Shared.Tests;
@@ -21,5 +22,25 @@ public class BlogAuthoringQueryTests : BaseIntegrationTest
         blogs.Should().HaveCount(BlogSeed.All.Count(blog => blog.AuthorId == WellKnownUsers.Explorer));
         blogs.Should().OnlyContain(blog => blog.AuthorId == WellKnownUsers.Explorer);
         blogs.Should().NotContain(blog => blog.Id == BlogSeed.SecondExplorersDiary.Id);
+    }
+
+    [Fact]
+    public async Task Draft_image_is_not_available_to_another_user()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.GetAsync($"/api/social/blogs/{BlogSeed.FortressImpressions.Id}/images/{ImageSeed.FortressPhoto.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Draft_image_is_not_available_through_the_authors_route_to_another_user()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.GetAsync($"/api/social/blogs/mine/{BlogSeed.FortressImpressions.Id}/images/{ImageSeed.FortressPhoto.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

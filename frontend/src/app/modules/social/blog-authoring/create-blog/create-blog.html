@@ -22,11 +22,38 @@
       }
     </div>
 
+    <div class="field">
+      <label for="images">Slike</label>
+      <input
+        id="images"
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp"
+        (change)="onFilesChosen($event)"
+      />
+    </div>
+
+    @for (item of images(); track item.key) {
+      <div class="image-item">
+        <p class="meta">{{ item.name }}</p>
+        @if (item.state === 'sending') {
+          <p>Slanje…</p>
+        } @else {
+          @if (item.state === 'ready') {
+            <img [src]="item.previewUrl" [alt]="item.name" />
+            <button class="button" type="button" (click)="remove(item.key)">Ukloni</button>
+          } @else {
+            <p class="error">{{ item.message }}</p>
+          }
+        }
+      </div>
+    }
+
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }
 
-    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending() || anySending()">
       Create
     </button>
   </form>

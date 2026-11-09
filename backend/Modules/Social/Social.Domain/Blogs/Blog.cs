@@ -5,6 +5,8 @@ namespace Social.Domain.Blogs;
 
 public sealed class Blog : AggregateRoot
 {
+    public const int MaxImages = 10;
+
     public Guid AuthorId { get; private set; }
     public string Title { get; private set; }
     public string Description { get; private set; }
@@ -31,6 +33,11 @@ public sealed class Blog : AggregateRoot
         if (string.IsNullOrWhiteSpace(description))
         {
             throw new DomainException("A blog requires a description.");
+        }
+
+        if (images is not null && images.Count > MaxImages)
+        {
+            throw new DomainException($"A blog can have at most {MaxImages} images.");
         }
 
         AuthorId = authorId;

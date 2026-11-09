@@ -5,6 +5,7 @@ using Shared.Tests;
 using Social.Application.BlogAuthoring;
 using Social.Application.Blogs;
 using Social.Domain.Blogs;
+using Social.Domain.Images;
 using Social.Infrastructure.Persistence;
 using Social.Tests.Integration.Seeds;
 using Xunit;
@@ -19,7 +20,7 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
     public async Task Explorer_creates_a_draft_blog()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", ["https://example.com/slika.jpg"]);
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", []);
         using var arrangeContext = Factory.CreateContext<SocialDbContext>();
         var blogCountBefore = arrangeContext.Blogs.Count();
 
@@ -32,7 +33,7 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
         assertContext.Blogs.Count().Should().Be(blogCountBefore + 1);
         var stored = assertContext.Blogs.Single(blog => blog.Id == created.Id);
         stored.Status.Should().Be(BlogStatus.Draft);
-        stored.Images.Should().ContainSingle().Which.Should().Be("https://example.com/slika.jpg");
+        stored.Images.Should().BeEmpty();
         stored.Comments.Should().BeEmpty();
     }
 
@@ -97,5 +98,130 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<SocialDbContext>();
         var stored = assertContext.Blogs.Single(blog => blog.Id == BlogSeed.FortressImpressions.Id);
         stored.Status.Should().Be(BlogStatus.Draft);
+    }
+
+    [Fact]
+    public async Task Explorer_creates_a_blog_with_their_own_images()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", [ImageSeed.ExplorersUnattachedImage.Id.ToString()]);
+
+        var response = await client.PostAsJsonAsync("/api/social/blogs", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var created = await response.Content.ReadFromJsonAsync<BlogDto>(JsonOptions);
+        created!.Images.Should().ContainSingle().Which.Should().Be(ImageSeed.ExplorersUnattachedImage.Id.ToString());
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        var image = assertContext.Images.Single(image => image.Id == ImageSeed.ExplorersUnattachedImage.Id);
+        image.Status.Should().Be(ImageStatus.Attached);
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_create_a_blog_with_an_image_of_another_user()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", [ImageSeed.SecondExplorersUnattachedImage.Id.ToString()]);
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var blogCountBefore = arrangeContext.Blogs.Count();
+
+        var response = await client.PostAsJsonAsync("/api/social/blogs", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Blogs.Count().Should().Be(blogCountBefore);
+        var image = assertContext.Images.Single(image => image.Id == ImageSeed.SecondExplorersUnattachedImage.Id);
+        image.Status.Should().Be(ImageStatus.Unattached);
+    }
+
+    [Fact]
+    public async Task Explorer_uploads_an_image_and_it_is_stored_as_unattached()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(TestImages.Png(300, 200));
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var imageCountBefore = arrangeContext.Images.Count();
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var imageId = await response.Content.ReadFromJsonAsync<Guid>(JsonOptions);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Count().Should().Be(imageCountBefore);
+        var stored = assertContext.Images.Single(image => image.Id == imageId);
+        stored.UploaderId.Should().Be(WellKnownUsers.Explorer);
+        stored.Status.Should().Be(ImageStatus.Unattached);
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_upload_a_file_that_is_not_an_image()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm("not an image"u8.ToArray());
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var imageCountBefore = arrangeContext.Images.Count();
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Count().Should().Be(imageCountBefore);
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_upload_a_file_larger_than_5_megabytes()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(new byte[6 * 1024 * 1024]);
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var imageCountBefore = arrangeContext.Images.Count();
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.IsSuccessStatusCode.Should().BeFalse();
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Count().Should().Be(imageCountBefore);
+    }
+
+    [Fact]
+    public async Task Upload_deletes_expired_unattached_images()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Any(image => image.Id == ImageSeed.ExpiredUnattachedImage.Id).Should().BeFalse();
+        assertContext.Images.Any(image => image.Id == ImageSeed.ExplorersUnattachedImage.Id).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_upload_an_image()
+    {
+        var client = Factory.CreateClient();
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_upload_an_image()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private static MultipartFormDataContent ImageForm(byte[] content)
+    {
+        var form = new MultipartFormDataContent();
+        form.Add(new ByteArrayContent(content), "file", "photo.png");
+        return form;
     }
 }

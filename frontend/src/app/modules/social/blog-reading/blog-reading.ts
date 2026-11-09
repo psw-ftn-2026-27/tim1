@@ -9,6 +9,12 @@ const BASE_URL = '/api/social/blogs';
 export class BlogReading {
   private readonly http = inject(HttpClient);
 
+  async getPublishedImage(blogId: string, imageId: string): Promise<Blob> {
+    return firstValueFrom(
+      this.http.get(`${BASE_URL}/${blogId}/images/${imageId}`, { responseType: 'blob' }),
+    );
+  }
+
   async addComment(id: string, dto: CreateCommentDto): Promise<void> {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/comments`, dto));
   }

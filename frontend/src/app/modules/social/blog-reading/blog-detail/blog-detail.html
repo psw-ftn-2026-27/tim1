@@ -15,6 +15,12 @@
 
       <p>{{ blog.description }}</p>
 
+      @for (imageId of blog.images; track imageId) {
+        @if (imageUrls()[imageId]; as url) {
+          <img [src]="url" alt="Blog image" />
+        }
+      }
+
       <p class="meta">Status: {{ blog.status }}</p>
 
       <app-blog-comments
