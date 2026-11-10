@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Payment.Application.WithdrawalRequests;
 using Payment.Domain.WithdrawalRequests;
 
@@ -10,6 +11,11 @@ internal sealed class WithdrawalRequestRepository : IWithdrawalRequestRepository
     public WithdrawalRequestRepository(PaymentDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public Task<WithdrawalRequest?> GetByIdAsync(Guid id)
+    {
+        return _dbContext.WithdrawalRequests.FirstOrDefaultAsync(withdrawalRequest => withdrawalRequest.Id == id);
     }
 
     public void Add(WithdrawalRequest withdrawalRequest)

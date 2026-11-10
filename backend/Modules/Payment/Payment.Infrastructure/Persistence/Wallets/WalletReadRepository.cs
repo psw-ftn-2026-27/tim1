@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Payment.Application.WalletFunding;
+using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
 using Payment.Domain.TopUpRequests;
 using Payment.Domain.WithdrawalRequests;
@@ -38,7 +39,8 @@ internal sealed class WalletReadRepository : IWalletReadRepository
                         topUpRequest.Id,
                         topUpRequest.Amount,
                         topUpRequest.Status,
-                        topUpRequest.CreatedAt
+                        topUpRequest.CreatedAt,
+                        topUpRequest.RejectionReason
                     })
                     .ToList(),
                 WithdrawalRequests = _dbContext.WithdrawalRequests
@@ -48,7 +50,8 @@ internal sealed class WalletReadRepository : IWalletReadRepository
                         withdrawalRequest.Id,
                         withdrawalRequest.Amount,
                         withdrawalRequest.Status,
-                        withdrawalRequest.CreatedAt
+                        withdrawalRequest.CreatedAt,
+                        withdrawalRequest.RejectionReason
                     })
                     .ToList()
             })
@@ -65,7 +68,8 @@ internal sealed class WalletReadRepository : IWalletReadRepository
                 WalletRequestType.TopUp,
                 topUpRequest.Amount,
                 ToWalletRequestStatus(topUpRequest.Status),
-                topUpRequest.CreatedAt));
+                topUpRequest.CreatedAt,
+                topUpRequest.RejectionReason));
 
         var withdrawals = overview.WithdrawalRequests
             .Select(withdrawalRequest => new WalletRequestDto(
@@ -73,13 +77,77 @@ internal sealed class WalletReadRepository : IWalletReadRepository
                 WalletRequestType.Withdrawal,
                 withdrawalRequest.Amount,
                 ToWalletRequestStatus(withdrawalRequest.Status),
-                withdrawalRequest.CreatedAt));
+                withdrawalRequest.CreatedAt,
+                withdrawalRequest.RejectionReason));
 
         return new WalletOverviewDto(
             overview.AvailableBalance,
             overview.ReservedBalance,
             overview.Transactions,
             [.. topUps.Concat(withdrawals).OrderByDescending(request => request.CreatedAt)]);
+    }
+
+    public async Task<WalletRequestsDto> GetRequestsAsync()
+    {
+        var topUps = await _dbContext.TopUpRequests
+            .Join(
+                _dbContext.Wallets,
+                topUpRequest => topUpRequest.WalletId,
+                wallet => wallet.Id,
+                (topUpRequest, wallet) => new
+                {
+                    topUpRequest.Id,
+                    wallet.OwnerId,
+                    topUpRequest.Amount,
+                    topUpRequest.CreatedAt,
+                    topUpRequest.Status,
+                    topUpRequest.RejectionReason
+                })
+            .ToListAsync();
+
+        var withdrawals = await _dbContext.WithdrawalRequests
+            .Join(
+                _dbContext.Wallets,
+                withdrawalRequest => withdrawalRequest.WalletId,
+                wallet => wallet.Id,
+                (withdrawalRequest, wallet) => new
+                {
+                    withdrawalRequest.Id,
+                    wallet.OwnerId,
+                    withdrawalRequest.Amount,
+                    withdrawalRequest.CreatedAt,
+                    withdrawalRequest.Status,
+                    withdrawalRequest.RejectionReason
+                })
+            .ToListAsync();
+
+        List<WalletRequestReviewDto> requests =
+        [
+            .. topUps.Select(topUpRequest => new WalletRequestReviewDto(
+                topUpRequest.Id,
+                WalletRequestType.TopUp,
+                topUpRequest.OwnerId,
+                topUpRequest.Amount,
+                topUpRequest.CreatedAt,
+                ToWalletRequestStatus(topUpRequest.Status),
+                topUpRequest.RejectionReason)),
+            .. withdrawals.Select(withdrawalRequest => new WalletRequestReviewDto(
+                withdrawalRequest.Id,
+                WalletRequestType.Withdrawal,
+                withdrawalRequest.OwnerId,
+                withdrawalRequest.Amount,
+                withdrawalRequest.CreatedAt,
+                ToWalletRequestStatus(withdrawalRequest.Status),
+                withdrawalRequest.RejectionReason))
+        ];
+
+        return new WalletRequestsDto(
+            [.. requests
+                .Where(request => request.Status == WalletRequestStatus.Pending)
+                .OrderByDescending(request => request.CreatedAt)],
+            [.. requests
+                .Where(request => request.Status != WalletRequestStatus.Pending)
+                .OrderByDescending(request => request.CreatedAt)]);
     }
 
     private static WalletRequestStatus ToWalletRequestStatus(TopUpRequestStatus status) => status switch

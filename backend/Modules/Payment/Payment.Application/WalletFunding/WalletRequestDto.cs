@@ -1,3 +1,5 @@
+using Payment.Application.Wallets;
+
 namespace Payment.Application.WalletFunding;
 
 public sealed record WalletRequestDto(
@@ -5,4 +7,5 @@ public sealed record WalletRequestDto(
     WalletRequestType Type,
     decimal Amount,
     WalletRequestStatus Status,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    string? RejectionReason);

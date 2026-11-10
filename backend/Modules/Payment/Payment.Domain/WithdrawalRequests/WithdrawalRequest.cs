@@ -25,4 +25,30 @@ public sealed class WithdrawalRequest : AggregateRoot
         Status = WithdrawalRequestStatus.Pending;
         CreatedAt = DateTime.UtcNow;
     }
+
+    public void Approve()
+    {
+        if (Status != WithdrawalRequestStatus.Pending)
+        {
+            throw new DomainException("A withdrawal request that has been decided cannot be decided again.");
+        }
+
+        Status = WithdrawalRequestStatus.Approved;
+    }
+
+    public void Reject(string reason)
+    {
+        if (Status != WithdrawalRequestStatus.Pending)
+        {
+            throw new DomainException("A withdrawal request that has been decided cannot be decided again.");
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new DomainException("A rejected withdrawal request requires a reason.");
+        }
+
+        Status = WithdrawalRequestStatus.Rejected;
+        RejectionReason = reason;
+    }
 }
