@@ -1,6 +1,8 @@
 using AutoMapper;
 using Social.Application.Blogs;
+using Social.Application.ClubManagement;
 using Social.Domain.Blogs;
+using Social.Domain.Clubs;
 
 namespace Social.Application;
 
@@ -10,5 +12,6 @@ public sealed class SocialMapperProfile : Profile
     {
         CreateMap<Blog, BlogDto>();
         CreateMap<Comment, CommentDto>();
+        CreateMap<Club, ClubDto>();
     }
 }

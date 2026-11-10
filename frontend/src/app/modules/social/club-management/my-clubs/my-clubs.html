@@ -1,0 +1,126 @@
+<div class="stack">
+  <h1>My clubs</h1>
+
+  <p><a routerLink="/social/clubs/create">Create club</a></p>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (clubs.isLoading()) {
+    <p>Loading your clubs...</p>
+  } @else if (clubs.error()) {
+    <p class="error">Could not load your clubs. Log in and try again.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Images</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (club of clubs.value() ?? []; track club.id) {
+          <tr>
+            <td>{{ club.name }}</td>
+            <td>{{ club.images.length }}</td>
+            <td>
+              @if (deletingClubId() === club.id) {
+                <div class="actions">
+                  <span>Are you sure?</span>
+                  <button
+                    class="button button--primary"
+                    type="button"
+                    [disabled]="pending()"
+                    (click)="confirmDelete(club.id)"
+                  >
+                    Confirm
+                  </button>
+                  <button class="button" type="button" (click)="cancelDelete()">Cancel</button>
+                </div>
+              } @else {
+                <div class="actions">
+                  <button class="button" type="button" (click)="startEdit(club)">Edit</button>
+                  <button class="button" type="button" (click)="startDelete(club.id)">
+                    Delete
+                  </button>
+                </div>
+              }
+            </td>
+          </tr>
+          @if (editingClubId() === club.id) {
+            <tr>
+              <td colspan="3">
+                <form class="stack" (submit)="save($event, club.id)">
+                  <div class="field">
+                    <label for="edit-name">Name</label>
+                    <input id="edit-name" type="text" [formField]="editForm.name" />
+                    @if (editForm.name().touched()) {
+                      @for (message of editForm.name().errors(); track $index) {
+                        <p class="error">{{ message.message }}</p>
+                      }
+                    }
+                  </div>
+
+                  <div class="field">
+                    <label for="edit-description">Description</label>
+                    <textarea
+                      id="edit-description"
+                      rows="4"
+                      [formField]="editForm.description"
+                    ></textarea>
+                    @if (editForm.description().touched()) {
+                      @for (message of editForm.description().errors(); track $index) {
+                        <p class="error">{{ message.message }}</p>
+                      }
+                    }
+                  </div>
+
+                  <div class="field">
+                    <span class="label">Image addresses</span>
+                    @for (image of editForm.images; track $index) {
+                      <div class="image-row">
+                        <input type="text" aria-label="Image address" [formField]="image" />
+                        <button class="button" type="button" (click)="removeImage($index)">
+                          Remove
+                        </button>
+                      </div>
+                    }
+                    <div>
+                      <button class="button" type="button" (click)="addImage()">+</button>
+                    </div>
+                    @if (editForm.images().touched()) {
+                      @for (message of editForm.images().errors(); track $index) {
+                        <p class="error">{{ message.message }}</p>
+                      }
+                    }
+                  </div>
+
+                  @if (editError()) {
+                    <p class="error">{{ editError() }}</p>
+                  }
+
+                  <div class="actions">
+                    <button
+                      class="button button--primary"
+                      type="submit"
+                      [disabled]="!editForm().valid() || pending()"
+                    >
+                      Save
+                    </button>
+                    <button class="button" type="button" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          }
+        } @empty {
+          <tr>
+            <td colspan="3">You have no clubs yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
