@@ -8,6 +8,6 @@ public sealed record BlogDto(
     string Title,
     string Description,
     DateTime CreatedAt,
-    List<string> Images,
+    List<Guid> Images,
     BlogStatus Status,
     List<CommentDto> Comments);

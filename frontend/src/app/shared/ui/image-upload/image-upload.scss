@@ -1,0 +1,29 @@
+.picker {
+  display: inline-block;
+  position: relative;
+}
+
+.picker:focus-within {
+  outline: 2px solid var(--color-accent);
+}
+
+// Hidden from view but still reachable by keyboard, so the label works as the button.
+.picker input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.item {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.item img {
+  border-radius: var(--radius);
+  max-height: 6rem;
+  max-width: 8rem;
+  object-fit: cover;
+}

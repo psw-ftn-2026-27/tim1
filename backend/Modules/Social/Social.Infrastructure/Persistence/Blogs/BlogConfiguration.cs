@@ -16,6 +16,7 @@ internal static class BlogConfiguration
     {
         builder.Property(blog => blog.Title).HasMaxLength(200);
         builder.Property(blog => blog.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(blog => blog.Images).HasDefaultValueSql("'{}'");
 
         builder.HasMany(blog => blog.Comments)
             .WithOne()

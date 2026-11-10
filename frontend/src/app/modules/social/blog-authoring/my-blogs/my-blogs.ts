@@ -1,12 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { BlogDto } from '../../api/social-api-types';
 import { BlogAuthoring } from '../blog-authoring';
 
 @Component({
-  imports: [RouterLink],
+  imports: [ProtectedImage, RouterLink],
   selector: 'app-my-blogs',
   styleUrl: './my-blogs.scss',
   templateUrl: './my-blogs.html',

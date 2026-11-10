@@ -18,6 +18,7 @@
           <th scope="col">Title</th>
           <th scope="col">Status</th>
           <th scope="col">Comments</th>
+          <th scope="col">Slike</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
@@ -27,6 +28,13 @@
             <td>{{ blog.title }}</td>
             <td>{{ blog.status }}</td>
             <td>{{ blog.comments.length }}</td>
+            <td>
+              <div class="thumbnails">
+                @for (imageId of blog.images; track imageId) {
+                  <app-protected-image [src]="'/api/social/blogs/mine/' + blog.id + '/images/' + imageId" />
+                }
+              </div>
+            </td>
             <td>
               @if (blog.status === 'Draft') {
                 <button
@@ -42,7 +50,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">You have no blogs yet.</td>
+            <td colspan="5">You have no blogs yet.</td>
           </tr>
         }
       </tbody>
