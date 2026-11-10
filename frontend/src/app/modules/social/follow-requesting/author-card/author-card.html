@@ -1,0 +1,28 @@
+<article class="card stack">
+  <h3>Autor {{ author().authorId }}</h3>
+
+  <ul>
+    @for (title of author().blogTitles; track $index) {
+      <li>{{ title }}</li>
+    }
+  </ul>
+
+  @switch (author().state) {
+    @case ('NoRequest') {
+      <button
+        class="button button--primary"
+        type="button"
+        [disabled]="disabled()"
+        (click)="sendClicked.emit(author().authorId)"
+      >
+        Pošalji zahtev
+      </button>
+    }
+    @case ('RequestSent') {
+      <p class="meta">Zahtev poslat</p>
+    }
+    @case ('Following') {
+      <p class="meta">Već pratiš</p>
+    }
+  }
+</article>

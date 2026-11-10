@@ -1,0 +1,27 @@
+<div class="stack">
+  <h1>Zahtevi</h1>
+
+  <p><a routerLink="/social/people" aria-label="Pošalji novi zahtev">+</a></p>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (requests.isLoading()) {
+    <p>Učitavanje zahteva...</p>
+  } @else if (requests.error()) {
+    <p class="error">Zahtevi nisu učitani. Prijavi se i pokušaj ponovo.</p>
+  } @else {
+    <div class="grid">
+      @for (request of requests.value() ?? []; track request.id) {
+        <app-follow-request-card
+          [request]="request"
+          [disabled]="pending()"
+          (deleteClicked)="delete($event)"
+        />
+      } @empty {
+        <p>Nema poslatih zahteva.</p>
+      }
+    </div>
+  }
+</div>
