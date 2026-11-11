@@ -1,0 +1,79 @@
+.back {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.page-header {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+// Links that look like buttons: no underline, and the button's own text colour on hover.
+.new-challenge,
+.edit-link {
+  text-decoration: none;
+}
+
+.new-challenge:hover {
+  color: var(--color-accent-text);
+}
+
+.edit-link:hover {
+  color: var(--color-text);
+}
+
+// A narrow screen scrolls the table sideways instead of squeezing it.
+.table-card {
+  overflow-x: auto;
+}
+
+.column-titles th {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.name {
+  font-weight: var(--font-weight-bold);
+}
+
+.period {
+  white-space: nowrap;
+}
+
+.number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.xp {
+  color: var(--color-gold);
+  font-weight: var(--font-weight-bold);
+}
+
+.actions {
+  text-align: right;
+}
+
+.row-actions {
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.table-footer {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding-top: var(--space-4);
+}
