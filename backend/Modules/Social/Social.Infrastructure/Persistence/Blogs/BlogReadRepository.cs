@@ -39,6 +39,8 @@ internal sealed class BlogReadRepository : IBlogReadRepository
         return new PageResult<BlogDto>(items, totalCount);
     }
 
+    // Blogs that existed before LastModifiedAt was added carry 0001-01-01; they show their
+    // creation date as the last modification date, without changing the stored data.
     private static IQueryable<BlogDto> ProjectToDtos(IQueryable<Blog> blogs)
     {
         return blogs
@@ -48,7 +50,7 @@ internal sealed class BlogReadRepository : IBlogReadRepository
                 blog.Title,
                 blog.Description,
                 blog.CreatedAt,
-                blog.LastModifiedAt,
+                blog.LastModifiedAt == DateTime.MinValue ? blog.CreatedAt : blog.LastModifiedAt,
                 blog.Images,
                 blog.Status,
                 blog.Comments
