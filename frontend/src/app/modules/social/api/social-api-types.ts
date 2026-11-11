@@ -1,4 +1,4 @@
-export type BlogStatus = 'Draft' | 'Published' | 'Closed';
+export type BlogStatus = 'Draft' | 'Published' | 'Archived';
 
 export interface CommentDto {
   id: string;

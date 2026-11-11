@@ -33,6 +33,23 @@ export class MyBlogs {
     }
   }
 
+  // The blog whose row shows the archive confirmation, or null when none does.
+  protected readonly confirmingArchiveId = signal<string | null>(null);
+
+  protected async archive(blogId: string): Promise<void> {
+    this.pending.set(true);
+    this.error.set(null);
+    try {
+      await this.blogAuthoring.archive(blogId);
+      this.confirmingArchiveId.set(null);
+      this.blogs.reload();
+    } catch (failure) {
+      this.error.set(serverMessage(failure, 'Could not archive the blog.'));
+    } finally {
+      this.pending.set(false);
+    }
+  }
+
   // The server sends dates as ISO text; this shows them in the reader's local time.
   protected formatDate(value: string): string {
     return new Date(value).toLocaleString('sr-Latn');

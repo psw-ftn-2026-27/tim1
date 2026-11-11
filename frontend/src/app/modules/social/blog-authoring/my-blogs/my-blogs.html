@@ -47,7 +47,14 @@
             </td>
             <td>
               <div class="actions">
-                <a class="button" [routerLink]="['/social/mine', blog.id, 'edit']">Edit</a>
+                @if (blog.status !== 'Archived') {
+                  <a class="button" [routerLink]="['/social/mine', blog.id, 'edit']">Edit</a>
+                }
+                @if (blog.status === 'Published' && confirmingArchiveId() !== blog.id) {
+                  <button class="button" type="button" (click)="confirmingArchiveId.set(blog.id)">
+                    Archive
+                  </button>
+                }
                 @if (blog.status === 'Draft') {
                   <button
                     class="button button--primary"
@@ -59,6 +66,24 @@
                   </button>
                 }
               </div>
+              @if (confirmingArchiveId() === blog.id) {
+                <section class="stack">
+                  <p>Arhivirati blog? Posle toga ne može da se menja.</p>
+                  <div class="actions">
+                    <button
+                      class="button button--primary"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="archive(blog.id)"
+                    >
+                      Confirm
+                    </button>
+                    <button class="button" type="button" (click)="confirmingArchiveId.set(null)">
+                      Cancel
+                    </button>
+                  </div>
+                </section>
+              }
             </td>
           </tr>
         } @empty {

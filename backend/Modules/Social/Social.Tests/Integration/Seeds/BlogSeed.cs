@@ -11,6 +11,7 @@ internal static class BlogSeed
     public static readonly Blog PublishedRiverbank;
     public static readonly Blog CommentedMuseumVisit;
     public static readonly Blog PublishedSecondExplorersTrail;
+    public static readonly Blog CommentedArchivedFestival;
 
     static BlogSeed()
     {
@@ -23,7 +24,12 @@ internal static class BlogSeed
 
         PublishedSecondExplorersTrail = new(WellKnownUsers.SecondExplorer, "Staza kroz Fruškogorje", "Opis planinarske staze kroz Fruškogoru.", []);
         PublishedSecondExplorersTrail.Publish();
+
+        CommentedArchivedFestival = new(WellKnownUsers.Explorer, "Festival na tvrđavi", "Utisci sa prošlogodišnjeg festivala na Petrovaradinskoj tvrđavi.", [ImageSeed.FestivalPhotoOnArchivedBlog.Id]);
+        CommentedArchivedFestival.Publish();
+        CommentedArchivedFestival.AddComment(WellKnownUsers.Administrator, "Sjajna atmosfera!");
+        CommentedArchivedFestival.Archive();
     }
 
-    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit, PublishedSecondExplorersTrail];
+    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit, PublishedSecondExplorersTrail, CommentedArchivedFestival];
 }
