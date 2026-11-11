@@ -1,0 +1,50 @@
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.section-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+// The whole card is the link, so it keeps the normal text colour and no underline.
+.tile {
+  align-items: flex-start;
+  color: var(--color-text);
+  display: flex;
+  gap: var(--space-4);
+  text-decoration: none;
+}
+
+.tile:hover {
+  color: var(--color-text);
+}
+
+.icon {
+  align-items: center;
+  background: var(--color-warning-bg);
+  border-radius: var(--radius);
+  color: var(--color-accent);
+  display: flex;
+  flex-shrink: 0;
+  height: 3rem;
+  justify-content: center;
+  width: 3rem;
+}
+
+.tile-title {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-heading);
+  margin-bottom: var(--space-1);
+}
+
+.tile-description {
+  color: var(--color-text-muted);
+  display: block;
+  font-size: var(--font-size-sm);
+}

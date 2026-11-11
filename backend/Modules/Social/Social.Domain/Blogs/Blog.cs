@@ -41,6 +41,10 @@ public sealed class Blog : AggregateRoot
 
     public void UpdateContent(string title, string description, List<Guid>? images)
     {
+        if (Status == BlogStatus.Archived)
+        {
+            throw new DomainException("An archived blog cannot be changed.");
+        }
         EnsureValidContent(title, description, images);
 
         Title = title;
@@ -57,6 +61,16 @@ public sealed class Blog : AggregateRoot
         }
 
         Status = BlogStatus.Published;
+    }
+
+    public void Archive()
+    {
+        if (Status != BlogStatus.Published)
+        {
+            throw new DomainException("Only a published blog can be archived.");
+        }
+
+        Status = BlogStatus.Archived;
     }
 
     public void AddComment(Guid userId, string text)

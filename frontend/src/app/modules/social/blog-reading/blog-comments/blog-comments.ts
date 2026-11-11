@@ -16,6 +16,8 @@ export interface CommentEdit {
 export class BlogComments {
   readonly comments = input.required<CommentDto[]>();
   readonly currentUserId = input<string | null>(null);
+  // An archived blog shows its comments without the form and the comment buttons.
+  readonly archived = input(false);
 
   readonly addComment = output<string>();
   readonly editComment = output<CommentEdit>();

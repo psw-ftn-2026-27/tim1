@@ -25,7 +25,7 @@ public sealed class BlogReadingQueries
     public async Task<BlogDto> GetByIdAsync(Guid id)
     {
         var blog = await _blogReadRepository.GetByIdAsync(id);
-        if (blog is null || blog.Status != BlogStatus.Published)
+        if (blog is null || (blog.Status != BlogStatus.Published && blog.Status != BlogStatus.Archived))
         {
             throw new NotFoundException($"Blog {id} does not exist.");
         }
@@ -33,19 +33,19 @@ public sealed class BlogReadingQueries
         return blog;
     }
 
-    public Task<PageResult<BlogDto>> GetPublishedAsync(int page, int pageSize)
+    public Task<PageResult<BlogDto>> GetVisibleAsync(int page, int pageSize)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        return _blogReadRepository.GetPublishedAsync(page, pageSize);
+        return _blogReadRepository.GetVisibleAsync(page, pageSize);
     }
 
-    // The image must belong to this blog; otherwise a published blog's ID would open the
+    // The image must belong to this blog; otherwise a visible blog's ID would open the
     // image of any draft (P21).
-    public async Task<ImageContentDto> GetPublishedBlogImageAsync(Guid blogId, Guid imageId)
+    public async Task<ImageContentDto> GetVisibleBlogImageAsync(Guid blogId, Guid imageId)
     {
-        var file = await _imageReadRepository.GetOfPublishedBlogAsync(blogId, imageId);
+        var file = await _imageReadRepository.GetOfVisibleBlogAsync(blogId, imageId);
         if (file is null)
         {
             throw new NotFoundException($"Image {imageId} does not exist.");
