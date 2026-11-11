@@ -34,6 +34,16 @@ internal sealed class TourReadRepository : ITourReadRepository
         return new PageResult<TourDto>(items, totalCount);
     }
 
+    public Task<List<string>> GetPublishedTagsAsync()
+    {
+        return _dbContext.Tours
+            .Where(tour => tour.Status == TourStatus.Published)
+            .SelectMany(tour => tour.Tags)
+            .Distinct()
+            .OrderBy(tag => tag)
+            .ToListAsync();
+    }
+
     private static IQueryable<TourDto> ProjectToDtos(IQueryable<Tour> tours)
     {
         return tours

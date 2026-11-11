@@ -6,4 +6,5 @@ public interface ITourReadRepository
 {
     Task<List<TourDto>> GetByAuthorAsync(Guid authorId);
     Task<PageResult<TourDto>> GetPublishedAsync(int page, int pageSize);
+    Task<List<string>> GetPublishedTagsAsync();
 }
