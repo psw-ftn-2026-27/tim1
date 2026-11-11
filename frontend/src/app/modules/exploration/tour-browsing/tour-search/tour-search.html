@@ -1,0 +1,77 @@
+<div class="search">
+  <div class="field">
+    <label for="title-search">Search by title (press Enter)</label>
+    <input
+      id="title-search"
+      type="search"
+      [formField]="form.title"
+      (keydown.enter)="applyTitle()"
+    />
+  </div>
+
+  <div class="field">
+    <label for="tag-input">Tags (press Enter to add)</label>
+    <div class="tag-box">
+      @for (tag of tags(); track tag) {
+        <span class="pill">
+          {{ tag }}
+          <button
+            type="button"
+            class="pill-remove"
+            [attr.aria-label]="'Remove tag ' + tag"
+            (click)="removeTag(tag)"
+          >
+            &#10005;
+          </button>
+        </span>
+      }
+      <input id="tag-input" type="text" [formField]="form.tagInput" (keydown.enter)="addTag()" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="sort">Sort</label>
+    <select id="sort" [formField]="form.sort" (change)="emitCriteria()">
+      <option value="Newest">Newest first</option>
+      @if (selectedDifficultyCount() !== 1) {
+        <option value="DifficultyAscending">Difficulty: easy to hard</option>
+        <option value="DifficultyDescending">Difficulty: hard to easy</option>
+      }
+    </select>
+  </div>
+
+  <button type="button" class="button" (click)="toggleFilters()">
+    {{ filtersOpen() ? 'Hide filters' : 'Show filters' }}
+  </button>
+</div>
+
+@if (filtersOpen()) {
+  <section class="card filter-section">
+    <fieldset>
+      <legend>Difficulty</legend>
+      <label>
+        <input type="checkbox" [formField]="form.easy" (change)="difficultyChanged()" /> Easy
+      </label>
+      <label>
+        <input type="checkbox" [formField]="form.moderate" (change)="difficultyChanged()" />
+        Moderate
+      </label>
+      <label>
+        <input type="checkbox" [formField]="form.hard" (change)="difficultyChanged()" /> Hard
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Transport</legend>
+      <label>
+        <input type="checkbox" [formField]="form.walking" (change)="emitCriteria()" /> Walking
+      </label>
+      <label>
+        <input type="checkbox" [formField]="form.bicycle" (change)="emitCriteria()" /> Bicycle
+      </label>
+      <label>
+        <input type="checkbox" [formField]="form.car" (change)="emitCriteria()" /> Car
+      </label>
+    </fieldset>
+  </section>
+}
