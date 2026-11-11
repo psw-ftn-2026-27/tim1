@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Payment.Application.TopUpRequests;
 using Payment.Domain.TopUpRequests;
 
@@ -10,6 +11,11 @@ internal sealed class TopUpRequestRepository : ITopUpRequestRepository
     public TopUpRequestRepository(PaymentDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public Task<TopUpRequest?> GetByIdAsync(Guid id)
+    {
+        return _dbContext.TopUpRequests.FirstOrDefaultAsync(topUpRequest => topUpRequest.Id == id);
     }
 
     public void Add(TopUpRequest topUpRequest)

@@ -17,6 +17,8 @@
         <tr>
           <th scope="col">Title</th>
           <th scope="col">Status</th>
+          <th scope="col">Created</th>
+          <th scope="col">Last modified</th>
           <th scope="col">Comments</th>
           <th scope="col">Slike</th>
           <th scope="col">Actions</th>
@@ -33,6 +35,8 @@
               }
             </td>
             <td>{{ blog.status }}</td>
+            <td>{{ formatDate(blog.createdAt) }}</td>
+            <td>{{ formatDate(blog.lastModifiedAt) }}</td>
             <td>{{ blog.comments.length }}</td>
             <td>
               <div class="thumbnails">
@@ -42,16 +46,19 @@
               </div>
             </td>
             <td>
-              @if (blog.status === 'Draft') {
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="publish(blog.id)"
-                >
-                  Publish
-                </button>
-              }
+              <div class="actions">
+                <a class="button" [routerLink]="['/social/mine', blog.id, 'edit']">Edit</a>
+                @if (blog.status === 'Draft') {
+                  <button
+                    class="button button--primary"
+                    type="button"
+                    [disabled]="pending()"
+                    (click)="publish(blog.id)"
+                  >
+                    Publish
+                  </button>
+                }
+              </div>
             </td>
           </tr>
         } @empty {

@@ -1,0 +1,20 @@
+<div class="stack">
+  <h1>Probni primer mape — putanja</h1>
+  <p>Ključne tačke su probni podaci.</p>
+  <div class="field">
+    <label for="route-mode">Način kretanja</label>
+    <select id="route-mode" [formField]="form.mode">
+      <option value="Walking">Peške</option>
+      <option value="Bicycle">Biciklom</option>
+      <option value="Car">Automobilom</option>
+    </select>
+  </div>
+  <app-map [pins]="points" [routeRequest]="routeRequest()" (routeLengthKm)="lengthKm.set($event)" />
+  @if (formattedLength(); as length) {
+    <p aria-live="polite">Dužina rute: {{ length }} km</p>
+  }
+  <nav aria-label="Probni primer mape">
+    <a href="docs/map-route.html">Uputstvo za integraciju putanje</a>
+    <a routerLink="/exploration">Nazad na Exploration</a>
+  </nav>
+</div>

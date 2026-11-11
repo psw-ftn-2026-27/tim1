@@ -1,4 +1,4 @@
-namespace Payment.Application.WalletFunding;
+namespace Payment.Application.Wallets;
 
 public enum WalletRequestType
 {

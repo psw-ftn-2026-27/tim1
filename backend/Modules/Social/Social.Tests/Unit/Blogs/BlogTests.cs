@@ -106,6 +106,33 @@ public class BlogTests
     }
 
     [Fact]
+    public void Updated_blog_gets_a_new_last_modified_date_and_keeps_its_creation_date()
+    {
+        var blog = CreateBlog();
+        var createdAt = blog.CreatedAt;
+        Thread.Sleep(TimeSpan.FromMilliseconds(10));
+
+        blog.UpdateContent("Novi naslov", "Novi opis obilaska tvrđave.", []);
+
+        blog.CreatedAt.Should().Be(createdAt);
+        blog.LastModifiedAt.Should().BeAfter(createdAt);
+    }
+
+    [Fact]
+    public void Published_blog_content_is_updated()
+    {
+        var blog = CreatePublishedBlog();
+        var images = new List<Guid> { Guid.NewGuid() };
+
+        blog.UpdateContent("Novi naslov", "Novi opis obilaska tvrđave.", images);
+
+        blog.Title.Should().Be("Novi naslov");
+        blog.Description.Should().Be("Novi opis obilaska tvrđave.");
+        blog.Images.Should().Equal(images);
+        blog.Status.Should().Be(BlogStatus.Published);
+    }
+
+    [Fact]
     public void User_comments_on_a_published_blog()
     {
         var blog = CreatePublishedBlog();
