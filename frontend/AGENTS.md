@@ -119,7 +119,8 @@ construct means adding a lesson, so treat it as a platform decision.
   (`HttpInterceptorFn`, `withInterceptors`) in `core/`.
 - Forms: Signal Forms (`form()`, `FormField`, validators from
   `@angular/forms/signals`). No Reactive Forms, no template-driven forms.
-- Routing: `router-outlet`, `routerLink`, `loadChildren`, route parameters bound as
+- Routing: `router-outlet`, `routerLink`, `routerLinkActive` (marks the current section
+  in the navigation), `loadChildren`, route parameters bound as
   signal inputs via `withComponentInputBinding`; `inject(Router)` only for navigation
   after a command.
 - Platform decision, only for `shared/ui/`: `URL.createObjectURL` / `revokeObjectURL`
