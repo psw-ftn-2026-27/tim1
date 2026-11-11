@@ -48,4 +48,37 @@ public sealed class Wallet : AggregateRoot
         ReservedBalance += amount;
         _transactions.Add(new Transaction(TransactionType.Reservation, amount, AvailableBalance));
     }
+
+    public void PayOutReserved(decimal amount)
+    {
+        if (amount <= 0)
+        {
+            throw new DomainException("A payout requires an amount greater than zero.");
+        }
+
+        if (amount > ReservedBalance)
+        {
+            throw new DomainException("A payout cannot exceed the reserved balance.");
+        }
+
+        ReservedBalance -= amount;
+        _transactions.Add(new Transaction(TransactionType.Payout, amount, AvailableBalance));
+    }
+
+    public void ReturnReserved(decimal amount)
+    {
+        if (amount <= 0)
+        {
+            throw new DomainException("A returned reservation requires an amount greater than zero.");
+        }
+
+        if (amount > ReservedBalance)
+        {
+            throw new DomainException("A returned reservation cannot exceed the reserved balance.");
+        }
+
+        ReservedBalance -= amount;
+        AvailableBalance += amount;
+        _transactions.Add(new Transaction(TransactionType.ReservationReturn, amount, AvailableBalance));
+    }
 }
