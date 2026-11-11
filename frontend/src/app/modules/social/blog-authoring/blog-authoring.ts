@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { BlogDto, CreateBlogDto } from '../api/social-api-types';
+import { CreateBlogDto } from '../api/social-api-types';
 
 const BASE_URL = '/api/social/blogs';
 
@@ -9,8 +9,8 @@ const BASE_URL = '/api/social/blogs';
 export class BlogAuthoring {
   private readonly http = inject(HttpClient);
 
-  async create(dto: CreateBlogDto): Promise<BlogDto> {
-    return firstValueFrom(this.http.post<BlogDto>(BASE_URL, dto));
+  async create(dto: CreateBlogDto): Promise<string> {
+    return firstValueFrom(this.http.post<string>(BASE_URL, dto));
   }
 
   // Multipart form with the field name the controller binds (IFormFile file).

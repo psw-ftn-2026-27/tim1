@@ -48,6 +48,7 @@ internal sealed class BlogReadRepository : IBlogReadRepository
                 blog.Title,
                 blog.Description,
                 blog.CreatedAt,
+                blog.LastModifiedAt,
                 blog.Images,
                 blog.Status,
                 blog.Comments

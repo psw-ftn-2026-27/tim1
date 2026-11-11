@@ -1,7 +1,15 @@
 <article class="card stack">
   <h3>{{ blog().title }}</h3>
 
-  <p>{{ blog().description }}</p>
+  <app-blog-description [markdown]="blog().description" />
+
+  @if (blog().images.length > 0) {
+    <div class="images">
+      @for (imageId of blog().images; track imageId) {
+        <app-protected-image [src]="'/api/social/blogs/' + blog().id + '/images/' + imageId" />
+      }
+    </div>
+  }
 
   <p class="meta">Status: {{ blog().status }}</p>
 

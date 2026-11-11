@@ -24,7 +24,7 @@ public sealed class BlogAuthoringController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<BlogDto>> Create(CreateBlogDto dto)
+    public async Task<ActionResult<Guid>> Create(CreateBlogDto dto)
     {
         return await _authoringService.CreateAsync(User.GetUserId(), dto);
     }

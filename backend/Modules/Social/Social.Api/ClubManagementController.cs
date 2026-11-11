@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Api;
 using Social.Application.ClubManagement;
+using Social.Application.Clubs;
 
 namespace Social.Api;
 

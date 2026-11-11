@@ -13,6 +13,7 @@ export interface BlogDto {
   title: string;
   description: string;
   createdAt: string;
+  lastModifiedAt: string;
   images: string[];
   status: BlogStatus;
   comments: CommentDto[];

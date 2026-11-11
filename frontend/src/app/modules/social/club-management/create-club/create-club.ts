@@ -1,11 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormField, form, required, validate } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { ClubManagement } from '../club-management';
 
 @Component({
-  imports: [FormField],
+  imports: [FormField, RouterLink],
   selector: 'app-create-club',
   styleUrl: './create-club.scss',
   templateUrl: './create-club.html',

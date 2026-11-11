@@ -1,6 +1,6 @@
 using AutoMapper;
 using Social.Application.Blogs;
-using Social.Application.ClubManagement;
+using Social.Application.Clubs;
 using Social.Domain.Blogs;
 using Social.Domain.Clubs;
 

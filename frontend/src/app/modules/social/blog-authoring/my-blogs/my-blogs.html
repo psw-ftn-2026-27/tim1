@@ -25,7 +25,13 @@
       <tbody>
         @for (blog of blogs.value() ?? []; track blog.id) {
           <tr>
-            <td>{{ blog.title }}</td>
+            <td>
+              @if (blog.status === 'Published') {
+                <a [routerLink]="['/social', blog.id]">{{ blog.title }}</a>
+              } @else {
+                {{ blog.title }}
+              }
+            </td>
             <td>{{ blog.status }}</td>
             <td>{{ blog.comments.length }}</td>
             <td>
