@@ -18,6 +18,11 @@ internal sealed class TourRepository : ITourRepository
         return _dbContext.Tours.FirstOrDefaultAsync(tour => tour.Id == id);
     }
 
+    public Task<List<Tour>> GetPublishedAsync()
+    {
+        return _dbContext.Tours.Where(tour => tour.Status == TourStatus.Published).ToListAsync();
+    }
+
     public void Add(Tour tour)
     {
         _dbContext.Tours.Add(tour);
