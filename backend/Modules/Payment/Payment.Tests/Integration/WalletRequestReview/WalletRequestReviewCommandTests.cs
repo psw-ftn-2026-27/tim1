@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Payment.Application.WalletRequestReview;
+using Payment.Domain.Requests;
 using Payment.Domain.TopUpRequests;
 using Payment.Domain.Wallets;
 using Payment.Domain.WithdrawalRequests;
@@ -30,7 +31,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<PaymentDbContext>();
         var storedRequest = assertContext.TopUpRequests
             .Single(topUpRequest => topUpRequest.Id == TopUpRequestSeed.ExplorersPendingTopUp.Id);
-        storedRequest.Status.Should().Be(TopUpRequestStatus.Approved);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Approved);
         var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.ExplorersWallet.Id);
         storedWallet.AvailableBalance.Should().Be(expectedAvailableBalance);
         storedWallet.ReservedBalance.Should().Be(WalletSeed.ExplorersWallet.ReservedBalance);
@@ -53,7 +54,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<PaymentDbContext>();
         var storedRequest = assertContext.TopUpRequests
             .Single(topUpRequest => topUpRequest.Id == TopUpRequestSeed.ExplorersPendingTopUp.Id);
-        storedRequest.Status.Should().Be(TopUpRequestStatus.Rejected);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Rejected);
         storedRequest.RejectionReason.Should().Be(rejection.Reason);
         var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.ExplorersWallet.Id);
         storedWallet.AvailableBalance.Should().Be(WalletSeed.ExplorersWallet.AvailableBalance);
@@ -76,7 +77,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         var storedRequest = assertContext.WithdrawalRequests
             .Single(withdrawalRequest =>
                 withdrawalRequest.Id == WithdrawalRequestSeed.SecondExplorersPendingWithdrawal.Id);
-        storedRequest.Status.Should().Be(WithdrawalRequestStatus.Approved);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Approved);
         var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.SecondExplorersWallet.Id);
         storedWallet.AvailableBalance.Should().Be(WalletSeed.SecondExplorersWallet.AvailableBalance);
         storedWallet.ReservedBalance.Should().Be(WalletSeed.SecondExplorersWallet.ReservedBalance - paidOutAmount);
@@ -103,7 +104,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         var storedRequest = assertContext.WithdrawalRequests
             .Single(withdrawalRequest =>
                 withdrawalRequest.Id == WithdrawalRequestSeed.SecondExplorersPendingWithdrawal.Id);
-        storedRequest.Status.Should().Be(WithdrawalRequestStatus.Rejected);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Rejected);
         storedRequest.RejectionReason.Should().Be(rejection.Reason);
         var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.SecondExplorersWallet.Id);
         storedWallet.AvailableBalance.Should().Be(expectedAvailableBalance);
@@ -126,7 +127,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<PaymentDbContext>();
         var storedRequest = assertContext.TopUpRequests
             .Single(topUpRequest => topUpRequest.Id == TopUpRequestSeed.ExplorersRejectedTopUp.Id);
-        storedRequest.Status.Should().Be(TopUpRequestStatus.Rejected);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Rejected);
         storedRequest.RejectionReason.Should().Be(TopUpRequestSeed.ExplorersRejectedTopUp.RejectionReason);
         var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.ExplorersWallet.Id);
         storedWallet.AvailableBalance.Should().Be(WalletSeed.ExplorersWallet.AvailableBalance);
@@ -139,7 +140,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
         using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
         var approvedCountBefore = arrangeContext.TopUpRequests
-            .Count(topUpRequest => topUpRequest.Status == TopUpRequestStatus.Approved);
+            .Count(topUpRequest => topUpRequest.Status == WalletRequestStatus.Approved);
 
         var response = await client.PostAsync(
             $"/api/payment/wallet/requests/top-ups/{Guid.NewGuid()}/approve", null);
@@ -147,7 +148,7 @@ public class WalletRequestReviewCommandTests : BaseIntegrationTest
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         using var assertContext = Factory.CreateContext<PaymentDbContext>();
         assertContext.TopUpRequests
-            .Count(topUpRequest => topUpRequest.Status == TopUpRequestStatus.Approved)
+            .Count(topUpRequest => topUpRequest.Status == WalletRequestStatus.Approved)
             .Should().Be(approvedCountBefore);
     }
 

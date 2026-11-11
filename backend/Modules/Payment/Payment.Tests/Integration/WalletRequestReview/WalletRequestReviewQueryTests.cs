@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
+using Payment.Domain.Requests;
 using Payment.Domain.TopUpRequests;
 using Payment.Domain.WithdrawalRequests;
 using Payment.Tests.Integration.Seeds;
@@ -19,13 +20,13 @@ public class WalletRequestReviewQueryTests : BaseIntegrationTest
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
         var pendingSeedCount =
-            TopUpRequestSeed.All.Count(topUpRequest => topUpRequest.Status == TopUpRequestStatus.Pending)
+            TopUpRequestSeed.All.Count(topUpRequest => topUpRequest.Status == WalletRequestStatus.Pending)
             + WithdrawalRequestSeed.All.Count(withdrawalRequest =>
-                withdrawalRequest.Status == WithdrawalRequestStatus.Pending);
+                withdrawalRequest.Status == WalletRequestStatus.Pending);
         var decidedSeedCount =
-            TopUpRequestSeed.All.Count(topUpRequest => topUpRequest.Status != TopUpRequestStatus.Pending)
+            TopUpRequestSeed.All.Count(topUpRequest => topUpRequest.Status != WalletRequestStatus.Pending)
             + WithdrawalRequestSeed.All.Count(withdrawalRequest =>
-                withdrawalRequest.Status != WithdrawalRequestStatus.Pending);
+                withdrawalRequest.Status != WalletRequestStatus.Pending);
 
         var requests = await client.GetFromJsonAsync<WalletRequestsDto>(
             "/api/payment/wallet/requests", JsonOptions);

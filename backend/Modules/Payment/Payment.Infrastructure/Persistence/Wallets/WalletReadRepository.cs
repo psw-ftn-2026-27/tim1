@@ -2,8 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Payment.Application.WalletFunding;
 using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
-using Payment.Domain.TopUpRequests;
-using Payment.Domain.WithdrawalRequests;
+using Payment.Domain.Requests;
 
 namespace Payment.Infrastructure.Persistence.Wallets;
 
@@ -18,184 +17,94 @@ internal sealed class WalletReadRepository : IWalletReadRepository
 
     public async Task<WalletOverviewDto> GetOverviewAsync(Guid ownerId)
     {
-        var wallet = await ReadWalletAsync(ownerId);
-        if (wallet is null)
-        {
-            return new WalletOverviewDto(0, 0, [], []);
-        }
-
-        var topUps = await ReadOwnTopUpsAsync(wallet.Id);
-        var withdrawals = await ReadOwnWithdrawalsAsync(wallet.Id);
-
-        return new WalletOverviewDto(
-            wallet.AvailableBalance,
-            wallet.ReservedBalance,
-            wallet.Transactions,
-            NewestFirst([.. topUps, .. withdrawals], request => request.CreatedAt));
-    }
-
-    public async Task<WalletRequestsDto> GetRequestsAsync()
-    {
-        var topUps = await ReadTopUpReviewsAsync();
-        var withdrawals = await ReadWithdrawalReviewsAsync();
-        List<WalletRequestReviewDto> requests = [.. topUps, .. withdrawals];
-
-        return new WalletRequestsDto(
-            NewestFirst(WithStatus(requests, pending: true), request => request.CreatedAt),
-            NewestFirst(WithStatus(requests, pending: false), request => request.CreatedAt));
-    }
-
-    private Task<WalletSnapshot?> ReadWalletAsync(Guid ownerId)
-    {
-        return _dbContext.Wallets
+        var wallet = await _dbContext.Wallets
             .Where(wallet => wallet.OwnerId == ownerId)
-            .Select(wallet => new WalletSnapshot(
+            .Select(wallet => new
+            {
                 wallet.Id,
                 wallet.AvailableBalance,
                 wallet.ReservedBalance,
-                wallet.Transactions
+                Transactions = wallet.Transactions
                     .OrderByDescending(transaction => transaction.OccurredAt)
                     .Select(transaction => new WalletTransactionDto(
                         transaction.OccurredAt,
                         transaction.Type,
                         transaction.Amount,
                         transaction.BalanceAfter))
-                    .ToList()))
+                    .ToList()
+            })
             .FirstOrDefaultAsync();
-    }
 
-    private async Task<List<WalletRequestDto>> ReadOwnTopUpsAsync(Guid walletId)
-    {
-        var rows = await _dbContext.TopUpRequests
-            .Where(topUpRequest => topUpRequest.WalletId == walletId)
-            .Select(topUpRequest => new
-            {
-                topUpRequest.Id,
-                topUpRequest.Amount,
-                topUpRequest.CreatedAt,
-                topUpRequest.Status,
-                topUpRequest.RejectionReason
-            })
+        if (wallet is null)
+        {
+            return new WalletOverviewDto(0, 0, [], []);
+        }
+
+        var topUps = await _dbContext.TopUpRequests
+            .Where(request => request.WalletId == wallet.Id)
+            .Select(request => new WalletRequestDto(
+                request.Id,
+                WalletRequestType.TopUp,
+                request.Amount,
+                request.Status,
+                request.CreatedAt,
+                request.RejectionReason))
             .ToListAsync();
 
-        return [.. rows.Select(row => new WalletRequestDto(
-            row.Id,
-            WalletRequestType.TopUp,
-            row.Amount,
-            ToWalletRequestStatus(row.Status),
-            row.CreatedAt,
-            row.RejectionReason))];
-    }
-
-    private async Task<List<WalletRequestDto>> ReadOwnWithdrawalsAsync(Guid walletId)
-    {
-        var rows = await _dbContext.WithdrawalRequests
-            .Where(withdrawalRequest => withdrawalRequest.WalletId == walletId)
-            .Select(withdrawalRequest => new
-            {
-                withdrawalRequest.Id,
-                withdrawalRequest.Amount,
-                withdrawalRequest.CreatedAt,
-                withdrawalRequest.Status,
-                withdrawalRequest.RejectionReason
-            })
+        var withdrawals = await _dbContext.WithdrawalRequests
+            .Where(request => request.WalletId == wallet.Id)
+            .Select(request => new WalletRequestDto(
+                request.Id,
+                WalletRequestType.Withdrawal,
+                request.Amount,
+                request.Status,
+                request.CreatedAt,
+                request.RejectionReason))
             .ToListAsync();
 
-        return [.. rows.Select(row => new WalletRequestDto(
-            row.Id,
-            WalletRequestType.Withdrawal,
-            row.Amount,
-            ToWalletRequestStatus(row.Status),
-            row.CreatedAt,
-            row.RejectionReason))];
+        return new WalletOverviewDto(
+            wallet.AvailableBalance,
+            wallet.ReservedBalance,
+            wallet.Transactions,
+            [.. topUps.Concat(withdrawals).OrderByDescending(request => request.CreatedAt)]);
     }
 
-    private async Task<List<WalletRequestReviewDto>> ReadTopUpReviewsAsync()
+    public async Task<WalletRequestsDto> GetRequestsAsync()
     {
-        var rows = await _dbContext.TopUpRequests
+        var topUps = await _dbContext.TopUpRequests
             .Join(
                 _dbContext.Wallets,
-                topUpRequest => topUpRequest.WalletId,
+                request => request.WalletId,
                 wallet => wallet.Id,
-                (topUpRequest, wallet) => new
-                {
-                    topUpRequest.Id,
+                (request, wallet) => new WalletRequestReviewDto(
+                    request.Id,
+                    WalletRequestType.TopUp,
                     wallet.OwnerId,
-                    topUpRequest.Amount,
-                    topUpRequest.CreatedAt,
-                    topUpRequest.Status,
-                    topUpRequest.RejectionReason
-                })
+                    request.Amount,
+                    request.CreatedAt,
+                    request.Status,
+                    request.RejectionReason))
             .ToListAsync();
 
-        return [.. rows.Select(row => new WalletRequestReviewDto(
-            row.Id,
-            WalletRequestType.TopUp,
-            row.OwnerId,
-            row.Amount,
-            row.CreatedAt,
-            ToWalletRequestStatus(row.Status),
-            row.RejectionReason))];
-    }
-
-    private async Task<List<WalletRequestReviewDto>> ReadWithdrawalReviewsAsync()
-    {
-        var rows = await _dbContext.WithdrawalRequests
+        var withdrawals = await _dbContext.WithdrawalRequests
             .Join(
                 _dbContext.Wallets,
-                withdrawalRequest => withdrawalRequest.WalletId,
+                request => request.WalletId,
                 wallet => wallet.Id,
-                (withdrawalRequest, wallet) => new
-                {
-                    withdrawalRequest.Id,
+                (request, wallet) => new WalletRequestReviewDto(
+                    request.Id,
+                    WalletRequestType.Withdrawal,
                     wallet.OwnerId,
-                    withdrawalRequest.Amount,
-                    withdrawalRequest.CreatedAt,
-                    withdrawalRequest.Status,
-                    withdrawalRequest.RejectionReason
-                })
+                    request.Amount,
+                    request.CreatedAt,
+                    request.Status,
+                    request.RejectionReason))
             .ToListAsync();
 
-        return [.. rows.Select(row => new WalletRequestReviewDto(
-            row.Id,
-            WalletRequestType.Withdrawal,
-            row.OwnerId,
-            row.Amount,
-            row.CreatedAt,
-            ToWalletRequestStatus(row.Status),
-            row.RejectionReason))];
+        var requests = topUps.Concat(withdrawals).OrderByDescending(request => request.CreatedAt);
+
+        return new WalletRequestsDto(
+            [.. requests.Where(request => request.Status == WalletRequestStatus.Pending)],
+            [.. requests.Where(request => request.Status != WalletRequestStatus.Pending)]);
     }
-
-    private static List<WalletRequestReviewDto> WithStatus(
-        List<WalletRequestReviewDto> requests,
-        bool pending)
-    {
-        return [.. requests.Where(request =>
-            (request.Status == WalletRequestStatus.Pending) == pending)];
-    }
-
-    private static List<T> NewestFirst<T>(List<T> items, Func<T, DateTime> createdAt)
-    {
-        return [.. items.OrderByDescending(createdAt)];
-    }
-
-    private static WalletRequestStatus ToWalletRequestStatus(TopUpRequestStatus status) => status switch
-    {
-        TopUpRequestStatus.Pending => WalletRequestStatus.Pending,
-        TopUpRequestStatus.Approved => WalletRequestStatus.Approved,
-        _ => WalletRequestStatus.Rejected
-    };
-
-    private static WalletRequestStatus ToWalletRequestStatus(WithdrawalRequestStatus status) => status switch
-    {
-        WithdrawalRequestStatus.Pending => WalletRequestStatus.Pending,
-        WithdrawalRequestStatus.Approved => WalletRequestStatus.Approved,
-        _ => WalletRequestStatus.Rejected
-    };
-
-    private sealed record WalletSnapshot(
-        Guid Id,
-        decimal AvailableBalance,
-        decimal ReservedBalance,
-        List<WalletTransactionDto> Transactions);
 }

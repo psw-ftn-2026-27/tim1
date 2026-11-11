@@ -1,4 +1,4 @@
-namespace Payment.Application.Wallets;
+namespace Payment.Domain.Requests;
 
 public enum WalletRequestStatus
 {

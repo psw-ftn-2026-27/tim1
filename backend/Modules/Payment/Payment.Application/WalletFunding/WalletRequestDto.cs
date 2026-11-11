@@ -1,4 +1,5 @@
 using Payment.Application.Wallets;
+using Payment.Domain.Requests;
 
 namespace Payment.Application.WalletFunding;
 

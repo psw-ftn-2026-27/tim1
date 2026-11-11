@@ -1,3 +1,4 @@
+using Payment.Domain.Requests;
 using Shared.Domain;
 using Shared.Domain.Exceptions;
 
@@ -7,7 +8,7 @@ public sealed class WithdrawalRequest : AggregateRoot
 {
     public Guid WalletId { get; private set; }
     public decimal Amount { get; private set; }
-    public WithdrawalRequestStatus Status { get; private set; }
+    public WalletRequestStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public string? RejectionReason { get; private set; }
 
@@ -22,23 +23,23 @@ public sealed class WithdrawalRequest : AggregateRoot
 
         WalletId = walletId;
         Amount = amount;
-        Status = WithdrawalRequestStatus.Pending;
+        Status = WalletRequestStatus.Pending;
         CreatedAt = DateTime.UtcNow;
     }
 
     public void Approve()
     {
-        if (Status != WithdrawalRequestStatus.Pending)
+        if (Status != WalletRequestStatus.Pending)
         {
             throw new DomainException("A withdrawal request that has been decided cannot be decided again.");
         }
 
-        Status = WithdrawalRequestStatus.Approved;
+        Status = WalletRequestStatus.Approved;
     }
 
     public void Reject(string reason)
     {
-        if (Status != WithdrawalRequestStatus.Pending)
+        if (Status != WalletRequestStatus.Pending)
         {
             throw new DomainException("A withdrawal request that has been decided cannot be decided again.");
         }
@@ -48,7 +49,7 @@ public sealed class WithdrawalRequest : AggregateRoot
             throw new DomainException("A rejected withdrawal request requires a reason.");
         }
 
-        Status = WithdrawalRequestStatus.Rejected;
+        Status = WalletRequestStatus.Rejected;
         RejectionReason = reason;
     }
 }
