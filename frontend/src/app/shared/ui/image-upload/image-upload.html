@@ -1,0 +1,26 @@
+<div class="stack">
+  <!-- The label opens the browser's own file picker; the input inside it stays invisible. -->
+  <label class="button picker">
+    Dodaj slike
+    <input type="file" multiple [accept]="accept" (change)="choose($event)" />
+  </label>
+
+  @for (item of items(); track item.key) {
+    <div class="item">
+      @if (item.previewUrl) {
+        <img [src]="item.previewUrl" [alt]="item.name" />
+      }
+      <div class="stack">
+        <p class="meta">{{ item.name }}</p>
+        @if (item.state === 'sending') {
+          <p class="meta">Slanje…</p>
+        } @else {
+          @if (item.state === 'rejected') {
+            <p class="error">{{ item.message }}</p>
+          }
+          <button class="button" type="button" (click)="remove(item.key)">Ukloni</button>
+        }
+      </div>
+    </div>
+  }
+</div>

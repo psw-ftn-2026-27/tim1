@@ -34,6 +34,8 @@ frontend/src/
       util/
       api/                   shared types (PageResult, ProblemDetails),
                              mirror the server, no client-only fields          [platform]
+      ui/                    shared components any module may use: image-upload,
+                             protected-image; nothing else without a decision   [platform]
     modules/
       <name>/
         api/                 this module's DTO types, mirror the server, no client-only fields
@@ -120,6 +122,10 @@ construct means adding a lesson, so treat it as a platform decision.
 - Routing: `router-outlet`, `routerLink`, `loadChildren`, route parameters bound as
   signal inputs via `withComponentInputBinding`; `inject(Router)` only for navigation
   after a command.
+- Platform decision, only for `shared/ui/`: `URL.createObjectURL` / `revokeObjectURL`
+  (local preview, protected image), `ngOnDestroy` (to revoke what the component created)
+  and one `effect()` in `protected-image`. Feature modules use the components, not the
+  constructs.
 - No RxJS in student code. `Observable` appears only as the return type of `HttpClient`
   writes, immediately awaited. No NgRx, no facades.
 
@@ -139,8 +145,8 @@ Where a style goes, in order:
 3. Everything else: the component's own `.scss`, under default (emulated) encapsulation.
    Never `::ng-deep`.
 
-Do not hand-roll a design system, do not add utility-class frameworks, do not introduce
-`shared/ui` wrappers unprompted. Visual consistency across modules is an open problem
+Do not hand-roll a design system, do not add utility-class frameworks, do not add styling
+wrappers to `shared/ui/` unprompted. Visual consistency across modules is an open problem
 assigned to the platform team, and misalignment is an accepted learning experience.
 
 ## Conventions
@@ -158,5 +164,13 @@ assigned to the platform team, and misalignment is an accepted learning experien
 - A page component owns the interaction: it declares its read resource, injects its
   group's service for commands, and passes plain values down to presentational
   components, which take `input()`s and raise `output()`s and inject nothing.
+- A presentational component may take a function input that runs a command of the page's
+  group service: `[upload]="uploadImage"`, with `uploadImage = (file: File) =>
+  this.blogAuthoring.uploadImage(file)` in the page. The command stays in the module; the
+  component only calls it.
+- The one exception to "inject nothing": a shared component in `shared/ui/` that reads
+  protected content (`protected-image`) fetches it itself with `httpResource`, because a
+  plain `<img src>` sends no token. The page passes only the address; the server decides
+  who may see it. No component in a feature module takes this exception.
 - Do not produce Vitest tests unless specifically instructed. Frontend testing is not
   taught; it is a platform-team assignment.

@@ -8,9 +8,12 @@ using Social.Application.BlogReading;
 using Social.Application.Blogs;
 using Social.Application.FollowRequesting;
 using Social.Application.FollowRequests;
+using Social.Application.Images;
+using Social.Infrastructure.Images;
 using Social.Infrastructure.Persistence;
 using Social.Infrastructure.Persistence.Blogs;
 using Social.Infrastructure.Persistence.FollowRequests;
+using Social.Infrastructure.Persistence.Images;
 
 namespace Social.Infrastructure;
 
@@ -25,6 +28,10 @@ public static class SocialModuleExtensions
         services.AddScoped<IBlogRepository, BlogRepository>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<SocialDbContext>());
         services.AddScoped<IBlogReadRepository, BlogReadRepository>();
+        services.AddScoped<IImageRepository, ImageRepository>();
+        services.AddScoped<IImageReadRepository, ImageReadRepository>();
+        services.AddSingleton<IImageProcessor, ImageProcessorAdapter>();
+        services.AddSingleton<IImageStorage, ImageStorageAdapter>();
 
         services.AddScoped<IFollowRequestRepository, FollowRequestRepository>();
         services.AddScoped<IFollowRequestReadRepository, FollowRequestReadRepository>();
