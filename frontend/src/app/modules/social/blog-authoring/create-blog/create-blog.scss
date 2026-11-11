@@ -2,3 +2,9 @@
   margin-inline: auto;
   max-width: 32rem;
 }
+
+// Looks like the other field labels; a <label> needs one control, and "Slike" has several.
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

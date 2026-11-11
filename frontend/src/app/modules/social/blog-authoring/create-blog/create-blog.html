@@ -22,11 +22,20 @@
       }
     </div>
 
+    <div class="field">
+      <span class="label">Slike</span>
+      <app-image-upload
+        [upload]="uploadImage"
+        (imageIds)="imageIds.set($event)"
+        (sending)="imagesSending.set($event)"
+      />
+    </div>
+
     @if (error()) {
       <p class="error">{{ error() }}</p>
     }
 
-    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending() || imagesSending()">
       Create
     </button>
   </form>

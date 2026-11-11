@@ -60,4 +60,39 @@ public class BlogReadingQueryTests : BaseIntegrationTest
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task Signed_in_user_gets_an_image_of_a_published_blog()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var response = await client.GetAsync(
+            $"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/images/{ImageSeed.RiverbankPhotoOnPublishedBlog.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("image/webp");
+        (await response.Content.ReadAsByteArrayAsync()).Should().Equal(SocialApiFactory.SeededImageContent);
+    }
+
+    [Fact]
+    public async Task Image_that_does_not_belong_to_the_published_blog_cannot_be_read()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.GetAsync(
+            $"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/images/{ImageSeed.OldFortressPhotoOnDraft.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Image_of_a_draft_blog_cannot_be_read()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.GetAsync(
+            $"/api/social/blogs/{BlogSeed.FortressImpressions.Id}/images/{ImageSeed.OldFortressPhotoOnDraft.Id}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }

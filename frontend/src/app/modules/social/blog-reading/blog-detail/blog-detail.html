@@ -15,6 +15,10 @@
 
       <p>{{ blog.description }}</p>
 
+      @for (imageId of blog.images; track imageId) {
+        <app-protected-image [src]="'/api/social/blogs/' + blog.id + '/images/' + imageId" />
+      }
+
       <p class="meta">Status: {{ blog.status }}</p>
 
       <app-blog-comments

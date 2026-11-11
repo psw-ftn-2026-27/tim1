@@ -5,11 +5,13 @@ namespace Social.Domain.Blogs;
 
 public sealed class Blog : AggregateRoot
 {
+    public const int MaxImages = 20;
+
     public Guid AuthorId { get; private set; }
     public string Title { get; private set; }
     public string Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
-    public List<string> Images { get; private set; }
+    public List<Guid> Images { get; private set; }
     public BlogStatus Status { get; private set; }
     private readonly List<Comment> _comments = [];
     public IReadOnlyList<Comment> Comments => _comments;
@@ -21,7 +23,7 @@ public sealed class Blog : AggregateRoot
         Images = null!;
     }
 
-    public Blog(Guid authorId, string title, string description, List<string>? images)
+    public Blog(Guid authorId, string title, string description, List<Guid>? images)
         : base(Guid.NewGuid())
     {
         if (string.IsNullOrWhiteSpace(title))
@@ -31,6 +33,10 @@ public sealed class Blog : AggregateRoot
         if (string.IsNullOrWhiteSpace(description))
         {
             throw new DomainException("A blog requires a description.");
+        }
+        if (images is not null && images.Count > MaxImages)
+        {
+            throw new DomainException($"A blog can have at most {MaxImages} images.");
         }
 
         AuthorId = authorId;
