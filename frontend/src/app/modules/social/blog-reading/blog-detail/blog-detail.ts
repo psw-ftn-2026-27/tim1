@@ -2,13 +2,14 @@ import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
+import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { BlogDto } from '../../api/social-api-types';
 import { BlogComments, CommentEdit } from '../blog-comments/blog-comments';
 import { BlogReading } from '../blog-reading';
 
 @Component({
-  imports: [BlogComments, RouterLink],
+  imports: [BlogComments, ProtectedImage, RouterLink],
   selector: 'app-blog-detail',
   styleUrl: './blog-detail.scss',
   templateUrl: './blog-detail.html',

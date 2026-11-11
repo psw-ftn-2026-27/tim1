@@ -29,4 +29,12 @@ public sealed class BlogReadingController : ControllerBase
     {
         return await _readingQueries.GetByIdAsync(id);
     }
+
+    // Returns the image file itself (image/webp), not a JSON DTO.
+    [HttpGet("{blogId:guid}/images/{imageId:guid}")]
+    public async Task<ActionResult> GetPublishedBlogImage(Guid blogId, Guid imageId)
+    {
+        var image = await _readingQueries.GetPublishedBlogImageAsync(blogId, imageId);
+        return File(image.Content, image.ContentType);
+    }
 }

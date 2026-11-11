@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Api;
 using Social.Application.BlogAuthoring;
@@ -28,6 +29,15 @@ public sealed class BlogAuthoringController : ControllerBase
         return await _authoringService.CreateAsync(User.GetUserId(), dto);
     }
 
+    // The request body limit is global (Host.Api), so this endpoint needs no size attribute;
+    // the shared image processor checks the file size again while reading it.
+    [HttpPost("images")]
+    public async Task<ActionResult<Guid>> UploadImage(IFormFile file)
+    {
+        await using var content = file.OpenReadStream();
+        return await _authoringService.UploadImageAsync(User.GetUserId(), content);
+    }
+
     [HttpPost("{id:guid}/publish")]
     public async Task<ActionResult> Publish(Guid id)
     {
@@ -39,5 +49,13 @@ public sealed class BlogAuthoringController : ControllerBase
     public async Task<ActionResult<List<BlogDto>>> GetMine()
     {
         return await _authoringQueries.GetByAuthorAsync(User.GetUserId());
+    }
+
+    // Returns the image file itself (image/webp), not a JSON DTO.
+    [HttpGet("mine/{blogId:guid}/images/{imageId:guid}")]
+    public async Task<ActionResult> GetOwnBlogImage(Guid blogId, Guid imageId)
+    {
+        var image = await _authoringQueries.GetOwnBlogImageAsync(blogId, imageId, User.GetUserId());
+        return File(image.Content, image.ContentType);
     }
 }
