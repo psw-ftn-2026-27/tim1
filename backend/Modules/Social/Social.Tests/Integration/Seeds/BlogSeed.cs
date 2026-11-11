@@ -10,6 +10,7 @@ internal static class BlogSeed
     public static readonly Blog SecondExplorersDiary = new(WellKnownUsers.SecondExplorer, "Tuđi dnevnik", "Beleške drugog autora, vidljive samo njemu.", []);
     public static readonly Blog PublishedRiverbank;
     public static readonly Blog CommentedMuseumVisit;
+    public static readonly Blog PublishedSecondExplorersTrail;
 
     static BlogSeed()
     {
@@ -19,7 +20,10 @@ internal static class BlogSeed
         CommentedMuseumVisit = new(WellKnownUsers.Explorer, "Poseta muzeju", "Utisci sa stalne postavke Muzeja Vojvodine.", []);
         CommentedMuseumVisit.Publish();
         CommentedMuseumVisit.AddComment(WellKnownUsers.Administrator, "Odlična preporuka!");
+
+        PublishedSecondExplorersTrail = new(WellKnownUsers.SecondExplorer, "Staza kroz Fruškogorje", "Opis planinarske staze kroz Fruškogoru.", []);
+        PublishedSecondExplorersTrail.Publish();
     }
 
-    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit];
+    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit, PublishedSecondExplorersTrail];
 }

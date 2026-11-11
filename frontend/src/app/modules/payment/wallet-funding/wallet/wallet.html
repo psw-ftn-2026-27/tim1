@@ -1,0 +1,96 @@
+<div class="stack">
+  <h1>Wallet</h1>
+
+  @if (wallet.isLoading()) {
+    <p>Loading your wallet...</p>
+  } @else if (wallet.error()) {
+    <p class="error">Could not load your wallet. Log in and try again.</p>
+  } @else {
+    <div class="card balances">
+      <div>
+        <p class="meta">Available</p>
+        <p class="balance">{{ wallet.value()?.availableBalance ?? 0 }} RSD</p>
+      </div>
+      <div>
+        <p class="meta">Reserved</p>
+        <p class="balance">{{ wallet.value()?.reservedBalance ?? 0 }} RSD</p>
+      </div>
+    </div>
+
+    <h2>Transactions</h2>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Time</th>
+          <th scope="col">Type</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Balance after</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (transaction of wallet.value()?.transactions ?? []; track $index) {
+          <tr>
+            <td>{{ transaction.occurredAt }}</td>
+            <td>{{ transaction.type }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>{{ transaction.balanceAfter }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">You have no transactions yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <h2>Requests</h2>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Submitted</th>
+          <th scope="col">Kind</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of wallet.value()?.requests ?? []; track request.id) {
+          <tr>
+            <td>{{ request.createdAt }}</td>
+            <td>{{ request.type }}</td>
+            <td>{{ request.amount }}</td>
+            <td>{{ statusLabel(request.status) }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">You have no requests yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <h2>Top up</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <form class="card stack" (submit)="requestTopUp($event)">
+    <div class="field">
+      <label for="amount">Amount in RSD</label>
+      <input id="amount" type="number" [formField]="form.amount" />
+      @if (form.amount().touched()) {
+        @for (message of form.amount().errors(); track $index) {
+          <p class="error">{{ message.message }}</p>
+        }
+      }
+    </div>
+
+    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+      Request top-up
+    </button>
+  </form>
+</div>

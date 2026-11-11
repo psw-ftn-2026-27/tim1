@@ -1,0 +1,13 @@
+.balances {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.balance {
+  font-size: var(--font-size-xl);
+  margin: 0;
+}
+
+form {
+  max-width: 20rem;
+}
