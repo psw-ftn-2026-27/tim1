@@ -1,4 +1,22 @@
 <div class="map" role="region" aria-label="Geografska mapa"></div>
 @if (tileLoadFailed()) {
-  <p role="status">Podloga mape nije mogla da se učita. Pokušajte ponovo kasnije.</p>
+  <p class="error" role="status">Podloga mape nije mogla da se učita. Pokušajte ponovo kasnije.</p>
+}
+@switch (routeStatus()) {
+  @case ('loading') {
+    <p role="status">Tražimo rutu…</p>
+  }
+  @case ('not-found') {
+    <p role="status">Nije pronađena ruta kroz zadate tačke za izabrani način kretanja.</p>
+  }
+  @case ('error') {
+    <p class="error" role="status">Ruta nije mogla da se učita. Pokušajte ponovo kasnije.</p>
+  }
+}
+@if (routeRequest()) {
+  <small>
+    Rutiranje: <a href="https://routing.openstreetmap.de/about.html">FOSSGIS OSRM</a>, ©
+    <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> ·
+    <a href="https://www.openstreetmap.org/fixthemap">Ispravi mapu</a>
+  </small>
 }
