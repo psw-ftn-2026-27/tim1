@@ -19,7 +19,7 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
     public async Task Explorer_creates_a_draft_tour()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Hard, ["planina"]);
+        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Hard, ["planina"], new GroupSizeDto(2, 10));
         using var arrangeContext = Factory.CreateContext<ExplorationDbContext>();
         var tourCountBefore = arrangeContext.Tours.Count();
 
@@ -28,18 +28,21 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var created = await response.Content.ReadFromJsonAsync<TourDto>(JsonOptions);
         created!.AuthorId.Should().Be(WellKnownUsers.Explorer);
+        created.GroupSize.Should().Be(new GroupSizeDto(2, 10));
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
         assertContext.Tours.Count().Should().Be(tourCountBefore + 1);
         var stored = assertContext.Tours.Single(tour => tour.Id == created.Id);
         stored.Status.Should().Be(TourStatus.Draft);
         stored.TransportTimes.Should().BeEmpty();
+        stored.GroupSize.Min.Should().Be(2);
+        stored.GroupSize.Max.Should().Be(10);
     }
 
     [Fact]
     public async Task Explorer_cannot_create_a_tour_without_a_name()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new CreateTourDto("   ", "Opis nove ture.", TourDifficulty.Easy, ["planina"]);
+        var request = new CreateTourDto("   ", "Opis nove ture.", TourDifficulty.Easy, ["planina"], new GroupSizeDto(1, 10));
         using var arrangeContext = Factory.CreateContext<ExplorationDbContext>();
         var tourCountBefore = arrangeContext.Tours.Count();
 
@@ -54,7 +57,7 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
     public async Task Anonymous_user_cannot_create_a_tour()
     {
         var client = Factory.CreateClient();
-        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Easy, ["planina"]);
+        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Easy, ["planina"], new GroupSizeDto(1, 10));
 
         var response = await client.PostAsJsonAsync("/api/exploration/tours", request);
 
@@ -65,7 +68,7 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
     public async Task Administrator_cannot_create_a_tour()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
-        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Easy, ["planina"]);
+        var request = new CreateTourDto("Nova tura", "Opis nove ture.", TourDifficulty.Easy, ["planina"], new GroupSizeDto(1, 10));
 
         var response = await client.PostAsJsonAsync("/api/exploration/tours", request);
 
@@ -91,8 +94,9 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
     public async Task Tour_is_published_when_all_rules_are_met()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new PublishTourDto(50);
 
-        var response = await client.PostAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", null);
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
@@ -102,15 +106,53 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Tour_cannot_be_published_with_an_invalid_price()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new PublishTourDto(-10);
+
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<ExplorationDbContext>();
+        var stored = assertContext.Tours.Single(tour => tour.Id == TourSeed.PublishableRiverside.Id);
+        stored.Status.Should().Be(TourStatus.Draft);
+        stored.PublishedAt.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Explorer_cannot_publish_another_authors_tour()
     {
         var client = Factory.CreateClientFor(Guid.NewGuid(), "explorer");
+        var request = new PublishTourDto(0);
 
-        var response = await client.PostAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", null);
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
         var stored = assertContext.Tours.Single(tour => tour.Id == TourSeed.PublishableRiverside.Id);
         stored.Status.Should().Be(TourStatus.Draft);
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_publish_a_tour()
+    {
+        var client = Factory.CreateClient();
+        var request = new PublishTourDto(50);
+
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_publish_a_tour()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        var request = new PublishTourDto(50);
+
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }

@@ -38,19 +38,19 @@ internal sealed class ExplorationModuleInitializer : IHostedService
     {
         var fortress = new Tour(FirstExplorer, "Šetnja Petrovaradinskom tvrđavom",
             "Šetnja počinje na Gornjem platou Petrovaradinske tvrđave, vodi pored Sahat kule i podzemnih vojnih galerija, a završava se pogledom na Dunav i stari deo Novog Sada.",
-            TourDifficulty.Easy, ["istorija", "priroda"]);
+            TourDifficulty.Easy, ["istorija", "priroda"], new GroupSize(1, 15));
         fortress.AddTransportTime(TransportMode.Walking, 120);
-        fortress.Publish();
+        fortress.Publish(0);
 
         var fruskaGora = new Tour(FirstExplorer, "Biciklom preko Fruške gore",
             "Ruta vodi od Sremske Kamenice preko Popovice do Iriškog venca, pored manastira Beočin i vidikovaca sa kojih se vidi ceo Srem, uz nekoliko dužih uspona.",
-            TourDifficulty.Hard, ["biciklizam", "planina"]);
+            TourDifficulty.Hard, ["biciklizam", "planina"], new GroupSize(2, 8));
         fruskaGora.AddTransportTime(TransportMode.Bicycle, 240);
-        fruskaGora.Publish();
+        fruskaGora.Publish(0);
 
         var cityCenter = new Tour(FirstExplorer, "Obilazak centra grada",
             "Kratak obilazak Trga slobode, Dunavske ulice i Dunavskog parka.",
-            TourDifficulty.Moderate, ["grad"]);
+            TourDifficulty.Moderate, ["grad"], new GroupSize(1, 20));
 
         return [fortress, fruskaGora, cityCenter];
     }

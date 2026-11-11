@@ -9,9 +9,10 @@ namespace Exploration.Tests.Unit.Tours;
 public class TourTests
 {
     private static readonly string LongDescription = new('o', 100);
+    private static readonly GroupSize DefaultGroupSize = new(1, 10);
 
     private static Tour CreateTour(string description) =>
-        new(WellKnownUsers.Explorer, "Šetnja tvrđavom", description, TourDifficulty.Easy, ["istorija"]);
+        new(WellKnownUsers.Explorer, "Šetnja tvrđavom", description, TourDifficulty.Easy, ["istorija"], DefaultGroupSize);
 
     [Fact]
     public void New_tour_starts_as_a_draft()
@@ -28,7 +29,7 @@ public class TourTests
     [InlineData("   ")]
     public void New_tour_requires_a_name(string name)
     {
-        var creation = () => new Tour(WellKnownUsers.Explorer, name, "Opis ture.", TourDifficulty.Easy, ["istorija"]);
+        var creation = () => new Tour(WellKnownUsers.Explorer, name, "Opis ture.", TourDifficulty.Easy, ["istorija"], DefaultGroupSize);
 
         creation.Should().Throw<DomainException>();
     }
@@ -46,7 +47,7 @@ public class TourTests
     [Fact]
     public void New_tour_requires_tags()
     {
-        var creation = () => new Tour(WellKnownUsers.Explorer, "Šetnja tvrđavom", "Opis ture.", TourDifficulty.Easy, []);
+        var creation = () => new Tour(WellKnownUsers.Explorer, "Šetnja tvrđavom", "Opis ture.", TourDifficulty.Easy, [], DefaultGroupSize);
 
         creation.Should().Throw<DomainException>();
     }
@@ -74,16 +75,29 @@ public class TourTests
         addition.Should().Throw<DomainException>();
     }
 
-    [Fact]
-    public void Tour_is_published_when_all_rules_are_met()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(50)]
+    public void Tour_is_published_when_all_rules_are_met(int price)
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Bicycle, 45);
 
-        tour.Publish();
+        tour.Publish(price);
 
         tour.Status.Should().Be(TourStatus.Published);
         tour.PublishedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Tour_with_a_negative_price_cannot_be_published()
+    {
+        var tour = CreateTour(LongDescription);
+        tour.AddTransportTime(TransportMode.Walking, 120);
+
+        var publishing = () => tour.Publish(-10);
+
+        publishing.Should().Throw<DomainException>();
     }
 
     [Fact]
@@ -92,7 +106,7 @@ public class TourTests
         var tour = CreateTour("Kratak opis.");
         tour.AddTransportTime(TransportMode.Walking, 120);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
@@ -102,7 +116,7 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
@@ -112,9 +126,9 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Car, 30);
-        tour.Publish();
+        tour.Publish(0);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
