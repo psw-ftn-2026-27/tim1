@@ -15,4 +15,6 @@ backend, which is expected on `http://localhost:5000`.
 ## Deljena mapa
 
 - [Uputstvo za integraciju pinova](public/docs/map-pins.html)
+- [Uputstvo za integraciju putanje](public/docs/map-route.html)
 - Otvori `/games` i izaberi „Probni primer mape — pinovi“.
+- Otvori `/exploration` i izaberi „Probni primer mape — putanja“.

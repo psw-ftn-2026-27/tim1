@@ -1,15 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Marker, Polyline, map } from 'leaflet';
-import type { Map as LeafletMap } from 'leaflet';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Map, MapPin } from './map';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Map as LeafletMap, Marker, Polyline, SVG } from 'leaflet';
+import { Map, MapPin, MapRouteRequest } from './map';
+import { MapRouting } from './map-routing';
 
-vi.mock(import('leaflet'), async (importOriginal) => {
-  const leaflet = await importOriginal();
-  return { ...leaflet, map: vi.fn(leaflet.map) };
-});
+type RouteResult = NonNullable<Awaited<ReturnType<MapRouting['findRoute']>>>;
 
-describe('Prikaz zadatih pinova', () => {
+function deferredRoute() {
+  let resolve!: (route: RouteResult) => void;
+  let reject!: (error: Error) => void;
+  const promise = new Promise<RouteResult>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+describe('Mapa', () => {
   const pins: readonly MapPin[] = [
     { latitude: 45.2551, longitude: 19.8448 },
     { latitude: 45.2572, longitude: 19.8512 },
@@ -17,6 +24,25 @@ describe('Prikaz zadatih pinova', () => {
   ];
   let fixture: ComponentFixture<Map>;
   let element: HTMLElement;
+  let view: LeafletMap;
+  const createdViews: LeafletMap[] = [];
+  const findRoute = vi.fn<MapRouting['findRoute']>();
+
+  LeafletMap.addInitHook(function (this: LeafletMap) {
+    this.options.renderer = new SVG();
+    createdViews.push(this);
+  });
+  function clickMap(clientX: number, clientY: number): void {
+    view.getContainer().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX, clientY }));
+  }
+
+  function markers(): Marker[] {
+    const result: Marker[] = [];
+    view.eachLayer((layer) => {
+      if (layer instanceof Marker) result.push(layer);
+    });
+    return result;
+  }
 
   function finishTiles(result: 'load' | 'error'): void {
     const tiles = element.querySelectorAll('.leaflet-tile');
@@ -30,18 +56,23 @@ describe('Prikaz zadatih pinova', () => {
   beforeEach(() => {
     vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(640);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(400);
-    TestBed.configureTestingModule({ imports: [Map] });
+    TestBed.configureTestingModule({
+      imports: [Map],
+      providers: [{ provide: MapRouting, useValue: { findRoute } }],
+    });
     fixture = TestBed.createComponent(Map);
     element = fixture.nativeElement;
     fixture.componentRef.setInput('pins', pins);
     fixture.detectChanges();
     TestBed.tick();
+    view = createdViews.pop()!;
   });
 
   afterEach(() => {
     fixture.destroy();
     vi.restoreAllMocks();
     vi.clearAllMocks();
+    findRoute.mockReset();
   });
 
   it('prikazuje zadate pinove bez linija i zadržava njihove lokacije pri korišćenju mape', () => {
@@ -49,7 +80,6 @@ describe('Prikaz zadatih pinova', () => {
     expect(element.querySelectorAll('.leaflet-tile-loaded').length).toBeGreaterThan(0);
     expect(element.querySelector('[role="status"]')).toBeNull();
 
-    const view: LeafletMap = vi.mocked(map).mock.results[0].value;
     const coordinates = (): MapPin[] => {
       const locations: MapPin[] = [];
       view.eachLayer((layer) => {
@@ -72,6 +102,7 @@ describe('Prikaz zadatih pinova', () => {
     view.getContainer().dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(coordinates()).toEqual(pins);
     expect(element.querySelectorAll('.leaflet-marker-icon')).toHaveLength(pins.length);
+    expect(findRoute).not.toHaveBeenCalled();
   });
 
   it('prikazuje poruku uz mapu kada učitavanje podloge ne uspe', () => {
@@ -81,5 +112,197 @@ describe('Prikaz zadatih pinova', () => {
     expect(mapContainer?.nextElementSibling?.textContent?.trim()).toBe(
       'Podloga mape nije mogla da se učita. Pokušajte ponovo kasnije.',
     );
+  });
+
+  it('iscrtava pronađenu geometriju i emituje nezaokruženu dužinu', async () => {
+    const length = vi.fn();
+    fixture.componentInstance.routeLengthKm.subscribe(length);
+    const result: RouteResult = {
+      coordinates: [
+        [45.25, 19.84],
+        [45.26, 19.85],
+        [45.25, 19.86],
+      ],
+      lengthKm: 2.68319,
+    };
+    findRoute.mockResolvedValue(result);
+    const request: MapRouteRequest = { points: pins, mode: 'Walking' };
+
+    fixture.componentRef.setInput('routeRequest', request);
+    TestBed.tick();
+    expect(element.textContent).toContain('Tražimo rutu…');
+    expect(length).toHaveBeenLastCalledWith(null);
+    await Promise.resolve();
+    TestBed.tick();
+
+    expect(findRoute).toHaveBeenCalledWith(request, expect.any(AbortSignal));
+    const paths: Polyline[] = [];
+    view.eachLayer((layer) => {
+      if (layer instanceof Polyline) paths.push(layer);
+    });
+    expect(paths).toHaveLength(1);
+    expect(paths[0].getLatLngs()).toMatchObject(
+      result.coordinates.map(([lat, lng]) => ({ lat, lng })),
+    );
+    expect(length).toHaveBeenLastCalledWith(2.68319);
+    expect(element.textContent).not.toContain('Tražimo rutu…');
+    expect(
+      element.querySelector('a[href="https://www.openstreetmap.org/fixthemap"]'),
+    ).not.toBeNull();
+  });
+
+  it('sklanja staru rutu i ignoriše zakašnjele uspešne i neuspešne odgovore', async () => {
+    const length = vi.fn();
+    fixture.componentInstance.routeLengthKm.subscribe(length);
+    const route: RouteResult = {
+      coordinates: [
+        [45.25, 19.84],
+        [45.26, 19.85],
+      ],
+      lengthKm: 1.22,
+    };
+    findRoute.mockResolvedValueOnce(route);
+    const staleSuccess = deferredRoute();
+    const staleFailure = deferredRoute();
+    const current = deferredRoute();
+    findRoute
+      .mockReturnValueOnce(staleSuccess.promise)
+      .mockReturnValueOnce(staleFailure.promise)
+      .mockReturnValueOnce(current.promise);
+
+    fixture.componentRef.setInput('routeRequest', { points: pins, mode: 'Walking' });
+    TestBed.tick();
+    await Promise.resolve();
+    TestBed.tick();
+    expect(length).toHaveBeenLastCalledWith(1.22);
+
+    for (const mode of ['Bicycle', 'Car', 'Walking'] as const) {
+      fixture.componentRef.setInput('routeRequest', { points: pins, mode });
+      TestBed.tick();
+    }
+
+    const paths: Polyline[] = [];
+    view.eachLayer((layer) => {
+      if (layer instanceof Polyline) paths.push(layer);
+    });
+    expect(paths).toHaveLength(0);
+    expect(length).toHaveBeenLastCalledWith(null);
+    expect(element.querySelectorAll('.leaflet-marker-icon')).toHaveLength(pins.length);
+    expect(findRoute.mock.calls[1][1].aborted).toBe(true);
+    expect(findRoute.mock.calls[2][1].aborted).toBe(true);
+
+    const pendingEmissions = length.mock.calls.length;
+    staleSuccess.resolve({ ...route, lengthKm: 99 });
+    staleFailure.reject(new Error('zastarela greška'));
+    await Promise.resolve();
+    TestBed.tick();
+    expect(element.textContent).toContain('Tražimo rutu…');
+    expect(element.textContent).not.toContain('Ruta nije mogla da se učita.');
+    expect(length).toHaveBeenCalledTimes(pendingEmissions);
+
+    current.resolve({ ...route, lengthKm: 2.43 });
+    await Promise.resolve();
+    TestBed.tick();
+    expect(element.textContent).not.toContain('Tražimo rutu…');
+    expect(length).toHaveBeenLastCalledWith(2.43);
+  });
+
+  it('razlikuje nepronađenu rutu od greške i zadržava pinove', async () => {
+    const length = vi.fn();
+    fixture.componentInstance.routeLengthKm.subscribe(length);
+    findRoute.mockResolvedValueOnce(null).mockRejectedValueOnce(new Error('nedostupno'));
+
+    fixture.componentRef.setInput('routeRequest', { points: pins, mode: 'Walking' });
+    TestBed.tick();
+    await Promise.resolve();
+    TestBed.tick();
+    expect(element.textContent).toContain(
+      'Nije pronađena ruta kroz zadate tačke za izabrani način kretanja.',
+    );
+    expect(length).toHaveBeenLastCalledWith(null);
+
+    fixture.componentRef.setInput('routeRequest', { points: pins, mode: 'Car' });
+    TestBed.tick();
+    await Promise.resolve();
+    TestBed.tick();
+    expect(element.textContent).toContain('Ruta nije mogla da se učita. Pokušajte ponovo kasnije.');
+    expect(element.textContent).not.toContain('Tražimo rutu…');
+    expect(element.querySelectorAll('.leaflet-marker-icon')).toHaveLength(pins.length);
+    expect(length).toHaveBeenLastCalledWith(null);
+  });
+
+  it('postavlja i premešta jedan pin izbora samo kada je izbor omogućen', () => {
+    const selected = vi.fn();
+    fixture.componentInstance.locationSelected.subscribe(selected);
+    clickMap(120, 140);
+    expect(markers()).toHaveLength(pins.length);
+    expect(selected).not.toHaveBeenCalled();
+
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    clickMap(120, 140);
+    expect(markers()).toHaveLength(pins.length + 1);
+    const selectedPin = markers()[pins.length];
+    const firstLocation = selectedPin.getLatLng();
+    expect(selected).toHaveBeenCalledExactlyOnceWith({
+      latitude: firstLocation.lat,
+      longitude: firstLocation.lng,
+    });
+
+    fixture.componentRef.setInput('selectionEnabled', false);
+    TestBed.tick();
+    clickMap(240, 280);
+    expect(selectedPin.getLatLng()).toEqual(firstLocation);
+    expect(selected).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    clickMap(240, 280);
+    const secondLocation = selectedPin.getLatLng();
+    expect(secondLocation).not.toEqual(firstLocation);
+    expect(markers()).toHaveLength(pins.length + 1);
+    expect(markers()[pins.length]).toBe(selectedPin);
+    expect(selected).toHaveBeenCalledTimes(2);
+    expect(selected).toHaveBeenLastCalledWith({
+      latitude: secondLocation.lat,
+      longitude: secondLocation.lng,
+    });
+  });
+
+  it('pomera prikaz povlačenjem levim tasterom bez izbora lokacije', () => {
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const selected = vi.fn();
+    fixture.componentInstance.locationSelected.subscribe(selected);
+    clickMap(80, 90);
+    const selectedPin = markers()[pins.length];
+    const location = selectedPin.getLatLng();
+    const container = view.getContainer();
+    view.options.inertia = false;
+    const initialCenter = view.getCenter();
+
+    const press = new MouseEvent('mousedown', {
+      bubbles: true,
+      buttons: 1,
+      clientX: 120,
+      clientY: 140,
+    });
+    // Leaflet reads the legacy primary-button value that jsdom leaves unset.
+    Object.defineProperty(press, 'which', { value: 1 });
+    container.dispatchEvent(press);
+    expect(selected).toHaveBeenCalledTimes(1);
+    container.dispatchEvent(
+      new MouseEvent('mousemove', { bubbles: true, buttons: 1, clientX: 230, clientY: 180 }),
+    );
+    container.dispatchEvent(
+      new MouseEvent('mouseup', { bubbles: true, clientX: 230, clientY: 180 }),
+    );
+    clickMap(230, 180);
+
+    expect(view.getCenter().equals(initialCenter)).toBe(false);
+    expect(markers()).toHaveLength(pins.length + 1);
+    expect(selectedPin.getLatLng()).toEqual(location);
+    expect(selected).toHaveBeenCalledTimes(1);
   });
 });

@@ -6,14 +6,23 @@ import {
   effect,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
-import { featureGroup, icon, map, marker, tileLayer } from 'leaflet';
-import type { FeatureGroup, Map as LeafletMap } from 'leaflet';
+import { featureGroup, icon, map, marker, polyline, tileLayer } from 'leaflet';
+import type { FeatureGroup, Map as LeafletMap, LeafletMouseEvent, Marker } from 'leaflet';
+import { MapRouting } from './map-routing';
 
 export interface MapPin {
   latitude: number;
   longitude: number;
+}
+
+export type MapRouteMode = 'Walking' | 'Bicycle' | 'Car';
+
+export interface MapRouteRequest {
+  points: readonly MapPin[];
+  mode: MapRouteMode;
 }
 
 const pinIcon = icon({
@@ -32,11 +41,21 @@ const pinIcon = icon({
 })
 export class Map {
   readonly pins = input.required<readonly MapPin[]>();
+  readonly routeRequest = input<MapRouteRequest | null>(null);
+  readonly selectionEnabled = input(false);
+  readonly routeLengthKm = output<number | null>();
+  readonly locationSelected = output<MapPin>();
 
   protected readonly tileLoadFailed = signal(false);
+  protected readonly routeStatus = signal<'idle' | 'loading' | 'not-found' | 'error'>('idle');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly mapView = signal<{ map: LeafletMap; markers: FeatureGroup } | null>(null);
+  private readonly routing = inject(MapRouting);
+  private readonly mapView = signal<{
+    map: LeafletMap;
+    markers: FeatureGroup;
+    route: FeatureGroup;
+  } | null>(null);
 
   constructor() {
     afterNextRender(() => {
@@ -45,6 +64,7 @@ export class Map {
 
       const view = map(container);
       const markers = featureGroup().addTo(view);
+      const route = featureGroup().addTo(view);
       const tiles = tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution:
@@ -60,8 +80,27 @@ export class Map {
       tiles.on('load', () => this.tileLoadFailed.set(!loadedTile));
       tiles.addTo(view);
 
+      let selectedPin: Marker | undefined;
+      // Leaflet emits the map click after release and suppresses it after dragging.
+      view.on('click', ({ latlng }: LeafletMouseEvent) => {
+        if (!this.selectionEnabled()) return;
+
+        if (selectedPin) {
+          selectedPin.setLatLng(latlng);
+        } else {
+          selectedPin = marker(latlng, {
+            icon: pinIcon,
+            interactive: false,
+            keyboard: false,
+            alt: 'Izabrana lokacija',
+            zIndexOffset: 1000,
+          }).addTo(view);
+        }
+        this.locationSelected.emit({ latitude: latlng.lat, longitude: latlng.lng });
+      });
+
       this.destroyRef.onDestroy(() => view.remove());
-      this.mapView.set({ map: view, markers });
+      this.mapView.set({ map: view, markers, route });
     });
 
     // Leaflet owns the map container's contents, so update its markers when the input changes.
@@ -81,5 +120,51 @@ export class Map {
         view.map.setView([44, 21], 6);
       }
     });
+
+    effect((onCleanup) => {
+      const view = this.mapView();
+      const request = this.routeRequest();
+      if (!view) return;
+
+      view.route.clearLayers();
+      this.routeLengthKm.emit(null);
+      if (!request || request.points.length < 2) {
+        this.routeStatus.set('idle');
+        return;
+      }
+
+      const controller = new AbortController();
+      onCleanup(() => controller.abort());
+      this.routeStatus.set('loading');
+      void this.showRoute(view, request, controller.signal);
+    });
+  }
+
+  private async showRoute(
+    view: { map: LeafletMap; route: FeatureGroup },
+    request: MapRouteRequest,
+    signal: AbortSignal,
+  ): Promise<void> {
+    try {
+      const result = await this.routing.findRoute(request, signal);
+      if (signal.aborted || this.routeRequest() !== request) return;
+
+      if (result === null) {
+        this.routeStatus.set('not-found');
+        this.routeLengthKm.emit(null);
+        return;
+      }
+
+      const line = polyline(result.coordinates).addTo(view.route);
+      view.map.fitBounds(line.getBounds(), { padding: [24, 24], maxZoom: 15, animate: false });
+      this.routeStatus.set('idle');
+      this.routeLengthKm.emit(result.lengthKm);
+    } catch {
+      if (signal.aborted || this.routeRequest() !== request) return;
+
+      view.route.clearLayers();
+      this.routeStatus.set('error');
+      this.routeLengthKm.emit(null);
+    }
   }
 }
