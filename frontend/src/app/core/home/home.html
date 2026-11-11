@@ -1,0 +1,217 @@
+﻿<div class="home">
+  <section class="hero" aria-labelledby="hero-title">
+    <picture class="bg">
+      <source media="(max-width: 45rem)" srcset="/images/home/modern-hero-800.webp" />
+      <img
+        class="bg"
+        src="/images/home/modern-hero-1600.webp"
+        width="1600"
+        height="720"
+        fetchpriority="high"
+        alt=""
+      />
+    </picture>
+    <div class="intro">
+      <div class="actions">
+        <svg width="180" height="48" viewBox="0 0 180 48" role="img" aria-label="Explorer">
+          <circle cx="23" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.5" />
+          <path d="M29 10 35 33 23 28 11 37 17 15 23 20Z" fill="var(--color-accent)" />
+          <text
+            x="53"
+            y="33"
+            fill="currentColor"
+            font-family="inherit"
+            font-size="28"
+            font-weight="800"
+            letter-spacing="-1"
+          >
+            Explorer
+          </text>
+        </svg>
+      </div>
+      <h1 id="hero-title">
+        Avantura počinje tamo gde prestaje <span class="hot">poznato.</span>
+      </h1>
+      <p class="lead">Otkrij ture, priče i mesta koja dobijaju smisao kroz iskustvo istraživača.</p>
+      <div class="actions">
+        @if (tours.status === 'available' && tours.route && (!tours.requiresLogin || auth.user())) {
+          <a class="button cta button--primary" [routerLink]="tours.route"
+            >Istraži ture <span aria-hidden="true">↗</span></a
+          >
+          <a class="button cta alt" routerLink="/social">Pogledaj blogove</a>
+        } @else {
+          @if (!auth.user()) {
+            <a class="button cta button--primary" routerLink="/login">Istraži ture <span aria-hidden="true">↗</span></a>
+          } @else {
+          <button
+            class="button cta button--primary"
+            type="button"
+            aria-describedby="hero-status"
+            (click)="heroMessage.set(tours.message)"
+          >
+            Istraži ture <span aria-hidden="true">↗</span>
+          </button>
+          }
+          @if (!auth.user()) {
+            <a class="button cta alt" routerLink="/register">Registruj se</a>
+          }
+        }
+      </div>
+      @if (!auth.user()) {
+        <p class="notice">
+          Već imaš nalog? <a class="text-link" routerLink="/login">Prijavi se</a>
+        </p>
+      }
+      <p id="hero-status" class="notice" role="status">{{ heroMessage() }}</p>
+    </div>
+  </section>
+
+  <section class="home-section cards" aria-labelledby="explore-title">
+    <div class="section-heading">
+      <p class="eyebrow">OTKRIJ EXPLORER</p>
+      <h2 id="explore-title">Pronađi svoj način da istražuješ.</h2>
+      <p>Pronađi inspiraciju za svoje sledeće otkriće.</p>
+    </div>
+    <div class="grid tiles">
+      @for (capability of capabilities; track capability.id) {
+        @if (capability.status === 'available' && capability.route) {
+          <a
+            class="card tile linked"
+            [routerLink]="capability.requiresLogin && !auth.user() ? '/login' : capability.route"
+            [attr.aria-label]="
+              (capability.requiresLogin && !auth.user()
+                ? capability.guestAction
+                : capability.action) +
+              ': ' +
+              capability.title
+            "
+          >
+            <div class="media">
+              <img
+                class="thumb"
+                [src]="'/images/home/' + capability.image"
+                [alt]="capability.imageAlt"
+                width="800"
+                height="534"
+                loading="lazy"
+              />
+            </div>
+            <div class="body">
+              <h3>{{ capability.title }}</h3>
+              <p class="meta desc">{{ capability.description }}</p>
+              <span class="hot"
+                >{{
+                  capability.requiresLogin && !auth.user()
+                    ? capability.guestAction
+                    : capability.action
+                }}
+                <span aria-hidden="true">↗</span></span
+              >
+            </div>
+          </a>
+        } @else {
+          <article class="card tile" [attr.aria-labelledby]="capability.id + '-title'">
+            <div class="media">
+              <img
+                class="thumb"
+                [src]="'/images/home/' + capability.image"
+                [alt]="capability.imageAlt"
+                width="800"
+                height="534"
+                loading="lazy"
+              />
+            </div>
+            <div class="body">
+              <h3 [id]="capability.id + '-title'">{{ capability.title }}</h3>
+              <p class="meta desc">{{ capability.description }}</p>
+              @if (capability.status === 'unimplemented') {
+                <span class="meta more">U pripremi</span>
+              } @else {
+                <span class="meta more">{{ capability.message }}</span>
+              }
+            </div>
+          </article>
+        }
+      }
+    </div>
+  </section>
+  <section
+    class="home-section gallery"
+    aria-labelledby="gallery-title"
+    (focusin)="userPaused.set(true)"
+  >
+    <h2 id="gallery-title" class="sr">Svako otkriće počinje pričom.</h2>
+    @for (slide of slides; track slide.image; let index = $index) {
+      <div
+        class="slide"
+        [class.show]="selectedSlideIndex() === index"
+        [attr.aria-hidden]="selectedSlideIndex() !== index"
+      >
+        <img
+          [src]="'/images/home/' + slide.image"
+          [alt]="slide.alt"
+          [style.object-position]="slide.position"
+          width="1000"
+          height="750"
+          loading="lazy"
+        />
+        <div class="copy">
+          <p class="notice"><strong>{{ slide.label }}</strong></p>
+          <h3>{{ slide.title }}</h3>
+          <p>{{ slide.description }}</p>
+        </div>
+      </div>
+    }
+    <div class="arrows" role="group" aria-label="Izbor priče">
+      <button
+        class="button arrow"
+        type="button"
+        aria-label="Prethodna priča"
+        (click)="selectSlide(selectedSlideIndex() - 1)"
+      >
+        ←
+      </button>
+      <button
+        class="button arrow"
+        type="button"
+        aria-label="Sledeća priča"
+        (click)="selectSlide(selectedSlideIndex() + 1)"
+      >
+        →
+      </button>
+    </div>
+    <p class="sr" role="status">{{ galleryMessage() }}</p>
+  </section>
+  <section class="home-section card join" aria-labelledby="join-title">
+    <div class="end">
+      @if (auth.user()) {
+        <p class="eyebrow">NASTAVI ISTRAŽIVANJE</p>
+        <h2 id="join-title">Još mnogo toga čeka da bude otkriveno.</h2>
+        <p>Pronađi novu turu ili zaviri u priče koje su drugi istraživači podelili.</p>
+      } @else {
+        <p class="eyebrow">TVOJE SLEDEĆE OTKRIĆE</p>
+        <h2 id="join-title">Spreman za ono što tek treba da otkriješ?</h2>
+        <p>
+          Pridruži se Exploreru, istraži objavljene ture i pronađi inspiraciju u pričama drugih
+          istraživača.
+        </p>
+      }
+    </div>
+    <nav class="stack" aria-label="Započni istraživanje">
+      @if (auth.user()) {
+        <div>
+          <a class="button cta button--primary" routerLink="/exploration"
+            >Istraži ture <span aria-hidden="true">↗</span></a
+          >
+        </div>
+        <div><a class="button cta alt" routerLink="/social">Pogledaj blogove</a></div>
+      } @else {
+        <div>
+          <a class="button cta button--primary" routerLink="/register">Pridruži se Exploreru</a>
+        </div>
+        <p class="notice">Već imaš nalog? <a routerLink="/login">Prijavi se</a></p>
+      }
+    </nav>
+  </section>
+  <footer class="home-section meta">© Explorer</footer>
+</div>
