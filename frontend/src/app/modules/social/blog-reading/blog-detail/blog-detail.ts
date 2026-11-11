@@ -54,4 +54,9 @@ export class BlogDetail {
       this.error.set(serverMessage(failure, 'Could not delete the comment.'));
     }
   }
+
+  // The server sends dates as ISO text; this shows them in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleString('sr-Latn');
+  }
 }

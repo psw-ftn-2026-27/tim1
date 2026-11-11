@@ -27,18 +27,7 @@ public sealed class Blog : AggregateRoot
     public Blog(Guid authorId, string title, string description, List<Guid>? images)
         : base(Guid.NewGuid())
     {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            throw new DomainException("A blog requires a title.");
-        }
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            throw new DomainException("A blog requires a description.");
-        }
-        if (images is not null && images.Count > MaxImages)
-        {
-            throw new DomainException($"A blog can have at most {MaxImages} images.");
-        }
+        EnsureValidContent(title, description, images);
 
         AuthorId = authorId;
         Title = title;
@@ -48,6 +37,16 @@ public sealed class Blog : AggregateRoot
         LastModifiedAt = now;
         Images = images ?? [];
         Status = BlogStatus.Draft;
+    }
+
+    public void UpdateContent(string title, string description, List<Guid>? images)
+    {
+        EnsureValidContent(title, description, images);
+
+        Title = title;
+        Description = description;
+        Images = images ?? [];
+        LastModifiedAt = DateTime.UtcNow;
     }
 
     public void Publish()
@@ -79,6 +78,22 @@ public sealed class Blog : AggregateRoot
         EnsurePublished();
 
         _comments.Remove(GetOwnComment(commentId, userId));
+    }
+
+    private static void EnsureValidContent(string title, string description, List<Guid>? images)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            throw new DomainException("A blog requires a title.");
+        }
+        if (string.IsNullOrWhiteSpace(description))
+        {
+            throw new DomainException("A blog requires a description.");
+        }
+        if (images is not null && images.Count > MaxImages)
+        {
+            throw new DomainException($"A blog can have at most {MaxImages} images.");
+        }
     }
 
     private void EnsurePublished()

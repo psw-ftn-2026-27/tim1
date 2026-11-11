@@ -13,6 +13,10 @@
 
   <p class="meta">Status: {{ blog().status }}</p>
 
+  <p class="meta">Created: {{ formatDate(blog().createdAt) }}</p>
+
+  <p class="meta">Last modified: {{ formatDate(blog().lastModifiedAt) }}</p>
+
   <p class="meta">Comments: {{ blog().comments.length }}</p>
 
   <a [routerLink]="['/social', blog().id]">Read more</a>
