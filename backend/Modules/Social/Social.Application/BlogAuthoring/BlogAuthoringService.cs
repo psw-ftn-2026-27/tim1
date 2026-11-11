@@ -76,6 +76,22 @@ public sealed class BlogAuthoringService
         await _unitOfWork.SaveChangesAsync();
     }
 
+    // Kept images are already attached, so only the images the blog does not have yet get attached.
+    public async Task UpdateAsync(Guid blogId, Guid authorId, UpdateBlogDto dto)
+    {
+        var blog = await GetOwnedBlogAsync(blogId, authorId);
+        var imageIds = dto.Images ?? [];
+        var newImageIds = imageIds.Where(imageId => !blog.Images.Contains(imageId)).ToList();
+        var newImages = await _imageRepository.GetByIdsAsync(newImageIds);
+        foreach (var imageId in newImageIds)
+        {
+            FindImage(newImages, imageId).AttachToBlog(authorId);
+        }
+
+        blog.UpdateContent(dto.Title, dto.Description, imageIds);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
     private async Task<Blog> GetOwnedBlogAsync(Guid blogId, Guid authorId)
     {
         var blog = await _blogRepository.GetByIdAsync(blogId);

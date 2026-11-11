@@ -1,0 +1,21 @@
+<div class="stack">
+  <p><a routerLink="/social">Back to blogs</a></p>
+
+  <h1>Clubs</h1>
+
+  <p><a routerLink="/social/clubs/mine">My clubs</a></p>
+
+  @if (clubs.isLoading()) {
+    <p>Loading clubs...</p>
+  } @else if (clubs.error()) {
+    <p class="error">Could not load clubs. Log in and try again.</p>
+  } @else {
+    <div class="grid">
+      @for (club of clubs.value()?.items ?? []; track club.id) {
+        <app-club-card [club]="club" />
+      } @empty {
+        <p>No clubs yet.</p>
+      }
+    </div>
+  }
+</div>

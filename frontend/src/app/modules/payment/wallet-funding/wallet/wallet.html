@@ -1,7 +1,13 @@
 <div class="stack">
   <h1>Wallet</h1>
 
-  @if (wallet.isLoading()) {
+  @if (isAdministrator()) {
+    <p>You are signed in as an administrator, so you do not have a wallet of your own.</p>
+
+    <a class="button button--primary" routerLink="/payment/admin/requests">
+      Open wallet requests
+    </a>
+  } @else if (wallet.isLoading()) {
     <p>Loading your wallet...</p>
   } @else if (wallet.error()) {
     <p class="error">Could not load your wallet. Log in and try again.</p>
@@ -53,6 +59,7 @@
           <th scope="col">Kind</th>
           <th scope="col">Amount</th>
           <th scope="col">Status</th>
+          <th scope="col">Reason</th>
         </tr>
       </thead>
       <tbody>
@@ -62,65 +69,66 @@
             <td>{{ request.type }}</td>
             <td>{{ request.amount }}</td>
             <td>{{ statusLabel(request.status) }}</td>
+            <td>{{ request.rejectionReason }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">You have no requests yet.</td>
+            <td colspan="5">You have no requests yet.</td>
           </tr>
         }
       </tbody>
     </table>
-  }
 
-  <h2>Top up</h2>
+    <h2>Top up</h2>
 
-  @if (topUpError()) {
-    <p class="error">{{ topUpError() }}</p>
-  }
+    @if (topUpError()) {
+      <p class="error">{{ topUpError() }}</p>
+    }
 
-  <form class="card stack" (submit)="requestTopUp($event)">
-    <div class="field">
-      <label for="top-up-amount">Amount in RSD</label>
-      <input id="top-up-amount" type="number" [formField]="topUpForm.amount" />
-      @if (topUpForm.amount().touched()) {
-        @for (message of topUpForm.amount().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
+    <form class="card stack" (submit)="requestTopUp($event)">
+      <div class="field">
+        <label for="top-up-amount">Amount in RSD</label>
+        <input id="top-up-amount" type="number" [formField]="topUpForm.amount" />
+        @if (topUpForm.amount().touched()) {
+          @for (message of topUpForm.amount().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
         }
-      }
-    </div>
+      </div>
 
-    <button
-      class="button button--primary"
-      type="submit"
-      [disabled]="!topUpForm().valid() || topUpPending()"
-    >
-      Request top-up
-    </button>
-  </form>
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="!topUpForm().valid() || topUpPending()"
+      >
+        Request top-up
+      </button>
+    </form>
 
-  <h2>Withdraw</h2>
+    <h2>Withdraw</h2>
 
-  @if (withdrawalError()) {
-    <p class="error">{{ withdrawalError() }}</p>
-  }
+    @if (withdrawalError()) {
+      <p class="error">{{ withdrawalError() }}</p>
+    }
 
-  <form class="card stack" (submit)="requestWithdrawal($event)">
-    <div class="field">
-      <label for="withdrawal-amount">Amount in RSD</label>
-      <input id="withdrawal-amount" type="number" [formField]="withdrawalForm.amount" />
-      @if (withdrawalForm.amount().touched()) {
-        @for (message of withdrawalForm.amount().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
+    <form class="card stack" (submit)="requestWithdrawal($event)">
+      <div class="field">
+        <label for="withdrawal-amount">Amount in RSD</label>
+        <input id="withdrawal-amount" type="number" [formField]="withdrawalForm.amount" />
+        @if (withdrawalForm.amount().touched()) {
+          @for (message of withdrawalForm.amount().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
         }
-      }
-    </div>
+      </div>
 
-    <button
-      class="button button--primary"
-      type="submit"
-      [disabled]="!withdrawalForm().valid() || withdrawalPending()"
-    >
-      Request withdrawal
-    </button>
-  </form>
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="!withdrawalForm().valid() || withdrawalPending()"
+      >
+        Request withdrawal
+      </button>
+    </form>
+  }
 </div>

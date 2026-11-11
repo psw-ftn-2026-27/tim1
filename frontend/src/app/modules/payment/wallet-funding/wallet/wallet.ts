@@ -1,6 +1,8 @@
 import { httpResource } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
+import { Auth } from '../../../../core/auth/auth';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { WalletOverviewDto, WalletRequestStatus } from '../../api/payment-api-types';
 import { WalletFunding } from '../wallet-funding';
@@ -12,13 +14,18 @@ const STATUS_LABELS: Record<WalletRequestStatus, string> = {
 };
 
 @Component({
-  imports: [FormField],
+  imports: [FormField, RouterLink],
   selector: 'app-wallet',
   styleUrl: './wallet.scss',
   templateUrl: './wallet.html',
 })
 export class Wallet {
   private readonly walletFunding = inject(WalletFunding);
+  private readonly auth = inject(Auth);
+
+  protected readonly isAdministrator = computed(
+    () => this.auth.user()?.roles.includes('administrator') ?? false,
+  );
 
   protected readonly wallet = httpResource<WalletOverviewDto>(() => '/api/payment/wallet');
 

@@ -45,10 +45,23 @@ public sealed class BlogAuthoringController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult> Update(Guid id, UpdateBlogDto dto)
+    {
+        await _authoringService.UpdateAsync(id, User.GetUserId(), dto);
+        return NoContent();
+    }
+
     [HttpGet("mine")]
     public async Task<ActionResult<List<BlogDto>>> GetMine()
     {
         return await _authoringQueries.GetByAuthorAsync(User.GetUserId());
+    }
+
+    [HttpGet("mine/{id:guid}")]
+    public async Task<ActionResult<BlogDto>> GetOwnBlogById(Guid id)
+    {
+        return await _authoringQueries.GetOwnBlogByIdAsync(id, User.GetUserId());
     }
 
     // Returns the image file itself (image/webp), not a JSON DTO.

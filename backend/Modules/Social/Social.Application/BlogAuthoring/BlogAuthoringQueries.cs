@@ -25,6 +25,16 @@ public sealed class BlogAuthoringQueries
         return _blogReadRepository.GetByAuthorAsync(authorId);
     }
 
+    public async Task<BlogDto> GetOwnBlogByIdAsync(Guid blogId, Guid authorId)
+    {
+        var blog = await _blogReadRepository.GetByIdAsync(blogId);
+        if (blog is null || blog.AuthorId != authorId)
+        {
+            throw new NotFoundException($"Blog {blogId} does not exist.");
+        }
+        return blog;
+    }
+
     public async Task<ImageContentDto> GetOwnBlogImageAsync(Guid blogId, Guid imageId, Guid userId)
     {
         var file = await _imageReadRepository.GetOfAuthorsBlogAsync(blogId, imageId, userId);

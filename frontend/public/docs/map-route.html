@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="sr-Latn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Integracija putanje na deljenoj mapi</title>
+  </head>
+  <body>
+    <main>
+      <h1>Integracija putanje na deljenoj mapi</h1>
+      <p>
+        Uvezi <code>Map</code> u <code>imports</code> komponente. Sledeći primer koristi putanju iz
+        probne stranice.
+      </p>
+      <pre><code>import { signal } from '@angular/core';
+import { Map } from '../../../shared/ui/map/map';
+import type { MapRouteRequest } from '../../../shared/ui/map/map';</code></pre>
+      <p>
+        Opcioni ulaz <code>routeRequest</code> prima najmanje dve ključne tačke u redosledu obilaska
+        kroz <code>points</code>. Koordinate <code>latitude</code> i <code>longitude</code> su u
+        decimalnim stepenima. <code>mode</code> je <code>Walking</code>, <code>Bicycle</code> ili
+        <code>Car</code>. Ulaz <code>pins</code> određuje koje lokacije imaju oznaku na mapi.
+      </p>
+      <pre><code>protected readonly route: MapRouteRequest = {
+  points: [
+    { latitude: 45.254891, longitude: 19.852782 },
+    { latitude: 45.257046, longitude: 19.851583 },
+    { latitude: 45.252182, longitude: 19.862732 },
+  ],
+  mode: 'Walking',
+};
+protected readonly lengthKm = signal&lt;number | null&gt;(null);</code></pre>
+      <pre><code>&lt;app-map
+  [pins]="route.points"
+  [routeRequest]="route"
+  (routeLengthKm)="lengthKm.set($event)"
+/&gt;</code></pre>
+      <p>
+        Izlaz <code>routeLengthKm</code> emituje nezaokruženu numeričku dužinu u kilometrima,
+        izračunatu iz iscrtane putanje. Vrednost <code>null</code> označava da dužina trenutno nije
+        dostupna, na primer tokom traženja nove rute ili posle greške. Formatiranje za prikaz
+        pripada stranici koja koristi mapu.
+      </p>
+      <p>
+        Izostavi <code>routeRequest</code> za prikaz samo pinova. Kada se promene tačke ili način
+        kretanja, prosledi nov objekat. Mapa primenjuje rezultat poslednjeg zahteva.
+      </p>
+      <p>
+        Pružalac je <a href="https://routing.openstreetmap.de/about.html">FOSSGIS OSRM</a>. Adrese
+        profila su u <code>src/app/shared/ui/map/routing-profiles.ts</code>.
+      </p>
+      <p>
+        OSRM vezuje ključnu tačku za pristupačan segment mreže za izabrani način kretanja. Pin
+        ostaje na prosleđenoj lokaciji, pa linija može proći pored njega ako je van te mreže.
+        Za automobilsku rutu postavi ključne tačke na mesta do kojih se može stići automobilom.
+      </p>
+      <p><a href="../examples/map-route">Probni primer mape — putanja</a></p>
+    </main>
+  </body>
+</html>

@@ -1,27 +1,72 @@
 :root {
-  --color-bg: #f7f7f8;
-  --color-surface: #ffffff;
-  --color-border: #e2e2e6;
-  --color-text: #1c1c1f;
-  --color-text-muted: #5c5c66;
-  --color-accent: #2f6df6;
-  --color-accent-text: #ffffff;
-  --color-danger: #c02626;
+  // Tamna tema: browser i sistemske kontrole (scrollbar, padajuća lista) prate tamnu paletu
+  color-scheme: dark;
 
+  // Pozadine i površine (iste kao na naslovnoj stranici)
+  --color-bg: #101d1b; // tamna šumsko-zelena
+  --color-surface: #1c302c; // kartice, forme, polja za unos
+  --color-surface-hover: #273d37; // hover na dugmetu i redu tabele
+  --color-border: #424c4a;
+
+  // Tekst
+  --color-text: #f5f5ef; // topla bela
+  --color-text-muted: #c3c5c0; // opisi i oznake
+  --color-text-disabled: #7d8a86; // neaktivni elementi
+
+  // Primarna boja: narandžasta (primarna dugmad, linkovi, istaknute reči, fokus)
+  --color-accent: #f28b43;
+  --color-accent-hover: #f5a066;
+  --color-accent-text: #101d1b; // tamni tekst na narandžastoj
+
+  // Sekundarna boja: obrubljeno dugme bez pozadine („Pogledaj blogove", „Registruj se")
+  --color-secondary: transparent;
+  --color-secondary-hover: #273d37;
+  --color-secondary-text: #f5f5ef;
+
+  // Ukrasna boja
+  --color-gold: #e3a72f; // senf: bedževi, titule, pečati; uvek sa tamnim tekstom
+
+  // Stanja: svetla boja teksta i tamna pozadina za poruke
+  --color-success: #7dd3a0;
+  --color-success-bg: #18392c;
+  --color-warning: #e3a72f; // senf
+  --color-warning-bg: #3a3018;
+  --color-danger: #ff8a7a;
+  --color-danger-bg: #3d1f1c;
+  --color-info: #7cc4e8;
+  --color-info-bg: #16323f;
+
+  // Razmaci
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
+  --space-7: 3rem;
 
+  // Zaobljenja
+  --radius-sm: 0.25rem;
   --radius: 0.5rem;
+  --radius-lg: 1rem; // kartice, kao pločice na naslovnoj
+  --radius-pill: 999px;
 
+  // Senke: na tamnoj pozadini moraju biti jače da bi se videle
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 6px 16px rgb(0 0 0 / 0.4);
+
+  // Tipografija: naslovi istim fontom kao tekst, ali vrlo podebljani
   --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-family-heading: var(--font-family);
+  --letter-spacing-heading: -0.01em;
+  --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.75rem;
+  --font-weight-normal: 400;
+  --font-weight-bold: 600;
+  --font-weight-heading: 800;
 
   --container-width: 60rem;
 }
