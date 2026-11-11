@@ -1,9 +1,25 @@
 <div class="stack">
   <h1>Probni primer mape — pinovi</h1>
   <p>Lokacije su probni podaci prosleđeni deljenoj komponenti mape.</p>
-  <app-map [pins]="pins" />
+  <app-map
+    [pins]="pins"
+    [selectionEnabled]="true"
+    (locationSelected)="selectedLocation.set($event)"
+  />
+  <form class="stack" aria-label="Probna forma za izbor lokacije">
+    <p>Klikom izaberi lokaciju. Ova probna forma ne šalje niti čuva podatke na serveru.</p>
+    <div class="field">
+      <label for="latitude">Geografska širina</label>
+      <input id="latitude" type="text" readonly [value]="selectedLocation()?.latitude ?? ''" />
+    </div>
+    <div class="field">
+      <label for="longitude">Geografska dužina</label>
+      <input id="longitude" type="text" readonly [value]="selectedLocation()?.longitude ?? ''" />
+    </div>
+  </form>
   <nav aria-label="Probni primer mape">
     <a href="docs/map-pins.html">Uputstvo za integraciju mape</a>
+    <a href="docs/map-pins.html#izbor-lokacije">Uputstvo za integraciju izbora lokacije</a>
     <a routerLink="/games">Nazad na Games</a>
   </nav>
 </div>

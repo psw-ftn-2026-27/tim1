@@ -11,7 +11,8 @@
       <p>
         Primer uvoza iz probne stranice <code>src/app/core/examples/map-pins/map-pins.ts</code>.
       </p>
-      <pre><code>import { Map, MapPin } from '../../../shared/ui/map/map';</code></pre>
+      <pre><code>import { Map } from '../../../shared/ui/map/map';
+import type { MapPin } from '../../../shared/ui/map/map';</code></pre>
       <p>
         Dodaj <code>Map</code> u <code>imports</code> komponente koja prikazuje mapu. Ako je
         komponenta u drugom direktorijumu, prilagodi relativnu putanju.
@@ -34,6 +35,26 @@
         Podloga se učitava sa OpenStreetMap-a. Kada nijedna tražena pločica podloge ne može da se
         učita, uz mapu se pojavljuje poruka o grešci.
       </p>
+      <h2 id="izbor-lokacije">Izbor lokacije</h2>
+      <p>
+        Postavi <code>selectionEnabled</code> na <code>true</code> da omogućiš izbor. Prvi klik
+        bez povlačenja postavlja pin izbora, a sledeći ga premešta. Izlaz
+        <code>locationSelected</code> odmah šalje <code>MapPin</code>. Povlačenjem se pomera prikaz
+        mape. Kada je ulaz izostavljen ili je <code>false</code>, klik ne menja izbor.
+      </p>
+      <pre><code>import { signal } from '@angular/core';
+
+// U klasi stranice
+protected readonly selectedLocation = signal&lt;MapPin | null&gt;(null);</code></pre>
+      <pre><code>&lt;app-map
+  [pins]="pins"
+  [selectionEnabled]="true"
+  (locationSelected)="selectedLocation.set($event)"
+/&gt;
+&lt;label for="latitude"&gt;Geografska širina&lt;/label&gt;
+&lt;input id="latitude" readonly [value]="selectedLocation()?.latitude ?? ''" /&gt;
+&lt;label for="longitude"&gt;Geografska dužina&lt;/label&gt;
+&lt;input id="longitude" readonly [value]="selectedLocation()?.longitude ?? ''" /&gt;</code></pre>
       <p><a href="../examples/map-pins">Probni primer mape — pinovi</a></p>
     </main>
   </body>

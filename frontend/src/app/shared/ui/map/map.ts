@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { featureGroup, icon, map, marker, polyline, tileLayer } from 'leaflet';
-import type { FeatureGroup, Map as LeafletMap } from 'leaflet';
+import type { FeatureGroup, Map as LeafletMap, LeafletMouseEvent, Marker } from 'leaflet';
 import { MapRouting } from './map-routing';
 
 export interface MapPin {
@@ -42,7 +42,9 @@ const pinIcon = icon({
 export class Map {
   readonly pins = input.required<readonly MapPin[]>();
   readonly routeRequest = input<MapRouteRequest | null>(null);
+  readonly selectionEnabled = input(false);
   readonly routeLengthKm = output<number | null>();
+  readonly locationSelected = output<MapPin>();
 
   protected readonly tileLoadFailed = signal(false);
   protected readonly routeStatus = signal<'idle' | 'loading' | 'not-found' | 'error'>('idle');
@@ -77,6 +79,25 @@ export class Map {
       });
       tiles.on('load', () => this.tileLoadFailed.set(!loadedTile));
       tiles.addTo(view);
+
+      let selectedPin: Marker | undefined;
+      // Leaflet emits the map click after release and suppresses it after dragging.
+      view.on('click', ({ latlng }: LeafletMouseEvent) => {
+        if (!this.selectionEnabled()) return;
+
+        if (selectedPin) {
+          selectedPin.setLatLng(latlng);
+        } else {
+          selectedPin = marker(latlng, {
+            icon: pinIcon,
+            interactive: false,
+            keyboard: false,
+            alt: 'Izabrana lokacija',
+            zIndexOffset: 1000,
+          }).addTo(view);
+        }
+        this.locationSelected.emit({ latitude: latlng.lat, longitude: latlng.lng });
+      });
 
       this.destroyRef.onDestroy(() => view.remove());
       this.mapView.set({ map: view, markers, route });

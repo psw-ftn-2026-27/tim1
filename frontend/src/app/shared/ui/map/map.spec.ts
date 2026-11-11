@@ -16,7 +16,7 @@ function deferredRoute() {
   return { promise, resolve, reject };
 }
 
-describe('Prikaz zadatih pinova', () => {
+describe('Mapa', () => {
   const pins: readonly MapPin[] = [
     { latitude: 45.2551, longitude: 19.8448 },
     { latitude: 45.2572, longitude: 19.8512 },
@@ -32,6 +32,17 @@ describe('Prikaz zadatih pinova', () => {
     this.options.renderer = new SVG();
     createdViews.push(this);
   });
+  function clickMap(clientX: number, clientY: number): void {
+    view.getContainer().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX, clientY }));
+  }
+
+  function markers(): Marker[] {
+    const result: Marker[] = [];
+    view.eachLayer((layer) => {
+      if (layer instanceof Marker) result.push(layer);
+    });
+    return result;
+  }
 
   function finishTiles(result: 'load' | 'error'): void {
     const tiles = element.querySelectorAll('.leaflet-tile');
@@ -218,5 +229,80 @@ describe('Prikaz zadatih pinova', () => {
     expect(element.textContent).not.toContain('Tražimo rutu…');
     expect(element.querySelectorAll('.leaflet-marker-icon')).toHaveLength(pins.length);
     expect(length).toHaveBeenLastCalledWith(null);
+  });
+
+  it('postavlja i premešta jedan pin izbora samo kada je izbor omogućen', () => {
+    const selected = vi.fn();
+    fixture.componentInstance.locationSelected.subscribe(selected);
+    clickMap(120, 140);
+    expect(markers()).toHaveLength(pins.length);
+    expect(selected).not.toHaveBeenCalled();
+
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    clickMap(120, 140);
+    expect(markers()).toHaveLength(pins.length + 1);
+    const selectedPin = markers()[pins.length];
+    const firstLocation = selectedPin.getLatLng();
+    expect(selected).toHaveBeenCalledExactlyOnceWith({
+      latitude: firstLocation.lat,
+      longitude: firstLocation.lng,
+    });
+
+    fixture.componentRef.setInput('selectionEnabled', false);
+    TestBed.tick();
+    clickMap(240, 280);
+    expect(selectedPin.getLatLng()).toEqual(firstLocation);
+    expect(selected).toHaveBeenCalledTimes(1);
+
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    clickMap(240, 280);
+    const secondLocation = selectedPin.getLatLng();
+    expect(secondLocation).not.toEqual(firstLocation);
+    expect(markers()).toHaveLength(pins.length + 1);
+    expect(markers()[pins.length]).toBe(selectedPin);
+    expect(selected).toHaveBeenCalledTimes(2);
+    expect(selected).toHaveBeenLastCalledWith({
+      latitude: secondLocation.lat,
+      longitude: secondLocation.lng,
+    });
+  });
+
+  it('pomera prikaz povlačenjem levim tasterom bez izbora lokacije', () => {
+    fixture.componentRef.setInput('selectionEnabled', true);
+    TestBed.tick();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const selected = vi.fn();
+    fixture.componentInstance.locationSelected.subscribe(selected);
+    clickMap(80, 90);
+    const selectedPin = markers()[pins.length];
+    const location = selectedPin.getLatLng();
+    const container = view.getContainer();
+    view.options.inertia = false;
+    const initialCenter = view.getCenter();
+
+    const press = new MouseEvent('mousedown', {
+      bubbles: true,
+      buttons: 1,
+      clientX: 120,
+      clientY: 140,
+    });
+    // Leaflet reads the legacy primary-button value that jsdom leaves unset.
+    Object.defineProperty(press, 'which', { value: 1 });
+    container.dispatchEvent(press);
+    expect(selected).toHaveBeenCalledTimes(1);
+    container.dispatchEvent(
+      new MouseEvent('mousemove', { bubbles: true, buttons: 1, clientX: 230, clientY: 180 }),
+    );
+    container.dispatchEvent(
+      new MouseEvent('mouseup', { bubbles: true, clientX: 230, clientY: 180 }),
+    );
+    clickMap(230, 180);
+
+    expect(view.getCenter().equals(initialCenter)).toBe(false);
+    expect(markers()).toHaveLength(pins.length + 1);
+    expect(selectedPin.getLatLng()).toEqual(location);
+    expect(selected).toHaveBeenCalledTimes(1);
   });
 });
