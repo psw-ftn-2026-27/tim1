@@ -63,9 +63,12 @@ fieldset {
   padding: 0;
 }
 
+// A fixed width, so the dropdown does not resize when the sort-by-difficulty options appear or disappear.
 select {
   cursor: pointer;
+  max-width: 100%;
   transition: border-color 0.15s;
+  width: 16rem;
 
   &:hover {
     border-color: var(--color-accent);

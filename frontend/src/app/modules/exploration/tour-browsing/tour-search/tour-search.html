@@ -12,7 +12,7 @@
   <div class="field">
     <label for="tag-input">Tags (press Enter to add)</label>
     <div class="tag-box">
-      @for (tag of tags(); track tag) {
+      @for (tag of criteria().tags; track tag) {
         <span class="pill">
           {{ tag }}
           <button
@@ -31,11 +31,15 @@
 
   <div class="field">
     <label for="sort">Sort</label>
-    <select id="sort" [formField]="form.sort" (change)="emitCriteria()">
-      <option value="Newest">Newest first</option>
-      @if (selectedDifficultyCount() !== 1) {
-        <option value="DifficultyAscending">Difficulty: easy to hard</option>
-        <option value="DifficultyDescending">Difficulty: hard to easy</option>
+    <select id="sort" (change)="changeSort($event)">
+      <option value="Newest" [selected]="criteria().sort === 'Newest'">Newest first</option>
+      @if (criteria().difficulties.length !== 1) {
+        <option value="DifficultyAscending" [selected]="criteria().sort === 'DifficultyAscending'">
+          Difficulty: easy to hard
+        </option>
+        <option value="DifficultyDescending" [selected]="criteria().sort === 'DifficultyDescending'">
+          Difficulty: hard to easy
+        </option>
       }
     </select>
   </div>
@@ -50,27 +54,56 @@
     <fieldset>
       <legend>Difficulty</legend>
       <label>
-        <input type="checkbox" [formField]="form.easy" (change)="difficultyChanged()" /> Easy
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Easy')"
+          (change)="toggleDifficulty('Easy')"
+        />
+        Easy
       </label>
       <label>
-        <input type="checkbox" [formField]="form.moderate" (change)="difficultyChanged()" />
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Moderate')"
+          (change)="toggleDifficulty('Moderate')"
+        />
         Moderate
       </label>
       <label>
-        <input type="checkbox" [formField]="form.hard" (change)="difficultyChanged()" /> Hard
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Hard')"
+          (change)="toggleDifficulty('Hard')"
+        />
+        Hard
       </label>
     </fieldset>
 
     <fieldset>
       <legend>Transport</legend>
       <label>
-        <input type="checkbox" [formField]="form.walking" (change)="emitCriteria()" /> Walking
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Walking')"
+          (change)="toggleTransport('Walking')"
+        />
+        Walking
       </label>
       <label>
-        <input type="checkbox" [formField]="form.bicycle" (change)="emitCriteria()" /> Bicycle
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Bicycle')"
+          (change)="toggleTransport('Bicycle')"
+        />
+        Bicycle
       </label>
       <label>
-        <input type="checkbox" [formField]="form.car" (change)="emitCriteria()" /> Car
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Car')"
+          (change)="toggleTransport('Car')"
+        />
+        Car
       </label>
     </fieldset>
   </section>

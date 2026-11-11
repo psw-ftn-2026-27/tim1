@@ -10,9 +10,9 @@
     </p>
   }
 
-  <app-tour-search (criteriaChange)="applyCriteria($event)" />
+  <app-tour-search [criteria]="criteria()" (criteriaChange)="applyCriteria($event)" />
 
-  @if (tours.isLoading()) {
+  @if (!preferencesSettled() || tours.isLoading()) {
     <p>Loading tours...</p>
   } @else if (tours.error()) {
     <p class="error">Could not load tours. Log in and try again.</p>

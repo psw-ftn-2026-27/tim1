@@ -1,4 +1,4 @@
-import { Component, computed, output, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { TourDifficulty, TransportMode } from '../../api/exploration-api-types';
 
@@ -19,82 +19,60 @@ export interface TourCriteria {
   templateUrl: './tour-search.html',
 })
 export class TourSearch {
+  // The applied criteria belong to the page. This component only shows them and reports changes.
+  readonly criteria = input.required<TourCriteria>();
   readonly criteriaChange = output<TourCriteria>();
 
-  // What the user is typing or has ticked. The title is only sent once Enter is pressed.
-  private readonly model = signal({
-    title: '',
-    tagInput: '',
-    easy: false,
-    moderate: false,
-    hard: false,
-    walking: false,
-    bicycle: false,
-    car: false,
-    sort: 'Newest' as TourSortOrder,
-  });
+  // Only the text being typed lives here. The title is only sent once Enter is pressed.
+  private readonly model = signal({ title: '', tagInput: '' });
 
   protected readonly form = form(this.model);
 
-  // The title and tags that have been applied (sent to the page).
-  private readonly appliedTitle = signal('');
-  protected readonly tags = signal<string[]>([]);
-  protected readonly filtersOpen = signal(false);
-
-  protected readonly selectedDifficultyCount = computed(() => {
-    const m = this.model();
-    return [m.easy, m.moderate, m.hard].filter((selected) => selected).length;
+  // Until the user opens or closes the filters, they are open when the criteria use them.
+  private readonly filtersToggled = signal<boolean | null>(null);
+  protected readonly filtersOpen = computed(() => {
+    const c = this.criteria();
+    return this.filtersToggled() ?? (c.difficulties.length > 0 || c.transports.length > 0);
   });
 
   protected toggleFilters(): void {
-    this.filtersOpen.update((open) => !open);
+    this.filtersToggled.set(!this.filtersOpen());
   }
 
   protected applyTitle(): void {
-    this.appliedTitle.set(this.model().title.trim());
-    this.emitCriteria();
+    this.criteriaChange.emit({ ...this.criteria(), title: this.model().title.trim() });
   }
 
   protected addTag(): void {
     const tag = this.model().tagInput.trim();
-    const added = tag !== '' && !this.tags().includes(tag);
-    if (added) {
-      this.tags.update((tags) => [...tags, tag]);
-    }
+    const tags = this.criteria().tags;
     this.model.update((m) => ({ ...m, tagInput: '' }));
-    if (added) {
-      this.emitCriteria();
+    if (tag !== '' && !tags.includes(tag)) {
+      this.criteriaChange.emit({ ...this.criteria(), tags: [...tags, tag] });
     }
   }
 
   protected removeTag(tag: string): void {
-    this.tags.update((tags) => tags.filter((t) => t !== tag));
-    this.emitCriteria();
+    const tags = this.criteria().tags.filter((t) => t !== tag);
+    this.criteriaChange.emit({ ...this.criteria(), tags });
   }
 
-  protected difficultyChanged(): void {
-    this.model.update((m) => ({ ...m, sort: 'Newest' }));
-    this.emitCriteria();
+  protected toggleDifficulty(difficulty: TourDifficulty): void {
+    const difficulties = this.toggled(this.criteria().difficulties, difficulty);
+    this.criteriaChange.emit({ ...this.criteria(), difficulties, sort: 'Newest' });
   }
 
-  protected emitCriteria(): void {
-    const m = this.model();
-    const difficulties: TourDifficulty[] = [];
-    if (m.easy) difficulties.push('Easy');
-    if (m.moderate) difficulties.push('Moderate');
-    if (m.hard) difficulties.push('Hard');
+  protected toggleTransport(transport: TransportMode): void {
+    const transports = this.toggled(this.criteria().transports, transport);
+    this.criteriaChange.emit({ ...this.criteria(), transports });
+  }
 
-    const transports: TransportMode[] = [];
-    if (m.walking) transports.push('Walking');
-    if (m.bicycle) transports.push('Bicycle');
-    if (m.car) transports.push('Car');
+  protected changeSort(event: Event): void {
+    const sort = (event.target as HTMLSelectElement).value as TourSortOrder;
+    this.criteriaChange.emit({ ...this.criteria(), sort });
+  }
 
-    this.criteriaChange.emit({
-      title: this.appliedTitle(),
-      difficulties,
-      transports,
-      tags: this.tags(),
-      sort: m.sort,
-    });
+  private toggled<T>(values: T[], value: T): T[] {
+    return values.includes(value) ? values.filter((v) => v !== value) : [...values, value];
   }
 }
