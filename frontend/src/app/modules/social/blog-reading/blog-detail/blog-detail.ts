@@ -6,10 +6,11 @@ import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-
 import { serverMessage } from '../../../../shared/util/server-message';
 import { BlogDto } from '../../api/social-api-types';
 import { BlogComments, CommentEdit } from '../blog-comments/blog-comments';
+import { BlogDescription } from '../blog-description/blog-description';
 import { BlogReading } from '../blog-reading';
 
 @Component({
-  imports: [BlogComments, ProtectedImage, RouterLink],
+  imports: [BlogComments, BlogDescription, ProtectedImage, RouterLink],
   selector: 'app-blog-detail',
   styleUrl: './blog-detail.scss',
   templateUrl: './blog-detail.html',

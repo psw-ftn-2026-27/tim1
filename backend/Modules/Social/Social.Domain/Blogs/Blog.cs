@@ -11,6 +11,7 @@ public sealed class Blog : AggregateRoot
     public string Title { get; private set; }
     public string Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime LastModifiedAt { get; private set; }
     public List<Guid> Images { get; private set; }
     public BlogStatus Status { get; private set; }
     private readonly List<Comment> _comments = [];
@@ -42,7 +43,9 @@ public sealed class Blog : AggregateRoot
         AuthorId = authorId;
         Title = title;
         Description = description;
-        CreatedAt = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        CreatedAt = now;
+        LastModifiedAt = now;
         Images = images ?? [];
         Status = BlogStatus.Draft;
     }
