@@ -30,6 +30,14 @@ public class BlogTests
     }
 
     [Fact]
+    public void New_blog_has_the_same_last_modified_date_as_creation_date()
+    {
+        var blog = CreateBlog();
+
+        blog.LastModifiedAt.Should().Be(blog.CreatedAt);
+    }
+
+    [Fact]
     public void New_blog_without_images_has_no_images()
     {
         var blog = new Blog(WellKnownUsers.Explorer, "Utisci sa tvrđave", "Opis obilaska tvrđave.", null);

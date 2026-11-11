@@ -1,4 +1,5 @@
-using Payment.Domain.TopUpRequests;
+using Payment.Application.Wallets;
+using Payment.Domain.Requests;
 
 namespace Payment.Application.WalletFunding;
 
@@ -6,5 +7,6 @@ public sealed record WalletRequestDto(
     Guid Id,
     WalletRequestType Type,
     decimal Amount,
-    TopUpRequestStatus Status,
-    DateTime CreatedAt);
+    WalletRequestStatus Status,
+    DateTime CreatedAt,
+    string? RejectionReason);

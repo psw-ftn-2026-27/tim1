@@ -1,0 +1,13 @@
+.reject {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.reject input {
+  flex: 1;
+}
+
+.row-actions {
+  display: flex;
+  gap: var(--space-2);
+}
