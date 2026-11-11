@@ -1,4 +1,3 @@
-using AutoMapper;
 using Shared.Domain.Exceptions;
 using Social.Application.Blogs;
 using Social.Application.Images;
@@ -14,25 +13,22 @@ public sealed class BlogAuthoringService
     private readonly IImageProcessor _imageProcessor;
     private readonly IImageStorage _imageStorage;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
 
     public BlogAuthoringService(
         IBlogRepository blogRepository,
         IImageRepository imageRepository,
         IImageProcessor imageProcessor,
         IImageStorage imageStorage,
-        IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IUnitOfWork unitOfWork)
     {
         _blogRepository = blogRepository;
         _imageRepository = imageRepository;
         _imageProcessor = imageProcessor;
         _imageStorage = imageStorage;
         _unitOfWork = unitOfWork;
-        _mapper = mapper;
     }
 
-    public async Task<BlogDto> CreateAsync(Guid authorId, CreateBlogDto dto)
+    public async Task<Guid> CreateAsync(Guid authorId, CreateBlogDto dto)
     {
         var imageIds = dto.Images ?? [];
         var blog = new Blog(authorId, dto.Title, dto.Description, imageIds);
@@ -45,7 +41,7 @@ public sealed class BlogAuthoringService
         _blogRepository.Add(blog);
         await _unitOfWork.SaveChangesAsync();
 
-        return _mapper.Map<BlogDto>(blog);
+        return blog.Id;
     }
 
     // The record is saved before the file is written, so a failure can leave a record

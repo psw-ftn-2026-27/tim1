@@ -46,6 +46,9 @@ namespace Social.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid[]")
                         .HasDefaultValueSql("'{}'");
 
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -84,6 +87,31 @@ namespace Social.Infrastructure.Persistence.Migrations
                     b.HasIndex("BlogId");
 
                     b.ToTable("Comments", "social");
+                });
+
+            modelBuilder.Entity("Social.Domain.Clubs.Club", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.PrimitiveCollection<List<string>>("Images")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clubs", "social");
                 });
 
             modelBuilder.Entity("Social.Domain.FollowRequests.FollowRequest", b =>

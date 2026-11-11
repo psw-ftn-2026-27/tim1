@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { RequestTopUpDto } from '../api/payment-api-types';
+import { RequestTopUpDto, RequestWithdrawalDto } from '../api/payment-api-types';
 
 const BASE_URL = '/api/payment/wallet';
 
@@ -11,5 +11,9 @@ export class WalletFunding {
 
   async requestTopUp(dto: RequestTopUpDto): Promise<void> {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/top-up-requests`, dto));
+  }
+
+  async requestWithdrawal(dto: RequestWithdrawalDto): Promise<void> {
+    await firstValueFrom(this.http.post<void>(`${BASE_URL}/withdrawal-requests`, dto));
   }
 }

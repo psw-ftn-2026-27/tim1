@@ -4,7 +4,6 @@ using FluentAssertions;
 using Shared.Infrastructure.Images;
 using Shared.Tests;
 using Social.Application.BlogAuthoring;
-using Social.Application.Blogs;
 using Social.Domain.Blogs;
 using Social.Domain.Images;
 using Social.Infrastructure.Persistence;
@@ -18,23 +17,24 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
     public BlogAuthoringCommandTests(SocialApiFactory factory) : base(factory) { }
 
     [Fact]
-    public async Task Explorer_creates_a_draft_blog()
+    public async Task Explorer_creates_a_draft_blog_with_images()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", []);
+        var imageId = ImageSeed.ExplorersUnattachedImage.Id;
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", [imageId]);
         using var arrangeContext = Factory.CreateContext<SocialDbContext>();
         var blogCountBefore = arrangeContext.Blogs.Count();
 
         var response = await client.PostAsJsonAsync("/api/social/blogs", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var created = await response.Content.ReadFromJsonAsync<BlogDto>(JsonOptions);
-        created!.AuthorId.Should().Be(WellKnownUsers.Explorer);
+        var createdId = await response.Content.ReadFromJsonAsync<Guid>(JsonOptions);
         using var assertContext = Factory.CreateContext<SocialDbContext>();
         assertContext.Blogs.Count().Should().Be(blogCountBefore + 1);
-        var stored = assertContext.Blogs.Single(blog => blog.Id == created.Id);
+        var stored = assertContext.Blogs.Single(blog => blog.Id == createdId);
+        stored.AuthorId.Should().Be(WellKnownUsers.Explorer);
         stored.Status.Should().Be(BlogStatus.Draft);
-        stored.Images.Should().BeEmpty();
+        stored.Images.Should().Equal(imageId);
         stored.Comments.Should().BeEmpty();
     }
 
@@ -111,10 +111,9 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
         var response = await client.PostAsJsonAsync("/api/social/blogs", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var created = await response.Content.ReadFromJsonAsync<BlogDto>(JsonOptions);
-        created!.Images.Should().Equal(imageId);
+        var createdId = await response.Content.ReadFromJsonAsync<Guid>(JsonOptions);
         using var assertContext = Factory.CreateContext<SocialDbContext>();
-        assertContext.Blogs.Single(blog => blog.Id == created.Id).Images.Should().Equal(imageId);
+        assertContext.Blogs.Single(blog => blog.Id == createdId).Images.Should().Equal(imageId);
         assertContext.Images.Single(image => image.Id == imageId).Status.Should().Be(ImageStatus.Attached);
     }
 

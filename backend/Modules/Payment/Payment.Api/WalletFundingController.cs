@@ -33,4 +33,11 @@ public sealed class WalletFundingController : ControllerBase
         await _fundingService.RequestTopUpAsync(User.GetUserId(), dto);
         return NoContent();
     }
+
+    [HttpPost("withdrawal-requests")]
+    public async Task<ActionResult> RequestWithdrawal(RequestWithdrawalDto dto)
+    {
+        await _fundingService.RequestWithdrawalAsync(User.GetUserId(), dto);
+        return NoContent();
+    }
 }
