@@ -23,12 +23,14 @@ internal sealed class ImageReadRepository : IImageReadRepository
             .FirstOrDefaultAsync();
     }
 
-    public Task<ImageFileDto?> GetOfPublishedBlogAsync(Guid blogId, Guid imageId)
+    public Task<ImageFileDto?> GetOfVisibleBlogAsync(Guid blogId, Guid imageId)
     {
         return _dbContext.Images
             .Where(image => image.Id == imageId)
             .Where(image => _dbContext.Blogs.Any(blog =>
-                blog.Id == blogId && blog.Status == BlogStatus.Published && blog.Images.Contains(image.Id)))
+                blog.Id == blogId
+                && (blog.Status == BlogStatus.Published || blog.Status == BlogStatus.Archived)
+                && blog.Images.Contains(image.Id)))
             .Select(image => new ImageFileDto(image.StoredFileName))
             .FirstOrDefaultAsync();
     }

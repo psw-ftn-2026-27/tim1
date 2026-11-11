@@ -102,6 +102,52 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Author_archives_their_published_blog()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var response = await client.PostAsync($"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/archive", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        var stored = assertContext.Blogs.Single(blog => blog.Id == BlogSeed.PublishedRiverbank.Id);
+        stored.Status.Should().Be(BlogStatus.Archived);
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_archive_another_authors_blog()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.PostAsync($"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/archive", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        var stored = assertContext.Blogs.Single(blog => blog.Id == BlogSeed.PublishedRiverbank.Id);
+        stored.Status.Should().Be(BlogStatus.Published);
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_archive_a_blog()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.PostAsync($"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/archive", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_archive_a_blog()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var response = await client.PostAsync($"/api/social/blogs/{BlogSeed.PublishedRiverbank.Id}/archive", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
     public async Task Explorer_creates_a_blog_with_their_own_images_and_the_images_become_attached()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
