@@ -1,4 +1,5 @@
 using Exploration.Application.TourPreferenceEditing;
+using Exploration.Application.TourPreferences;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Api;

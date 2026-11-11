@@ -1,6 +1,6 @@
 using Exploration.Domain.Tours;
 
-namespace Exploration.Application.TourPreferenceEditing;
+namespace Exploration.Application.TourPreferences;
 
 public sealed record TourPreferenceDto(
     List<TourDifficulty> Difficulties,

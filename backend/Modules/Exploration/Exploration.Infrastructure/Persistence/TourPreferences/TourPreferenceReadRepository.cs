@@ -1,4 +1,3 @@
-using Exploration.Application.TourPreferenceEditing;
 using Exploration.Application.TourPreferences;
 using Microsoft.EntityFrameworkCore;
 

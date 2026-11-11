@@ -24,15 +24,10 @@ public sealed class TourPreference : AggregateRoot
         UserId = userId;
         Difficulties = null!;
         Tags = null!;
-        Set(difficulties, transport, tags, opensSearch);
+        Change(difficulties, transport, tags, opensSearch);
     }
 
     public void Change(List<TourDifficulty> difficulties, TransportMode? transport, List<string> tags, bool opensSearch)
-    {
-        Set(difficulties, transport, tags, opensSearch);
-    }
-
-    private void Set(List<TourDifficulty> difficulties, TransportMode? transport, List<string> tags, bool opensSearch)
     {
         var distinctDifficulties = (difficulties ?? []).Distinct().ToList();
         var distinctTags = (tags ?? []).Distinct(StringComparer.OrdinalIgnoreCase).ToList();

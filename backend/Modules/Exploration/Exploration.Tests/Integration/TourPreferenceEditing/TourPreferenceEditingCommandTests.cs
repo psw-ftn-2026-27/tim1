@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using Exploration.Application.TourPreferenceEditing;
+using Exploration.Application.TourPreferences;
 using Exploration.Domain.Tours;
 using Exploration.Infrastructure.Persistence;
 using Exploration.Tests.Integration.Seeds;
