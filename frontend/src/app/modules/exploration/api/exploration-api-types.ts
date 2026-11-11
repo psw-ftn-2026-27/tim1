@@ -36,5 +36,5 @@ export interface CreateTourDto {
 }
 
 export interface PublishTourDto {
-  price: number | null;
+  price: number;
 }

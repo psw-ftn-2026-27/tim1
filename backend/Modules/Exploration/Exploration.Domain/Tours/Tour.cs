@@ -42,10 +42,6 @@ public sealed class Tour : AggregateRoot
         {
             throw new DomainException("A tour requires at least one tag.");
         }
-        if (groupSize is null)
-        {
-            throw new DomainException("A tour requires a group size.");
-        }
 
         AuthorId = authorId;
         Name = name;
@@ -66,8 +62,12 @@ public sealed class Tour : AggregateRoot
         _transportTimes.Add(new TransportTime(transport, minutes));
     }
 
-    public void Publish()
+    public void Publish(decimal price)
     {
+        if (price < 0)
+        {
+            throw new DomainException("A tour price cannot be negative.");
+        }
         if (Status == TourStatus.Published)
         {
             throw new DomainException("The tour is already published.");

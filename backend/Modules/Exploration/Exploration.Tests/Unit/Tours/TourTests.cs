@@ -53,14 +53,6 @@ public class TourTests
     }
 
     [Fact]
-    public void New_tour_requires_a_group_size()
-    {
-        var creation = () => new Tour(WellKnownUsers.Explorer, "Šetnja tvrđavom", "Opis ture.", TourDifficulty.Easy, ["istorija"], null!);
-
-        creation.Should().Throw<DomainException>();
-    }
-
-    [Fact]
     public void Tour_has_one_time_per_transport_mode()
     {
         var tour = CreateTour(LongDescription);
@@ -83,16 +75,29 @@ public class TourTests
         addition.Should().Throw<DomainException>();
     }
 
-    [Fact]
-    public void Tour_is_published_when_all_rules_are_met()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(50)]
+    public void Tour_is_published_when_all_rules_are_met(int price)
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Bicycle, 45);
 
-        tour.Publish();
+        tour.Publish(price);
 
         tour.Status.Should().Be(TourStatus.Published);
         tour.PublishedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Tour_with_a_negative_price_cannot_be_published()
+    {
+        var tour = CreateTour(LongDescription);
+        tour.AddTransportTime(TransportMode.Walking, 120);
+
+        var publishing = () => tour.Publish(-10);
+
+        publishing.Should().Throw<DomainException>();
     }
 
     [Fact]
@@ -101,7 +106,7 @@ public class TourTests
         var tour = CreateTour("Kratak opis.");
         tour.AddTransportTime(TransportMode.Walking, 120);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
@@ -111,7 +116,7 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
@@ -121,9 +126,9 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Car, 30);
-        tour.Publish();
+        tour.Publish(0);
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }

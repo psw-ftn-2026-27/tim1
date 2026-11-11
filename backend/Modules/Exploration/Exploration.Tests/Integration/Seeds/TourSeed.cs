@@ -19,11 +19,11 @@ internal static class TourSeed
 
         PublishedVineyards = new(WellKnownUsers.Explorer, "Vinogradi Sremskih Karlovaca", "Tura vodi kroz vinograde na obroncima Fruške gore, uz obilazak dva porodična podruma i degustaciju bermeta u Sremskim Karlovcima.", TourDifficulty.Moderate, ["vino", "priroda"], new GroupSize(2, 20));
         PublishedVineyards.AddTransportTime(TransportMode.Bicycle, 60);
-        PublishedVineyards.Publish();
+        PublishedVineyards.Publish(0);
 
         PublishedMonasteries = new(WellKnownUsers.Explorer, "Fruškogorski manastiri", "Tura obilazi tri fruškogorska manastira: Krušedol, Grgeteg i Novo Hopovo, sa pauzom za ručak u podnožju nacionalnog parka.", TourDifficulty.Hard, ["istorija"], new GroupSize(4, 16));
         PublishedMonasteries.AddTransportTime(TransportMode.Car, 45);
-        PublishedMonasteries.Publish();
+        PublishedMonasteries.Publish(0);
     }
 
     public static Tour[] All => [FortressWalk, CityStroll, SecondExplorersTrail, PublishableRiverside, PublishedVineyards, PublishedMonasteries];
