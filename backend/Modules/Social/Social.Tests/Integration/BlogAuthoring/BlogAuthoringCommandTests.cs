@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Shared.Infrastructure.Images;
 using Shared.Tests;
 using Social.Application.BlogAuthoring;
 using Social.Application.Blogs;
 using Social.Domain.Blogs;
+using Social.Domain.Images;
 using Social.Infrastructure.Persistence;
 using Social.Tests.Integration.Seeds;
 using Xunit;
@@ -19,7 +21,7 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
     public async Task Explorer_creates_a_draft_blog()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", ["https://example.com/slika.jpg"]);
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", []);
         using var arrangeContext = Factory.CreateContext<SocialDbContext>();
         var blogCountBefore = arrangeContext.Blogs.Count();
 
@@ -32,7 +34,7 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
         assertContext.Blogs.Count().Should().Be(blogCountBefore + 1);
         var stored = assertContext.Blogs.Single(blog => blog.Id == created.Id);
         stored.Status.Should().Be(BlogStatus.Draft);
-        stored.Images.Should().ContainSingle().Which.Should().Be("https://example.com/slika.jpg");
+        stored.Images.Should().BeEmpty();
         stored.Comments.Should().BeEmpty();
     }
 
@@ -97,5 +99,153 @@ public class BlogAuthoringCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<SocialDbContext>();
         var stored = assertContext.Blogs.Single(blog => blog.Id == BlogSeed.FortressImpressions.Id);
         stored.Status.Should().Be(BlogStatus.Draft);
+    }
+
+    [Fact]
+    public async Task Explorer_creates_a_blog_with_their_own_images_and_the_images_become_attached()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var imageId = ImageSeed.ExplorersUnattachedImage.Id;
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", [imageId]);
+
+        var response = await client.PostAsJsonAsync("/api/social/blogs", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var created = await response.Content.ReadFromJsonAsync<BlogDto>(JsonOptions);
+        created!.Images.Should().Equal(imageId);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Blogs.Single(blog => blog.Id == created.Id).Images.Should().Equal(imageId);
+        assertContext.Images.Single(image => image.Id == imageId).Status.Should().Be(ImageStatus.Attached);
+    }
+
+    [Fact]
+    public async Task Blog_is_not_saved_when_one_of_its_images_cannot_be_attached()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.",
+            [ImageSeed.ExplorersUnattachedImage.Id, ImageSeed.SecondExplorersUnattachedImage.Id]);
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var blogCountBefore = arrangeContext.Blogs.Count();
+
+        var response = await client.PostAsJsonAsync("/api/social/blogs", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Blogs.Count().Should().Be(blogCountBefore);
+        assertContext.Images.Single(image => image.Id == ImageSeed.ExplorersUnattachedImage.Id)
+            .Status.Should().Be(ImageStatus.Unattached);
+    }
+
+    [Fact]
+    public async Task Blog_with_an_image_that_does_not_exist_is_not_saved()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new CreateBlogDto("Novi blog", "Opis novog bloga.", [Guid.NewGuid()]);
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var blogCountBefore = arrangeContext.Blogs.Count();
+
+        var response = await client.PostAsJsonAsync("/api/social/blogs", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Blogs.Count().Should().Be(blogCountBefore);
+    }
+
+    [Fact]
+    public async Task Explorer_uploads_an_image_and_it_is_stored_as_unattached_with_its_file()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var imageId = await response.Content.ReadFromJsonAsync<Guid>(JsonOptions);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        var stored = assertContext.Images.Single(image => image.Id == imageId);
+        stored.UploaderId.Should().Be(WellKnownUsers.Explorer);
+        stored.Status.Should().Be(ImageStatus.Unattached);
+        stored.Width.Should().Be(300);
+        stored.Height.Should().Be(200);
+        File.Exists(Factory.StoredImagePath(stored.StoredFileName)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task File_larger_than_5_megabytes_is_rejected_before_processing()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(new byte[ImageProcessor.MaxFileBytes + 1024 * 1024]);
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var imageCountBefore = arrangeContext.Images.Count();
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.RequestEntityTooLarge);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Count().Should().Be(imageCountBefore);
+    }
+
+    [Fact]
+    public async Task Invalid_image_leaves_neither_a_record_nor_a_file()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm("not an image"u8.ToArray());
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var imageCountBefore = arrangeContext.Images.Count();
+        var fileCountBefore = Factory.StoredImageFileCount();
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Count().Should().Be(imageCountBefore);
+        Factory.StoredImageFileCount().Should().Be(fileCountBefore);
+    }
+
+    [Fact]
+    public async Task Expired_unattached_images_are_deleted_with_their_files_on_the_next_upload()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.Images.Any(image => image.Id == ImageSeed.ExpiredUnattachedImage.Id).Should().BeFalse();
+        File.Exists(Factory.StoredImagePath(ImageSeed.ExpiredUnattachedImage.StoredFileName)).Should().BeFalse();
+        assertContext.Images.Any(image => image.Id == ImageSeed.OldFortressPhotoOnDraft.Id).Should().BeTrue();
+        File.Exists(Factory.StoredImagePath(ImageSeed.OldFortressPhotoOnDraft.StoredFileName)).Should().BeTrue();
+        assertContext.Images.Any(image => image.Id == ImageSeed.ExplorersUnattachedImage.Id).Should().BeTrue();
+        File.Exists(Factory.StoredImagePath(ImageSeed.ExplorersUnattachedImage.StoredFileName)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_upload_an_image()
+    {
+        var client = Factory.CreateClient();
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_upload_an_image()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        using var form = ImageForm(TestImages.Png(300, 200));
+
+        var response = await client.PostAsync("/api/social/blogs/images", form);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private static MultipartFormDataContent ImageForm(byte[] content)
+    {
+        var form = new MultipartFormDataContent();
+        form.Add(new ByteArrayContent(content), "file", "photo.png");
+        return form;
     }
 }

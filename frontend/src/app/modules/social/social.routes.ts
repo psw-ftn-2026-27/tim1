@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { CreateBlog } from './blog-authoring/create-blog/create-blog';
 import { MyBlogs } from './blog-authoring/my-blogs/my-blogs';
+import { FollowRequests } from './follow-requesting/follow-requests/follow-requests';
+import { People } from './follow-requesting/people/people';
 import { BlogDetail } from './blog-reading/blog-detail/blog-detail';
 import { BlogList } from './blog-reading/blog-list/blog-list';
 import { CreateClub } from './club-management/create-club/create-club';
@@ -12,5 +14,7 @@ export const socialRoutes: Routes = [
   { path: 'create', component: CreateBlog },
   { path: 'clubs/mine', component: MyClubs },
   { path: 'clubs/create', component: CreateClub },
+  { path: 'follow-requests', component: FollowRequests },
+  { path: 'people', component: People },
   { path: ':id', component: BlogDetail },
 ];

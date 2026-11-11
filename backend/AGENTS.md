@@ -24,6 +24,8 @@ backend/
     Shared.Api/                    ClaimsPrincipal.GetUserId()               [platform]
     Shared.Infrastructure/         AddModuleDbContext (Npgsql, schema-per-
                                    module, per-schema migrations history)    [platform]
+                                   Images/: ImageProcessor, LocalImageStorage
+                                   (shared image upload, see its README)     [platform]
     Shared.Tests/                  ExplorerApiFactory (per-assembly test DB,
                                    reseed, test JWTs), WellKnownUsers        [platform]
   Modules/
