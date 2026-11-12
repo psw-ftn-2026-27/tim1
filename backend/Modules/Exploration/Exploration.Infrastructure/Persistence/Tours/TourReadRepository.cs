@@ -23,39 +23,8 @@ internal sealed class TourReadRepository : ITourReadRepository
     public async Task<PageResult<TourDto>> GetPublishedAsync(TourSearchDto search, int page, int pageSize)
     {
         var published = _dbContext.Tours.Where(tour => tour.Status == TourStatus.Published);
-
-        if (!string.IsNullOrWhiteSpace(search.Title))
-        {
-            var title = search.Title.ToLower();
-            published = published.Where(tour => tour.Name.ToLower().Contains(title));
-        }
-        if (search.Difficulties is { Count: > 0 })
-        {
-            var difficulties = search.Difficulties;
-            published = published.Where(tour => difficulties.Contains(tour.Difficulty));
-        }
-        if (search.Transports is { Count: > 0 })
-        {
-            var transports = search.Transports;
-            published = published.Where(tour => tour.TransportTimes.Any(time => transports.Contains(time.Transport)));
-        }
-        foreach (var tag in search.Tags ?? [])
-        {
-            var requiredTag = tag;
-            published = published.Where(tour => tour.Tags.Contains(requiredTag));
-        }
-
-        IOrderedQueryable<Tour> ordered = search.Sort switch
-        {
-            TourSortOrder.DifficultyAscending => published
-                .OrderBy(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
-                .ThenByDescending(tour => tour.PublishedAt),
-            TourSortOrder.DifficultyDescending => published
-                .OrderByDescending(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
-                .ThenByDescending(tour => tour.PublishedAt),
-            _ => published.OrderByDescending(tour => tour.PublishedAt)
-        };
-        published = ordered;
+        published = ApplyFilters(published, search);
+        published = ApplySort(published, search.Sort);
 
         var totalCount = await published.CountAsync();
         var items = await ProjectToDtos(published)
@@ -74,6 +43,42 @@ internal sealed class TourReadRepository : ITourReadRepository
             .Distinct()
             .OrderBy(tag => tag)
             .ToListAsync();
+    }
+
+    private static IQueryable<Tour> ApplyFilters(IQueryable<Tour> tours, TourSearchDto search)
+    {
+        if (!string.IsNullOrWhiteSpace(search.Title))
+        {
+            var title = search.Title.ToLower();
+            tours = tours.Where(tour => tour.Name.ToLower().Contains(title));
+        }
+        if (search.Difficulties.Count > 0)
+        {
+            tours = tours.Where(tour => search.Difficulties.Contains(tour.Difficulty));
+        }
+        if (search.Transports.Count > 0)
+        {
+            tours = tours.Where(tour => tour.TransportTimes.Any(time => search.Transports.Contains(time.Transport)));
+        }
+        foreach (var tag in search.Tags)
+        {
+            tours = tours.Where(tour => tour.Tags.Contains(tag));
+        }
+        return tours;
+    }
+
+    private static IQueryable<Tour> ApplySort(IQueryable<Tour> tours, TourSortOrder sort)
+    {
+        return sort switch
+        {
+            TourSortOrder.DifficultyAscending => tours
+                .OrderBy(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
+                .ThenByDescending(tour => tour.PublishedAt),
+            TourSortOrder.DifficultyDescending => tours
+                .OrderByDescending(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
+                .ThenByDescending(tour => tour.PublishedAt),
+            _ => tours.OrderByDescending(tour => tour.PublishedAt)
+        };
     }
 
     private static IQueryable<TourDto> ProjectToDtos(IQueryable<Tour> tours)
