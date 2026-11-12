@@ -52,18 +52,22 @@ internal sealed class TourReadRepository : ITourReadRepository
             var title = search.Title.ToLower();
             tours = tours.Where(tour => tour.Name.ToLower().Contains(title));
         }
+
         if (search.Difficulties.Count > 0)
         {
             tours = tours.Where(tour => search.Difficulties.Contains(tour.Difficulty));
         }
+
         if (search.Transports.Count > 0)
         {
             tours = tours.Where(tour => tour.TransportTimes.Any(time => search.Transports.Contains(time.Transport)));
         }
+
         foreach (var tag in search.Tags)
         {
-            tours = tours.Where(tour => tour.Tags.Contains(tag));
+            tours = tours.Where(tour => tour.Tags.Any((t => t.ToLower().Equals(tag.ToLower()))));
         }
+
         return tours;
     }
 
@@ -72,10 +76,12 @@ internal sealed class TourReadRepository : ITourReadRepository
         return sort switch
         {
             TourSortOrder.DifficultyAscending => tours
-                .OrderBy(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
+                .OrderBy(tour =>
+                    tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
                 .ThenByDescending(tour => tour.PublishedAt),
             TourSortOrder.DifficultyDescending => tours
-                .OrderByDescending(tour => tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
+                .OrderByDescending(tour =>
+                    tour.Difficulty == TourDifficulty.Easy ? 0 : tour.Difficulty == TourDifficulty.Moderate ? 1 : 2)
                 .ThenByDescending(tour => tour.PublishedAt),
             _ => tours.OrderByDescending(tour => tour.PublishedAt)
         };
