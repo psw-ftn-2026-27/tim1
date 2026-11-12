@@ -1,0 +1,110 @@
+<div class="search">
+  <div class="field">
+    <label for="title-search">Search by title (press Enter)</label>
+    <input
+      id="title-search"
+      type="search"
+      [formField]="form.title"
+      (keydown.enter)="applyTitle()"
+    />
+  </div>
+
+  <div class="field">
+    <label for="tag-input">Tags (press Enter to add)</label>
+    <div class="tag-box">
+      @for (tag of criteria().tags; track tag) {
+        <span class="pill">
+          {{ tag }}
+          <button
+            type="button"
+            class="pill-remove"
+            [attr.aria-label]="'Remove tag ' + tag"
+            (click)="removeTag(tag)"
+          >
+            &#10005;
+          </button>
+        </span>
+      }
+      <input id="tag-input" type="text" [formField]="form.tagInput" (keydown.enter)="addTag()" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="sort">Sort</label>
+    <select id="sort" (change)="changeSort($event)">
+      <option value="Newest" [selected]="criteria().sort === 'Newest'">Newest first</option>
+      @if (criteria().difficulties.length !== 1) {
+        <option value="DifficultyAscending" [selected]="criteria().sort === 'DifficultyAscending'">
+          Difficulty: easy to hard
+        </option>
+        <option value="DifficultyDescending" [selected]="criteria().sort === 'DifficultyDescending'">
+          Difficulty: hard to easy
+        </option>
+      }
+    </select>
+  </div>
+
+  <button type="button" class="button" (click)="toggleFilters()">
+    {{ filtersOpen() ? 'Hide filters' : 'Show filters' }}
+  </button>
+</div>
+
+@if (filtersOpen()) {
+  <section class="card filter-section">
+    <fieldset>
+      <legend>Difficulty</legend>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Easy')"
+          (change)="toggleDifficulty('Easy')"
+        />
+        Easy
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Moderate')"
+          (change)="toggleDifficulty('Moderate')"
+        />
+        Moderate
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().difficulties.includes('Hard')"
+          (change)="toggleDifficulty('Hard')"
+        />
+        Hard
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Transport</legend>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Walking')"
+          (change)="toggleTransport('Walking')"
+        />
+        Walking
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Bicycle')"
+          (change)="toggleTransport('Bicycle')"
+        />
+        Bicycle
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          [checked]="criteria().transports.includes('Car')"
+          (change)="toggleTransport('Car')"
+        />
+        Car
+      </label>
+    </fieldset>
+  </section>
+}

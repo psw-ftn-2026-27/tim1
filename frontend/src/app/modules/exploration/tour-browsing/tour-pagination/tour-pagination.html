@@ -1,0 +1,16 @@
+@if (totalCount() > 0) {
+  <nav class="pagination" aria-label="Pages">
+    <button type="button" class="button" [disabled]="page() <= 1" (click)="goTo(page() - 1)">
+      Previous
+    </button>
+    <span class="meta">Page {{ page() }} of {{ totalPages() }}</span>
+    <button
+      type="button"
+      class="button"
+      [disabled]="page() >= totalPages()"
+      (click)="goTo(page() + 1)"
+    >
+      Next
+    </button>
+  </nav>
+}

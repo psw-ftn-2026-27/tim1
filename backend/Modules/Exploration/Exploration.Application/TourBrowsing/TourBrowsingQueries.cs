@@ -12,11 +12,11 @@ public sealed class TourBrowsingQueries
         _tourReadRepository = tourReadRepository;
     }
 
-    public Task<PageResult<TourDto>> GetPublishedAsync(int page, int pageSize)
+    public Task<PageResult<TourDto>> GetPublishedAsync(TourSearchDto search, int page, int pageSize)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        return _tourReadRepository.GetPublishedAsync(page, pageSize);
+        return _tourReadRepository.GetPublishedAsync(search, page, pageSize);
     }
 }

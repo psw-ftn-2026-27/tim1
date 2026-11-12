@@ -10,34 +10,26 @@
     </p>
   }
 
-  <div class="filters">
-    <div class="field">
-      <label for="name-filter">Search by name</label>
-      <input id="name-filter" type="search" [formField]="form.name" />
-    </div>
+  <app-tour-search [criteria]="criteria()" (criteriaChange)="applyCriteria($event)" />
 
-    <div class="field">
-      <label for="difficulty-filter">Difficulty</label>
-      <select id="difficulty-filter" [formField]="form.difficulty">
-        <option value="">All</option>
-        <option value="Easy">Easy</option>
-        <option value="Moderate">Moderate</option>
-        <option value="Hard">Hard</option>
-      </select>
-    </div>
-  </div>
-
-  @if (tours.isLoading()) {
+  @if (!preferencesSettled() || tours.isLoading()) {
     <p>Loading tours...</p>
   } @else if (tours.error()) {
     <p class="error">Could not load tours. Log in and try again.</p>
-  } @else if (visibleTours().length === 0) {
-    <p>No tours match the filter.</p>
+  } @else if ((tours.value()?.items ?? []).length === 0) {
+    <p>No tours match the criteria.</p>
   } @else {
     <div class="grid">
-      @for (tour of visibleTours(); track tour.id) {
+      @for (tour of tours.value()?.items; track tour.id) {
         <app-tour-card [tour]="tour" />
       }
     </div>
+
+    <app-tour-pagination
+      [page]="page()"
+      [pageSize]="pageSize"
+      [totalCount]="tours.value()?.totalCount ?? 0"
+      (pageChange)="goToPage($event)"
+    />
   }
 </div>

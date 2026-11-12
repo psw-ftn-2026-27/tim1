@@ -11,6 +11,7 @@ internal static class TourSeed
     public static readonly Tour PublishableRiverside;
     public static readonly Tour PublishedVineyards;
     public static readonly Tour PublishedMonasteries;
+    public static readonly Tour PublishedLakeside;
 
     static TourSeed()
     {
@@ -24,7 +25,11 @@ internal static class TourSeed
         PublishedMonasteries = new(WellKnownUsers.Explorer, "Fruškogorski manastiri", "Tura obilazi tri fruškogorska manastira: Krušedol, Grgeteg i Novo Hopovo, sa pauzom za ručak u podnožju nacionalnog parka.", TourDifficulty.Hard, ["istorija"]);
         PublishedMonasteries.AddTransportTime(TransportMode.Car, 45);
         PublishedMonasteries.Publish();
+
+        PublishedLakeside = new(WellKnownUsers.Explorer, "Šetnja oko Ludaškog jezera", "Laka šetnja po stazi oko Ludaškog jezera, sa tornjevima za posmatranje ptica, drvenim mostićima i klupama za odmor tokom cele staze.", TourDifficulty.Easy, ["priroda"]);
+        PublishedLakeside.AddTransportTime(TransportMode.Walking, 120);
+        PublishedLakeside.Publish();
     }
 
-    public static Tour[] All => [FortressWalk, CityStroll, SecondExplorersTrail, PublishableRiverside, PublishedVineyards, PublishedMonasteries];
+    public static Tour[] All => [FortressWalk, CityStroll, SecondExplorersTrail, PublishableRiverside, PublishedVineyards, PublishedMonasteries, PublishedLakeside];
 }
