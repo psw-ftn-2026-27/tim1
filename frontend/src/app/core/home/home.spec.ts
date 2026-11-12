@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Auth, User } from '../auth/auth';
 import { Home } from './home';
+import { routes } from '../app.routes';
 
 describe('Explorer Home', () => {
   let fixture: ComponentFixture<Home>;
@@ -57,7 +58,10 @@ describe('Explorer Home', () => {
     focused = true;
     hidden = false;
     motion = Object.assign(new EventTarget(), { matches: false }) as MediaQueryList;
-    vi.stubGlobal('matchMedia', vi.fn(() => motion));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => motion),
+    );
     vi.spyOn(document, 'hasFocus').mockImplementation(() => focused);
     vi.spyOn(document, 'hidden', 'get').mockImplementation(() => hidden);
     disconnect = vi.fn();
@@ -70,7 +74,7 @@ describe('Explorer Home', () => {
     );
     TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), { provide: Auth, useValue: { user } }],
+      providers: [provideRouter(routes), { provide: Auth, useValue: { user } }],
     });
   });
 
@@ -87,7 +91,8 @@ describe('Explorer Home', () => {
 
     expect(links('.hero a')).toEqual(['/login', '/register', '/login']);
     expect(links('.join a')).toEqual(['/register', '/login']);
-    expect(links('.tile.linked')).toEqual(['/login', '/login']);
+    expect(links('.tile.linked')).toEqual(['/login', '/login', '/login', '/login']);
+    expect(element.querySelector('#payment-status')?.textContent).toBe('');
     expect(links('a')).not.toContain('/exploration');
     expect(links('a')).not.toContain('/social');
   });
@@ -97,24 +102,114 @@ describe('Explorer Home', () => {
     render();
 
     expect(links('.hero a')).toEqual(['/exploration', '/social']);
-    expect(links('.tile.linked')).toEqual(['/exploration', '/social']);
+    expect(links('.tile.linked')).toEqual(['/exploration', '/games', '/social', '/payment']);
     expect(links('.join a')).toEqual(['/exploration', '/social']);
     expect(links('a')).not.toContain('/login');
     expect(links('a')).not.toContain('/register');
   });
 
-  it('keeps games and purchases informative without nested controls', () => {
+  it('keeps four complete cards without nested controls', () => {
     render();
 
-    const planned = element.querySelectorAll('article.tile');
-    expect(planned).toHaveLength(2);
-    for (const card of planned) {
-      expect(card.textContent).toContain('U pripremi');
+    const cards = element.querySelectorAll('.tile');
+    expect(cards).toHaveLength(4);
+    for (const card of cards) {
+      expect(card.querySelector('.thumb')).not.toBeNull();
+      expect(card.querySelector('.body')).not.toBeNull();
       expect(card.querySelector('a,button,[tabindex]')).toBeNull();
     }
     expect(element.querySelector('a a,a button')).toBeNull();
     expect(element.querySelector('.join svg')).toBeNull();
     expect(element.querySelector('footer')?.textContent?.trim()).toBe('© Explorer');
+  });
+
+  it.each([0, 1, 2, 3])(
+    'navigates guests to the existing login route from card %i',
+    async (index) => {
+      render();
+      const router = TestBed.inject(Router);
+      const navigate = vi.spyOn(router, 'navigateByUrl');
+
+      const card = element.querySelectorAll<HTMLAnchorElement>('.tile')[index];
+      card.querySelector<HTMLElement>('.thumb')!.click();
+      await navigate.mock.results[0].value;
+
+      expect(router.url).toBe('/login');
+      expect(element.querySelector('#payment-status')?.textContent).toBe('');
+    },
+  );
+
+  it.each([
+    [0, '/exploration'],
+    [1, '/games'],
+    [2, '/social'],
+    [3, '/payment'],
+  ])('navigates explorers from card %i to the existing %s route', async (index, destination) => {
+    user.set({ id: 'member', email: 'member@example.test', roles: ['explorer'] });
+    render();
+    const router = TestBed.inject(Router);
+    const navigate = vi.spyOn(router, 'navigateByUrl');
+
+    const card = element.querySelectorAll<HTMLAnchorElement>('.tile')[index];
+    card.querySelector<HTMLElement>('.thumb')!.click();
+    await navigate.mock.results[0].value;
+
+    expect(router.url).toBe(destination);
+  });
+
+  it.each([['administrator'], ['explorer', 'administrator']])(
+    'opens wallet administration for roles %j',
+    async (...roles) => {
+      user.set({ id: 'admin', email: 'admin@example.test', roles });
+      render();
+      const router = TestBed.inject(Router);
+      const navigate = vi.spyOn(router, 'navigateByUrl');
+
+      element.querySelectorAll<HTMLAnchorElement>('.tile')[3].click();
+      await navigate.mock.results[0].value;
+
+      expect(router.url).toBe('/payment/admin/requests');
+    },
+  );
+
+  it.each([[], ['other']])(
+    'explains unavailable payment without navigating for roles %j',
+    (...roles) => {
+      user.set({ id: 'member', email: 'member@example.test', roles });
+      render();
+      const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+      const payment = element.querySelector<HTMLButtonElement>('button.tile')!;
+      payment.focus();
+
+      payment.querySelector<HTMLElement>('.thumb')!.click();
+      TestBed.tick();
+
+      expect(navigate).not.toHaveBeenCalled();
+      expect(TestBed.inject(Router).url).toBe('/');
+      expect(document.activeElement).toBe(payment);
+      expect(payment.type).toBe('button');
+      const status = element.querySelector('#payment-status')!;
+      expect(status.getAttribute('role')).toBe('status');
+      expect(status.textContent).toBe(
+        'Funkcionalnosti plaćanja trenutno nisu dostupne za vašu korisničku ulogu.',
+      );
+    },
+  );
+
+  it('clears the payment notice when Home is destroyed and opened again', () => {
+    user.set({ id: 'member', email: 'member@example.test', roles: [] });
+    render();
+    element.querySelector<HTMLButtonElement>('button.tile')!.click();
+    TestBed.tick();
+    expect(element.querySelector('#payment-status')?.textContent).not.toBe('');
+
+    fixture.destroy();
+    render();
+
+    expect(element.querySelector('#payment-status')?.textContent).toBe('');
+    element.querySelector<HTMLButtonElement>('button.tile')!.click();
+    TestBed.tick();
+    expect(element.querySelector('#payment-status')?.textContent).not.toBe('');
   });
 
   it('waits six seconds and cycles all three complete slides silently', () => {
@@ -126,9 +221,13 @@ describe('Explorer Home', () => {
     expect(selectedSlide()).toBe(0);
     advance(1);
     expect(selectedSlide()).toBe(1);
-    expect(element.querySelector('.show img')?.getAttribute('src')).toContain('gallery-adventure.webp');
+    expect(element.querySelector('.show img')?.getAttribute('src')).toContain(
+      'gallery-adventure.webp',
+    );
     expect(element.querySelector('.show')?.textContent).toContain('KRENI U ISTRAŽIVANJE');
-    expect(element.querySelector('.show h3')?.textContent).toBe('Najlepša otkrića počinju prvim korakom.');
+    expect(element.querySelector('.show h3')?.textContent).toBe(
+      'Najlepša otkrića počinju prvim korakom.',
+    );
     advance(6000);
     expect(selectedSlide()).toBe(2);
     advance(6000);
