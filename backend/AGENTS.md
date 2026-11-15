@@ -31,6 +31,8 @@ backend/
   Modules/
     Identity/
       Identity/                    single project, platform-owned, see below [platform]
+      Identity.Contracts/          IIdentityApi, the only part other modules
+                                   may reference                             [platform]
       Identity.Tests/                                                        [platform]
     <Name>/
       <Name>.Api/                  API controllers, speaking Application DTOs
@@ -61,7 +63,8 @@ The compiler enforces the layering instead of a reviewer having to spot it.
   `<FrameworkReference Include="Microsoft.AspNetCore.App" />`.
 - `Infrastructure` references `Application`, `Domain`, and `Shared.Infrastructure`.
 - A module may reference another module's `Contracts` project and nothing else from it.
-- No module references `Identity`. Other modules carry a `UserId` as a plain ID.
+- No module references `Identity`, except `Identity.Contracts`. Other modules carry a
+  `UserId` as a plain ID and resolve it to a name through `IIdentityApi`.
 - `Host.Api` references every module's `Infrastructure` (for DI) and `Api` (for controller
   discovery), plus the `Identity` project.
 
@@ -85,9 +88,12 @@ platform decision. Do not change the version or add a license key.
 ## Identity
 
 Identity is a deliberate exception to the module structure: one platform-owned project
-that students use but never modify or reference. It holds ASP.NET Core Identity on the
-`identity` schema, register/login endpoints issuing JWTs, and role seeding at startup
-(`administrator`, `explorer`); the details live in the project itself.
+that students use but never modify or reference, plus `Identity.Contracts`. It holds
+ASP.NET Core Identity on the `identity` schema, register/login endpoints issuing JWTs,
+and role seeding at startup (`administrator`, `explorer`); the details live in the
+project itself. `Identity.Contracts` declares `IIdentityApi` (user search and lookup by
+IDs, `DisplayName` is currently the e-mail), which other modules may reference; the
+single `Identity` project implements it, since Identity has no Application layer.
 
 What matters outside it: token validation is configured in `Host.Api`; role checks are
 `[Authorize(Roles = ...)]` attributes on controllers or actions. Controllers read the
