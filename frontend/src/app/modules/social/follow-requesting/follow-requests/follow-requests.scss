@@ -1,0 +1,21 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.back {
+  font-size: 1.5rem;
+  line-height: 1;
+  text-decoration: none;
+}
+
+h1 {
+  flex: 1;
+}
+
+.add {
+  font-size: 2rem;
+  line-height: 1;
+  text-decoration: none;
+}

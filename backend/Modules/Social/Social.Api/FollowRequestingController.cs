@@ -68,9 +68,9 @@ public sealed class FollowRequestingController : ControllerBase
         return await _requestingQueries.GetSentFollowRequestsAsync(User.GetUserId());
     }
 
-    [HttpGet("authors")]
-    public async Task<ActionResult<PageResult<AuthorToFollowDto>>> GetAuthors([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    [HttpGet("search")]
+    public async Task<ActionResult<PageResult<UserToFollowDto>>> SearchUsersToFollow([FromQuery] string text = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        return await _requestingQueries.GetAuthorsToFollowAsync(User.GetUserId(), page, pageSize);
+        return await _requestingQueries.SearchUsersToFollowAsync(User.GetUserId(), text, page, pageSize);
     }
 }

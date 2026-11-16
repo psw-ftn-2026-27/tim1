@@ -1,3 +1,52 @@
-.card > button {
-  align-self: flex-start;
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.row {
+  flex: 1;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 4rem;
+  padding-block: 0;
+}
+
+h3 {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.slot {
+  display: flex;
+  justify-content: center;
+  width: 3rem;
+}
+
+.button {
+  min-height: 2.25rem;
+  padding-block: 0;
+}
+
+.badge {
+  min-width: 7rem;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  color: var(--color-accent-text);
+  text-align: center;
+}
+
+.pending {
+  background: color-mix(in srgb, var(--color-warning) 75%, white);
+}
+
+.accepted {
+  background: color-mix(in srgb, var(--color-text-muted) 75%, white);
+}
+
+.rejected {
+  background: var(--color-danger);
 }

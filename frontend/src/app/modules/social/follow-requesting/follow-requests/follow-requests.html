@@ -1,7 +1,9 @@
 <div class="stack">
-  <h1>Zahtevi</h1>
-
-  <p><a routerLink="/social/people" aria-label="Pošalji novi zahtev">+</a></p>
+  <div class="header">
+    <a class="back" routerLink="/social" aria-label="Nazad">←</a>
+    <h1>Zahtevi</h1>
+    <a class="add" routerLink="/social/people" aria-label="Pošalji novi zahtev">+</a>
+  </div>
 
   @if (error()) {
     <p class="error">{{ error() }}</p>
@@ -12,7 +14,7 @@
   } @else if (requests.error()) {
     <p class="error">Zahtevi nisu učitani. Prijavi se i pokušaj ponovo.</p>
   } @else {
-    <div class="grid">
+    <div class="stack">
       @for (request of requests.value() ?? []; track request.id) {
         <app-follow-request-card
           [request]="request"

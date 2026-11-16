@@ -39,16 +39,31 @@ public sealed class FollowRequestingQueries
         return _followRequestReadRepository.CountPendingReceivedAsync(userId);
     }
 
-    public Task<List<FollowRequestDto>> GetSentFollowRequestsAsync(Guid userId)
+    public async Task<List<FollowRequestDto>> GetSentFollowRequestsAsync(Guid userId)
     {
-        return _followRequestReadRepository.GetSentAsync(userId);
+        var requests = await _followRequestReadRepository.GetSentAsync(userId);
+
+        var recipientIds = requests.Select(request => request.RecipientId).Distinct().ToList();
+        var recipients = await _identityApi.GetUsersAsync(recipientIds);
+        var displayNames = recipients.ToDictionary(recipient => recipient.Id, recipient => recipient.DisplayName);
+
+        return requests
+            .Select(request => request with { RecipientDisplayName = displayNames.GetValueOrDefault(request.RecipientId, "") })
+            .ToList();
     }
 
-    public Task<PageResult<AuthorToFollowDto>> GetAuthorsToFollowAsync(Guid userId, int page, int pageSize)
+    public async Task<PageResult<UserToFollowDto>> SearchUsersToFollowAsync(Guid userId, string text, int page, int pageSize)
     {
-        page = Math.Max(page, 1);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        var users = await _identityApi.SearchUsersAsync(text, page, pageSize);
 
-        return _followRequestReadRepository.GetAuthorsToFollowAsync(userId, page, pageSize);
+        var candidateIds = users.Items.Select(user => user.Id).ToList();
+        var excludedIds = await _followRequestReadRepository.GetFollowedOrPendingRecipientIdsAsync(userId, candidateIds);
+
+        var items = users.Items
+            .Where(user => user.Id != userId && !excludedIds.Contains(user.Id))
+            .Select(user => new UserToFollowDto(user.Id, user.DisplayName))
+            .ToList();
+
+        return new PageResult<UserToFollowDto>(items, users.TotalCount);
     }
 }
