@@ -17,6 +17,7 @@
     <Project Path="Modules/Games/Games.Tests/Games.Tests.csproj" />
   </Folder>
   <Folder Name="/Modules/Identity/">
+    <Project Path="Modules/Identity/Identity.Contracts/Identity.Contracts.csproj" />
     <Project Path="Modules/Identity/Identity.Tests/Identity.Tests.csproj" />
     <Project Path="Modules/Identity/Identity/Identity.csproj" />
   </Folder>
