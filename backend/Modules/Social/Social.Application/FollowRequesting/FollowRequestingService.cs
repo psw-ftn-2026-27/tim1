@@ -38,4 +38,33 @@ public sealed class FollowRequestingService
         _followRequestRepository.Remove(request);
         await _unitOfWork.SaveChangesAsync();
     }
+
+    public async Task AcceptFollowRequestAsync(Guid userId, Guid requestId)
+    {
+        var request = await GetRequestAsync(requestId);
+
+        request.Accept(userId);
+
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task RejectFollowRequestAsync(Guid userId, Guid requestId)
+    {
+        var request = await GetRequestAsync(requestId);
+
+        request.Reject(userId);
+
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    private async Task<FollowRequest> GetRequestAsync(Guid requestId)
+    {
+        var request = await _followRequestRepository.GetByIdAsync(requestId);
+        if (request is null)
+        {
+            throw new NotFoundException($"Follow request {requestId} does not exist.");
+        }
+
+        return request;
+    }
 }

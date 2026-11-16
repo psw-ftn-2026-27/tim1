@@ -1,5 +1,20 @@
 <div class="stack">
-  <h1>Blogs</h1>
+  <div class="header">
+    <h1>Blogs</h1>
+
+    @if (auth.isLoggedIn()) {
+      <a
+        class="bell"
+        routerLink="/social/received-requests"
+        aria-label="Primljeni zahtevi"
+      >
+        🔔
+        @if ((pendingCount.value() ?? 0) > 0) {
+          <span class="dot"></span>
+        }
+      </a>
+    }
+  </div>
 
   @if (auth.isLoggedIn()) {
     <p class="links">

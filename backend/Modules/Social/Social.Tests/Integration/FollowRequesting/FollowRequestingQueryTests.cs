@@ -4,6 +4,7 @@ using FluentAssertions;
 using Shared.Domain;
 using Shared.Tests;
 using Social.Application.FollowRequesting;
+using Social.Domain.FollowRequests;
 using Social.Tests.Integration.Seeds;
 using Xunit;
 
@@ -36,6 +37,52 @@ public class FollowRequestingQueryTests : BaseIntegrationTest
         var secondExplorer = authors.Items.Single(author => author.AuthorId == WellKnownUsers.SecondExplorer);
         secondExplorer.State.Should().Be(AuthorFollowState.RequestSent);
         secondExplorer.BlogTitles.Should().Contain(BlogSeed.PublishedSecondExplorersTrail.Title);
+    }
+
+    [Fact]
+    public async Task Explorer_lists_only_the_follow_requests_they_received_with_their_state()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var requests = await client.GetFromJsonAsync<PageResult<ReceivedFollowRequestDto>>("/api/social/follow-requests/received", JsonOptions);
+
+        requests!.TotalCount.Should().Be(FollowRequestSeed.All.Count(request => request.RecipientId == WellKnownUsers.Explorer));
+        requests.Items.Should().NotContain(request => request.Id == FollowRequestSeed.ExplorerPendingToSecondExplorer.Id);
+        requests.Items.Single(request => request.Id == FollowRequestSeed.AdministratorPendingToExplorer.Id)
+            .Status.Should().Be(FollowRequestStatus.Pending);
+        requests.Items.Single(request => request.Id == FollowRequestSeed.SecondExplorerRejectedToExplorer.Id)
+            .Status.Should().Be(FollowRequestStatus.Rejected);
+    }
+
+    [Fact]
+    public async Task Pending_received_count_includes_only_requests_that_are_pending()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var count = await client.GetFromJsonAsync<int>("/api/social/follow-requests/received/pending-count", JsonOptions);
+
+        count.Should().Be(FollowRequestSeed.All.Count(request =>
+            request.RecipientId == WellKnownUsers.Explorer && request.Status == FollowRequestStatus.Pending));
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_list_received_follow_requests()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.GetAsync("/api/social/follow-requests/received");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_read_the_pending_received_count()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.GetAsync("/api/social/follow-requests/received/pending-count");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]

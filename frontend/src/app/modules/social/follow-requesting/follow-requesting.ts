@@ -15,4 +15,12 @@ export class FollowRequesting {
   async delete(requestId: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${requestId}`));
   }
+
+  async accept(requestId: string): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${requestId}/accept`, {}));
+  }
+
+  async reject(requestId: string): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${requestId}/reject`, {}));
+  }
 }

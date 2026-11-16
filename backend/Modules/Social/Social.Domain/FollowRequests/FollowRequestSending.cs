@@ -23,7 +23,7 @@ public static class FollowRequestSending
             && existing.Status == FollowRequestStatus.Accepted);
         if (recipientAlreadyFollowsSender)
         {
-            request.Accept();
+            request.Accept(recipientId);
         }
 
         return request;

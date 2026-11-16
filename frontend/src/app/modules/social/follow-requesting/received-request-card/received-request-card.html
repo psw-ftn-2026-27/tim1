@@ -1,0 +1,45 @@
+<article class="card row">
+  <h3>{{ request().senderDisplayName }}</h3>
+
+  @if (request().status === 'Pending') {
+    <div class="actions">
+      <button
+        class="button"
+        type="button"
+        aria-label="Prihvati"
+        [disabled]="disabled()"
+        (click)="acceptClicked.emit(request().id)"
+      >
+        ✓
+      </button>
+      <button
+        class="button"
+        type="button"
+        aria-label="Odbij"
+        [disabled]="disabled()"
+        (click)="rejectClicked.emit(request().id)"
+      >
+        ✗
+      </button>
+    </div>
+  }
+
+  <span
+    class="badge"
+    [class.pending]="request().status === 'Pending'"
+    [class.accepted]="request().status === 'Accepted'"
+    [class.rejected]="request().status === 'Rejected'"
+  >
+    @switch (request().status) {
+      @case ('Pending') {
+        Na čekanju
+      }
+      @case ('Accepted') {
+        Prihvaćeno
+      }
+      @case ('Rejected') {
+        Odbijeno
+      }
+    }
+  </span>
+</article>
