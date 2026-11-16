@@ -75,3 +75,11 @@ export interface AuthorToFollowDto {
   blogTitles: string[];
   state: AuthorFollowState;
 }
+
+export interface ReceivedFollowRequestDto {
+  id: string;
+  senderId: string;
+  senderDisplayName: string;
+  status: FollowRequestStatus;
+  createdAt: string;
+}

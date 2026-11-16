@@ -109,4 +109,112 @@ public class FollowRequestingCommandTests : BaseIntegrationTest
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    [Fact]
+    public async Task Recipient_accepts_a_follow_request_and_the_sender_follows_them()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var requestId = FollowRequestSeed.AdministratorPendingToExplorer.Id;
+        using var arrangeContext = Factory.CreateContext<SocialDbContext>();
+        var requestsBackToSenderBefore = arrangeContext.FollowRequests.Count(request =>
+            request.SenderId == WellKnownUsers.Explorer && request.RecipientId == WellKnownUsers.Administrator);
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{requestId}/accept", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.FollowRequests.Single(request => request.Id == requestId).Status.Should().Be(FollowRequestStatus.Accepted);
+        assertContext.FollowRequests.Count(request =>
+            request.SenderId == WellKnownUsers.Explorer && request.RecipientId == WellKnownUsers.Administrator)
+            .Should().Be(requestsBackToSenderBefore);
+    }
+
+    [Fact]
+    public async Task Recipient_rejects_a_follow_request_that_is_stored_as_rejected()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var requestId = FollowRequestSeed.AdministratorPendingToExplorer.Id;
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{requestId}/reject", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.FollowRequests.Single(request => request.Id == requestId).Status.Should().Be(FollowRequestStatus.Rejected);
+    }
+
+    [Fact]
+    public async Task Recipient_cannot_respond_to_a_follow_request_that_does_not_exist()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{Guid.NewGuid()}/accept", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Sender_cannot_accept_their_own_follow_request()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var requestId = FollowRequestSeed.ExplorerPendingToSecondExplorer.Id;
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{requestId}/accept", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.FollowRequests.Single(request => request.Id == requestId).Status.Should().Be(FollowRequestStatus.Pending);
+    }
+
+    [Fact]
+    public async Task Recipient_cannot_reject_a_follow_request_that_is_already_answered()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var requestId = FollowRequestSeed.SecondExplorerRejectedToExplorer.Id;
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{requestId}/reject", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        assertContext.FollowRequests.Single(request => request.Id == requestId).Status.Should().Be(FollowRequestStatus.Rejected);
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_accept_a_follow_request()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{FollowRequestSeed.AdministratorPendingToExplorer.Id}/accept", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_accept_a_follow_request()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{FollowRequestSeed.AdministratorPendingToExplorer.Id}/accept", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Anonymous_user_cannot_reject_a_follow_request()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{FollowRequestSeed.AdministratorPendingToExplorer.Id}/reject", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_reject_a_follow_request()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var response = await client.PutAsync($"/api/social/follow-requests/{FollowRequestSeed.AdministratorPendingToExplorer.Id}/reject", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 }

@@ -25,6 +25,28 @@ internal sealed class FollowRequestReadRepository : IFollowRequestReadRepository
             .ToListAsync();
     }
 
+    public async Task<PageResult<ReceivedFollowRequestDto>> GetReceivedAsync(Guid recipientId, int page, int pageSize)
+    {
+        var received = _dbContext.FollowRequests.Where(request => request.RecipientId == recipientId);
+
+        var totalCount = await received.CountAsync();
+        var items = await received
+            .OrderByDescending(request => request.CreatedAt)
+            .ThenBy(request => request.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(request => new ReceivedFollowRequestDto(request.Id, request.SenderId, "", request.Status, request.CreatedAt))
+            .ToListAsync();
+
+        return new PageResult<ReceivedFollowRequestDto>(items, totalCount);
+    }
+
+    public Task<int> CountPendingReceivedAsync(Guid recipientId)
+    {
+        return _dbContext.FollowRequests
+            .CountAsync(request => request.RecipientId == recipientId && request.Status == FollowRequestStatus.Pending);
+    }
+
     public async Task<PageResult<AuthorToFollowDto>> GetAuthorsToFollowAsync(Guid userId, int page, int pageSize)
     {
         var publishedBlogs = _dbContext.Blogs
