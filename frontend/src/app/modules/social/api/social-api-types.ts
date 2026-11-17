@@ -61,19 +61,17 @@ export interface UpdateClubDto {
 
 export type FollowRequestStatus = 'Pending' | 'Accepted' | 'Rejected';
 
-export type AuthorFollowState = 'NoRequest' | 'RequestSent' | 'Following';
-
 export interface FollowRequestDto {
   id: string;
   recipientId: string;
+  recipientDisplayName: string;
   status: FollowRequestStatus;
   createdAt: string;
 }
 
-export interface AuthorToFollowDto {
-  authorId: string;
-  blogTitles: string[];
-  state: AuthorFollowState;
+export interface UserToFollowDto {
+  id: string;
+  displayName: string;
 }
 
 export interface ReceivedFollowRequestDto {
