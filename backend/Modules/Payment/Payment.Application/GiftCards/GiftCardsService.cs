@@ -1,6 +1,7 @@
 using Identity.Contracts;
 using Payment.Application.Wallets;
 using Payment.Domain.GiftCards;
+using Payment.Domain.Wallets;
 using Shared.Domain.Exceptions;
 
 namespace Payment.Application.GiftCards;
@@ -29,13 +30,13 @@ public sealed class GiftCardsService
         var recipients = await _identityApi.GetUsersAsync([dto.RecipientId]);
         if (recipients.Count == 0)
         {
-            throw new NotFoundException($"User {dto.RecipientId} does not exist.");
+            throw new NotFoundException("Korisnik kome kupujete karticu ne postoji.");
         }
 
         var wallet = await _walletRepository.GetByOwnerAsync(buyerId);
         if (wallet is null)
         {
-            throw new DomainException("Nemate dovoljno EC u novčaniku.");
+            throw new DomainException(Wallet.InsufficientFundsMessage);
         }
 
         wallet.PayForGiftCard(dto.Amount);

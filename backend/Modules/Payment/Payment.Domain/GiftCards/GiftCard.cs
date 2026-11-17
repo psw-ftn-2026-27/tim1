@@ -24,18 +24,18 @@ public sealed class GiftCard : AggregateRoot
     {
         if (creatorId == recipientId)
         {
-            throw new DomainException("A gift card cannot be bought for yourself.");
+            throw new DomainException("Ne možete kupiti poklon karticu sami sebi.");
         }
 
         if (amount % 1 != 0 || amount < MinAmount || amount > MaxAmount)
         {
-            throw new DomainException($"A gift card amount must be a whole number from {MinAmount} to {MaxAmount} EC.");
+            throw new DomainException($"Iznos kartice mora biti ceo broj od {MinAmount} do {MaxAmount} EC.");
         }
 
         message ??= "";
         if (message.Length > MaxMessageLength)
         {
-            throw new DomainException($"A gift card message can have at most {MaxMessageLength} characters.");
+            throw new DomainException($"Poruka kartice može imati najviše {MaxMessageLength} karaktera.");
         }
 
         CreatorId = creatorId;

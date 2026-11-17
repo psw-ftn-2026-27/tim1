@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, form, max, maxLength, min, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { RecipientDto } from '../../api/payment-api-types';
@@ -29,6 +29,9 @@ export class BuyGiftCard {
 
   protected readonly purchaseForm = form(this.purchaseModel, (path) => {
     required(path.amount, { message: 'Iznos je obavezan.' });
+    min(path.amount, 10, { message: 'Iznos mora biti najmanje 10 EC.' });
+    max(path.amount, 1000, { message: 'Iznos može biti najviše 1000 EC.' });
+    maxLength(path.message, 200, { message: 'Poruka može imati najviše 200 karaktera.' });
   });
 
   protected async purchase(event: Event): Promise<void> {

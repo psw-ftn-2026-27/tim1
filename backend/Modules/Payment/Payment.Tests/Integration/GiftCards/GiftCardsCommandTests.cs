@@ -79,6 +79,23 @@ public class GiftCardsCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Gift_card_for_the_buyer_themselves_is_not_created_and_their_wallet_is_not_charged()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+        var request = new PurchaseGiftCardDto(DemoUsers.Explorer, 120m, "Enjoy the tours!");
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var giftCardCountBefore = arrangeContext.GiftCards.Count();
+
+        var response = await client.PostAsJsonAsync("/api/payment/gift-cards", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.GiftCards.Count().Should().Be(giftCardCountBefore);
+        var storedWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.FundedDemoExplorersWallet.Id);
+        storedWallet.AvailableBalance.Should().Be(WalletSeed.FundedDemoExplorersWallet.AvailableBalance);
+    }
+
+    [Fact]
     public async Task Customer_without_a_wallet_cannot_buy_a_gift_card()
     {
         var client = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");

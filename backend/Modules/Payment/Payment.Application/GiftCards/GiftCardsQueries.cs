@@ -56,7 +56,7 @@ public sealed class GiftCardsQueries
     {
         var users = await _identityApi.GetUsersAsync([recipientId]);
         var user = users.SingleOrDefault()
-            ?? throw new NotFoundException($"User {recipientId} does not exist.");
+            ?? throw new NotFoundException("Korisnik ne postoji.");
 
         return new RecipientDto(user.Id, user.DisplayName);
     }

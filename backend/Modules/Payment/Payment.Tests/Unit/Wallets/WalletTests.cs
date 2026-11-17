@@ -117,6 +117,17 @@ public class WalletTests
     }
 
     [Fact]
+    public void Gift_card_can_be_paid_with_the_whole_available_balance()
+    {
+        var wallet = CreateWallet();
+        wallet.Deposit(300m);
+
+        wallet.PayForGiftCard(300m);
+
+        wallet.AvailableBalance.Should().Be(0);
+    }
+
+    [Fact]
     public void Gift_card_payment_above_the_available_balance_is_rejected()
     {
         var wallet = CreateWalletWithReservedFunds();

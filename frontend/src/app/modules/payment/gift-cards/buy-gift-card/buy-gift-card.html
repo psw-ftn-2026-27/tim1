@@ -29,6 +29,11 @@
       <div class="field">
         <label for="gift-card-message">Poruka</label>
         <textarea id="gift-card-message" [formField]="purchaseForm.message"></textarea>
+        @if (purchaseForm.message().touched()) {
+          @for (message of purchaseForm.message().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
+        }
       </div>
 
       <button
