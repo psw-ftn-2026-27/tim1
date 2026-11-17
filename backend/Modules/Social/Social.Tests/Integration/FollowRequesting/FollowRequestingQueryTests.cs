@@ -27,6 +27,17 @@ public class FollowRequestingQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Sent_follow_requests_show_the_name_of_the_recipient()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var requests = await client.GetFromJsonAsync<List<FollowRequestDto>>("/api/social/follow-requests/sent", JsonOptions);
+
+        requests!.Single(request => request.Id == FollowRequestSeed.DemoExplorerAcceptedToSecondExplorer.Id)
+            .RecipientDisplayName.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
     public async Task Search_leaves_out_the_explorer_the_users_they_follow_and_the_users_with_a_pending_request()
     {
         var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");

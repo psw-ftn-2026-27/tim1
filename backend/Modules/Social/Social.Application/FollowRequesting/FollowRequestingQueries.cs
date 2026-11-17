@@ -54,6 +54,9 @@ public sealed class FollowRequestingQueries
 
     public async Task<PageResult<UserToFollowDto>> SearchUsersToFollowAsync(Guid userId, string text, int page, int pageSize)
     {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
         var users = await _identityApi.SearchUsersAsync(text, page, pageSize);
 
         var candidateIds = users.Items.Select(user => user.Id).ToList();

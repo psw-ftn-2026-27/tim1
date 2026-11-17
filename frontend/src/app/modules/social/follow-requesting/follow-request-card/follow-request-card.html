@@ -2,17 +2,16 @@
   <h3>{{ request().recipientDisplayName }}</h3>
 
   <span
-    class="badge"
-    [class.pending]="request().status === 'Pending'"
-    [class.accepted]="request().status === 'Accepted'"
-    [class.rejected]="request().status === 'Rejected'"
+    class="badge status"
+    [class.badge--warning]="request().status === 'Pending'"
+    [class.badge--danger]="request().status === 'Rejected'"
   >
     @switch (request().status) {
       @case ('Pending') {
         Na čekanju
       }
       @case ('Accepted') {
-        Pratite se
+        Pratiš
       }
       @case ('Rejected') {
         Odbijeno
