@@ -24,6 +24,9 @@
     <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page">Payment</a>
 
     <span class="nav-user">
+      <button class="button button--ghost button--small" type="button" (click)="consent.openBanner()">
+        Kolačići
+      </button>
       @if (auth.user(); as user) {
         <span>{{ user.email }}</span>
         <button class="button" type="button" (click)="auth.logout()">Logout</button>
@@ -38,3 +41,5 @@
 <main class="container stack">
   <router-outlet />
 </main>
+
+<app-consent-banner />
