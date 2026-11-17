@@ -54,9 +54,9 @@ internal sealed class ExplorationModuleInitializer : IHostedService
 
         var vineyards = new Tour(FirstExplorer, "Degustacija u sremskim vinogradima",
             "Tura vodi kroz vinograde Sremskih Karlovaca, uz zaustavljanje u podrumima i degustaciju lokalnih vina, a završava se na vidikovcu iznad Dunava.",
-            TourDifficulty.Moderate, ["gastronomija", "priroda"]);
+            TourDifficulty.Moderate, ["gastronomija", "priroda"], new GroupSize(2, 8));
         vineyards.AddTransportTime(TransportMode.Car, 90);
-        vineyards.Publish();
+        vineyards.Publish(0);
         vineyards.Archive();
 
         return [fortress, fruskaGora, cityCenter, vineyards];

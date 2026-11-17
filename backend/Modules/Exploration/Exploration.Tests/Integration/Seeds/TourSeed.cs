@@ -33,7 +33,7 @@ internal static class TourSeed
 
         ArchivedOrchards = new(WellKnownUsers.Explorer, "Voćnjaci Fruške gore", "Tura vodi kroz voćnjake na južnim padinama Fruške gore, uz zaustavljanje kod seoskih domaćinstava i degustaciju domaćih sokova i rakija.", TourDifficulty.Moderate, ["priroda"], new GroupSize(4, 16));
         ArchivedOrchards.AddTransportTime(TransportMode.Bicycle, 75);
-        ArchivedOrchards.Publish();
+        ArchivedOrchards.Publish(0);
         ArchivedOrchards.Archive();
     }
 

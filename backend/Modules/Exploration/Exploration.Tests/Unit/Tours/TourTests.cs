@@ -18,7 +18,7 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Car, 30);
-        tour.Publish();
+        tour.Publish(0);
         return tour;
     }
 
@@ -76,7 +76,7 @@ public class TourTests
     {
         var tour = CreateArchivedTour();
 
-        var publishing = () => tour.Publish();
+        var publishing = () => tour.Publish(0);
 
         publishing.Should().Throw<DomainException>();
     }
