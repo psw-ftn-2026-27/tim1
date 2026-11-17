@@ -1,0 +1,59 @@
+<div class="stack">
+  <p><a routerLink="/social/clubs/mine">Back to my clubs</a></p>
+
+  <h1>Membership requests</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (requests.isLoading()) {
+    <p>Loading requests...</p>
+  } @else if (requests.error()) {
+    <p class="error">
+      Could not load the requests. Only the club's owner or a moderator can see them.
+    </p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col">Requested at</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (request of requests.value() ?? []; track request.userId) {
+          <tr>
+            <td>{{ request.userId }}</td>
+            <td>{{ request.createdAt }}</td>
+            <td>
+              <div class="actions">
+                <button
+                  class="button button--primary"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="accept(request.userId)"
+                >
+                  Accept
+                </button>
+                <button
+                  class="button"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="reject(request.userId)"
+                >
+                  Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3">No pending requests.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
