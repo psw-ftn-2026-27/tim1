@@ -13,4 +13,13 @@ public interface IPaymentApi
     /// nothing and reports an error to the caller.
     /// </summary>
     Task RegisterProductAsync(ProductRegistrationDto product);
+
+    /// <summary>
+    /// Returns the registered products that match every filter given, ordered by name. Each
+    /// filter is optional: an omitted one does not narrow the search, so a search without
+    /// filters returns the whole offer. MinPrice and MaxPrice are inclusive, and a minimum
+    /// above the maximum matches no product. Searching for an unknown kind returns nothing
+    /// and reports an error to the caller.
+    /// </summary>
+    Task<List<ProductOfferDto>> SearchProductsAsync(decimal? minPrice, decimal? maxPrice, ProductType? type);
 }
