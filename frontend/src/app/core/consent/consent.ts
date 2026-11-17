@@ -11,7 +11,7 @@ function readChoice(): ConsentChoice {
       return stored;
     }
   } catch {
-    // localStorage nije dostupan: izbor važi samo dok je stranica otvorena (P10)
+    // localStorage nije dostupan: izbor važi samo dok je stranica otvorena
   }
   return 'none';
 }

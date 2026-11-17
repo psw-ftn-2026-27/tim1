@@ -24,7 +24,6 @@ export class Analytics {
 
   constructor() {
     // effect: prijava i odjava menjaju svojstvo korisnika u GA-u (van stabla komponenti).
-    // Mora da bude pre effect-a za page_view, da bi page_view nosio ulogu (P6).
     effect(() => {
       const role = this.currentRole();
       const choice = this.consent.choice();
@@ -40,7 +39,7 @@ export class Analytics {
 
     // effect: izbor i završena navigacija pokreću slanje van stabla komponenti (u GA).
     // Pokreće se pri promeni izbora (uključujući prvo davanje saglasnosti) i pri svakoj
-    // završenoj navigaciji, pa jedan kod pokriva i P2 i page_view pri prihvatanju.
+    // završenoj navigaciji, pa jedan kod pokriva i page_view pri prihvatanju.
     effect(() => {
       const choice = this.consent.choice();
       const navigation = this.router.lastSuccessfulNavigation();
@@ -56,12 +55,12 @@ export class Analytics {
           this.stop();
         }
       } catch {
-        // GA greške se tiho gutaju (P8)
+        // GA greške se tiho gutaju
       }
     });
   }
 
-  // Poziv modula: šalje događaj iz kataloga, ali samo uz saglasnost i neprazan ID (P4).
+  // Poziv modula: šalje događaj iz kataloga, ali samo uz saglasnost i neprazan ID.
   // Nikad ne baca izuzetak pozivaocu.
   track<N extends EventName>(name: N, params: EventParams[N]): void {
     if (this.measurementId === '' || this.consent.choice() !== 'granted') {
@@ -76,7 +75,7 @@ export class Analytics {
     }
   }
 
-  // Sistemska uloga: administrator ima prednost; neprijavljen korisnik nema ulogu (P5, P6, P7).
+  // Sistemska uloga: administrator ima prednost; neprijavljen korisnik nema ulogu.
   private currentRole(): 'explorer' | 'administrator' | null {
     const user = this.auth.user();
     if (user === null) {
@@ -99,7 +98,7 @@ export class Analytics {
 
   private sendPageView(url: string): void {
     this.load();
-    // Samo putanja: bez upita i fragmenta (P9)
+    // Samo putanja: bez upita i fragmenta, jer mogu da nose lične podatke
     const path = url.split('?')[0].split('#')[0];
     this.setDisabled(false);
     window.gtag?.('event', 'page_view', {
@@ -136,18 +135,20 @@ export class Analytics {
     (window as unknown as Record<string, unknown>)[`ga-disable-${this.measurementId}`] = disabled;
   }
 
-  // Odbijanje i povlačenje: GA ne šalje više ništa, a njegovi kolačići se brišu (P5).
+  // Odbijanje i povlačenje: GA ne šalje više ništa, a njegovi kolačići se brišu.
   private stop(): void {
     this.setDisabled(true);
-    const names = ['_ga', `_ga_${this.measurementId.replace('G-', '')}`];
-    const host = window.location.hostname;
-    const parts = host.split('.');
+    this.deleteCookies(['_ga', `_ga_${this.measurementId.replace('G-', '')}`]);
+  }
+
+  // GA postavlja kolačić na domen i njegove nadređene domene, pa brišemo sve varijante.
+  private deleteCookies(names: string[]): void {
+    const expired = 'expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    const parts = window.location.hostname.split('.');
     for (const name of names) {
-      // GA postavlja kolačić na domen i njegove nadređene domene, pa brišemo sve varijante
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      document.cookie = `${name}=; ${expired}`;
       for (let i = 0; i < parts.length - 1; i++) {
-        const domain = parts.slice(i).join('.');
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
+        document.cookie = `${name}=; ${expired}; domain=${parts.slice(i).join('.')}`;
       }
     }
   }
