@@ -1,7 +1,9 @@
 import { Injectable, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { Consent } from './consent';
+import { Auth } from '../auth/auth';
+import { Consent } from '../consent/consent';
+import { EventName, EventParams } from './event-catalog';
 
 declare global {
   interface Window {
@@ -10,15 +12,32 @@ declare global {
   }
 }
 
-// Šalje page_view u Google Analytics, ali samo uz saglasnost i samo ako je ID merenja podešen.
+// Jedini servis koji šalje u Google Analytics: page_view, događaji iz kataloga i uloga korisnika.
+// Šalje samo uz saglasnost i samo ako je ID merenja podešen.
 @Injectable({ providedIn: 'root' })
 export class Analytics {
   private readonly consent = inject(Consent);
   private readonly router = inject(Router);
+  private readonly auth = inject(Auth);
   private readonly measurementId = environment.analyticsMeasurementId;
   private loaded = false;
 
   constructor() {
+    // effect: prijava i odjava menjaju svojstvo korisnika u GA-u (van stabla komponenti).
+    // Mora da bude pre effect-a za page_view, da bi page_view nosio ulogu (P6).
+    effect(() => {
+      const role = this.currentRole();
+      const choice = this.consent.choice();
+      if (this.measurementId === '' || choice !== 'granted' || !this.loaded) {
+        return;
+      }
+      try {
+        this.setRole(role);
+      } catch {
+        // GA greške se tiho gutaju
+      }
+    });
+
     // effect: izbor i završena navigacija pokreću slanje van stabla komponenti (u GA).
     // Pokreće se pri promeni izbora (uključujući prvo davanje saglasnosti) i pri svakoj
     // završenoj navigaciji, pa jedan kod pokriva i P2 i page_view pri prihvatanju.
@@ -40,6 +59,42 @@ export class Analytics {
         // GA greške se tiho gutaju (P8)
       }
     });
+  }
+
+  // Poziv modula: šalje događaj iz kataloga, ali samo uz saglasnost i neprazan ID (P4).
+  // Nikad ne baca izuzetak pozivaocu.
+  track<N extends EventName>(name: N, params: EventParams[N]): void {
+    if (this.measurementId === '' || this.consent.choice() !== 'granted') {
+      return;
+    }
+    try {
+      this.load();
+      this.setDisabled(false);
+      window.gtag?.('event', name, params);
+    } catch {
+      // GA greške se tiho gutaju
+    }
+  }
+
+  // Sistemska uloga: administrator ima prednost; neprijavljen korisnik nema ulogu (P5, P6, P7).
+  private currentRole(): 'explorer' | 'administrator' | null {
+    const user = this.auth.user();
+    if (user === null) {
+      return null;
+    }
+    const roles = user.roles.map((role) => role.toLowerCase());
+    if (roles.includes('administrator')) {
+      return 'administrator';
+    }
+    if (roles.includes('explorer')) {
+      return 'explorer';
+    }
+    return null;
+  }
+
+  // Uloga je svojstvo korisnika u GA-u, ne parametar događaja; null je briše.
+  private setRole(role: string | null): void {
+    window.gtag?.('set', 'user_properties', { user_role: role });
   }
 
   private sendPageView(url: string): void {
@@ -67,6 +122,7 @@ export class Analytics {
       window.dataLayer?.push(arguments);
     };
     window.gtag('js', new Date());
+    this.setRole(this.currentRole());
     window.gtag('config', this.measurementId, { send_page_view: false });
 
     const script = document.createElement('script');
