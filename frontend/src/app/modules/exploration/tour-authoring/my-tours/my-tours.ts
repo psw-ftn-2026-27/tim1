@@ -2,6 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormField, form, min, required, validate } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+import { Analytics } from '../../../../core/analytics/analytics';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { TourDto, TransportMode } from '../../api/exploration-api-types';
 import { TourAuthoring } from '../tour-authoring';
@@ -16,6 +17,7 @@ type Charge = 'Free' | 'Paid';
 })
 export class MyTours {
   private readonly tourAuthoring = inject(TourAuthoring);
+  private readonly analytics = inject(Analytics);
 
   protected readonly tours = httpResource<TourDto[]>(() => '/api/exploration/tours/mine');
 
@@ -74,6 +76,11 @@ export class MyTours {
       const paid = this.publishForm.charge().value() === 'Paid';
       await this.tourAuthoring.publish(tourId, {
         price: paid ? this.publishForm.price().value() : 0,
+      });
+      const tour = this.tours.value()?.find((t) => t.id === tourId);
+      this.analytics.track('tour_published', {
+        tour_id: tourId,
+        difficulty: tour?.difficulty ?? 'unknown',
       });
       this.tours.reload();
       this.publishingTourId.set(null);
