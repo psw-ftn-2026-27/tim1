@@ -28,7 +28,8 @@ frontend/src/
     _layout.scss             page container, stack, grid helpers
     _components.scss         global classes: button, card, form field, table
   app/
-    core/                    auth (state, interceptor, login, register), home,
+    core/                    auth (state, interceptor, login, register), consent (state, banner,
+                             analytics), home,
                              app.routes.ts                                    [platform]
     shared/
       util/
@@ -95,8 +96,10 @@ nothing.
   another module's endpoints, and never shares state with it.
 - A module's route paths are its only surface toward other modules. Renaming or
   removing a path another module links to is a cross-team change; flag it.
-- The one legitimately shared state is the current user (identity, roles) in `core/`.
-  Modules read it; only the platform team writes it.
+- The one legitimately shared state modules read is the current user (identity, roles) in
+  `core/`; only the platform team writes it. The visitor's analytics consent lives in
+  `core/consent` and is read only by the shell in `core/`; modules never import from
+  `core/consent`.
 
 ## The Angular subset
 
@@ -133,6 +136,10 @@ construct means adding a lesson, so treat it as a platform decision.
   The map may inject its adjacent routing service, which uses browser `fetch` and
   `AbortController` for direct public routing requests without application credentials.
   Consumers use the Angular component's inputs and outputs.
+- Platform decision, only for `core/consent/`: one `effect()` in the analytics service sends
+  `page_view` when the consent choice or `Router.lastSuccessfulNavigation` (a signal) changes.
+  The analytics service injects `Router` to read `lastSuccessfulNavigation` and to call
+  `serializeUrl`, because the rule otherwise allows `Router` only for navigation.
 - No RxJS in student code. `Observable` appears only as the return type of `HttpClient`
   writes, immediately awaited. No NgRx, no facades.
 

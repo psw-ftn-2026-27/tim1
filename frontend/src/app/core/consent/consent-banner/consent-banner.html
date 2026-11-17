@@ -1,0 +1,28 @@
+@if (consent.bannerOpen()) {
+  <section class="banner" aria-label="Kolačići">
+    <div class="container banner-content">
+      <div class="banner-text">
+        <p>
+          Koristimo kolačiće Google Analytics-a da bismo videli koje stranice posetioci otvaraju.
+          Merenje počinje tek kada prihvatite.
+        </p>
+        @if (currentLabel() !== '') {
+          <p class="meta">{{ currentLabel() }}</p>
+        }
+      </div>
+      <div class="form-actions">
+        <button class="button button--primary" type="button" (click)="consent.choose('granted')">
+          Prihvatam
+        </button>
+        <button class="button button--primary" type="button" (click)="consent.choose('denied')">
+          Odbijam
+        </button>
+        @if (consent.choice() !== 'none') {
+          <button class="button button--ghost" type="button" (click)="consent.closeBanner()">
+            Zatvori
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+}
