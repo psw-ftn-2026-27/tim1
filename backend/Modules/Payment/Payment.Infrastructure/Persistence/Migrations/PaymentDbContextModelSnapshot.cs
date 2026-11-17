@@ -23,6 +23,28 @@ namespace Payment.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Payment.Domain.Products.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products", "payment");
+                });
+
             modelBuilder.Entity("Payment.Domain.TopUpRequests.TopUpRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -129,6 +151,36 @@ namespace Payment.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("WithdrawalRequests", "payment");
+                });
+
+            modelBuilder.Entity("Payment.Domain.Products.Product", b =>
+                {
+                    b.OwnsOne("Payment.Domain.Products.ProductReference", "Reference", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("EntityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("EntityType")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
+
+                            b1.HasKey("ProductId");
+
+                            b1.HasIndex("EntityType", "EntityId")
+                                .IsUnique();
+
+                            b1.ToTable("Products", "payment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("Reference")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Payment.Domain.Wallets.Transaction", b =>
