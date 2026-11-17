@@ -6,7 +6,7 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .bell {
@@ -24,10 +24,6 @@
   height: 0.6rem;
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-danger) 30%, red);
-}
-
-.header {
-  align-items: flex-start;
 }
 
 .side {

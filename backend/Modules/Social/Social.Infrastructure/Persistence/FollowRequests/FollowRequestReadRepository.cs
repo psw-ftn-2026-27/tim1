@@ -75,7 +75,10 @@ internal sealed class FollowRequestReadRepository : IFollowRequestReadRepository
                 "",
                 _dbContext.FollowRequests.Any(back => back.SenderId == userId
                     && back.RecipientId == request.SenderId
-                    && back.Status == FollowRequestStatus.Accepted)))
+                    && back.Status == FollowRequestStatus.Accepted),
+                _dbContext.FollowRequests.Any(back => back.SenderId == userId
+                    && back.RecipientId == request.SenderId
+                    && back.Status == FollowRequestStatus.Pending)))
             .ToListAsync();
 
         return new PageResult<FollowerDto>(items, totalCount);

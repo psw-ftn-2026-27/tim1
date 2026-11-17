@@ -3,6 +3,8 @@
 
   @if (follower().isFollowedByUser) {
     <span class="badge">Following each other</span>
+  } @else if (follower().hasPendingRequest) {
+    <span class="badge badge--warning">Requested</span>
   } @else {
     <button
       class="button button--primary button--small"

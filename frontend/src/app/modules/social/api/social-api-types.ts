@@ -87,6 +87,7 @@ export interface FollowerDto {
   userId: string;
   displayName: string;
   isFollowedByUser: boolean;
+  hasPendingRequest: boolean;
 }
 
 export interface FollowingDto {

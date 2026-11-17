@@ -32,6 +32,20 @@ public class FollowManagementQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Follower_with_a_pending_request_from_the_explorer_is_marked_as_requested()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var followers = await client.GetFromJsonAsync<PageResult<FollowerDto>>("/api/social/followers", JsonOptions);
+
+        var follower = followers!.Items.Single(item => item.Id == FollowRequestSeed.DemoThirdExplorerAcceptedToExplorer.Id);
+        follower.IsFollowedByUser.Should().BeFalse();
+        follower.HasPendingRequest.Should().BeTrue();
+        followers.Items.Single(item => item.Id == FollowRequestSeed.DemoSecondExplorerAcceptedToExplorer.Id)
+            .HasPendingRequest.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Explorer_lists_only_the_accepted_requests_they_sent_as_the_users_they_follow()
     {
         var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
