@@ -22,9 +22,9 @@ public sealed class BlogReadingQueries
         _imageStorage = imageStorage;
     }
 
-    public async Task<BlogDto> GetByIdAsync(Guid id)
+    public async Task<BlogDetailDto> GetByIdAsync(Guid id, Guid userId)
     {
-        var blog = await _blogReadRepository.GetByIdAsync(id);
+        var blog = await _blogReadRepository.GetDetailByIdAsync(id, userId);
         if (blog is null || (blog.Status != BlogStatus.Published && blog.Status != BlogStatus.Archived))
         {
             throw new NotFoundException($"Blog {id} does not exist.");
