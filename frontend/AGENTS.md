@@ -28,7 +28,8 @@ frontend/src/
     _layout.scss             page container, stack, grid helpers
     _components.scss         global classes: button, card, form field, table
   app/
-    core/                    auth (state, interceptor, login, register), home,
+    core/                    auth (state, interceptor, login, register), consent (state, banner),
+                             analytics (service, event catalog, README), home,
                              app.routes.ts                                    [platform]
     shared/
       util/
@@ -78,8 +79,9 @@ nothing.
 
 ## Rules
 
-- A module may import from its own folder, from `shared/`, and from `core/auth` (the
-  current user). Nothing else, and never anything from another module.
+- A module may import from its own folder, from `shared/`, from `core/auth` (the
+  current user) and from `core/analytics` (the `Analytics` service and the event catalog).
+  Nothing else, and never anything from another module.
 - Enforced by `no-restricted-imports` in `eslint.config.js` (`angular-eslint`, flat
   config), one block per module whose regex names the sibling modules. It runs locally with `npm run lint` and in CI on every push to
   `main` or `development` and every pull request. This is a lint rule, not a compiler guarantee. Unlike
@@ -95,8 +97,10 @@ nothing.
   another module's endpoints, and never shares state with it.
 - A module's route paths are its only surface toward other modules. Renaming or
   removing a path another module links to is a cross-team change; flag it.
-- The one legitimately shared state is the current user (identity, roles) in `core/`.
-  Modules read it; only the platform team writes it.
+- The one legitimately shared state modules read is the current user (identity, roles) in
+  `core/`; only the platform team writes it. The visitor's analytics consent lives in
+  `core/consent` and is read only by the shell and the analytics service in `core/`; modules
+  never import from `core/consent`.
 
 ## The Angular subset
 
@@ -133,6 +137,13 @@ construct means adding a lesson, so treat it as a platform decision.
   The map may inject its adjacent routing service, which uses browser `fetch` and
   `AbortController` for direct public routing requests without application credentials.
   Consumers use the Angular component's inputs and outputs.
+- Platform decision, only for `core/analytics/`: one `effect()` in the analytics service sends
+  `page_view` when the consent choice or `Router.lastSuccessfulNavigation` (a signal) changes,
+  and a second one sets the user role in GA when the signed-in user or the consent choice
+  changes. The analytics service injects `Router` to read `lastSuccessfulNavigation` and to
+  call `serializeUrl`, because the rule otherwise allows `Router` only for navigation.
+  Also only for `core/analytics/`: `track` is generic over `keyof EventParams`, so the compiler
+  ties each event name to its parameters; modules call it and never write such types.
 - No RxJS in student code. `Observable` appears only as the return type of `HttpClient`
   writes, immediately awaited. No NgRx, no facades.
 
