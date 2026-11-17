@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from './core/auth/auth';
-import { Analytics } from './core/consent/analytics';
+import { Analytics } from './core/analytics/analytics';
 import { Consent } from './core/consent/consent';
 import { ConsentBanner } from './core/consent/consent-banner/consent-banner';
 
