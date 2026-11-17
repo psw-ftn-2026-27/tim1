@@ -6,6 +6,8 @@ using Exploration.Domain.Tours;
 using Exploration.Infrastructure.Persistence;
 using Exploration.Tests.Integration.Seeds;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Payment.Contracts;
 using Shared.Tests;
 using Xunit;
 
@@ -90,11 +92,13 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
         stored.TransportTimes.Should().ContainSingle(time => time.Transport == TransportMode.Walking && time.Minutes == 120);
     }
 
-    [Fact]
-    public async Task Tour_is_published_when_all_rules_are_met()
+    [Theory]
+    [InlineData(50)]
+    [InlineData(0)]
+    public async Task Tour_is_published_and_registered_in_payment_when_all_rules_are_met(decimal price)
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
-        var request = new PublishTourDto(50);
+        var request = new PublishTourDto(price);
 
         var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
 
@@ -103,6 +107,27 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
         var stored = assertContext.Tours.Single(tour => tour.Id == TourSeed.PublishableRiverside.Id);
         stored.Status.Should().Be(TourStatus.Published);
         stored.PublishedAt.Should().NotBeNull();
+        var offer = await SearchPaymentOfferAsync();
+        offer.Should().ContainSingle(product => product.Name == TourSeed.PublishableRiverside.Name
+            && product.OwnerId == WellKnownUsers.Explorer
+            && product.Price == price
+            && product.Type == ProductType.Tour);
+    }
+
+    [Fact]
+    public async Task Tour_that_does_not_meet_the_publishing_rules_stays_a_draft_and_is_not_registered_in_payment()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var request = new PublishTourDto(50);
+
+        var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.CityStroll.Id}/publish", request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<ExplorationDbContext>();
+        var stored = assertContext.Tours.Single(tour => tour.Id == TourSeed.CityStroll.Id);
+        stored.Status.Should().Be(TourStatus.Draft);
+        var offer = await SearchPaymentOfferAsync();
+        offer.Should().NotContain(product => product.Name == TourSeed.CityStroll.Name);
     }
 
     [Fact]
@@ -154,5 +179,12 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
         var response = await client.PostAsJsonAsync($"/api/exploration/tours/{TourSeed.PublishableRiverside.Id}/publish", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private async Task<List<ProductOfferDto>> SearchPaymentOfferAsync()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+        return await paymentApi.SearchProductsAsync(null, null, null);
     }
 }
