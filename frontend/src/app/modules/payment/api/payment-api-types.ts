@@ -1,4 +1,4 @@
-export type TransactionType = 'TopUp' | 'Reservation' | 'Payout' | 'ReservationReturn';
+export type TransactionType = 'TopUp' | 'Reservation' | 'Payout' | 'ReservationReturn' | 'GiftCardPurchase';
 
 export type WalletRequestType = 'TopUp' | 'Withdrawal';
 
@@ -52,4 +52,34 @@ export interface WalletRequestsDto {
 
 export interface RejectRequestDto {
   reason: string;
+}
+
+export type GiftCardStatus = 'Valid' | 'Used' | 'Expired';
+
+export interface GiftCardDto {
+  id: string;
+  creatorId: string;
+  creatorDisplayName: string;
+  recipientId: string;
+  recipientDisplayName: string;
+  amount: number;
+  message: string;
+  expiresAt: string;
+  status: GiftCardStatus;
+}
+
+export interface GiftCardsDto {
+  created: GiftCardDto[];
+  received: GiftCardDto[];
+}
+
+export interface PurchaseGiftCardDto {
+  recipientId: string;
+  amount: number;
+  message: string;
+}
+
+export interface RecipientDto {
+  id: string;
+  displayName: string;
 }

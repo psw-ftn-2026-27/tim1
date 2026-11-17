@@ -1,0 +1,37 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment/gift-cards" aria-label="Nazad na kartice">←</a>
+    <h1>Kupi karticu</h1>
+  </div>
+
+  <div class="field">
+    <input
+      type="text"
+      aria-label="Pretraga korisnika"
+      placeholder="Pretraži po imenu"
+      [formField]="searchForm.text"
+    />
+  </div>
+
+  @if (recipients.error()) {
+    <p class="error">Korisnici nisu učitani. Prijavite se i pokušajte ponovo.</p>
+  } @else if (recipients.value() === undefined) {
+    <p>Učitavanje korisnika...</p>
+  } @else {
+    <div class="stack">
+      @for (user of recipients.value()?.items ?? []; track user.id) {
+        <article class="card row">
+          <h3>{{ user.displayName }}</h3>
+          <a
+            class="button button--primary button--small"
+            [routerLink]="['/payment/gift-cards/buy', user.id]"
+          >
+            Kupi karticu
+          </a>
+        </article>
+      } @empty {
+        <p>Nema korisnika.</p>
+      }
+    </div>
+  }
+</div>

@@ -8,6 +8,33 @@
   margin: 0;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.button {
+  text-decoration: none;
+}
+
+.gift {
+  position: relative;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.dot {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.2rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-danger) 30%, red);
+}
+
 form {
   max-width: 20rem;
 }

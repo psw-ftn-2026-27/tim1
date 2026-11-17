@@ -100,4 +100,29 @@ public class WalletTests
 
         reservation.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void Gift_card_payment_lowers_the_available_balance_and_records_a_transaction()
+    {
+        var wallet = CreateWalletWithReservedFunds();
+
+        wallet.PayForGiftCard(300m);
+
+        wallet.AvailableBalance.Should().Be(3700m);
+        wallet.ReservedBalance.Should().Be(1000m);
+        wallet.Transactions.Should().ContainSingle(transaction =>
+            transaction.Type == TransactionType.GiftCardPurchase
+            && transaction.Amount == 300m
+            && transaction.BalanceAfter == 3700m);
+    }
+
+    [Fact]
+    public void Gift_card_payment_above_the_available_balance_is_rejected()
+    {
+        var wallet = CreateWalletWithReservedFunds();
+
+        var payment = () => wallet.PayForGiftCard(4001m);
+
+        payment.Should().Throw<DomainException>();
+    }
 }

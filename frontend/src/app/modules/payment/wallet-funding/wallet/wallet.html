@@ -1,5 +1,21 @@
 <div class="stack">
-  <h1>Wallet</h1>
+  <div class="header">
+    <h1>Wallet</h1>
+
+    @if (!isAdministrator()) {
+      <a
+        class="gift"
+        routerLink="/payment/gift-cards"
+        aria-label="Poklon kartice"
+        title="Poklon kartice"
+      >
+        🎁
+        @if ((validReceivedCount.value() ?? 0) > 0) {
+          <span class="dot"></span>
+        }
+      </a>
+    }
+  </div>
 
   @if (isAdministrator()) {
     <p>You are signed in as an administrator, so you do not have a wallet of your own.</p>

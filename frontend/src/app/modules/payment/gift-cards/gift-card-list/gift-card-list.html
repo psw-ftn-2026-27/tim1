@@ -1,0 +1,60 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment" aria-label="Nazad na novčanik">←</a>
+    <h1>Poklon kartice</h1>
+  </div>
+
+  @if (giftCards.error()) {
+    <p class="error">Kartice nisu učitane. Prijavite se i pokušajte ponovo.</p>
+  } @else if (giftCards.value() === undefined) {
+    <p>Učitavanje kartica...</p>
+  } @else {
+    <div class="columns">
+      <section class="stack">
+        <h2>Kreirane kartice</h2>
+
+        @for (card of giftCards.value()?.created ?? []; track card.id) {
+          <article class="card">
+            <h3>{{ card.amount }} EC za {{ card.recipientDisplayName }}</h3>
+            <p>{{ card.message }}</p>
+            <p class="meta expiry">
+              Ističe: {{ formatDate(card.expiresAt) }}
+              <span
+                class="badge"
+                [class.badge--success]="card.status === 'Valid'"
+                [class.badge--danger]="card.status !== 'Valid'"
+                >{{ statusLabel(card.status) }}</span
+              >
+            </p>
+          </article>
+        } @empty {
+          <p>Niste kreirali nijednu karticu.</p>
+        }
+      </section>
+
+      <section class="stack">
+        <h2>Primljene kartice</h2>
+
+        @for (card of giftCards.value()?.received ?? []; track card.id) {
+          <article class="card">
+            <h3>{{ card.amount }} EC od {{ card.creatorDisplayName }}</h3>
+            <p>{{ card.message }}</p>
+            <p class="meta expiry">
+              Ističe: {{ formatDate(card.expiresAt) }}
+              <span
+                class="badge"
+                [class.badge--success]="card.status === 'Valid'"
+                [class.badge--danger]="card.status !== 'Valid'"
+                >{{ statusLabel(card.status) }}</span
+              >
+            </p>
+          </article>
+        } @empty {
+          <p>Niste primili nijednu karticu.</p>
+        }
+      </section>
+    </div>
+  }
+
+  <a class="button button--primary buy" routerLink="/payment/gift-cards/buy">Kupi karticu</a>
+</div>
