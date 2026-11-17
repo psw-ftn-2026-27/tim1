@@ -4,6 +4,7 @@
   <span
     class="badge status"
     [class.badge--warning]="request().status === 'Pending'"
+    [class.badge--success]="request().status === 'Accepted'"
     [class.badge--danger]="request().status === 'Rejected'"
   >
     @switch (request().status) {

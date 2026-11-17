@@ -2,7 +2,7 @@
   <h3>{{ user().displayName }}</h3>
 
   <button
-    class="badge"
+    class="button button--primary button--small"
     type="button"
     [disabled]="disabled()"
     (click)="sendClicked.emit(user().id)"

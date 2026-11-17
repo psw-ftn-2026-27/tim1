@@ -5,7 +5,7 @@
 }
 
 .back {
-  font-size: 1.5rem;
+  font-size: var(--font-size-lg);
   line-height: 1;
   text-decoration: none;
 }
@@ -15,7 +15,7 @@ h1 {
 }
 
 .add {
-  font-size: 2rem;
+  font-size: var(--font-size-xl);
   line-height: 1;
   text-decoration: none;
 }
