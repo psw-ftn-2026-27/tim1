@@ -14,9 +14,9 @@ public class TourPreferenceTests
 
     private static Tour CreatePublishedTour(List<string> tags)
     {
-        var tour = new Tour(WellKnownUsers.SecondExplorer, "Šetnja tvrđavom", new string('o', 100), TourDifficulty.Easy, tags);
+        var tour = new Tour(WellKnownUsers.SecondExplorer, "Šetnja tvrđavom", new string('o', 100), TourDifficulty.Easy, tags, new GroupSize(2, 8));
         tour.AddTransportTime(TransportMode.Walking, 60);
-        tour.Publish();
+        tour.Publish(0);
         return tour;
     }
 
@@ -49,7 +49,7 @@ public class TourPreferenceTests
     [Fact]
     public void Newly_added_tag_that_is_on_no_published_tour_is_rejected()
     {
-        var draftTour = new Tour(WellKnownUsers.SecondExplorer, "Šetnja centrom", "Kratak opis.", TourDifficulty.Easy, ["grad"]);
+        var draftTour = new Tour(WellKnownUsers.SecondExplorer, "Šetnja centrom", "Kratak opis.", TourDifficulty.Easy, ["grad"], new GroupSize(2, 8));
         var publishedTour = CreatePublishedTour(["istorija"]);
 
         var check = () => AvailableTags.EnsureSelectable(["grad"], [], [draftTour, publishedTour]);
