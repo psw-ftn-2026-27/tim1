@@ -1,0 +1,28 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/social" aria-label="Back">←</a>
+    <h1>Following</h1>
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (following.isLoading()) {
+    <p>Loading following...</p>
+  } @else if (following.error()) {
+    <p class="error">Following could not be loaded. Log in and try again.</p>
+  } @else {
+    <div class="stack">
+      @for (person of following.value()?.items ?? []; track person.id) {
+        <app-following-card
+          [following]="person"
+          [disabled]="pending()"
+          (stopClicked)="stop($event)"
+        />
+      } @empty {
+        <p>You are not following anyone.</p>
+      }
+    </div>
+  }
+</div>

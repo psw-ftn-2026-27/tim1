@@ -125,6 +125,48 @@ public class FollowRequestTests
     }
 
     [Fact]
+    public void User_who_is_not_the_recipient_cannot_remove_a_follower()
+    {
+        var request = CreateRequest();
+        request.Accept(WellKnownUsers.SecondExplorer);
+
+        var removal = () => request.RemoveFollower(WellKnownUsers.Explorer);
+
+        removal.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Follower_cannot_be_removed_while_the_follow_request_is_pending()
+    {
+        var request = CreateRequest();
+
+        var removal = () => request.RemoveFollower(WellKnownUsers.SecondExplorer);
+
+        removal.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void User_who_is_not_the_sender_cannot_stop_following()
+    {
+        var request = CreateRequest();
+        request.Accept(WellKnownUsers.SecondExplorer);
+
+        var stopping = () => request.StopFollowing(WellKnownUsers.SecondExplorer);
+
+        stopping.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Following_cannot_be_stopped_while_the_follow_request_is_pending()
+    {
+        var request = CreateRequest();
+
+        var stopping = () => request.StopFollowing(WellKnownUsers.Explorer);
+
+        stopping.Should().Throw<DomainException>();
+    }
+
+    [Fact]
     public void Sender_cannot_delete_an_accepted_follow_request()
     {
         var request = CreateRequest();

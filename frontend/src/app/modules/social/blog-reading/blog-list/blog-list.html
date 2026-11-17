@@ -3,16 +3,30 @@
     <h1>Blogs</h1>
 
     @if (auth.isLoggedIn()) {
-      <a
-        class="bell"
-        routerLink="/social/received-requests"
-        aria-label="Primljeni zahtevi"
-      >
-        🔔
-        @if ((pendingCount.value() ?? 0) > 0) {
-          <span class="dot"></span>
-        }
-      </a>
+      <div class="side">
+        <div class="profile">
+          <span class="profile-icon" aria-hidden="true">👤</span>
+          <a class="count" routerLink="/social/followers">
+            <strong>{{ counts.value()?.followerCount ?? 0 }}</strong>
+            <span>followers</span>
+          </a>
+          <a class="count" routerLink="/social/following">
+            <strong>{{ counts.value()?.followingCount ?? 0 }}</strong>
+            <span>following</span>
+          </a>
+        </div>
+
+        <a
+          class="bell"
+          routerLink="/social/received-requests"
+          aria-label="Received requests"
+        >
+          🔔
+          @if ((pendingCount.value() ?? 0) > 0) {
+            <span class="dot"></span>
+          }
+        </a>
+      </div>
     }
   </div>
 
@@ -20,7 +34,7 @@
     <p class="links">
       <a routerLink="/social/mine">My blogs</a>
       <a routerLink="/social/create">Create blog</a>
-      <a routerLink="/social/follow-requests">Zahtevi</a>
+      <a routerLink="/social/follow-requests">Requests</a>
       <a routerLink="/social/clubs">Clubs</a>
     </p>
   }

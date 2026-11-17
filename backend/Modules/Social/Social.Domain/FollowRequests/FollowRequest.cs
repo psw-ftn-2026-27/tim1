@@ -52,6 +52,30 @@ public sealed class FollowRequest : AggregateRoot
         EnsurePending("deleted");
     }
 
+    public void RemoveFollower(Guid userId)
+    {
+        EnsureRecipient(userId, "removed as a follower");
+        EnsureAccepted("removed as a follower");
+    }
+
+    public void StopFollowing(Guid userId)
+    {
+        if (SenderId != userId)
+        {
+            throw new DomainException("Only the sender can stop following through a follow request.");
+        }
+
+        EnsureAccepted("stopped");
+    }
+
+    private void EnsureAccepted(string action)
+    {
+        if (Status != FollowRequestStatus.Accepted)
+        {
+            throw new DomainException($"Only an accepted follow request can be {action}.");
+        }
+    }
+
     private void EnsureRecipient(Guid userId, string action)
     {
         if (RecipientId != userId)

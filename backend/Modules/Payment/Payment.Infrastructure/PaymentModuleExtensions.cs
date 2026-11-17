@@ -1,12 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application;
+using Payment.Application.ProductCatalog;
+using Payment.Application.Products;
 using Payment.Application.TopUpRequests;
 using Payment.Application.WalletFunding;
 using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
 using Payment.Application.WithdrawalRequests;
+using Payment.Contracts;
 using Payment.Infrastructure.Persistence;
+using Payment.Infrastructure.Persistence.Products;
 using Payment.Infrastructure.Persistence.TopUpRequests;
 using Payment.Infrastructure.Persistence.Wallets;
 using Payment.Infrastructure.Persistence.WithdrawalRequests;
@@ -27,11 +31,17 @@ public static class PaymentModuleExtensions
         services.AddScoped<IWithdrawalRequestRepository, WithdrawalRequestRepository>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<PaymentDbContext>());
         services.AddScoped<IWalletReadRepository, WalletReadRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductReadRepository, ProductReadRepository>();
 
         services.AddScoped<WalletFundingService>();
         services.AddScoped<WalletFundingQueries>();
         services.AddScoped<WalletRequestReviewService>();
         services.AddScoped<WalletRequestReviewQueries>();
+        services.AddScoped<ProductCatalogService>();
+        services.AddScoped<ProductCatalogQueries>();
+
+        services.AddScoped<IPaymentApi, PaymentApi>();
 
         return services;
     }

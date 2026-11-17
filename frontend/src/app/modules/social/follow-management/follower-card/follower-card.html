@@ -1,0 +1,27 @@
+<article class="card row">
+  <h3>{{ follower().displayName }}</h3>
+
+  @if (follower().isFollowedByUser) {
+    <span class="badge">Following each other</span>
+  } @else if (follower().hasPendingRequest) {
+    <span class="badge badge--warning">Requested</span>
+  } @else {
+    <button
+      class="button button--primary button--small"
+      type="button"
+      [disabled]="disabled()"
+      (click)="sendClicked.emit(follower().userId)"
+    >
+      Send request
+    </button>
+  }
+
+  <button
+    class="button button--small"
+    type="button"
+    [disabled]="disabled()"
+    (click)="removeClicked.emit(follower().id)"
+  >
+    Remove
+  </button>
+</article>

@@ -53,3 +53,14 @@ export interface WalletRequestsDto {
 export interface RejectRequestDto {
   reason: string;
 }
+
+export type ProductType = 'Tour';
+
+export interface ProductDto {
+  id: string;
+  type: ProductType;
+  name: string;
+  price: number;
+  ownerId: string;
+  ownerName: string;
+}

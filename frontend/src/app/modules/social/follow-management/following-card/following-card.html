@@ -1,0 +1,12 @@
+<article class="card row">
+  <h3>{{ following().displayName }}</h3>
+
+  <button
+    class="button button--small"
+    type="button"
+    [disabled]="disabled()"
+    (click)="stopClicked.emit(following().id)"
+  >
+    Unfollow
+  </button>
+</article>
