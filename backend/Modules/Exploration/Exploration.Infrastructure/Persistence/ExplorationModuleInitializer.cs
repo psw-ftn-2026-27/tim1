@@ -52,6 +52,13 @@ internal sealed class ExplorationModuleInitializer : IHostedService
             "Kratak obilazak Trga slobode, Dunavske ulice i Dunavskog parka.",
             TourDifficulty.Moderate, ["grad"], new GroupSize(1, 20));
 
-        return [fortress, fruskaGora, cityCenter];
+        var vineyards = new Tour(FirstExplorer, "Degustacija u sremskim vinogradima",
+            "Tura vodi kroz vinograde Sremskih Karlovaca, uz zaustavljanje u podrumima i degustaciju lokalnih vina, a završava se na vidikovcu iznad Dunava.",
+            TourDifficulty.Moderate, ["gastronomija", "priroda"]);
+        vineyards.AddTransportTime(TransportMode.Car, 90);
+        vineyards.Publish();
+        vineyards.Archive();
+
+        return [fortress, fruskaGora, cityCenter, vineyards];
     }
 }

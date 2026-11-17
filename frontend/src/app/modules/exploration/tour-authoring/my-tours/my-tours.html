@@ -36,7 +36,9 @@
               }
             </td>
             <td class="actions">
-              <button class="button" type="button" (click)="select(tour.id)">Add time</button>
+              @if (tour.status !== 'Archived') {
+                <button class="button" type="button" (click)="select(tour.id)">Add time</button>
+              }
               @if (tour.status === 'Draft') {
                 <button
                   class="button button--primary"
@@ -45,6 +47,24 @@
                   (click)="selectForPublishing(tour.id)"
                 >
                   Publish
+                </button>
+              } @else if (tour.status === 'Published') {
+                <button
+                  class="button button--primary"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="archive(tour.id)"
+                >
+                  Archive
+                </button>
+              } @else {
+                <button
+                  class="button button--primary"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="reactivate(tour.id)"
+                >
+                  Reactivate
                 </button>
               }
             </td>
