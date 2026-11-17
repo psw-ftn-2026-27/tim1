@@ -12,6 +12,7 @@ internal static class TourSeed
     public static readonly Tour PublishedVineyards;
     public static readonly Tour PublishedMonasteries;
     public static readonly Tour PublishedLakeside;
+    public static readonly Tour ArchivedOrchards;
 
     static TourSeed()
     {
@@ -29,7 +30,12 @@ internal static class TourSeed
         PublishedLakeside = new(WellKnownUsers.Explorer, "Šetnja oko Ludaškog jezera", "Laka šetnja po stazi oko Ludaškog jezera, sa tornjevima za posmatranje ptica, drvenim mostićima i klupama za odmor tokom cele staze.", TourDifficulty.Easy, ["priroda"]);
         PublishedLakeside.AddTransportTime(TransportMode.Walking, 120);
         PublishedLakeside.Publish();
+
+        ArchivedOrchards = new(WellKnownUsers.Explorer, "Voćnjaci Fruške gore", "Tura vodi kroz voćnjake na južnim padinama Fruške gore, uz zaustavljanje kod seoskih domaćinstava i degustaciju domaćih sokova i rakija.", TourDifficulty.Moderate, ["priroda"]);
+        ArchivedOrchards.AddTransportTime(TransportMode.Bicycle, 75);
+        ArchivedOrchards.Publish();
+        ArchivedOrchards.Archive();
     }
 
-    public static Tour[] All => [FortressWalk, CityStroll, SecondExplorersTrail, PublishableRiverside, PublishedVineyards, PublishedMonasteries, PublishedLakeside];
+    public static Tour[] All => [FortressWalk, CityStroll, SecondExplorersTrail, PublishableRiverside, PublishedVineyards, PublishedMonasteries, PublishedLakeside, ArchivedOrchards];
 }

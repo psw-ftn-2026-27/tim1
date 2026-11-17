@@ -17,6 +17,14 @@ export class TourAuthoring {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/publish`, {}));
   }
 
+  async archive(id: string): Promise<void> {
+    await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/archive`, {}));
+  }
+
+  async reactivate(id: string): Promise<void> {
+    await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/reactivate`, {}));
+  }
+
   async addTransportTime(id: string, dto: TransportTimeDto): Promise<void> {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/transport-times`, dto));
   }
