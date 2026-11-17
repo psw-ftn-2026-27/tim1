@@ -36,15 +36,41 @@ public sealed class FollowRequestingController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{requestId:guid}/accept")]
+    public async Task<ActionResult> Accept(Guid requestId)
+    {
+        await _requestingService.AcceptFollowRequestAsync(User.GetUserId(), requestId);
+        return NoContent();
+    }
+
+    [HttpPut("{requestId:guid}/reject")]
+    public async Task<ActionResult> Reject(Guid requestId)
+    {
+        await _requestingService.RejectFollowRequestAsync(User.GetUserId(), requestId);
+        return NoContent();
+    }
+
+    [HttpGet("received")]
+    public async Task<ActionResult<PageResult<ReceivedFollowRequestDto>>> GetReceived([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        return await _requestingQueries.GetReceivedFollowRequestsAsync(User.GetUserId(), page, pageSize);
+    }
+
+    [HttpGet("received/pending-count")]
+    public async Task<ActionResult<int>> GetPendingReceivedCount()
+    {
+        return await _requestingQueries.GetPendingReceivedCountAsync(User.GetUserId());
+    }
+
     [HttpGet("sent")]
     public async Task<ActionResult<List<FollowRequestDto>>> GetSent()
     {
         return await _requestingQueries.GetSentFollowRequestsAsync(User.GetUserId());
     }
 
-    [HttpGet("authors")]
-    public async Task<ActionResult<PageResult<AuthorToFollowDto>>> GetAuthors([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    [HttpGet("search")]
+    public async Task<ActionResult<PageResult<UserToFollowDto>>> SearchUsersToFollow([FromQuery] string text = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        return await _requestingQueries.GetAuthorsToFollowAsync(User.GetUserId(), page, pageSize);
+        return await _requestingQueries.SearchUsersToFollowAsync(User.GetUserId(), text, page, pageSize);
     }
 }

@@ -1,0 +1,32 @@
+.card {
+  margin-inline: auto;
+  max-width: 32rem;
+}
+
+// Looks like the other field labels; a <label> needs one control, and the images have several.
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.description {
+  white-space: pre-wrap;
+}
+
+.thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.thumbnails app-protected-image,
+.image-row app-protected-image {
+  display: block;
+  height: 3rem;
+}
+
+.image-row {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+}

@@ -18,6 +18,13 @@ public class BlogTests
         return blog;
     }
 
+    private static Blog CreateArchivedBlog()
+    {
+        var blog = CreatePublishedBlog();
+        blog.Archive();
+        return blog;
+    }
+
     [Fact]
     public void New_blog_starts_as_a_draft()
     {
@@ -106,6 +113,63 @@ public class BlogTests
     }
 
     [Fact]
+    public void Draft_blog_cannot_be_archived()
+    {
+        var blog = CreateBlog();
+
+        var archiving = () => blog.Archive();
+
+        archiving.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Archived_blog_cannot_be_archived_again()
+    {
+        var blog = CreateArchivedBlog();
+
+        var archiving = () => blog.Archive();
+
+        archiving.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Archived_blog_content_cannot_be_updated()
+    {
+        var blog = CreateArchivedBlog();
+
+        var update = () => blog.UpdateContent("Novi naslov", "Novi opis obilaska tvrđave.", [Guid.NewGuid()]);
+
+        update.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Updated_blog_gets_a_new_last_modified_date_and_keeps_its_creation_date()
+    {
+        var blog = CreateBlog();
+        var createdAt = blog.CreatedAt;
+        Thread.Sleep(TimeSpan.FromMilliseconds(10));
+
+        blog.UpdateContent("Novi naslov", "Novi opis obilaska tvrđave.", []);
+
+        blog.CreatedAt.Should().Be(createdAt);
+        blog.LastModifiedAt.Should().BeAfter(createdAt);
+    }
+
+    [Fact]
+    public void Published_blog_content_is_updated()
+    {
+        var blog = CreatePublishedBlog();
+        var images = new List<Guid> { Guid.NewGuid() };
+
+        blog.UpdateContent("Novi naslov", "Novi opis obilaska tvrđave.", images);
+
+        blog.Title.Should().Be("Novi naslov");
+        blog.Description.Should().Be("Novi opis obilaska tvrđave.");
+        blog.Images.Should().Equal(images);
+        blog.Status.Should().Be(BlogStatus.Published);
+    }
+
+    [Fact]
     public void User_comments_on_a_published_blog()
     {
         var blog = CreatePublishedBlog();
@@ -114,6 +178,16 @@ public class BlogTests
 
         blog.Comments.Should().ContainSingle(comment =>
             comment.UserId == WellKnownUsers.Administrator && comment.Text == "Odlična tura!");
+    }
+
+    [Fact]
+    public void Archived_blog_cannot_be_commented_on()
+    {
+        var blog = CreateArchivedBlog();
+
+        var addition = () => blog.AddComment(WellKnownUsers.Administrator, "Odlična tura!");
+
+        addition.Should().Throw<DomainException>();
     }
 
     [Theory]

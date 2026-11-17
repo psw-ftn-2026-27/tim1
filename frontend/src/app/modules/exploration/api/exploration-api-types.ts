@@ -38,3 +38,10 @@ export interface CreateTourDto {
 export interface PublishTourDto {
   price: number;
 }
+
+export interface TourPreferenceDto {
+  difficulties: TourDifficulty[];
+  transport: TransportMode | null;
+  tags: string[];
+  opensSearch: boolean;
+}

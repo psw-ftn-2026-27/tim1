@@ -26,15 +26,17 @@ public sealed class FollowRequest : AggregateRoot
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void Accept()
+    public void Accept(Guid userId)
     {
+        EnsureRecipient(userId, "accepted");
         EnsurePending("accepted");
 
         Status = FollowRequestStatus.Accepted;
     }
 
-    public void Reject()
+    public void Reject(Guid userId)
     {
+        EnsureRecipient(userId, "rejected");
         EnsurePending("rejected");
 
         Status = FollowRequestStatus.Rejected;
@@ -48,6 +50,14 @@ public sealed class FollowRequest : AggregateRoot
         }
 
         EnsurePending("deleted");
+    }
+
+    private void EnsureRecipient(Guid userId, string action)
+    {
+        if (RecipientId != userId)
+        {
+            throw new DomainException($"Only the recipient can have a follow request {action}.");
+        }
     }
 
     private void EnsurePending(string action)

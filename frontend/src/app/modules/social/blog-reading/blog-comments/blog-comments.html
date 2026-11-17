@@ -4,7 +4,7 @@
       <p>{{ comment.text }}</p>
       <p class="meta">{{ comment.createdAt }}</p>
 
-      @if (comment.userId === currentUserId()) {
+      @if (!archived() && comment.userId === currentUserId()) {
         @if (editingCommentId() === comment.id) {
           <form class="comment-actions" (submit)="saveEdit($event, comment.id)">
             <input type="text" aria-label="Edit comment" [formField]="editForm.text" />
@@ -28,7 +28,7 @@
   }
 </ul>
 
-@if (currentUserId()) {
+@if (!archived() && currentUserId()) {
   <form class="comment-form" (submit)="submitComment($event)">
     <input type="text" aria-label="New comment" [formField]="form.text" />
     <button class="button button--primary" type="submit" [disabled]="!form().valid()">

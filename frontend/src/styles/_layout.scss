@@ -13,3 +13,21 @@
   gap: var(--space-4);
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
 }
+
+// Prelaz između stranica: router ubacuje novu stranicu kao dete <main>, a ona se blago
+// pojavi. Samo CSS, bez Angular koda. Ko je uključio „smanji animacije" u sistemu, ne vidi je.
+main > :not(router-outlet) {
+  animation: page-fade-in 250ms ease-out;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main > :not(router-outlet) {
+    animation: none;
+  }
+}

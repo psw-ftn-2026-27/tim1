@@ -1,10 +1,27 @@
 <header>
   <nav class="container">
-    <a routerLink="/">Home</a>
-    <a routerLink="/exploration">Exploration</a>
-    <a routerLink="/games">Games</a>
-    <a routerLink="/social">Social</a>
-    <a routerLink="/payment">Payment</a>
+    <a class="logo" routerLink="/" aria-label="Explorer, početna stranica">
+      <svg width="120" height="32" viewBox="0 0 180 48" aria-hidden="true">
+        <circle cx="23" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M29 10 35 33 23 28 11 37 17 15 23 20Z" fill="var(--color-accent)" />
+        <text
+          x="53"
+          y="33"
+          fill="currentColor"
+          font-family="inherit"
+          font-size="28"
+          font-weight="800"
+          letter-spacing="-1"
+        >
+          Explorer
+        </text>
+      </svg>
+    </a>
+    <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+    <a routerLink="/exploration" routerLinkActive="active" ariaCurrentWhenActive="page">Exploration</a>
+    <a routerLink="/games" routerLinkActive="active" ariaCurrentWhenActive="page">Games</a>
+    <a routerLink="/social" routerLinkActive="active" ariaCurrentWhenActive="page">Social</a>
+    <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page">Payment</a>
 
     <span class="nav-user">
       @if (auth.user(); as user) {

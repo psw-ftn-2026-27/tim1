@@ -18,4 +18,8 @@ export class BlogList {
   protected readonly blogs = httpResource<PageResult<BlogDto>>(
     () => '/api/social/blogs/published?page=1&pageSize=20',
   );
+
+  protected readonly pendingCount = httpResource<number>(() =>
+    this.auth.isLoggedIn() ? '/api/social/follow-requests/received/pending-count' : undefined,
+  );
 }

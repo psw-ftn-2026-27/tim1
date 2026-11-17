@@ -1,26 +1,27 @@
 <div class="stack">
-  <h1>Autori</h1>
+  <div class="header">
+    <a class="back" routerLink="/social/follow-requests" aria-label="Nazad na zahteve">←</a>
+    <h1>Pronađi korisnike</h1>
+  </div>
 
-  <p><a routerLink="/social/follow-requests" aria-label="Nazad na zahteve">&larr;</a></p>
+  <div class="field">
+    <input type="text" aria-label="Pretraga korisnika" placeholder="Pretraži po imenu" [formField]="form.text" />
+  </div>
 
   @if (error()) {
     <p class="error">{{ error() }}</p>
   }
 
-  @if (authors.isLoading()) {
-    <p>Učitavanje autora...</p>
-  } @else if (authors.error()) {
-    <p class="error">Autori nisu učitani. Prijavi se i pokušaj ponovo.</p>
+  @if (users.error()) {
+    <p class="error">Korisnici nisu učitani. Prijavi se i pokušaj ponovo.</p>
+  } @else if (users.value() === undefined) {
+    <p>Učitavanje korisnika...</p>
   } @else {
-    <div class="grid">
-      @for (author of authors.value()?.items ?? []; track author.authorId) {
-        <app-author-card
-          [author]="author"
-          [disabled]="pending()"
-          (sendClicked)="send($event)"
-        />
+    <div class="stack">
+      @for (user of users.value()?.items ?? []; track user.id) {
+        <app-user-card [user]="user" [disabled]="pending()" (sendClicked)="send($event)" />
       } @empty {
-        <p>Nema autora koje možeš da zapratiš.</p>
+        <p>Nema korisnika kojima možeš da pošalješ zahtev.</p>
       }
     </div>
   }

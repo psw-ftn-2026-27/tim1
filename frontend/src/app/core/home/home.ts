@@ -3,6 +3,7 @@ import {
   DestroyRef,
   ElementRef,
   afterNextRender,
+  computed,
   effect,
   inject,
   signal,
@@ -50,14 +51,16 @@ export class Home {
     {
       id: 'games',
       title: 'Igre i izazovi',
-      description: 'Uskoro novi način istraživanja kroz igru i tragove.',
-      action: 'Otkrij izazove',
-      status: 'unimplemented',
-      route: null,
+      description:
+        'Otkrij kako igre i interaktivne mape proširuju iskustvo istraživanja. Nove mogućnosti su u pripremi.',
+      action: 'Istraži igre',
+      guestAction: 'Prijavi se za igre',
+      status: 'available',
+      route: '/games',
       message: 'Igre i izazovi uskoro će biti dostupni.',
       image: 'modern-games.webp',
       imageAlt: 'Troje mladih istraživača čita papirnu mapu ispred planina',
-      requiresLogin: false,
+      requiresLogin: true,
     },
     {
       id: 'community',
@@ -74,20 +77,30 @@ export class Home {
     },
     {
       id: 'purchases',
-      title: 'Kupovina tura',
-      description: 'Uskoro mogućnost kupovine autorskih tura.',
-      action: 'Saznaj o kupovini',
-      status: 'unimplemented',
-      route: null,
-      message: 'Kupovina tura uskoro će biti dostupna.',
+      title: 'Novčanik i plaćanja',
+      description:
+        'Upoznaj mogućnosti novčanika i upravljanja zahtevima za dopunu i povlačenje sredstava.',
+      action: 'Istraži plaćanja',
+      guestAction: 'Prijavi se za plaćanja',
+      status: 'available',
+      route: '/payment',
+      message: 'Funkcionalnosti plaćanja trenutno nisu dostupne za vašu korisničku ulogu.',
       image: 'modern-experiences.webp',
       imageAlt: 'Dve osobe veslaju u kajaku pored šumovitih litica',
-      requiresLogin: false,
+      requiresLogin: true,
     },
   ];
 
   protected readonly tours = this.capabilities[0];
   protected readonly heroMessage = signal('');
+  protected readonly paymentMessage = signal('');
+  protected readonly paymentRoute = computed(() => {
+    const user = this.auth.user();
+    if (!user) return '/login';
+    if (user.roles.includes('administrator')) return '/payment/admin/requests';
+    if (user.roles.includes('explorer')) return '/payment';
+    return null;
+  });
 
   protected readonly slides = [
     {

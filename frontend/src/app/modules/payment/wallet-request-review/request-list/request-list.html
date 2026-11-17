@@ -1,0 +1,77 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Submitted</th>
+      <th scope="col">Kind</th>
+      <th scope="col">Submitter</th>
+      <th scope="col">Amount</th>
+      @if (decidable()) {
+        <th scope="col">Actions</th>
+      } @else {
+        <th scope="col">Outcome</th>
+        <th scope="col">Reason</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (request of requests(); track request.id) {
+      <tr>
+        <td>{{ request.createdAt }}</td>
+        <td>{{ request.type }}</td>
+        <td>{{ request.submitterId }}</td>
+        <td>{{ request.amount }}</td>
+        @if (decidable()) {
+          <td>
+            <div class="row-actions">
+              <button
+                class="button button--primary"
+                type="button"
+                [disabled]="pending()"
+                (click)="approveRequest.emit(request)"
+              >
+                Odobri
+              </button>
+              <button
+                class="button"
+                type="button"
+                [disabled]="pending()"
+                (click)="startReject(request)"
+              >
+                Odbij
+              </button>
+            </div>
+          </td>
+        } @else {
+          <td>{{ statusLabel(request.status) }}</td>
+          <td>{{ request.rejectionReason }}</td>
+        }
+      </tr>
+
+      @if (rejectingId() === request.id) {
+        <tr>
+          <td colspan="5">
+            <form class="reject" (submit)="submitReject($event, request)">
+              <input type="text" aria-label="Rejection reason" [formField]="rejectForm.reason" />
+              <button
+                class="button button--primary"
+                type="submit"
+                [disabled]="!rejectForm().valid() || pending()"
+              >
+                Pošalji odbijanje
+              </button>
+              <button class="button" type="button" (click)="rejectingId.set(null)">Odustani</button>
+            </form>
+          </td>
+        </tr>
+      }
+    } @empty {
+      <tr>
+        @if (decidable()) {
+          <td colspan="5">There are no pending requests.</td>
+        } @else {
+          <td colspan="6">No request has been decided yet.</td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,95 @@
+<div class="stack">
+  <h1>My preferences</h1>
+
+  @if (saved()) {
+    <p>Preferences saved</p>
+  }
+
+  <div class="card stack">
+    @if (preferences.isLoading()) {
+      <p>Loading your preferences...</p>
+    } @else if (preferences.error()) {
+      <p class="error">Could not load your preferences. Log in and try again.</p>
+    } @else if (editing()) {
+      <form class="stack" (submit)="save($event)">
+        <fieldset>
+          <legend>Difficulty</legend>
+          <label><input type="checkbox" [formField]="form.easy" /> Easy</label>
+          <label><input type="checkbox" [formField]="form.moderate" /> Moderate</label>
+          <label><input type="checkbox" [formField]="form.hard" /> Hard</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Transport</legend>
+          <label><input type="radio" value="" [formField]="form.transport" /> No preference</label>
+          <label><input type="radio" value="Walking" [formField]="form.transport" /> Walking</label>
+          <label><input type="radio" value="Bicycle" [formField]="form.transport" /> Bicycle</label>
+          <label><input type="radio" value="Car" [formField]="form.transport" /> Car</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Tags</legend>
+          @for (tag of offeredTags(); track tag) {
+            <button
+              class="button"
+              type="button"
+              [class.button--primary]="isSelected(tag)"
+              [attr.aria-pressed]="isSelected(tag)"
+              (click)="toggleTag(tag)"
+            >
+              {{ tag }}
+            </button>
+          } @empty {
+            <p class="meta">No tags on published tours yet.</p>
+          }
+        </fieldset>
+
+        <label>
+          <input type="checkbox" [formField]="form.opensSearch" />
+          Open tour search with my preferences applied
+        </label>
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+
+        <div class="actions">
+          <button class="button button--primary" type="submit" [disabled]="isEmpty() || pending()">
+            Save
+          </button>
+          <button class="button" type="button" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </form>
+    } @else if (preferences.value(); as current) {
+      <dl>
+        <dt>Difficulty</dt>
+        <dd>{{ current.difficulties.length > 0 ? current.difficulties.join(', ') : 'Any' }}</dd>
+        <dt>Transport</dt>
+        <dd>{{ current.transport ?? 'No preference' }}</dd>
+        <dt>Tags</dt>
+        <dd>{{ current.tags.length > 0 ? current.tags.join(', ') : 'None' }}</dd>
+        <dt>Open tour search with my preferences applied</dt>
+        <dd>{{ current.opensSearch ? 'Yes' : 'No' }}</dd>
+      </dl>
+
+      @if (error()) {
+        <p class="error">{{ error() }}</p>
+      }
+
+      <div class="actions">
+        <button class="button button--primary" type="button" (click)="startEdit()">Edit</button>
+        <button class="button" type="button" [disabled]="pending()" (click)="delete()">
+          Delete preferences
+        </button>
+      </div>
+    } @else {
+      <p>You have no preferences yet</p>
+
+      <div class="actions">
+        <button class="button button--primary" type="button" (click)="startEdit()">
+          Set preferences
+        </button>
+      </div>
+    }
+  </div>
+</div>

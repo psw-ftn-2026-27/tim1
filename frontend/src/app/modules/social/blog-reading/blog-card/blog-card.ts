@@ -12,4 +12,9 @@ import { BlogDescription } from '../blog-description/blog-description';
 })
 export class BlogCard {
   readonly blog = input.required<BlogDto>();
+
+  // The server sends dates as ISO text; this shows them in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleString('sr-Latn');
+  }
 }

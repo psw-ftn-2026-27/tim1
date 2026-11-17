@@ -8,6 +8,10 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   {
+    path: 'examples',
+    loadChildren: () => import('./examples/examples.routes').then((m) => m.exampleRoutes),
+  },
+  {
     path: 'exploration',
     loadChildren: () =>
       import('../modules/exploration/exploration.routes').then((m) => m.explorationRoutes),

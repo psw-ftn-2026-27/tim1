@@ -19,6 +19,51 @@ public class WalletTests
     }
 
     [Fact]
+    public void Top_up_increases_the_available_balance_and_records_a_transaction()
+    {
+        var wallet = CreateWallet();
+
+        wallet.Deposit(2500m);
+
+        wallet.AvailableBalance.Should().Be(2500m);
+        wallet.ReservedBalance.Should().Be(0);
+        wallet.Transactions.Should().ContainSingle(transaction =>
+            transaction.Type == TransactionType.TopUp
+            && transaction.Amount == 2500m
+            && transaction.BalanceAfter == 2500m);
+    }
+
+    [Fact]
+    public void Approved_payout_lowers_the_reserved_balance_and_leaves_the_available_balance()
+    {
+        var wallet = CreateWalletWithReservedFunds();
+
+        wallet.PayOutReserved(1000m);
+
+        wallet.AvailableBalance.Should().Be(4000m);
+        wallet.ReservedBalance.Should().Be(0);
+        wallet.Transactions.Should().ContainSingle(transaction =>
+            transaction.Type == TransactionType.Payout
+            && transaction.Amount == 1000m
+            && transaction.BalanceAfter == 4000m);
+    }
+
+    [Fact]
+    public void Rejected_payout_returns_its_amount_from_the_reserved_to_the_available_balance()
+    {
+        var wallet = CreateWalletWithReservedFunds();
+
+        wallet.ReturnReserved(1000m);
+
+        wallet.AvailableBalance.Should().Be(5000m);
+        wallet.ReservedBalance.Should().Be(0);
+        wallet.Transactions.Should().ContainSingle(transaction =>
+            transaction.Type == TransactionType.ReservationReturn
+            && transaction.Amount == 1000m
+            && transaction.BalanceAfter == 5000m);
+    }
+
+    [Fact]
     public void Withdrawal_moves_its_amount_from_the_available_to_the_reserved_balance()
     {
         var wallet = CreateWalletWithReservedFunds();

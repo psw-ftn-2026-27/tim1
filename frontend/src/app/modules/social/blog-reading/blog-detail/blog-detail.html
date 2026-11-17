@@ -21,9 +21,14 @@
 
       <p class="meta">Status: {{ blog.status }}</p>
 
+      <p class="meta">Created: {{ formatDate(blog.createdAt) }}</p>
+
+      <p class="meta">Last modified: {{ formatDate(blog.lastModifiedAt) }}</p>
+
       <app-blog-comments
         [comments]="blog.comments"
         [currentUserId]="auth.user()?.id ?? null"
+        [archived]="blog.status === 'Archived'"
         (addComment)="add($event)"
         (editComment)="edit($event)"
         (deleteComment)="remove($event)"

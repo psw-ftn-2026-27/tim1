@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Payment.Application;
 using Payment.Application.TopUpRequests;
 using Payment.Application.WalletFunding;
+using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
 using Payment.Application.WithdrawalRequests;
 using Payment.Infrastructure.Persistence;
@@ -29,6 +30,8 @@ public static class PaymentModuleExtensions
 
         services.AddScoped<WalletFundingService>();
         services.AddScoped<WalletFundingQueries>();
+        services.AddScoped<WalletRequestReviewService>();
+        services.AddScoped<WalletRequestReviewQueries>();
 
         return services;
     }

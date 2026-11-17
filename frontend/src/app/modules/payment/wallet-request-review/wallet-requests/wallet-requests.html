@@ -1,0 +1,29 @@
+<div class="stack">
+  <h1>Wallet requests</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (requests.isLoading()) {
+    <p>Loading wallet requests...</p>
+  } @else if (requests.error()) {
+    <p class="error">
+      Could not load the wallet requests. Log in as an administrator and try again.
+    </p>
+  } @else {
+    <h2>Pending</h2>
+
+    <app-request-list
+      [requests]="requests.value()?.pending ?? []"
+      [decidable]="true"
+      [pending]="pending()"
+      (approveRequest)="approve($event)"
+      (rejectRequest)="reject($event)"
+    />
+
+    <h2>Decided</h2>
+
+    <app-request-list [requests]="requests.value()?.decided ?? []" />
+  }
+</div>

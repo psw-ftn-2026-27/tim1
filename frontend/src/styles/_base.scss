@@ -17,6 +17,10 @@ h1,
 h2,
 h3 {
   margin: 0 0 var(--space-3);
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--letter-spacing-heading);
   line-height: 1.2;
 }
 
@@ -30,4 +34,8 @@ h2 {
 
 a {
   color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
 }

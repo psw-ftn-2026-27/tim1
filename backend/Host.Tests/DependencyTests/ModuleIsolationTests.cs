@@ -2,7 +2,7 @@ using Xunit;
 
 namespace Host.Tests.DependencyTests;
 
-// Another module is reachable only through its Contracts project, and Identity is reachable by no module at all.
+// Another module is reachable only through its Contracts project, and Identity is reachable only through Identity.Contracts.
 public class ModuleIsolationTests : BaseArchitectureTests
 {
     [Theory]
@@ -29,5 +29,11 @@ public class ModuleIsolationTests : BaseArchitectureTests
         {
             AssertNoDependency(assembly, "Identity");
         }
+    }
+
+    [Fact]
+    public void Identity_contracts_depends_on_nothing()
+    {
+        AssertNoDependency("Identity.Contracts", "Identity", "Shared.Domain", "Shared.Api", "Shared.Infrastructure");
     }
 }

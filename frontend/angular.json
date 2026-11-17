@@ -28,9 +28,14 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "marker-*.png",
+                "input": "node_modules/leaflet/dist/images",
+                "output": "leaflet"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": ["leaflet/dist/leaflet.css", "src/styles.scss"]
           },
           "configurations": {
             "production": {

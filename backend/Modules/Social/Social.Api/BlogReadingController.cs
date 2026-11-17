@@ -21,7 +21,7 @@ public sealed class BlogReadingController : ControllerBase
     [HttpGet("published")]
     public async Task<ActionResult<PageResult<BlogDto>>> GetPublished([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        return await _readingQueries.GetPublishedAsync(page, pageSize);
+        return await _readingQueries.GetVisibleAsync(page, pageSize);
     }
 
     [HttpGet("{id:guid}")]
@@ -34,7 +34,7 @@ public sealed class BlogReadingController : ControllerBase
     [HttpGet("{blogId:guid}/images/{imageId:guid}")]
     public async Task<ActionResult> GetPublishedBlogImage(Guid blogId, Guid imageId)
     {
-        var image = await _readingQueries.GetPublishedBlogImageAsync(blogId, imageId);
+        var image = await _readingQueries.GetVisibleBlogImageAsync(blogId, imageId);
         return File(image.Content, image.ContentType);
     }
 }

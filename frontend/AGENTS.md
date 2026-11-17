@@ -35,7 +35,7 @@ frontend/src/
       api/                   shared types (PageResult, ProblemDetails),
                              mirror the server, no client-only fields          [platform]
       ui/                    shared components any module may use: image-upload,
-                             protected-image; nothing else without a decision   [platform]
+                             protected-image, map; additions need a decision    [platform]
     modules/
       <name>/
         api/                 this module's DTO types, mirror the server, no client-only fields
@@ -119,13 +119,20 @@ construct means adding a lesson, so treat it as a platform decision.
   (`HttpInterceptorFn`, `withInterceptors`) in `core/`.
 - Forms: Signal Forms (`form()`, `FormField`, validators from
   `@angular/forms/signals`). No Reactive Forms, no template-driven forms.
-- Routing: `router-outlet`, `routerLink`, `loadChildren`, route parameters bound as
+- Routing: `router-outlet`, `routerLink`, `routerLinkActive` (marks the current section
+  in the navigation), `loadChildren`, route parameters bound as
   signal inputs via `withComponentInputBinding`; `inject(Router)` only for navigation
   after a command.
 - Platform decision, only for `shared/ui/`: `URL.createObjectURL` / `revokeObjectURL`
   (local preview, protected image), `ngOnDestroy` (to revoke what the component created)
   and one `effect()` in `protected-image`. Feature modules use the components, not the
   constructs.
+- In `shared/ui/map/`, `ElementRef` and `afterNextRender` hand the rendered map container to
+  Leaflet, `DestroyRef` releases the map, and an `effect()` keeps Leaflet markers in sync
+  with the pin input. A second effect synchronizes routing with the optional route input.
+  The map may inject its adjacent routing service, which uses browser `fetch` and
+  `AbortController` for direct public routing requests without application credentials.
+  Consumers use the Angular component's inputs and outputs.
 - No RxJS in student code. `Observable` appears only as the return type of `HttpClient`
   writes, immediately awaited. No NgRx, no facades.
 
@@ -168,9 +175,10 @@ assigned to the platform team, and misalignment is an accepted learning experien
   group service: `[upload]="uploadImage"`, with `uploadImage = (file: File) =>
   this.blogAuthoring.uploadImage(file)` in the page. The command stays in the module; the
   component only calls it.
-- The one exception to "inject nothing": a shared component in `shared/ui/` that reads
+- Exceptions to "inject nothing" in `shared/ui/` include the DOM access, cleanup and
+  routing service scoped to the Leaflet map above. A shared component that reads
   protected content (`protected-image`) fetches it itself with `httpResource`, because a
   plain `<img src>` sends no token. The page passes only the address; the server decides
-  who may see it. No component in a feature module takes this exception.
+  who may see it. These exceptions apply only to the named shared components.
 - Do not produce Vitest tests unless specifically instructed. Frontend testing is not
   taught; it is a platform-team assignment.

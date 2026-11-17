@@ -1,4 +1,4 @@
-export type TransactionType = 'TopUp' | 'Reservation';
+export type TransactionType = 'TopUp' | 'Reservation' | 'Payout' | 'ReservationReturn';
 
 export type WalletRequestType = 'TopUp' | 'Withdrawal';
 
@@ -17,6 +17,7 @@ export interface WalletRequestDto {
   amount: number;
   status: WalletRequestStatus;
   createdAt: string;
+  rejectionReason: string | null;
 }
 
 export interface WalletOverviewDto {
@@ -32,4 +33,23 @@ export interface RequestTopUpDto {
 
 export interface RequestWithdrawalDto {
   amount: number;
+}
+
+export interface WalletRequestReviewDto {
+  id: string;
+  type: WalletRequestType;
+  submitterId: string;
+  amount: number;
+  createdAt: string;
+  status: WalletRequestStatus;
+  rejectionReason: string | null;
+}
+
+export interface WalletRequestsDto {
+  pending: WalletRequestReviewDto[];
+  decided: WalletRequestReviewDto[];
+}
+
+export interface RejectRequestDto {
+  reason: string;
 }

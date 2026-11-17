@@ -1,0 +1,12 @@
+<article class="card row">
+  <h3>{{ user().displayName }}</h3>
+
+  <button
+    class="button button--primary button--small"
+    type="button"
+    [disabled]="disabled()"
+    (click)="sendClicked.emit(user().id)"
+  >
+    Pošalji zahtev
+  </button>
+</article>

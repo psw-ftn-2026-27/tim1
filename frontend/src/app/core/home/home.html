@@ -74,10 +74,16 @@
     </div>
     <div class="grid tiles">
       @for (capability of capabilities; track capability.id) {
-        @if (capability.status === 'available' && capability.route) {
+        @if (capability.id !== 'purchases' || paymentRoute()) {
           <a
             class="card tile linked"
-            [routerLink]="capability.requiresLogin && !auth.user() ? '/login' : capability.route"
+            [routerLink]="
+              capability.id === 'purchases'
+                ? paymentRoute()
+                : !auth.user()
+                  ? '/login'
+                  : capability.route
+            "
             [attr.aria-label]="
               (capability.requiresLogin && !auth.user()
                 ? capability.guestAction
@@ -110,8 +116,14 @@
             </div>
           </a>
         } @else {
-          <article class="card tile" [attr.aria-labelledby]="capability.id + '-title'">
-            <div class="media">
+          <button
+            class="card tile linked"
+            type="button"
+            [attr.aria-label]="capability.action + ': ' + capability.title"
+            aria-describedby="payment-status"
+            (click)="paymentMessage.set(capability.message)"
+          >
+            <span class="media">
               <img
                 class="thumb"
                 [src]="'/images/home/' + capability.image"
@@ -120,20 +132,17 @@
                 height="534"
                 loading="lazy"
               />
-            </div>
-            <div class="body">
-              <h3 [id]="capability.id + '-title'">{{ capability.title }}</h3>
-              <p class="meta desc">{{ capability.description }}</p>
-              @if (capability.status === 'unimplemented') {
-                <span class="meta more">U pripremi</span>
-              } @else {
-                <span class="meta more">{{ capability.message }}</span>
-              }
-            </div>
-          </article>
+            </span>
+            <span class="body">
+              <span class="tile-title">{{ capability.title }}</span>
+              <span class="meta desc">{{ capability.description }}</span>
+              <span class="hot">{{ capability.action }} <span aria-hidden="true">↗</span></span>
+            </span>
+          </button>
         }
       }
     </div>
+    <div id="payment-status" class="notice" role="status">{{ paymentMessage() }}</div>
   </section>
   <section
     class="home-section gallery"

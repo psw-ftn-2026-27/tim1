@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Payment.Application.WalletFunding;
+using Payment.Domain.Requests;
 using Payment.Domain.TopUpRequests;
 using Payment.Domain.Wallets;
 using Payment.Domain.WithdrawalRequests;
@@ -33,7 +34,7 @@ public class WalletFundingCommandTests : BaseIntegrationTest
         storedWallet.Transactions.Should().BeEmpty();
         var storedRequest = assertContext.TopUpRequests.Single(topUpRequest => topUpRequest.WalletId == storedWallet.Id);
         storedRequest.Amount.Should().Be(2500m);
-        storedRequest.Status.Should().Be(TopUpRequestStatus.Pending);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Pending);
     }
 
     [Fact]
@@ -120,7 +121,7 @@ public class WalletFundingCommandTests : BaseIntegrationTest
             && transaction.BalanceAfter == expectedAvailableBalance);
         var storedRequest = assertContext.WithdrawalRequests.Single(withdrawalRequest =>
             withdrawalRequest.WalletId == WalletSeed.SecondExplorersWallet.Id && withdrawalRequest.Amount == 1500m);
-        storedRequest.Status.Should().Be(WithdrawalRequestStatus.Pending);
+        storedRequest.Status.Should().Be(WalletRequestStatus.Pending);
     }
 
     [Fact]

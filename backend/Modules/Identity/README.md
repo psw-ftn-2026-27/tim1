@@ -1,6 +1,6 @@
 # Modul Identity
 
-Modul Identity je platformski modul zadužen za registraciju korisnika, prijavu i izdavanje JWT-a (JSON Web Token). Sastoji se od dva projekta. Projekat `Identity` sadrži sam modul, a projekat `Identity.Tests` njegove integracione testove. Studenti ovaj modul koriste kroz njegove krajnje tačke, ali ga ne menjaju i ne referenciraju iz svojih modula.
+Modul Identity je platformski modul zadužen za registraciju korisnika, prijavu i izdavanje JWT-a (JSON Web Token). Sastoji se od tri projekta. Projekat `Identity` sadrži sam modul, projekat `Identity.Contracts` njegov kontrakt prema ostalim modulima, a projekat `Identity.Tests` integracione testove. Studenti ovaj modul koriste kroz njegove krajnje tačke i kroz kontrakt, ali ga ne menjaju. Iz svojih modula smeju da referenciraju samo `Identity.Contracts`, nikako projekat `Identity`.
 
 ## Problem koji rešava
 
@@ -37,6 +37,12 @@ Ovde su i DTO klase koje krajnje tačke primaju i vraćaju. Klase `RegisterDto` 
 Sadrži pristup bazi i uključivanje modula u aplikaciju. Klasa `IdentityModuleDbContext` nasleđuje gotov kontekst biblioteke ASP.NET Core Identity i smešta njegove tabele u šemu `identity`, po pravilu da svaki modul ima svoju šemu. Direktorijum `Migrations` sadrži migracije te šeme.
 
 Metoda `AddIdentityModule` registruje sve delove modula i jedino je mesto koje `Host.Api` poziva pored metode `AddIdentityControllers`. Klasa `IdentityModuleInitializer` se izvršava pri pokretanju aplikacije. Ona primenjuje migracije i upisuje uloge `administrator` i `explorer` ako već ne postoje, pa aplikacija posle pokretanja uvek ima spremnu šemu i uloge.
+
+## Projekat Identity.Contracts
+
+Sadrži interfejs `IIdentityApi` kroz koji ostali moduli saznaju imena korisnika, a da ne dodiruju korisničke naloge. Metoda `SearchUsersAsync` prima tekst, broj strane i veličinu strane, pa vraća jednu stranu korisnika i ukupan broj pronađenih. Prazan tekst vraća sve korisnike, a svaki drugi tekst sužava rezultate na korisnike čije ime za prikaz sadrži taj tekst, bez obzira na velika i mala slova. Metoda `GetUsersAsync` prima skup identifikatora i vraća korisnike koje nađe, a nepoznate identifikatore izostavlja bez greške.
+
+Korisnika opisuje `IdentityUserDto` sa identifikatorom i imenom za prikaz, a stranu `IdentityUserPageDto`. Ime za prikaz je zasad adresa elektronske pošte korisnika. Kontrakt implementira klasa `IdentityApi` u projektu `Identity`, jer modul nema aplikacioni sloj. Projekat ne referencira ništa, a ostali moduli smeju da referenciraju samo njega.
 
 ## Projekat Identity.Tests
 

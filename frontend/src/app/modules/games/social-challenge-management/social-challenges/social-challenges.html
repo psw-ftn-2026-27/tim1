@@ -1,0 +1,178 @@
+<div class="stack">
+  <p><a class="back" routerLink="/games">← Games</a></p>
+
+  <div class="page-header">
+    <div>
+      <h1>Social challenges</h1>
+      <p class="subtitle">
+        A challenge moves forward one step at a time: Draft → Published → Retired → Archived.
+      </p>
+    </div>
+    <a class="button button--primary new-challenge" routerLink="/games/social-challenges/new">
+      + New challenge
+    </a>
+  </div>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  @if (challenges.isLoading()) {
+    <p>Loading challenges…</p>
+  } @else if (challenges.error()) {
+    <p class="alert alert--danger">
+      Could not load the challenges. Log in as an administrator and try again.
+    </p>
+  } @else {
+    <div class="card table-card">
+      <table class="table">
+        <thead class="column-titles">
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Active</th>
+            <th scope="col" class="number">People</th>
+            <th scope="col" class="number">Range</th>
+            <th scope="col" class="number">XP</th>
+            <th scope="col">State</th>
+            <th scope="col" class="actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (challenge of items(); track challenge.id) {
+            <tr>
+              <td class="name">{{ challenge.name }}</td>
+              <td class="period">
+                {{ hoursAndMinutes(challenge.activeFrom) }} –
+                {{ hoursAndMinutes(challenge.activeUntil) }}
+              </td>
+              <td class="number">{{ challenge.requiredParticipants }}</td>
+              <td class="number">{{ challenge.radiusMeters }} m</td>
+              <td class="number xp">{{ challenge.experiencePoints }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge--warning]="challenge.status === 'Draft'"
+                  [class.badge--success]="challenge.status === 'Published'"
+                  [class.badge--danger]="challenge.status === 'Retired'"
+                >
+                  {{ challenge.status }}
+                </span>
+              </td>
+              <td>
+                @if (deletingId() === challenge.id) {
+                  <div class="form-actions row-actions">
+                    <span class="meta">Delete this challenge?</span>
+                    <button
+                      class="button button--danger button--small"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="confirmDelete(challenge.id)"
+                    >
+                      Confirm
+                    </button>
+                    <button class="button button--small" type="button" (click)="cancelDelete()">
+                      Cancel
+                    </button>
+                  </div>
+                } @else {
+                  <div class="form-actions row-actions">
+                    @if (challenge.status === 'Draft') {
+                      <a
+                        class="button button--small edit-link"
+                        [routerLink]="['/games/social-challenges', challenge.id, 'edit']"
+                      >
+                        Edit
+                      </a>
+                      <button
+                        class="button button--primary button--small"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="publish(challenge.id)"
+                      >
+                        Publish
+                      </button>
+                    }
+                    @if (challenge.status === 'Published') {
+                      <button
+                        class="button button--small"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="retire(challenge.id)"
+                      >
+                        Retire
+                      </button>
+                    }
+                    @if (challenge.status === 'Retired') {
+                      <button
+                        class="button button--small"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="archive(challenge.id)"
+                      >
+                        Archive
+                      </button>
+                    }
+                    @if (challenge.status === 'Draft' || challenge.status === 'Archived') {
+                      <button
+                        class="button button--danger button--small"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="startDelete(challenge.id)"
+                      >
+                        Delete
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty">No challenges yet.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="table-footer">
+        <p class="meta">
+          @if (items().length > 0) {
+            {{ firstShown() }}–{{ lastShown() }} of {{ totalCount() }}
+            {{ totalCount() === 1 ? 'challenge' : 'challenges' }}
+          }
+        </p>
+
+        @if (totalPages() > 1 || page() > 1) {
+          <div class="form-actions">
+            <button
+              class="button button--small"
+              type="button"
+              [disabled]="page() <= 1"
+              (click)="goToPage(page() - 1)"
+            >
+              ← Previous
+            </button>
+            @for (number of pageNumbers(); track number) {
+              <button
+                class="button button--small"
+                type="button"
+                [class.button--primary]="number === page()"
+                (click)="goToPage(number)"
+              >
+                {{ number }}
+              </button>
+            }
+            <button
+              class="button button--small"
+              type="button"
+              [disabled]="page() >= totalPages()"
+              (click)="goToPage(page() + 1)"
+            >
+              Next →
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
