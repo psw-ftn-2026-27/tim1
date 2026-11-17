@@ -1,0 +1,36 @@
+<div class="stack">
+  <h1>Products</h1>
+
+  @if (products.isLoading()) {
+    <p>Loading products...</p>
+  } @else if (products.error()) {
+    <p class="alert alert--danger">Could not load the products. Try again later.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Kind</th>
+          <th scope="col">Name</th>
+          <th scope="col">Price</th>
+          <th scope="col">Owner</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of products.value() ?? []; track product.id) {
+          <tr>
+            <td>{{ product.type }}</td>
+            <td>{{ product.name }}</td>
+            <td class="amount">{{ product.price }} RSD</td>
+            <td>{{ product.ownerName }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">No product has been registered yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <a routerLink="/payment">Back to your wallet</a>
+</div>
