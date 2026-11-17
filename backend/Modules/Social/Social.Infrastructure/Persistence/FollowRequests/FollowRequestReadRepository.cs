@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain;
+using Social.Application.FollowManagement;
 using Social.Application.FollowRequesting;
 using Social.Application.FollowRequests;
 using Social.Domain.FollowRequests;
@@ -55,5 +56,55 @@ internal sealed class FollowRequestReadRepository : IFollowRequestReadRepository
             .Select(request => request.RecipientId)
             .Distinct()
             .ToListAsync();
+    }
+
+    public async Task<PageResult<FollowerDto>> GetFollowersAsync(Guid userId, int page, int pageSize)
+    {
+        var followers = _dbContext.FollowRequests
+            .Where(request => request.RecipientId == userId && request.Status == FollowRequestStatus.Accepted);
+
+        var totalCount = await followers.CountAsync();
+        var items = await followers
+            .OrderByDescending(request => request.CreatedAt)
+            .ThenBy(request => request.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(request => new FollowerDto(
+                request.Id,
+                request.SenderId,
+                "",
+                _dbContext.FollowRequests.Any(back => back.SenderId == userId
+                    && back.RecipientId == request.SenderId
+                    && back.Status == FollowRequestStatus.Accepted)))
+            .ToListAsync();
+
+        return new PageResult<FollowerDto>(items, totalCount);
+    }
+
+    public async Task<PageResult<FollowingDto>> GetFollowingAsync(Guid userId, int page, int pageSize)
+    {
+        var following = _dbContext.FollowRequests
+            .Where(request => request.SenderId == userId && request.Status == FollowRequestStatus.Accepted);
+
+        var totalCount = await following.CountAsync();
+        var items = await following
+            .OrderByDescending(request => request.CreatedAt)
+            .ThenBy(request => request.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(request => new FollowingDto(request.Id, request.RecipientId, ""))
+            .ToListAsync();
+
+        return new PageResult<FollowingDto>(items, totalCount);
+    }
+
+    public async Task<FollowCountsDto> GetFollowCountsAsync(Guid userId)
+    {
+        var followerCount = await _dbContext.FollowRequests
+            .CountAsync(request => request.RecipientId == userId && request.Status == FollowRequestStatus.Accepted);
+        var followingCount = await _dbContext.FollowRequests
+            .CountAsync(request => request.SenderId == userId && request.Status == FollowRequestStatus.Accepted);
+
+        return new FollowCountsDto(followerCount, followingCount);
     }
 }

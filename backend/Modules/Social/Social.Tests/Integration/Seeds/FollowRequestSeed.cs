@@ -13,13 +13,20 @@ internal static class FollowRequestSeed
     public static readonly FollowRequest DemoExplorerPendingToThirdExplorer = new(DemoUsers.Explorer, DemoUsers.ThirdExplorer);
     public static readonly FollowRequest DemoExplorerRejectedToAdministrator = new(DemoUsers.Explorer, DemoUsers.Administrator);
 
+    public static readonly FollowRequest DemoSecondExplorerAcceptedToExplorer = new(DemoUsers.SecondExplorer, DemoUsers.Explorer);
+    public static readonly FollowRequest DemoThirdExplorerAcceptedToExplorer = new(DemoUsers.ThirdExplorer, DemoUsers.Explorer);
+    public static readonly FollowRequest DemoSecondAdministratorPendingToExplorer = new(DemoUsers.SecondAdministrator, DemoUsers.Explorer);
+
     static FollowRequestSeed()
     {
+        DemoSecondExplorerAcceptedToExplorer.Accept(DemoUsers.Explorer);
+        DemoThirdExplorerAcceptedToExplorer.Accept(DemoUsers.Explorer);
         DemoExplorerAcceptedToSecondExplorer.Accept(DemoUsers.SecondExplorer);
         DemoExplorerRejectedToAdministrator.Reject(DemoUsers.Administrator);
         SecondExplorerRejectedToExplorer.Reject(WellKnownUsers.Explorer);
     }
 
     public static FollowRequest[] All => [ExplorerPendingToSecondExplorer, AdministratorPendingToExplorer, SecondExplorerRejectedToExplorer,
-        DemoExplorerAcceptedToSecondExplorer, DemoExplorerPendingToThirdExplorer, DemoExplorerRejectedToAdministrator];
+        DemoExplorerAcceptedToSecondExplorer, DemoExplorerPendingToThirdExplorer, DemoExplorerRejectedToAdministrator,
+        DemoSecondExplorerAcceptedToExplorer, DemoThirdExplorerAcceptedToExplorer, DemoSecondAdministratorPendingToExplorer];
 }

@@ -25,3 +25,32 @@
   border-radius: 50%;
   background: color-mix(in srgb, var(--color-danger) 30%, red);
 }
+
+.header {
+  align-items: flex-start;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: var(--space-7);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.profile-icon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+}

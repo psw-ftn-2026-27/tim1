@@ -1,11 +1,11 @@
 <div class="stack">
   <div class="header">
-    <a class="back" routerLink="/social/follow-requests" aria-label="Nazad na zahteve">←</a>
-    <h1>Pronađi korisnike</h1>
+    <a class="back" routerLink="/social/follow-requests" aria-label="Back to requests">←</a>
+    <h1>Find users</h1>
   </div>
 
   <div class="field">
-    <input type="text" aria-label="Pretraga korisnika" placeholder="Pretraži po imenu" [formField]="form.text" />
+    <input type="text" aria-label="Search users" placeholder="Search by name" [formField]="form.text" />
   </div>
 
   @if (error()) {
@@ -13,15 +13,15 @@
   }
 
   @if (users.error()) {
-    <p class="error">Korisnici nisu učitani. Prijavi se i pokušaj ponovo.</p>
+    <p class="error">Users could not be loaded. Log in and try again.</p>
   } @else if (users.value() === undefined) {
-    <p>Učitavanje korisnika...</p>
+    <p>Loading users...</p>
   } @else {
     <div class="stack">
       @for (user of users.value()?.items ?? []; track user.id) {
         <app-user-card [user]="user" [disabled]="pending()" (sendClicked)="send($event)" />
       } @empty {
-        <p>Nema korisnika kojima možeš da pošalješ zahtev.</p>
+        <p>No users you can send a request to.</p>
       }
     </div>
   }

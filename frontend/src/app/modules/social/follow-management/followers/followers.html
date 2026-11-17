@@ -1,0 +1,29 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/social" aria-label="Back">←</a>
+    <h1>Followers</h1>
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (followers.isLoading()) {
+    <p>Loading followers...</p>
+  } @else if (followers.error()) {
+    <p class="error">Followers could not be loaded. Log in and try again.</p>
+  } @else {
+    <div class="stack">
+      @for (follower of followers.value()?.items ?? []; track follower.id) {
+        <app-follower-card
+          [follower]="follower"
+          [disabled]="pending()"
+          (removeClicked)="remove($event)"
+          (sendClicked)="send($event)"
+        />
+      } @empty {
+        <p>No followers yet.</p>
+      }
+    </div>
+  }
+</div>

@@ -81,3 +81,21 @@ export interface ReceivedFollowRequestDto {
   status: FollowRequestStatus;
   createdAt: string;
 }
+
+export interface FollowerDto {
+  id: string;
+  userId: string;
+  displayName: string;
+  isFollowedByUser: boolean;
+}
+
+export interface FollowingDto {
+  id: string;
+  userId: string;
+  displayName: string;
+}
+
+export interface FollowCountsDto {
+  followerCount: number;
+  followingCount: number;
+}

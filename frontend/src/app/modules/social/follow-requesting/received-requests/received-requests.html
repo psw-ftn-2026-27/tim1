@@ -1,7 +1,7 @@
 <div class="stack">
   <div class="header">
-    <a class="back" routerLink="/social" aria-label="Nazad">←</a>
-    <h1>Primljeni zahtevi</h1>
+    <a class="back" routerLink="/social" aria-label="Back">←</a>
+    <h1>Received requests</h1>
   </div>
 
   @if (error()) {
@@ -9,9 +9,9 @@
   }
 
   @if (requests.isLoading()) {
-    <p>Učitavanje zahteva...</p>
+    <p>Loading requests...</p>
   } @else if (requests.error()) {
-    <p class="error">Zahtevi nisu učitani. Prijavi se i pokušaj ponovo.</p>
+    <p class="error">Requests could not be loaded. Log in and try again.</p>
   } @else {
     <div class="stack">
       @for (request of requests.value()?.items ?? []; track request.id) {
@@ -22,7 +22,7 @@
           (rejectClicked)="reject($event)"
         />
       } @empty {
-        <p>Nema primljenih zahteva.</p>
+        <p>No received requests.</p>
       }
     </div>
   }

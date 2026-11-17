@@ -4,6 +4,8 @@ import { EditBlog } from './blog-authoring/edit-blog/edit-blog';
 import { MyBlogs } from './blog-authoring/my-blogs/my-blogs';
 import { FollowRequests } from './follow-requesting/follow-requests/follow-requests';
 import { ReceivedRequests } from './follow-requesting/received-requests/received-requests';
+import { Followers } from './follow-management/followers/followers';
+import { Following } from './follow-management/following/following';
 import { People } from './follow-requesting/people/people';
 import { BlogDetail } from './blog-reading/blog-detail/blog-detail';
 import { BlogList } from './blog-reading/blog-list/blog-list';
@@ -23,6 +25,8 @@ export const socialRoutes: Routes = [
   { path: 'follow-requests', component: FollowRequests },
   { path: 'received-requests', component: ReceivedRequests },
   { path: 'people', component: People },
+  { path: 'followers', component: Followers },
+  { path: 'following', component: Following },
   { path: 'clubs/:id', component: ClubDetail },
   { path: ':id', component: BlogDetail },
 ];

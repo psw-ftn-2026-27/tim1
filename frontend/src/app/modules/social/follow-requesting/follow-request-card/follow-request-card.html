@@ -9,10 +9,10 @@
   >
     @switch (request().status) {
       @case ('Pending') {
-        Na čekanju
+        Pending
       }
       @case ('Accepted') {
-        Pratiš
+        Following
       }
       @case ('Rejected') {
         Odbijeno
@@ -26,7 +26,7 @@
     <button
       class="button"
       type="button"
-      aria-label="Obriši zahtev"
+      aria-label="Delete request"
       [disabled]="disabled()"
       (click)="deleteClicked.emit(request().id)"
     >

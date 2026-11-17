@@ -29,7 +29,7 @@ export class FollowRequests {
       await this.followRequesting.delete(requestId);
       this.requests.reload();
     } catch (failure) {
-      this.error.set(serverMessage(failure, 'Zahtev nije obrisan.'));
+      this.error.set(serverMessage(failure, 'Request was not deleted.'));
     } finally {
       this.pending.set(false);
     }
