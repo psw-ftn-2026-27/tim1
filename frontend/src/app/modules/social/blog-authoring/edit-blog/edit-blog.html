@@ -42,7 +42,7 @@
         </div>
 
         <div class="field">
-          <span class="label">Postojeće slike</span>
+          <span class="label">Existing images</span>
           @for (imageId of keptImageIds(); track imageId) {
             <div class="image-row">
               <app-protected-image [src]="'/api/social/blogs/mine/' + id() + '/images/' + imageId" />

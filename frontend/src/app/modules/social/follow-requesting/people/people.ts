@@ -34,7 +34,7 @@ export class People {
       await this.followRequesting.send(recipientId);
       this.users.reload();
     } catch (failure) {
-      this.error.set(serverMessage(failure, 'Zahtev nije poslat.'));
+      this.error.set(serverMessage(failure, 'Request was not sent.'));
     } finally {
       this.pending.set(false);
     }

@@ -30,7 +30,7 @@ export class ReceivedRequests {
       await this.followRequesting.accept(requestId);
       this.requests.reload();
     } catch (failure) {
-      this.error.set(serverMessage(failure, 'Zahtev nije prihvaćen.'));
+      this.error.set(serverMessage(failure, 'Request was not accepted.'));
     } finally {
       this.pending.set(false);
     }
@@ -43,7 +43,7 @@ export class ReceivedRequests {
       await this.followRequesting.reject(requestId);
       this.requests.reload();
     } catch (failure) {
-      this.error.set(serverMessage(failure, 'Zahtev nije odbijen.'));
+      this.error.set(serverMessage(failure, 'Request was not rejected.'));
     } finally {
       this.pending.set(false);
     }
