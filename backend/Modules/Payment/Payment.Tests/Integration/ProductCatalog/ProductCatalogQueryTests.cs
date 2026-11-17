@@ -1,11 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Payment.Application.ProductCatalog;
-using Payment.Domain.Products;
+using Payment.Contracts;
 using Payment.Tests.Integration.Seeds;
+using Shared.Domain.Exceptions;
 using Shared.Tests;
 using Xunit;
+using ContractProductType = Payment.Contracts.ProductType;
+using DomainProductType = Payment.Domain.Products.ProductType;
 
 namespace Payment.Tests.Integration.ProductCatalog;
 
@@ -22,7 +26,7 @@ public class ProductCatalogQueryTests : BaseIntegrationTest
 
         products!.Should().HaveCount(ProductSeed.All.Length);
         var tour = products.Single(product => product.Id == ProductSeed.DemoExplorersTour.Id);
-        tour.Type.Should().Be(ProductType.Tour);
+        tour.Type.Should().Be(DomainProductType.Tour);
         tour.EntityId.Should().Be(ProductSeed.DemoExplorersTour.Reference.EntityId);
         tour.Name.Should().Be(ProductSeed.DemoExplorersTour.Name);
         tour.Price.Should().Be(ProductSeed.DemoExplorersTour.Price);
@@ -59,5 +63,98 @@ public class ProductCatalogQueryTests : BaseIntegrationTest
         var response = await client.GetAsync("/api/payment/products");
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Search_without_filters_finds_the_whole_offer()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(null, null, null);
+
+        products.Select(product => product.Id)
+            .Should().BeEquivalentTo(ProductSeed.All.Select(product => product.Id));
+    }
+
+    [Fact]
+    public async Task Search_from_a_minimum_price_finds_the_products_that_cost_at_least_that_much()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(ProductSeed.DemoExplorersTour.Price, null, null);
+
+        var tour = products.Should().ContainSingle().Which;
+        tour.Id.Should().Be(ProductSeed.DemoExplorersTour.Id);
+        tour.Type.Should().Be(ContractProductType.Tour);
+        tour.Name.Should().Be(ProductSeed.DemoExplorersTour.Name);
+        tour.Price.Should().Be(ProductSeed.DemoExplorersTour.Price);
+        tour.OwnerId.Should().Be(ProductSeed.DemoExplorersTour.OwnerId);
+        tour.OwnerName.Should().NotBe(ProductCatalogQueries.UnknownOwnerName);
+    }
+
+    [Fact]
+    public async Task Search_up_to_a_maximum_price_finds_the_products_that_cost_at_most_that_much()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(null, ProductSeed.TourOfAForgottenOwner.Price, null);
+
+        products.Should().ContainSingle()
+            .Which.Id.Should().Be(ProductSeed.TourOfAForgottenOwner.Id);
+    }
+
+    [Fact]
+    public async Task Search_in_a_price_range_finds_the_products_inside_it()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(
+            ProductSeed.TourOfAForgottenOwner.Price + 1,
+            ProductSeed.DemoExplorersTour.Price,
+            null);
+
+        products.Should().ContainSingle()
+            .Which.Id.Should().Be(ProductSeed.DemoExplorersTour.Id);
+    }
+
+    [Fact]
+    public async Task Search_whose_minimum_price_is_above_its_maximum_finds_nothing()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(
+            ProductSeed.DemoExplorersTour.Price,
+            ProductSeed.TourOfAForgottenOwner.Price,
+            null);
+
+        products.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Search_for_a_kind_of_content_finds_the_products_of_that_kind()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var products = await paymentApi.SearchProductsAsync(null, null, ContractProductType.Tour);
+
+        products.Select(product => product.Id)
+            .Should().BeEquivalentTo(ProductSeed.All.Select(product => product.Id));
+    }
+
+    [Fact]
+    public async Task Search_for_a_kind_of_content_the_platform_does_not_sell_finds_nothing()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var searching = async () => await paymentApi.SearchProductsAsync(null, null, (ContractProductType)99);
+
+        await searching.Should().ThrowAsync<DomainException>();
     }
 }

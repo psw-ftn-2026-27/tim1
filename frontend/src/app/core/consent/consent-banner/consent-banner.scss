@@ -1,0 +1,24 @@
+// Traka na dnu ekrana; ne blokira stranicu
+.banner {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  bottom: 0;
+  box-shadow: var(--shadow-md);
+  left: 0;
+  padding-block: var(--space-4);
+  position: fixed;
+  right: 0;
+  z-index: 10;
+}
+
+.banner-content {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+}
+
+.banner-text p {
+  margin: 0;
+}
