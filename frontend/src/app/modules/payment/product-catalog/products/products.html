@@ -47,7 +47,7 @@
               <button
                 class="button button--secondary button--small"
                 type="button"
-                [disabled]="pending() || product.purchased"
+                [disabled]="pending() || product.purchased || product.inCart"
                 (click)="addToCart(product)"
               >
                 Add to cart

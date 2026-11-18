@@ -100,6 +100,25 @@ public class ShoppingCartCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Product_the_customer_already_bought_does_not_reach_their_cart()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var item = new ProductReferenceDto(
+            ProductType.Tour, PurchaseSeed.SecondExplorersRide.Reference.EntityId);
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var itemCountBefore = arrangeContext.ShoppingCarts
+            .Single(cart => cart.OwnerId == WellKnownUsers.SecondExplorer).Items.Count;
+
+        var response = await client.PostAsJsonAsync("/api/payment/cart/items", item);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.ShoppingCarts
+            .Single(cart => cart.OwnerId == WellKnownUsers.SecondExplorer)
+            .Items.Count.Should().Be(itemCountBefore);
+    }
+
+    [Fact]
     public async Task Customer_who_has_no_cart_cannot_remove_an_item()
     {
         var newCustomer = Guid.NewGuid();

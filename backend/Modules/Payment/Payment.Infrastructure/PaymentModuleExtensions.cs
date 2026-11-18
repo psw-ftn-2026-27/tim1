@@ -53,6 +53,7 @@ public static class PaymentModuleExtensions
         services.AddScoped<ProductCatalogQueries>();
         services.AddScoped<ShoppingCartService>();
         services.AddScoped<ShoppingCartQueries>();
+        services.AddScoped<CartAddition>();
         services.AddScoped<CartCheckout>();
         services.AddScoped<CheckoutService>();
 
