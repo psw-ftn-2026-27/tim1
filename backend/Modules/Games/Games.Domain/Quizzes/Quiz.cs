@@ -10,28 +10,32 @@ public sealed class Quiz : AggregateRoot
     public string Name { get; private set; } = null!;
     public string Instructions { get; private set; } = null!;
     public int ExperiencePoints { get; private set; }
+    public double? Latitude { get; private set; }
+    public double? Longitude { get; private set; }
     public QuizStatus Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public IReadOnlyList<QuizQuestion> Questions => _questions.AsReadOnly();
 
     private Quiz() { }
 
-    public Quiz(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions)
+    public Quiz(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions,
+        double? latitude = null, double? longitude = null)
         : base(Guid.NewGuid())
     {
-        SetContent(name, instructions, experiencePoints, questions);
+        SetContent(name, instructions, experiencePoints, questions, latitude, longitude);
         Status = QuizStatus.Draft;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public void Update(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions)
+    public void Update(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions,
+        double? latitude = null, double? longitude = null)
     {
         if (Status != QuizStatus.Draft)
         {
             throw new DomainException("Only a draft quiz can be changed.");
         }
 
-        SetContent(name, instructions, experiencePoints, questions);
+        SetContent(name, instructions, experiencePoints, questions, latitude, longitude);
     }
 
     public void Publish()
@@ -87,7 +91,8 @@ public sealed class Quiz : AggregateRoot
         }
     }
 
-    private void SetContent(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions)
+    private void SetContent(string? name, string? instructions, int? experiencePoints,
+        IReadOnlyList<QuizQuestion> questions, double? latitude, double? longitude)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -110,9 +115,13 @@ public sealed class Quiz : AggregateRoot
             throw new DomainException("A quiz cannot contain the same question more than once.");
         }
 
+        ValidateLocation(latitude, longitude);
+
         Name = name;
         Instructions = instructions;
         ExperiencePoints = experiencePoints.Value;
+        Latitude = latitude;
+        Longitude = longitude;
 
         var existingQuestions = _questions.ToDictionary(question => question.Id);
         _questions.RemoveAll(question => !questionIds.Contains(question.Id));
@@ -132,5 +141,23 @@ public sealed class Quiz : AggregateRoot
         }
 
         _questions.Sort((left, right) => left.Position.CompareTo(right.Position));
+    }
+
+    private static void ValidateLocation(double? latitude, double? longitude)
+    {
+        if (latitude.HasValue != longitude.HasValue)
+        {
+            throw new DomainException("Provide both latitude and longitude or leave both empty.");
+        }
+
+        if (latitude is double latitudeValue && (!double.IsFinite(latitudeValue) || latitudeValue is < -90 or > 90))
+        {
+            throw new DomainException("Latitude must be a finite number between -90 and 90 degrees.");
+        }
+
+        if (longitude is double longitudeValue && (!double.IsFinite(longitudeValue) || longitudeValue is < -180 or > 180))
+        {
+            throw new DomainException("Longitude must be a finite number between -180 and 180 degrees.");
+        }
     }
 }

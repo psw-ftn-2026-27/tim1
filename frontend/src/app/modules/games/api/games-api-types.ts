@@ -61,6 +61,8 @@ export interface QuizDto {
   status: QuizStatus;
   createdAt: string;
   questions: QuizQuestionDto[];
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface QuizSummaryDto {
@@ -80,6 +82,8 @@ export interface SaveQuizDto {
   instructions: string | null;
   experiencePoints: number | null;
   questions: QuizQuestionInputDto[] | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface ChallengeOverviewItemDto {
