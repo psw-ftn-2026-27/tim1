@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Payment.Application;
 using Payment.Application.Checkout;
 using Payment.Application.ProductCatalog;
+using Payment.Application.PurchaseVerification;
 using Payment.Application.Products;
 using Payment.Application.Purchases;
 using Payment.Application.ShoppingCarts;
@@ -54,6 +55,8 @@ public static class PaymentModuleExtensions
         services.AddScoped<ShoppingCartQueries>();
         services.AddScoped<CartCheckout>();
         services.AddScoped<CheckoutService>();
+
+        services.AddScoped<PurchaseVerificationQueries>();
 
         services.AddScoped<IPaymentApi, PaymentApi>();
 
