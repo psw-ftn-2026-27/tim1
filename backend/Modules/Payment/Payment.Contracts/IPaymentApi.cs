@@ -22,4 +22,12 @@ public interface IPaymentApi
     /// and reports an error to the caller.
     /// </summary>
     Task<List<ProductOfferDto>> SearchProductsAsync(decimal? minPrice, decimal? maxPrice, ProductType? type);
+
+    /// <summary>
+    /// Whether the user has bought the product of the given kind and entity ID, so the module
+    /// that owns the content may unlock it. A product nobody bought, a product bought by someone
+    /// else, and an entity Payment never sold all answer false. Asking about an unknown kind
+    /// reports an error to the caller.
+    /// </summary>
+    Task<bool> HasPurchasedAsync(Guid userId, ProductType type, Guid entityId);
 }

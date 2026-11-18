@@ -34,7 +34,9 @@ internal sealed class ProductReadRepository : IProductReadRepository
                 product.Name,
                 product.Price,
                 product.OwnerId,
-                ""))
+                "",
+                false,
+                false))
             .ToListAsync();
     }
 }

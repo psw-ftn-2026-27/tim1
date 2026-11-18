@@ -59,6 +59,34 @@ public sealed class Quiz : AggregateRoot
         Status = QuizStatus.Published;
     }
 
+    public void Retire()
+    {
+        if (Status != QuizStatus.Published)
+        {
+            throw new DomainException("Only a published quiz can be retired.");
+        }
+
+        Status = QuizStatus.Retired;
+    }
+
+    public void Archive()
+    {
+        if (Status != QuizStatus.Retired)
+        {
+            throw new DomainException("Only a retired quiz can be archived.");
+        }
+
+        Status = QuizStatus.Archived;
+    }
+
+    public void Delete()
+    {
+        if (Status is not (QuizStatus.Draft or QuizStatus.Archived))
+        {
+            throw new DomainException("Only a draft or archived quiz can be deleted.");
+        }
+    }
+
     private void SetContent(string? name, string? instructions, int? experiencePoints, IReadOnlyList<QuizQuestion> questions)
     {
         if (string.IsNullOrWhiteSpace(name))

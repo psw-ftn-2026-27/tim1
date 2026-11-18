@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Payment.Application.ShoppingCarts;
+using Payment.Application.Products;
 using Payment.Domain.Products;
 using Payment.Infrastructure.Persistence;
 using Payment.Tests.Integration.Seeds;
@@ -97,6 +97,25 @@ public class ShoppingCartCommandTests : BaseIntegrationTest
         storedCart.Items.Should().HaveCount(ShoppingCartSeed.ExplorersCart.Items.Count - 1);
         storedCart.Items.Should().NotContain(storedItem => storedItem.Reference == removedItem);
         storedCart.Total().Should().Be(ShoppingCartSeed.ExplorersCart.Total() - ProductSeed.TourOfAForgottenOwner.Price);
+    }
+
+    [Fact]
+    public async Task Product_the_customer_already_bought_does_not_reach_their_cart()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var item = new ProductReferenceDto(
+            ProductType.Tour, PurchaseSeed.SecondExplorersRide.Reference.EntityId);
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var itemCountBefore = arrangeContext.ShoppingCarts
+            .Single(cart => cart.OwnerId == WellKnownUsers.SecondExplorer).Items.Count;
+
+        var response = await client.PostAsJsonAsync("/api/payment/cart/items", item);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.ShoppingCarts
+            .Single(cart => cart.OwnerId == WellKnownUsers.SecondExplorer)
+            .Items.Count.Should().Be(itemCountBefore);
     }
 
     [Fact]

@@ -30,6 +30,7 @@
         <tr>
           <th scope="col">Time</th>
           <th scope="col">Type</th>
+          <th scope="col">Product</th>
           <th scope="col">Amount</th>
           <th scope="col">Balance after</th>
         </tr>
@@ -39,12 +40,13 @@
           <tr>
             <td>{{ transaction.occurredAt }}</td>
             <td>{{ transaction.type }}</td>
+            <td>{{ transaction.productName }}</td>
             <td>{{ transaction.amount }}</td>
             <td>{{ transaction.balanceAfter }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">You have no transactions yet.</td>
+            <td colspan="5">You have no transactions yet.</td>
           </tr>
         }
       </tbody>

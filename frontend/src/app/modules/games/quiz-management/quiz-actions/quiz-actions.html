@@ -1,0 +1,34 @@
+<div class="actions">
+  @if (confirmingDelete()) {
+    <span>Are you sure you want to delete this quiz?</span>
+    <button type="button" class="button button--small" [disabled]="pending()" (click)="confirmingDelete.set(false)">
+      Cancel
+    </button>
+    <button type="button" class="button button--small" [disabled]="pending()" (click)="confirmDelete()">
+      Delete
+    </button>
+  } @else {
+    @switch (status()) {
+      @case ('Draft') {
+        <button type="button" class="button button--small" [disabled]="pending()" (click)="requested.emit('publish')">
+          Publish
+        </button>
+      }
+      @case ('Published') {
+        <button type="button" class="button button--small" [disabled]="pending()" (click)="requested.emit('retire')">
+          Retire
+        </button>
+      }
+      @case ('Retired') {
+        <button type="button" class="button button--small" [disabled]="pending()" (click)="requested.emit('archive')">
+          Archive
+        </button>
+      }
+    }
+    @if (status() === 'Draft' || status() === 'Archived') {
+      <button type="button" class="button button--small" [disabled]="pending()" (click)="confirmingDelete.set(true)">
+        Delete
+      </button>
+    }
+  }
+</div>

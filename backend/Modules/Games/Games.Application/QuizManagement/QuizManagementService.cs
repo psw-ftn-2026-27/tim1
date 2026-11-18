@@ -25,11 +25,45 @@ public sealed class QuizManagementService
 
     public async Task UpdateAsync(Guid id, SaveQuizDto dto)
     {
-        var quiz = await _quizRepository.GetByIdAsync(id)
-            ?? throw new NotFoundException($"Quiz {id} does not exist.");
+        var quiz = await GetQuizAsync(id);
 
         quiz.Update(dto.Name, dto.Instructions, dto.ExperiencePoints, MapQuestions(dto.Questions));
         await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task PublishAsync(Guid id)
+    {
+        var quiz = await GetQuizAsync(id);
+        quiz.Publish();
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task RetireAsync(Guid id)
+    {
+        var quiz = await GetQuizAsync(id);
+        quiz.Retire();
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ArchiveAsync(Guid id)
+    {
+        var quiz = await GetQuizAsync(id);
+        quiz.Archive();
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var quiz = await GetQuizAsync(id);
+        quiz.Delete();
+        _quizRepository.Remove(quiz);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    private async Task<Quiz> GetQuizAsync(Guid id)
+    {
+        return await _quizRepository.GetByIdAsync(id)
+            ?? throw new NotFoundException($"Quiz {id} does not exist.");
     }
 
     private static QuizQuestion[] MapQuestions(IReadOnlyList<QuizQuestionInputDto>? questions)

@@ -44,6 +44,12 @@ public sealed class ShoppingCart : AggregateRoot
         _items.Remove(item);
     }
 
+    /// <summary>Drops every item, which is what a paid cart is left as.</summary>
+    public void Clear()
+    {
+        _items.Clear();
+    }
+
     public decimal Total()
     {
         return _items.Sum(item => item.Price);

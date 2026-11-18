@@ -1,6 +1,10 @@
 <div class="stack">
   <p><a routerLink="/games/quizzes">← Quizzes</a></p>
 
+  @if (!editing() && error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+
   @if (editing()) {
     <h1>Edit quiz</h1>
     <section class="card">
@@ -21,6 +25,9 @@
     <h1>{{ details.name }}</h1>
     @if (saved()) {
       <p class="alert alert--success" role="status">Changes saved.</p>
+    }
+    @if (statusUpdated()) {
+      <p class="alert alert--success" role="status">Quiz status updated.</p>
     }
     <section class="card stack">
       <p>
@@ -55,12 +62,21 @@
           <p>No questions yet.</p>
         }
       </div>
-      @if (details.status === 'Draft') {
-        <button type="button" class="button button--primary" (click)="startEdit(details)">
-          Edit
-        </button>
-      }
+      <div class="quiz-commands">
+        @if (details.status === 'Draft') {
+          <button type="button" class="button button--primary" [disabled]="pending()" (click)="startEdit(details)">
+            Edit
+          </button>
+        }
+        <app-quiz-actions
+          [status]="details.status"
+          [pending]="pending()"
+          (requested)="changeLifecycle($event)"
+        />
+      </div>
     </section>
+  } @else if (missing()) {
+    <p class="alert alert--danger" role="alert">This quiz is no longer available.</p>
   } @else {
     <p class="alert alert--danger" role="alert">Could not load the quiz.</p>
     <button type="button" class="button" (click)="quiz.reload()">Try again</button>
