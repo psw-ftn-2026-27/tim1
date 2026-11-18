@@ -14,6 +14,7 @@
           <option value="">All types</option>
           <option value="Quiz">Quiz</option>
           <option value="SocialChallenge">Social challenge</option>
+          <option value="LocationChallenge">Location challenge</option>
         </select>
       </div>
       <div class="field">
@@ -54,18 +55,11 @@
               @for (challenge of result.page.items; track challenge.type + challenge.id) {
                 <tr>
                   <td>
-                    <a
-                      [routerLink]="[
-                        '/games',
-                        challenge.type === 'Quiz' ? 'quizzes' : 'social-challenges',
-                        challenge.id,
-                        'edit',
-                      ]"
-                    >
+                    <a [routerLink]="['/games', typePaths[challenge.type], challenge.id, 'edit']">
                       {{ challenge.name }}
                     </a>
                   </td>
-                  <td>{{ challenge.type === 'Quiz' ? 'Quiz' : 'Social challenge' }}</td>
+                  <td>{{ typeLabels[challenge.type] }}</td>
                   <td><span class="badge">{{ challenge.status }}</span></td>
                   <td>{{ challenge.createdAt?.slice(0, 10) ?? 'Unknown' }}</td>
                 </tr>

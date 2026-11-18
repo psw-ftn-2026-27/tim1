@@ -4,6 +4,12 @@ internal static class GamesSeed
 {
     public static object[] All =>
     [
-        .. SocialChallengeSeed.All, .. QuizSeed.All, .. QuizAttemptSeed.All, .. ChallengeCompletionSeed.All
+        .. SocialChallengeSeed.All,
+        .. QuizSeed.All,
+        .. LocationChallengeSeed.All,
+        .. ImageSeed.All,
+        .. QuizAttemptSeed.All,
+        .. ChallengeCompletionSeed.All,
+        .. LocationChallengeAttemptSeed.All
     ];
 }

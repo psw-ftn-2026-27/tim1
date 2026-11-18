@@ -1,0 +1,151 @@
+<form class="stack" (submit)="submit($event)" novalidate>
+  @let form = fields();
+  <div class="columns">
+    <div class="field">
+      <label for="name">Name</label>
+      <input
+        id="name"
+        type="text"
+        placeholder="e.g. Hidden corners of the old town"
+        [formField]="form.name"
+      />
+      @if (form.name().touched()) {
+        @for (message of form.name().errors(); track $index) {
+          <p class="error">{{ message.message }}</p>
+        }
+      }
+    </div>
+
+    <div class="field">
+      <label for="experience-points">XP</label>
+      <input id="experience-points" type="number" step="1" [formField]="form.experiencePoints" />
+      @if (form.experiencePoints().touched()) {
+        @for (message of form.experiencePoints().errors(); track $index) {
+          <p class="error">{{ message.message }}</p>
+        }
+      }
+    </div>
+  </div>
+
+  <div>
+    <p class="group-label">
+      Locations
+      <span class="hint">· click the map to place {{ placing() }}</span>
+    </p>
+    <app-map
+      [pins]="pins()"
+      [selectionEnabled]="!pending()"
+      [showSelectionPin]="false"
+      (locationSelected)="place($event)"
+    />
+  </div>
+
+  <div class="row" [class.row--selected]="selectedPoint() === null">
+    <div>
+      <p class="row-title">Start location</p>
+      @if (form.startLocation().value(); as start) {
+        <p class="meta">{{ coordinates(start) }}</p>
+      } @else {
+        <p class="meta">Not placed yet.</p>
+      }
+    </div>
+    <div class="form-actions">
+      <button
+        class="button button--small"
+        type="button"
+        [class.button--primary]="selectedPoint() === null"
+        [disabled]="pending()"
+        (click)="selectedPoint.set(null)"
+      >
+        {{ selectedPoint() === null ? 'Placing on map' : 'Place on map' }}
+      </button>
+    </div>
+  </div>
+
+  <section class="stack">
+    <p class="group-label">Hidden points</p>
+    @for (point of form.hiddenPoints; track point; let index = $index) {
+      <div class="row" [class.row--selected]="selectedPoint() === index">
+        <div class="stack">
+          <div>
+            <p class="row-title">Point {{ index + 1 }}</p>
+            @if (point.location().value(); as location) {
+              <p class="meta">{{ coordinates(location) }}</p>
+            } @else {
+              <p class="meta">Not placed yet.</p>
+            }
+          </div>
+
+          @if (point.imageId().value(); as imageId) {
+            <div class="photo">
+              <app-protected-image [src]="'/api/games/images/' + imageId" />
+              <div>
+                <button
+                  class="button button--small"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="point.imageId().value.set(null)"
+                >
+                  Change photo
+                </button>
+              </div>
+            </div>
+          } @else {
+            <!-- A rejected photo shows the reason here, in this point's row. -->
+            <app-image-upload
+              [upload]="upload()"
+              (imageIds)="point.imageId().value.set($event[0] ?? null)"
+            />
+          }
+        </div>
+
+        <div class="form-actions">
+          <button
+            class="button button--small"
+            type="button"
+            [class.button--primary]="selectedPoint() === index"
+            [disabled]="pending()"
+            (click)="selectedPoint.set(index)"
+          >
+            {{ selectedPoint() === index ? 'Placing on map' : 'Place on map' }}
+          </button>
+          <button
+            class="button button--danger button--small"
+            type="button"
+            [disabled]="pending()"
+            (click)="removePoint(index)"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <p class="meta">No hidden points yet.</p>
+    }
+    <div>
+      <button class="button" type="button" [disabled]="pending()" (click)="addPoint()">
+        Add point
+      </button>
+    </div>
+    @for (message of form.hiddenPoints().errors(); track $index) {
+      <p class="meta">{{ message.message }}</p>
+    }
+  </section>
+
+  <div class="card-footer">
+    <div class="form-actions">
+      @if (showCancel()) {
+        <button class="button" type="button" [disabled]="pending()" (click)="cancelled.emit()">
+          Cancel
+        </button>
+      }
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="pending() || !form().valid()"
+      >
+        {{ pending() ? 'Saving…' : saveLabel() }}
+      </button>
+    </div>
+  </div>
+</form>

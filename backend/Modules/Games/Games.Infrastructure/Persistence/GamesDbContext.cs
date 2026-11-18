@@ -1,8 +1,14 @@
 using Games.Application;
+using Games.Domain.Images;
+using Games.Domain.LocationChallengeAttempts;
+using Games.Domain.LocationChallenges;
 using Games.Domain.ChallengeCompletions;
 using Games.Domain.QuizAttempts;
 using Games.Domain.Quizzes;
 using Games.Domain.SocialChallenges;
+using Games.Infrastructure.Persistence.Images;
+using Games.Infrastructure.Persistence.LocationChallengeAttempts;
+using Games.Infrastructure.Persistence.LocationChallenges;
 using Games.Infrastructure.Persistence.ChallengeCompletions;
 using Games.Infrastructure.Persistence.QuizAttempts;
 using Games.Infrastructure.Persistence.Quizzes;
@@ -17,6 +23,9 @@ internal sealed class GamesDbContext : DbContext, IUnitOfWork
 
     public DbSet<SocialChallenge> SocialChallenges => Set<SocialChallenge>();
     public DbSet<Quiz> Quizzes => Set<Quiz>();
+    public DbSet<LocationChallenge> LocationChallenges => Set<LocationChallenge>();
+    public DbSet<Image> Images => Set<Image>();
+    public DbSet<LocationChallengeAttempt> LocationChallengeAttempts => Set<LocationChallengeAttempt>();
     public DbSet<QuizAttempt> QuizAttempts => Set<QuizAttempt>();
     public DbSet<ChallengeCompletion> ChallengeCompletions => Set<ChallengeCompletion>();
 
@@ -25,6 +34,9 @@ internal sealed class GamesDbContext : DbContext, IUnitOfWork
         builder.HasDefaultSchema("games");
         builder.ConfigureSocialChallenges();
         builder.ConfigureQuizzes();
+        builder.ConfigureLocationChallenges();
+        builder.ConfigureImages();
+        builder.ConfigureLocationChallengeAttempts();
         builder.ConfigureQuizAttempts();
         builder.ConfigureChallengeCompletions();
     }

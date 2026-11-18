@@ -20,21 +20,37 @@ public sealed class ChallengeOverviewQueryTests : BaseIntegrationTest
     public ChallengeOverviewQueryTests(GamesApiFactory factory) : base(factory) { }
 
     [Fact]
-    public async Task Administrator_sees_both_challenge_types_in_all_states()
+    public async Task Administrator_sees_every_challenge_type_in_all_states()
     {
         using var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
         var expected = QuizSeed.All.Select(quiz => new ChallengeOverviewItemDto(
                 quiz.Id, quiz.Name, "Quiz", quiz.Status.ToString(), quiz.CreatedAt))
             .Concat(SocialChallengeSeed.All.Select(challenge => new ChallengeOverviewItemDto(
-                challenge.Id, challenge.Name, "SocialChallenge", challenge.Status.ToString(), challenge.CreatedAt)));
+                challenge.Id, challenge.Name, "SocialChallenge", challenge.Status.ToString(), challenge.CreatedAt)))
+            .Concat(LocationChallengeSeed.All.Select(challenge => new ChallengeOverviewItemDto(
+                challenge.Id, challenge.Name, "LocationChallenge", challenge.Status.ToString(), challenge.CreatedAt)))
+            .ToList();
 
         var result = await client.GetFromJsonAsync<ChallengeOverviewDto>(Url, JsonOptions);
 
         result!.HasChallenges.Should().BeTrue();
-        result.Page.TotalCount.Should().Be(QuizSeed.All.Length + SocialChallengeSeed.All.Length);
+        result.Page.TotalCount.Should().Be(expected.Count);
         result.Page.Items.Should().BeEquivalentTo(expected, options => options
             .Using<DateTime>(date => date.Subject.Should().BeCloseTo(date.Expectation, TimeSpan.FromTicks(10)))
             .WhenTypeIs<DateTime>());
+    }
+
+    [Fact]
+    public async Task Type_filter_selects_only_location_challenges()
+    {
+        using var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var result = await client.GetFromJsonAsync<ChallengeOverviewDto>($"{Url}?type=LocationChallenge", JsonOptions);
+
+        result!.Page.TotalCount.Should().Be(LocationChallengeSeed.All.Length);
+        result.Page.Items.Select(item => item.Id)
+            .Should().BeEquivalentTo(LocationChallengeSeed.All.Select(challenge => challenge.Id));
+        result.Page.Items.Should().OnlyContain(item => item.Type == "LocationChallenge");
     }
 
     [Fact]
