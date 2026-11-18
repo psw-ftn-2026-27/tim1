@@ -1,0 +1,34 @@
+<div class="stack page">
+  <p><a class="back" routerLink="/games/location-challenges/nearby">← Location challenges</a></p>
+
+  @if (attempt.isLoading()) {
+    <p>Loading the challenge…</p>
+  } @else if (attempt.error()) {
+    <p class="alert alert--danger">
+      Could not load the challenge. Activate it from the list of location challenges first.
+    </p>
+  } @else if (attempt.hasValue()) {
+    <div>
+      <h1>{{ attempt.value().challengeName }}</h1>
+      <p class="subtitle">Find the places where these photos were taken.</p>
+    </div>
+
+    <section class="card stack">
+      <h2>Search area</h2>
+      <app-map [pins]="centerPins()" />
+      <p class="meta">
+        The hidden places are in a circle {{ diameter(attempt.value().circle.diameterMeters) }}
+        across, centered on the pin.
+      </p>
+    </section>
+
+    <section class="card stack">
+      <h2>Photos</h2>
+      <div class="photos">
+        @for (imageId of attempt.value().imageIds; track imageId) {
+          <app-protected-image class="photo" [src]="imageUrl(imageId)" />
+        }
+      </div>
+    </section>
+  }
+</div>

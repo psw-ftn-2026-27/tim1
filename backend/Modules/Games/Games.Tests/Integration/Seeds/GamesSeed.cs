@@ -9,6 +9,7 @@ internal static class GamesSeed
         .. LocationChallengeSeed.All,
         .. ImageSeed.All,
         .. QuizAttemptSeed.All,
-        .. ChallengeCompletionSeed.All
+        .. ChallengeCompletionSeed.All,
+        .. LocationChallengeAttemptSeed.All
     ];
 }

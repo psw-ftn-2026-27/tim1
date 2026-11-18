@@ -141,6 +141,33 @@ export interface ChallengeOverviewDto {
   hasChallenges: boolean;
 }
 
+export interface NearbyLocationChallengeDto {
+  id: string;
+  name: string;
+  experiencePoints: number;
+  distanceMeters: number;
+  canActivate: boolean;
+}
+
+export interface NearbyLocationChallengesDto {
+  position: LocationDto | null;
+  challenges: NearbyLocationChallengeDto[];
+}
+
+export interface SearchCircleDto {
+  center: LocationDto;
+  diameterMeters: number;
+}
+
+export interface LocationChallengeAttemptDto {
+  id: string;
+  challengeId: string;
+  challengeName: string;
+  circle: SearchCircleDto;
+  imageIds: string[];
+  startedAt: string;
+}
+
 export interface AvailableQuizDto {
   id: string;
   name: string;
