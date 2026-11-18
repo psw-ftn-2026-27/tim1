@@ -75,6 +75,9 @@ namespace Social.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("text");

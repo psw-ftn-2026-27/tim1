@@ -82,18 +82,22 @@ public sealed class Blog : AggregateRoot
         _comments.Add(new Comment(userId, text));
     }
 
-    public void UpdateComment(Guid commentId, Guid userId, string text)
+    public void UpdateComment(Guid commentId, Guid userId, string text, DateTime now)
     {
         EnsurePublished();
+        var comment = GetOwnComment(commentId, userId);
+        EnsureEditable(comment, now);
 
-        GetOwnComment(commentId, userId).Update(text);
+        comment.Update(text, now);
     }
 
-    public void DeleteComment(Guid commentId, Guid userId)
+    public void DeleteComment(Guid commentId, Guid userId, DateTime now)
     {
         EnsurePublished();
+        var comment = GetOwnComment(commentId, userId);
+        EnsureEditable(comment, now);
 
-        _comments.Remove(GetOwnComment(commentId, userId));
+        _comments.Remove(comment);
     }
 
     public void Vote(Guid userId, VoteType type)
@@ -136,6 +140,14 @@ public sealed class Blog : AggregateRoot
         if (Status != BlogStatus.Published)
         {
             throw new DomainException("Comments and votes are allowed only on a published blog.");
+        }
+    }
+
+    private static void EnsureEditable(Comment comment, DateTime now)
+    {
+        if (!comment.IsEditableAt(now))
+        {
+            throw new DomainException("A comment can be changed only within 15 minutes of its creation.");
         }
     }
 

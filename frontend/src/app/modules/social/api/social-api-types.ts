@@ -31,9 +31,19 @@ export interface BlogDetailDto {
   lastModifiedAt: string;
   images: string[];
   status: BlogStatus;
-  comments: CommentDto[];
+  comments: BlogCommentDetailDto[];
   score: number;
   myVote: VoteType | null;
+}
+
+export interface BlogCommentDetailDto {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  authorName: string | null;
+  canEditOrDelete: boolean;
 }
 
 export interface VoteDto {

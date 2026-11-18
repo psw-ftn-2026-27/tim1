@@ -55,6 +55,19 @@ public class BlogReadingQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Blog_comments_show_their_author_names_and_only_the_users_fresh_comment_can_be_changed()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var blog = await client.GetFromJsonAsync<BlogDetailDto>(
+            $"/api/social/blogs/{BlogSeed.CommentedByDemoUsersBridge.Id}", JsonOptions);
+
+        blog!.Comments.Should().OnlyContain(comment => !string.IsNullOrEmpty(comment.AuthorName));
+        blog.Comments.Single(comment => comment.UserId == DemoUsers.Explorer).CanEditOrDelete.Should().BeTrue();
+        blog.Comments.Single(comment => comment.UserId == DemoUsers.SecondExplorer).CanEditOrDelete.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Archived_blog_is_shown_with_its_comments()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");

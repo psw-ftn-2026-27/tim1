@@ -20,8 +20,13 @@ internal sealed class BlogReadRepository : IBlogReadRepository
         return ProjectToDtos(_dbContext.Blogs.Where(blog => blog.Id == id)).FirstOrDefaultAsync();
     }
 
-    public Task<BlogDetailDto?> GetDetailByIdAsync(Guid id, Guid userId)
+    // Comments that existed before Comment.LastModifiedAt was added carry 0001-01-01; they
+    // show their creation date as the last modification date. The author name comes from
+    // the Identity module, so the projection leaves it empty for the queries class to fill.
+    public Task<BlogDetailDto?> GetDetailByIdAsync(Guid id, Guid userId, DateTime now)
     {
+        var editableSince = now - Comment.EditWindow;
+
         return _dbContext.Blogs
             .Where(blog => blog.Id == id)
             .Select(blog => new BlogDetailDto(
@@ -34,7 +39,16 @@ internal sealed class BlogReadRepository : IBlogReadRepository
                 blog.Images,
                 blog.Status,
                 blog.Comments
-                    .Select(comment => new CommentDto(comment.Id, comment.UserId, comment.Text, comment.CreatedAt))
+                    .Select(comment => new BlogCommentDetailDto(
+                        comment.Id,
+                        comment.UserId,
+                        comment.Text,
+                        comment.CreatedAt,
+                        comment.LastModifiedAt == DateTime.MinValue ? comment.CreatedAt : comment.LastModifiedAt,
+                        null,
+                        comment.UserId == userId
+                            && blog.Status == BlogStatus.Published
+                            && comment.CreatedAt > editableSince))
                     .ToList(),
                 blog.Votes.Count(vote => vote.Type == VoteType.Upvote)
                     - blog.Votes.Count(vote => vote.Type == VoteType.Downvote),
