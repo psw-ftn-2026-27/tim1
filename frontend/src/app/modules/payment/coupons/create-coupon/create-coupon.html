@@ -28,7 +28,7 @@
 
     <div class="field">
       <label for="expires-on">Valid until</label>
-      <input id="expires-on" type="date" [formField]="form.expiresOn" />
+      <input id="expires-on" type="date" [min]="today" [formField]="form.expiresOn" />
       @if (form.expiresOn().touched()) {
         @for (message of form.expiresOn().errors(); track $index) {
           <p class="error">{{ message.message }}</p>

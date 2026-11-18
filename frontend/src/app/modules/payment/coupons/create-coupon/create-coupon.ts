@@ -35,6 +35,8 @@ export class CreateCoupon {
     },
   );
 
+  protected readonly today = new Date().toISOString().slice(0, 10);
+
   protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);
 

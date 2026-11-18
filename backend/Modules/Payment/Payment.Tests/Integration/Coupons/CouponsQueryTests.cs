@@ -28,6 +28,17 @@ public class CouponsQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Coupons_come_in_pages_with_the_total_of_all_of_them()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var page = await client.GetFromJsonAsync<PageResult<CouponDto>>("/api/payment/coupons?page=1&pageSize=1", JsonOptions);
+
+        page!.Items.Should().HaveCount(1);
+        page.TotalCount.Should().Be(CouponSeed.All.Count(coupon => coupon.OwnerId == DemoUsers.Explorer));
+    }
+
+    [Fact]
     public async Task Owner_sees_the_products_they_own_and_not_those_of_others()
     {
         var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
