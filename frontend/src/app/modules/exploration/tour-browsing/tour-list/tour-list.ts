@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, isDevMode, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
 import { PageResult } from '../../../../shared/api/page-result';
@@ -25,6 +25,7 @@ const EMPTY_CRITERIA: TourCriteria = {
   templateUrl: './tour-list.html',
 })
 export class TourList {
+  protected readonly development = isDevMode();
   protected readonly auth = inject(Auth);
 
   protected readonly pageSize = PAGE_SIZE;
