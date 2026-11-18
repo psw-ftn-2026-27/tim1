@@ -79,6 +79,9 @@ export class Cart {
         product_types: [...new Set(items.map((item) => item.type))].join(','),
         item_count: items.length,
         value: paid,
+        // Prices are in EC, the platform's own coin; GA4 accepts only real currency codes,
+        // so 1 EC is reported as 1 EUR.
+        currency: 'EUR',
       });
       this.bought.set('Your products are paid for from your wallet.');
       this.discounts().reset({ couponCode: '', giftCardId: '' });

@@ -1,0 +1,58 @@
+<div class="stack">
+  <p><a routerLink="/games/play/quizzes">← Quizzes</a></p>
+
+  @if (quiz.isLoading()) {
+    <p role="status">Loading quiz…</p>
+  } @else if (quiz.hasValue()) {
+    @let state = quiz.value();
+    @if (error(); as message) {
+      <p class="alert alert--danger" role="alert">{{ message }}</p>
+    }
+    @switch (state.kind) {
+      @case ('NotStarted') {
+        <app-quiz-activation [state]="state" [pending]="pending()" (activated)="activate($event)" />
+      }
+      @case ('InProgress') {
+        @if (showFeedback()) {
+          <section class="stack">
+            <p
+              class="alert"
+              [class.alert--success]="state.lastAnswerWasCorrect"
+              [class.alert--danger]="!state.lastAnswerWasCorrect"
+              role="status"
+            >
+              Your answer was {{ state.lastAnswerWasCorrect ? 'correct' : 'incorrect' }}.
+            </p>
+            <p>Points: {{ state.points }}</p>
+            <div class="actions">
+              <button type="button" class="button button--primary" (click)="showFeedback.set(false)">
+                Next
+              </button>
+            </div>
+          </section>
+        } @else if (state.question; as question) {
+          <app-quiz-question
+            [question]="question"
+            [questionNumber]="state.questionNumber ?? 0"
+            [questionCount]="state.questionCount ?? 0"
+            [points]="state.points ?? 0"
+            [pending]="pending()"
+            (answered)="answer(question.id, $event)"
+          />
+        }
+      }
+      @case ('Completed') {
+        <app-quiz-result [state]="state" />
+      }
+      @case ('Unavailable') {
+        <section class="stack">
+          <p>This quiz is not available.</p>
+          <p><a class="button" routerLink="/games/play/quizzes">Back to the list</a></p>
+        </section>
+      }
+    }
+  } @else {
+    <p class="alert alert--danger" role="alert">Could not load the quiz.</p>
+    <button type="button" class="button" (click)="quiz.reload()">Try again</button>
+  }
+</div>
