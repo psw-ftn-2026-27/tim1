@@ -1,5 +1,8 @@
 <div class="stack">
   <h1>Tours</h1>
+  @if (development && auth.user()?.roles?.includes('explorer')) {
+    <a routerLink="/exploration/position-test">Probni primer mape — simulator pozicije</a>
+  }
   <a routerLink="/examples/map-route">Probni primer mape — putanja</a>
 
   @if (auth.isLoggedIn()) {

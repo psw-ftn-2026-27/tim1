@@ -1,0 +1,11 @@
+<section class="stack">
+  <a routerLink="/exploration">Nazad na ture</a>
+  <h1>Provera simulatora pozicije</h1>
+  @if (!open()) {
+    <button class="button" type="button" [disabled]="saving()" (click)="show()">Moja pozicija</button>
+  } @else {
+    <app-position-panel [position]="confirmed()" [busy]="saving() || position.isLoading()"
+      [message]="message()" [readFailed]="!!position.error()" (retry)="reload()"
+      (selected)="select($event)" (closed)="open.set(false)" />
+  }
+</section>
