@@ -1,7 +1,14 @@
 import { httpResource } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CouponDto } from '../../api/payment-api-types';
+import { PageResult } from '../../../../shared/api/page-result';
+import { CouponDto, CouponStatus } from '../../api/payment-api-types';
+
+const STATUS_LABELS: Record<CouponStatus, string> = {
+  Valid: 'Valid',
+  Used: 'Used',
+  Expired: 'Expired',
+};
 
 @Component({
   imports: [RouterLink],
@@ -10,9 +17,18 @@ import { CouponDto } from '../../api/payment-api-types';
   templateUrl: './coupon-list.html',
 })
 export class CouponList {
-  protected readonly coupons = httpResource<CouponDto[]>(() => '/api/payment/coupons');
+  protected readonly pageSize = 10;
+  protected readonly page = signal(1);
 
-  protected isExpired(expiresAt: string): boolean {
-    return new Date(expiresAt) < new Date();
+  protected readonly coupons = httpResource<PageResult<CouponDto>>(
+    () => `/api/payment/coupons?page=${this.page()}&pageSize=${this.pageSize}`,
+  );
+
+  protected statusLabel(status: CouponStatus): string {
+    return STATUS_LABELS[status];
+  }
+
+  protected formatDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('sr-Latn-RS');
   }
 }

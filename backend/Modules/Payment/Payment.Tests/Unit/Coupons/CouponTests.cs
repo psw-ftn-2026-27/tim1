@@ -28,6 +28,15 @@ public class CouponTests
     }
 
     [Fact]
+    public void Unused_coupon_is_valid_until_it_expires_and_expired_after()
+    {
+        var coupon = new Coupon(WellKnownUsers.Explorer, null, 20, DateTime.UtcNow.AddDays(7));
+
+        coupon.StatusAt(DateTime.UtcNow).Should().Be(CouponStatus.Valid);
+        coupon.StatusAt(DateTime.UtcNow.AddDays(8)).Should().Be(CouponStatus.Expired);
+    }
+
+    [Fact]
     public void New_coupon_gets_a_code_of_eight_characters()
     {
         var coupon = new Coupon(WellKnownUsers.Explorer, null, 20, DateTime.UtcNow.AddDays(7));

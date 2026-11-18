@@ -118,13 +118,15 @@ export interface RecipientDto {
   displayName: string;
 }
 
+export type CouponStatus = 'Valid' | 'Used' | 'Expired';
+
 export interface CouponDto {
   id: string;
   code: string;
   percent: number;
   expiresAt: string;
   productName: string | null;
-  used: boolean;
+  status: CouponStatus;
 }
 
 export interface OwnedProductDto {

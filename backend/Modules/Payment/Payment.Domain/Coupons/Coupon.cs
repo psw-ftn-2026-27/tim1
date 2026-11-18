@@ -11,7 +11,7 @@ namespace Payment.Domain.Coupons;
 /// </summary>
 public sealed class Coupon : AggregateRoot
 {
-    private const int CodeLength = 8;
+    public const int CodeLength = 8;
     private const string CodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     public Guid OwnerId { get; private set; }
@@ -45,5 +45,15 @@ public sealed class Coupon : AggregateRoot
         CreatedAt = DateTime.UtcNow;
         ExpiresAt = expiresAt;
         Code = RandomNumberGenerator.GetString(CodeAlphabet, CodeLength);
+    }
+
+    public CouponStatus StatusAt(DateTime now)
+    {
+        if (UsedAt is not null)
+        {
+            return CouponStatus.Used;
+        }
+
+        return now > ExpiresAt ? CouponStatus.Expired : CouponStatus.Valid;
     }
 }

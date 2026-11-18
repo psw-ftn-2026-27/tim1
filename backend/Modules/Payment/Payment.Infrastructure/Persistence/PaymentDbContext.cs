@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Payment.Application;
-using Payment.Domain.GiftCards;
 using Payment.Domain.Coupons;
+using Payment.Domain.GiftCards;
 using Payment.Domain.Products;
 using Payment.Domain.Purchases;
 using Payment.Domain.ShoppingCarts;
 using Payment.Domain.TopUpRequests;
 using Payment.Domain.Wallets;
 using Payment.Domain.WithdrawalRequests;
-using Payment.Infrastructure.Persistence.GiftCards;
 using Payment.Infrastructure.Persistence.Coupons;
+using Payment.Infrastructure.Persistence.GiftCards;
 using Payment.Infrastructure.Persistence.Products;
 using Payment.Infrastructure.Persistence.Purchases;
 using Payment.Infrastructure.Persistence.ShoppingCarts;

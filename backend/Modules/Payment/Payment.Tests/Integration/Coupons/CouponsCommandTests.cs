@@ -37,6 +37,24 @@ public class CouponsCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Owner_makes_a_coupon_for_any_of_their_products_and_it_is_stored_without_a_product()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+        var dto = new CreateCouponDto(null, 25, DateTime.UtcNow.AddDays(14));
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var couponCountBefore = arrangeContext.Coupons.Count(coupon => coupon.OwnerId == DemoUsers.Explorer);
+
+        var response = await client.PostAsJsonAsync("/api/payment/coupons", dto);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        var storedCoupons = assertContext.Coupons.Where(coupon => coupon.OwnerId == DemoUsers.Explorer).ToList();
+        storedCoupons.Should().HaveCount(couponCountBefore + 1);
+        var newCoupon = storedCoupons.Single(coupon => coupon.Percent == 25);
+        newCoupon.ProductId.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Coupon_tied_to_a_product_of_another_owner_is_refused_and_nothing_is_stored()
     {
         var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");

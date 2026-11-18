@@ -13,7 +13,7 @@ internal static class CouponConfiguration
 
     private static void ConfigureCoupon(EntityTypeBuilder<Coupon> builder)
     {
-        builder.Property(coupon => coupon.Code).HasMaxLength(8);
+        builder.Property(coupon => coupon.Code).HasMaxLength(Coupon.CodeLength);
         builder.HasIndex(coupon => coupon.Code).IsUnique();
         builder.HasIndex(coupon => coupon.OwnerId);
     }

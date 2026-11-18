@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.Application.Coupons;
 using Shared.Api;
+using Shared.Domain;
 
 namespace Payment.Api;
 
@@ -20,9 +21,9 @@ public sealed class CouponsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<CouponDto>>> GetCoupons()
+    public async Task<ActionResult<PageResult<CouponDto>>> GetCoupons([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        return await _couponsQueries.GetCouponsAsync(User.GetUserId());
+        return await _couponsQueries.GetCouponsAsync(User.GetUserId(), page, pageSize);
     }
 
     [HttpGet("owned-products")]

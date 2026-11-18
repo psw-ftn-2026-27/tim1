@@ -1,3 +1,5 @@
+using Shared.Domain;
+
 namespace Payment.Application.Coupons;
 
 public sealed class CouponsQueries
@@ -9,9 +11,12 @@ public sealed class CouponsQueries
         _couponReadRepository = couponReadRepository;
     }
 
-    public Task<List<CouponDto>> GetCouponsAsync(Guid ownerId)
+    public Task<PageResult<CouponDto>> GetCouponsAsync(Guid ownerId, int page, int pageSize)
     {
-        return _couponReadRepository.GetCouponsOfOwnerAsync(ownerId);
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        return _couponReadRepository.GetCouponsOfOwnerAsync(ownerId, page, pageSize);
     }
 
     public Task<List<OwnedProductDto>> GetOwnedProductsAsync(Guid ownerId)
