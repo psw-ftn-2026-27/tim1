@@ -6,4 +6,5 @@ public interface IQuizRepository
 {
     Task<Quiz?> GetByIdAsync(Guid id);
     void Add(Quiz quiz);
+    void Remove(Quiz quiz);
 }

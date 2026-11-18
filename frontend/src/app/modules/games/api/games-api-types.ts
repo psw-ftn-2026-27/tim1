@@ -1,3 +1,5 @@
+import { PageResult } from '../../../shared/api/page-result';
+
 export type SocialChallengeStatus = 'Draft' | 'Published' | 'Retired' | 'Archived';
 
 export interface SocialChallengeDto {
@@ -78,4 +80,17 @@ export interface SaveQuizDto {
   instructions: string | null;
   experiencePoints: number | null;
   questions: QuizQuestionInputDto[] | null;
+}
+
+export interface ChallengeOverviewItemDto {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  createdAt: string | null;
+}
+
+export interface ChallengeOverviewDto {
+  page: PageResult<ChallengeOverviewItemDto>;
+  hasChallenges: boolean;
 }
