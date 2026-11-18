@@ -4,7 +4,7 @@ import { FormField, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { PageResult } from '../../../../shared/api/page-result';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { SentInvitationDto, UserToInviteDto } from '../../api/social-api-types';
+import { ClubDto, SentInvitationDto, UserToInviteDto } from '../../api/social-api-types';
 import { ClubInviting } from '../club-inviting';
 
 @Component({
@@ -17,6 +17,8 @@ export class ClubInvitations {
   private readonly clubInviting = inject(ClubInviting);
 
   readonly id = input.required<string>();
+
+  protected readonly club = httpResource<ClubDto>(() => `/api/social/clubs/${this.id()}`);
 
   protected readonly form = form(signal({ text: '' }));
 

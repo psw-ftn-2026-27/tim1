@@ -9,6 +9,10 @@
     @if (detail.value(); as club) {
       <h1>{{ club.name }}</h1>
 
+      @if (club.status === 'Closed') {
+        <p><span class="badge">Closed</span></p>
+      }
+
       <p>{{ club.description }}</p>
 
       @for (image of club.images; track $index) {
@@ -29,16 +33,18 @@
         } @else {
           @switch (membership.value()?.status) {
             @case ('NotMember') {
-              <div>
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="join()"
-                >
-                  Join
-                </button>
-              </div>
+              @if (club.status === 'Active') {
+                <div>
+                  <button
+                    class="button button--primary"
+                    type="button"
+                    [disabled]="pending()"
+                    (click)="join()"
+                  >
+                    Join
+                  </button>
+                </div>
+              }
             }
             @case ('PendingRequest') {
               <div class="actions">

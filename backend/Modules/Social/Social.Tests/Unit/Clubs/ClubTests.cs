@@ -55,6 +55,13 @@ public class ClubTests
         return club;
     }
 
+    private static Club CreateClosedClubWithModeratorAndOrdinaryMember()
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+        club.Close(Owner);
+        return club;
+    }
+
     private static Club CreateClubWithTwoModeratorsAndTwoOrdinaryMembers()
     {
         var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
@@ -403,5 +410,121 @@ public class ClubTests
 
         removal.Should().Throw<NotFoundException>();
         club.Members.Should().HaveCount(membersBefore);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoAreNotTheOwner))]
+    public void Only_the_owner_can_close_the_club(Guid userId)
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        var closing = () => club.Close(userId);
+
+        closing.Should().Throw<DomainException>();
+        club.Status.Should().Be(ClubStatus.Active);
+        club.MembershipRequests.Should().Contain(request => request.UserId == Requester);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoAreNotTheOwner))]
+    public void Only_the_owner_can_reopen_the_club(Guid userId)
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var reopening = () => club.Reopen(userId);
+
+        reopening.Should().Throw<DomainException>();
+        club.Status.Should().Be(ClubStatus.Closed);
+    }
+
+    [Fact]
+    public void Owner_closes_the_club_and_every_pending_request_and_invitation_is_gone()
+    {
+        var club = CreateClubWithOrdinaryMemberPendingRequestAndPendingInvitation();
+
+        club.Close(Owner);
+
+        club.Status.Should().Be(ClubStatus.Closed);
+        club.MembershipRequests.Should().BeEmpty();
+        club.Invitations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Closed_club_cannot_be_closed_again()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var closing = () => club.Close(Owner);
+
+        closing.Should().Throw<DomainException>();
+        club.Status.Should().Be(ClubStatus.Closed);
+    }
+
+    [Fact]
+    public void Active_club_cannot_be_reopened()
+    {
+        var club = CreateClub();
+
+        var reopening = () => club.Reopen(Owner);
+
+        reopening.Should().Throw<DomainException>();
+        club.Status.Should().Be(ClubStatus.Active);
+    }
+
+    [Fact]
+    public void User_cannot_request_membership_in_a_closed_club()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var request = () => club.RequestMembership(Outsider);
+
+        request.Should().Throw<DomainException>();
+        club.MembershipRequests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Owner_cannot_invite_a_user_to_a_closed_club()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var invitation = () => club.InviteMember(Owner, Invitee);
+
+        invitation.Should().Throw<DomainException>();
+        club.Invitations.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Owner_cannot_promote_a_member_to_moderator_in_a_closed_club()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var promotion = () => club.PromoteToModerator(Owner, OrdinaryMember);
+
+        promotion.Should().Throw<DomainException>();
+        club.Members.Should().ContainSingle(member => member.UserId == OrdinaryMember)
+            .Which.Role.Should().Be(ClubRole.Member);
+    }
+
+    [Fact]
+    public void Owner_cannot_transfer_ownership_in_a_closed_club()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        var transfer = () => club.TransferOwnership(Owner, Moderator);
+
+        transfer.Should().Throw<DomainException>();
+        club.OwnerId.Should().Be(Owner);
+        club.Members.Should().ContainSingle(member => member.Role == ClubRole.Owner)
+            .Which.UserId.Should().Be(Owner);
+    }
+
+    [Fact]
+    public void Owner_still_removes_a_member_from_a_closed_club()
+    {
+        var club = CreateClosedClubWithModeratorAndOrdinaryMember();
+
+        club.RemoveMember(Owner, OrdinaryMember);
+
+        club.Members.Should().NotContain(member => member.UserId == OrdinaryMember);
     }
 }

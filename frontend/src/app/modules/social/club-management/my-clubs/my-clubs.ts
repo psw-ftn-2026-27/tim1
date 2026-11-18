@@ -23,6 +23,7 @@ export class MyClubs {
   protected readonly editingClubId = signal<string | null>(null);
   protected readonly editError = signal<string | null>(null);
   protected readonly deletingClubId = signal<string | null>(null);
+  protected readonly closingClubId = signal<string | null>(null);
 
   protected readonly editForm = form(
     signal({ name: '', description: '', images: [''] }),
@@ -39,6 +40,7 @@ export class MyClubs {
 
   protected startEdit(club: ClubDto): void {
     this.deletingClubId.set(null);
+    this.closingClubId.set(null);
     this.error.set(null);
     this.editError.set(null);
     this.editingClubId.set(club.id);
@@ -86,6 +88,7 @@ export class MyClubs {
 
   protected startDelete(clubId: string): void {
     this.editingClubId.set(null);
+    this.closingClubId.set(null);
     this.error.set(null);
     this.deletingClubId.set(clubId);
   }
@@ -104,6 +107,48 @@ export class MyClubs {
     } catch (failure) {
       this.deletingClubId.set(null);
       this.error.set(serverMessage(failure, 'Could not delete the club.'));
+    } finally {
+      this.pending.set(false);
+    }
+  }
+
+  protected startClose(clubId: string): void {
+    this.editingClubId.set(null);
+    this.deletingClubId.set(null);
+    this.error.set(null);
+    this.closingClubId.set(clubId);
+  }
+
+  protected cancelClose(): void {
+    this.closingClubId.set(null);
+  }
+
+  protected async confirmClose(clubId: string): Promise<void> {
+    this.pending.set(true);
+    this.error.set(null);
+    try {
+      await this.clubManagement.close(clubId);
+      this.closingClubId.set(null);
+      this.clubs.reload();
+    } catch (failure) {
+      this.closingClubId.set(null);
+      this.error.set(serverMessage(failure, 'Could not close the club.'));
+    } finally {
+      this.pending.set(false);
+    }
+  }
+
+  protected async reopen(clubId: string): Promise<void> {
+    this.pending.set(true);
+    this.editingClubId.set(null);
+    this.deletingClubId.set(null);
+    this.closingClubId.set(null);
+    this.error.set(null);
+    try {
+      await this.clubManagement.reopen(clubId);
+      this.clubs.reload();
+    } catch (failure) {
+      this.error.set(serverMessage(failure, 'Could not reopen the club.'));
     } finally {
       this.pending.set(false);
     }

@@ -5,48 +5,56 @@
 
   <h2>Invite users</h2>
 
-  <div class="field">
-    <input type="text" aria-label="Search users" placeholder="Search by name" [formField]="form.text" />
-  </div>
-
-  @if (error()) {
-    <p class="error">{{ error() }}</p>
-  }
-
-  @if (users.error()) {
-    <p class="error">Users could not be loaded. Log in and try again.</p>
-  } @else if (users.value() === undefined) {
-    <p>Loading users...</p>
+  @if (club.isLoading()) {
+    <p>Loading club...</p>
+  } @else if (club.error()) {
+    <p class="error">Could not load the club. Log in and try again.</p>
+  } @else if (club.value()?.status === 'Closed') {
+    <p>This club is closed, so no one can be invited.</p>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">User</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (user of users.value()?.items ?? []; track user.id) {
+    <div class="field">
+      <input type="text" aria-label="Search users" placeholder="Search by name" [formField]="form.text" />
+    </div>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    @if (users.error()) {
+      <p class="error">Users could not be loaded. Log in and try again.</p>
+    } @else if (users.value() === undefined) {
+      <p>Loading users...</p>
+    } @else {
+      <table class="table">
+        <thead>
           <tr>
-            <td>{{ user.displayName }}</td>
-            <td>
-              <button
-                class="button button--primary"
-                type="button"
-                [disabled]="pending()"
-                (click)="invite(user.id)"
-              >
-                Invite
-              </button>
-            </td>
+            <th scope="col">User</th>
+            <th scope="col">Actions</th>
           </tr>
-        } @empty {
-          <tr>
-            <td colspan="2">No users found.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (user of users.value()?.items ?? []; track user.id) {
+            <tr>
+              <td>{{ user.displayName }}</td>
+              <td>
+                <button
+                  class="button button--primary"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="invite(user.id)"
+                >
+                  Invite
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="2">No users found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   }
 
   <h2>Pending invitations</h2>

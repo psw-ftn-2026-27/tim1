@@ -17,6 +17,7 @@ internal static class ClubConfiguration
     private static void ConfigureClub(EntityTypeBuilder<Club> builder)
     {
         builder.Property(club => club.Id).ValueGeneratedNever();
+        builder.Property(club => club.Status).HasConversion<string>().HasMaxLength(20).HasDefaultValue(ClubStatus.Active);
 
         builder.HasMany(club => club.Members)
             .WithOne()

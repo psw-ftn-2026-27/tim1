@@ -17,6 +17,14 @@ export class ClubManagement {
     await firstValueFrom(this.http.put<void>(`${BASE_URL}/${id}`, dto));
   }
 
+  async close(id: string): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${id}/close`, {}));
+  }
+
+  async reopen(id: string): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${id}/reopen`, {}));
+  }
+
   async delete(id: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${id}`));
   }
