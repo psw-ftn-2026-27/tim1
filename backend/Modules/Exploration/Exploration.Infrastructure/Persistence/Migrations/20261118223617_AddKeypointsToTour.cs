@@ -6,11 +6,26 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Exploration.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class AddKeypointImages : Migration
+    public partial class AddKeypointsToTour : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "Keypoints",
+                schema: "exploration",
+                table: "Tours",
+                type: "jsonb",
+                nullable: true);
+
+            migrationBuilder.AddColumn<double>(
+                name: "Length",
+                schema: "exploration",
+                table: "Tours",
+                type: "double precision",
+                nullable: false,
+                defaultValue: 0.0);
+
             migrationBuilder.CreateTable(
                 name: "Images",
                 schema: "exploration",
@@ -38,6 +53,16 @@ namespace Exploration.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "Images",
                 schema: "exploration");
+
+            migrationBuilder.DropColumn(
+                name: "Keypoints",
+                schema: "exploration",
+                table: "Tours");
+
+            migrationBuilder.DropColumn(
+                name: "Length",
+                schema: "exploration",
+                table: "Tours");
         }
     }
 }

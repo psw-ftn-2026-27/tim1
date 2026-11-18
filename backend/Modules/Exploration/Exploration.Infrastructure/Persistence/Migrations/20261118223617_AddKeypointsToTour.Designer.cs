@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Exploration.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ExplorationDbContext))]
-    [Migration("20261118171822_AddKeypointImages")]
-    partial class AddKeypointImages
+    [Migration("20261118223617_AddKeypointsToTour")]
+    partial class AddKeypointsToTour
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -149,6 +149,32 @@ namespace Exploration.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tours", "exploration");
+                });
+
+            modelBuilder.Entity("Exploration.Domain.UserPositions.UserPosition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserPositions", "exploration");
                 });
 
             modelBuilder.Entity("Exploration.Domain.Tours.Tour", b =>
