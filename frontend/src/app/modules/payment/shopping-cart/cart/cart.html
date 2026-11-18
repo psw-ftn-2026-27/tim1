@@ -88,10 +88,12 @@
           @if (price.value().couponProductName) {
             <p>
               Coupon discount on {{ price.value().couponProductName }}:
-              <span class="amount">{{ price.value().couponDiscount }} EC</span>
+              <span class="amount discount">-{{ price.value().couponDiscount }} EC</span>
             </p>
           }
-          <p>Gift card discount: <span class="amount">{{ price.value().cardDiscount }} EC</span></p>
+          @if (price.value().cardDiscount > 0) {
+            <p>Gift card discount: <span class="amount discount">-{{ price.value().cardDiscount }} EC</span></p>
+          }
           @if (price.value().cardLost > 0) {
             <p>Lost from the gift card: <span class="amount">{{ price.value().cardLost }} EC</span></p>
           }
