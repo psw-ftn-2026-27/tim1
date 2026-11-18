@@ -1,0 +1,11 @@
+<section class="stack">
+  <p>Question {{ questionNumber() }} of {{ questionCount() }} · Points: {{ points() }}</p>
+  <h2>{{ question().text }}</h2>
+  <div class="answers">
+    @for (answer of question().answers; track $index) {
+      <button type="button" class="button" [disabled]="pending()" (click)="answered.emit($index)">
+        {{ answer }}
+      </button>
+    }
+  </div>
+</section>

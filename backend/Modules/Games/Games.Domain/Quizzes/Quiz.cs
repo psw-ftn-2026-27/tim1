@@ -1,3 +1,4 @@
+using Games.Domain.GeoPositions;
 using Shared.Domain;
 using Shared.Domain.Exceptions;
 
@@ -5,6 +6,8 @@ namespace Games.Domain.Quizzes;
 
 public sealed class Quiz : AggregateRoot
 {
+    private const double ReachMeters = 50;
+
     private readonly List<QuizQuestion> _questions = [];
 
     public string Name { get; private set; } = null!;
@@ -89,6 +92,21 @@ public sealed class Quiz : AggregateRoot
         {
             throw new DomainException("Only a draft or archived quiz can be deleted.");
         }
+    }
+
+    public bool IsWithinReach(GeoPosition position)
+    {
+        if (Latitude is null || Longitude is null)
+        {
+            return true;
+        }
+
+        return new GeoPosition(Latitude.Value, Longitude.Value).DistanceTo(position) <= ReachMeters;
+    }
+
+    public int ExperiencePointsFor(int correctAnswers)
+    {
+        return (int)Math.Round((double)ExperiencePoints * correctAnswers / _questions.Count, MidpointRounding.AwayFromZero);
     }
 
     private void SetContent(string? name, string? instructions, int? experiencePoints,
