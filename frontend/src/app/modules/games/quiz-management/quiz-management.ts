@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { SaveQuizDto } from '../api/games-api-types';
+import { QuizAction } from './quiz-actions/quiz-actions';
 
 const BASE_URL = '/api/games/quizzes';
 
@@ -15,5 +16,14 @@ export class QuizManagement {
 
   async update(id: string, dto: SaveQuizDto): Promise<void> {
     await firstValueFrom(this.http.put<void>(`${BASE_URL}/${id}`, dto));
+  }
+
+  async changeLifecycle(id: string, action: QuizAction): Promise<void> {
+    const url = `${BASE_URL}/${id}`;
+    if (action === 'delete') {
+      await firstValueFrom(this.http.delete<void>(url));
+    } else {
+      await firstValueFrom(this.http.post<void>(`${url}/${action}`, null));
+    }
   }
 }

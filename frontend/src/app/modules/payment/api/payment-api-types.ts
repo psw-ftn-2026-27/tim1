@@ -1,4 +1,11 @@
-export type TransactionType = 'TopUp' | 'Reservation' | 'Payout' | 'ReservationReturn';
+export type TransactionType =
+  | 'TopUp'
+  | 'Reservation'
+  | 'Payout'
+  | 'ReservationReturn'
+  | 'Purchase'
+  | 'Sale'
+  | 'GiftCardPurchase';
 
 export type WalletRequestType = 'TopUp' | 'Withdrawal';
 
@@ -9,6 +16,7 @@ export interface WalletTransactionDto {
   type: TransactionType;
   amount: number;
   balanceAfter: number;
+  productName: string | null;
 }
 
 export interface WalletRequestDto {
@@ -64,6 +72,8 @@ export interface ProductDto {
   price: number;
   ownerId: string;
   ownerName: string;
+  purchased: boolean;
+  inCart: boolean;
 }
 
 export interface CartItemDto {
@@ -81,4 +91,29 @@ export interface CartDto {
 export interface ProductReferenceDto {
   type: ProductType;
   entityId: string;
+}
+
+export type GiftCardStatus = 'Valid' | 'Used' | 'Expired';
+
+export interface GiftCardDto {
+  id: string;
+  creatorId: string;
+  creatorDisplayName: string;
+  recipientId: string;
+  recipientDisplayName: string;
+  amount: number;
+  message: string;
+  expiresAt: string;
+  status: GiftCardStatus;
+}
+
+export interface PurchaseGiftCardDto {
+  recipientId: string;
+  amount: number;
+  message: string;
+}
+
+export interface RecipientDto {
+  id: string;
+  displayName: string;
 }

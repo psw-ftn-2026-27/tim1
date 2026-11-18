@@ -1,0 +1,37 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment/gift-cards" aria-label="Back to gift cards">←</a>
+    <h1>Buy a gift card</h1>
+  </div>
+
+  <div class="field">
+    <input
+      type="text"
+      aria-label="Search users"
+      placeholder="Search by name"
+      [formField]="searchForm.text"
+    />
+  </div>
+
+  @if (recipients.error()) {
+    <p class="error">The users could not be loaded. Sign in and try again.</p>
+  } @else if (recipients.value() === undefined) {
+    <p>Loading users...</p>
+  } @else {
+    <div class="stack">
+      @for (user of recipients.value()?.items ?? []; track user.id) {
+        <article class="card row">
+          <h3>{{ user.displayName }}</h3>
+          <a
+            class="button button--primary button--small"
+            [routerLink]="['/payment/gift-cards/buy', user.id]"
+          >
+            Buy a gift card
+          </a>
+        </article>
+      } @empty {
+        <p>No users found.</p>
+      }
+    </div>
+  }
+</div>

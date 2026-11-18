@@ -23,6 +23,43 @@ namespace Payment.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Payment.Domain.GiftCards.GiftCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("RecipientId");
+
+                    b.ToTable("GiftCards", "payment");
+                });
+
             modelBuilder.Entity("Payment.Domain.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -43,6 +80,26 @@ namespace Payment.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products", "payment");
+                });
+
+            modelBuilder.Entity("Payment.Domain.Purchases.Purchase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BuyerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("PurchasedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Purchases", "payment");
                 });
 
             modelBuilder.Entity("Payment.Domain.ShoppingCarts.ShoppingCart", b =>
@@ -103,6 +160,10 @@ namespace Payment.Infrastructure.Persistence.Migrations
 
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProductName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -200,6 +261,33 @@ namespace Payment.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Payment.Domain.Purchases.Purchase", b =>
+                {
+                    b.OwnsOne("Payment.Domain.Products.ProductReference", "Reference", b1 =>
+                        {
+                            b1.Property<Guid>("PurchaseId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("EntityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("EntityType")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
+
+                            b1.HasKey("PurchaseId");
+
+                            b1.ToTable("Purchases", "payment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PurchaseId");
+                        });
+
+                    b.Navigation("Reference")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Payment.Domain.ShoppingCarts.ShoppingCart", b =>
                 {
                     b.OwnsMany("Payment.Domain.ShoppingCarts.OrderItem", "Items", b1 =>
@@ -266,6 +354,29 @@ namespace Payment.Infrastructure.Persistence.Migrations
                         .HasForeignKey("WalletId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsOne("Payment.Domain.Products.ProductReference", "Reference", b1 =>
+                        {
+                            b1.Property<Guid>("TransactionId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("EntityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("EntityType")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
+
+                            b1.HasKey("TransactionId");
+
+                            b1.ToTable("Transactions", "payment");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TransactionId");
+                        });
+
+                    b.Navigation("Reference");
                 });
 
             modelBuilder.Entity("Payment.Domain.Wallets.Wallet", b =>

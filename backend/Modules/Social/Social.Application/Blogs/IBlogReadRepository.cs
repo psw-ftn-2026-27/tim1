@@ -1,10 +1,12 @@
 using Shared.Domain;
+using Social.Application.BlogReading;
 
 namespace Social.Application.Blogs;
 
 public interface IBlogReadRepository
 {
     Task<BlogDto?> GetByIdAsync(Guid id);
+    Task<BlogDetailDto?> GetDetailByIdAsync(Guid id, Guid userId, DateTime now);
     Task<List<BlogDto>> GetByAuthorAsync(Guid authorId);
     Task<PageResult<BlogDto>> GetVisibleAsync(int page, int pageSize);
 }

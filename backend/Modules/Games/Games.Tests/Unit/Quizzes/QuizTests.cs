@@ -54,17 +54,74 @@ public sealed class QuizTests
     public void A_published_quiz_cannot_be_changed()
     {
         var question = new QuizQuestion("Which sign?", [new QuizAnswer("First", true), new QuizAnswer("Second", false)]);
-        var quiz = new Quiz("City walk", "Read the signs.", 10, [question]);
+        var quiz = new Quiz("City walk", "Read the signs.", 10, [question], 45, 19);
         quiz.Publish();
 
-        var change = () => quiz.Update("New name", "New instructions.", 0, []);
+        var change = () => quiz.Update("New name", "New instructions.", 0, [], 46, 20);
 
         change.Should().Throw<DomainException>();
         quiz.Status.Should().Be(QuizStatus.Published);
         quiz.Name.Should().Be("City walk");
         quiz.Instructions.Should().Be("Read the signs.");
         quiz.ExperiencePoints.Should().Be(10);
+        quiz.Latitude.Should().Be(45);
+        quiz.Longitude.Should().Be(19);
         quiz.Questions.Should().ContainSingle().Which.Id.Should().Be(question.Id);
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(45.25, 19.85)]
+    [InlineData(-90d, -180d)]
+    [InlineData(90d, 180d)]
+    public void A_draft_can_have_a_valid_location_or_no_location(double? latitude, double? longitude)
+    {
+        var quiz = new Quiz("City walk", "Read the signs.", 0, [], latitude, longitude);
+
+        quiz.Latitude.Should().Be(latitude);
+        quiz.Longitude.Should().Be(longitude);
+    }
+
+    [Theory]
+    [InlineData(45d, null)]
+    [InlineData(null, 19d)]
+    [InlineData(-91d, 19d)]
+    [InlineData(91d, 19d)]
+    [InlineData(45d, -181d)]
+    [InlineData(45d, 181d)]
+    [InlineData(double.NaN, 19d)]
+    [InlineData(45d, double.NaN)]
+    [InlineData(double.PositiveInfinity, 19d)]
+    [InlineData(45d, double.NegativeInfinity)]
+    public void A_quiz_rejects_an_invalid_location(double? latitude, double? longitude)
+    {
+        var create = () => new Quiz("City walk", "Read the signs.", 0, [], latitude, longitude);
+
+        create.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void An_invalid_location_leaves_the_entire_quiz_unchanged()
+    {
+        var question = new QuizQuestion("Which sign?", [new QuizAnswer("First", true)]);
+        var quiz = new Quiz("City walk", "Read the signs.", 10, [question], 45, 19);
+        var createdAt = quiz.CreatedAt;
+        var editedQuestion = new QuizQuestion("Changed", [new QuizAnswer("Other", false)], question.Id);
+
+        var change = () => quiz.Update("New name", "New instructions.", 0, [editedQuestion], 91, 19);
+
+        change.Should().Throw<DomainException>();
+        quiz.Name.Should().Be("City walk");
+        quiz.Instructions.Should().Be("Read the signs.");
+        quiz.ExperiencePoints.Should().Be(10);
+        quiz.Status.Should().Be(QuizStatus.Draft);
+        quiz.CreatedAt.Should().Be(createdAt);
+        quiz.Latitude.Should().Be(45);
+        quiz.Longitude.Should().Be(19);
+        var savedQuestion = quiz.Questions.Should().ContainSingle().Which;
+        savedQuestion.Id.Should().Be(question.Id);
+        savedQuestion.Text.Should().Be("Which sign?");
+        savedQuestion.Answers.Should().Equal(new QuizAnswer("First", true));
     }
 
     [Fact]

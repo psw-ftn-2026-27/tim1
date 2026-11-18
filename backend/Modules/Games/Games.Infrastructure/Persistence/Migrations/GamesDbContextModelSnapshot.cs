@@ -39,6 +39,12 @@ namespace Games.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -88,6 +94,9 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.Property<string>("CompletionMessage")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ExperiencePoints")
                         .HasColumnType("integer");

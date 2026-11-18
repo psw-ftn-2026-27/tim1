@@ -1,5 +1,7 @@
 export type BlogStatus = 'Draft' | 'Published' | 'Archived';
 
+export type VoteType = 'Upvote' | 'Downvote';
+
 export interface CommentDto {
   id: string;
   userId: string;
@@ -17,6 +19,35 @@ export interface BlogDto {
   images: string[];
   status: BlogStatus;
   comments: CommentDto[];
+  score: number;
+}
+
+export interface BlogDetailDto {
+  id: string;
+  authorId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  images: string[];
+  status: BlogStatus;
+  comments: BlogCommentDetailDto[];
+  score: number;
+  myVote: VoteType | null;
+}
+
+export interface BlogCommentDetailDto {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  authorName: string | null;
+  canEditOrDelete: boolean;
+}
+
+export interface VoteDto {
+  type: VoteType;
 }
 
 export interface CreateBlogDto {

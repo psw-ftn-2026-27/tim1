@@ -1,3 +1,4 @@
+using Identity.Contracts;
 using Shared.Domain;
 using Shared.Domain.Exceptions;
 using Social.Application.Blogs;
@@ -11,26 +12,37 @@ public sealed class BlogReadingQueries
     private readonly IBlogReadRepository _blogReadRepository;
     private readonly IImageReadRepository _imageReadRepository;
     private readonly IImageStorage _imageStorage;
+    private readonly IIdentityApi _identityApi;
 
     public BlogReadingQueries(
         IBlogReadRepository blogReadRepository,
         IImageReadRepository imageReadRepository,
-        IImageStorage imageStorage)
+        IImageStorage imageStorage,
+        IIdentityApi identityApi)
     {
         _blogReadRepository = blogReadRepository;
         _imageReadRepository = imageReadRepository;
         _imageStorage = imageStorage;
+        _identityApi = identityApi;
     }
 
-    public async Task<BlogDto> GetByIdAsync(Guid id)
+    public async Task<BlogDetailDto> GetByIdAsync(Guid id, Guid userId)
     {
-        var blog = await _blogReadRepository.GetByIdAsync(id);
+        var blog = await _blogReadRepository.GetDetailByIdAsync(id, userId, DateTime.UtcNow);
         if (blog is null || (blog.Status != BlogStatus.Published && blog.Status != BlogStatus.Archived))
         {
             throw new NotFoundException($"Blog {id} does not exist.");
         }
 
-        return blog;
+        var authorIds = blog.Comments.Select(comment => comment.UserId).Distinct().ToList();
+        var authors = await _identityApi.GetUsersAsync(authorIds);
+        var displayNames = authors.ToDictionary(author => author.Id, author => author.DisplayName);
+
+        var comments = blog.Comments
+            .Select(comment => comment with { AuthorName = displayNames.GetValueOrDefault(comment.UserId) })
+            .ToList();
+
+        return blog with { Comments = comments };
     }
 
     public Task<PageResult<BlogDto>> GetVisibleAsync(int page, int pageSize)

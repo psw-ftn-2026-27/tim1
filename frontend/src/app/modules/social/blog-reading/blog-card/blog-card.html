@@ -19,5 +19,7 @@
 
   <p class="meta">Comments: {{ blog().comments.length }}</p>
 
+  <p class="meta">Score: {{ blog().score }}</p>
+
   <a [routerLink]="['/social', blog().id]">Read more</a>
 </article>

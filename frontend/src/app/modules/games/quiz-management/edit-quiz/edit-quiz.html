@@ -1,6 +1,10 @@
 <div class="stack">
   <p><a routerLink="/games/quizzes">← Quizzes</a></p>
 
+  @if (!editing() && error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+
   @if (editing()) {
     <h1>Edit quiz</h1>
     <section class="card">
@@ -22,6 +26,9 @@
     @if (saved()) {
       <p class="alert alert--success" role="status">Changes saved.</p>
     }
+    @if (statusUpdated()) {
+      <p class="alert alert--success" role="status">Quiz status updated.</p>
+    }
     <section class="card stack">
       <p>
         <strong>Status:</strong> <span class="badge">{{ details.status }}</span>
@@ -31,6 +38,14 @@
         <h2>Instructions</h2>
         <p class="saved-text">{{ details.instructions }}</p>
       </div>
+      <section class="stack">
+        <h2>Quiz location</h2>
+        @if (locationPins().length) {
+          <app-map [pins]="locationPins()" />
+        } @else {
+          <p>No location assigned.</p>
+        }
+      </section>
       <div class="stack">
         <h2>Questions</h2>
         @for (question of details.questions; track question.id) {
@@ -55,12 +70,21 @@
           <p>No questions yet.</p>
         }
       </div>
-      @if (details.status === 'Draft') {
-        <button type="button" class="button button--primary" (click)="startEdit(details)">
-          Edit
-        </button>
-      }
+      <div class="quiz-commands">
+        @if (details.status === 'Draft') {
+          <button type="button" class="button button--primary" [disabled]="pending()" (click)="startEdit(details)">
+            Edit
+          </button>
+        }
+        <app-quiz-actions
+          [status]="details.status"
+          [pending]="pending()"
+          (requested)="changeLifecycle($event)"
+        />
+      </div>
     </section>
+  } @else if (missing()) {
+    <p class="alert alert--danger" role="alert">This quiz is no longer available.</p>
   } @else {
     <p class="alert alert--danger" role="alert">Could not load the quiz.</p>
     <button type="button" class="button" (click)="quiz.reload()">Try again</button>

@@ -5,9 +5,12 @@ namespace Social.Domain.Blogs;
 
 public sealed class Comment : Entity
 {
+    public static readonly TimeSpan EditWindow = TimeSpan.FromMinutes(15);
+
     public Guid UserId { get; private set; }
     public string Text { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime LastModifiedAt { get; private set; }
 
     private Comment()
     {
@@ -23,10 +26,17 @@ public sealed class Comment : Entity
 
         UserId = userId;
         Text = text;
-        CreatedAt = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        CreatedAt = now;
+        LastModifiedAt = now;
     }
 
-    public void Update(string text)
+    public bool IsEditableAt(DateTime now)
+    {
+        return now - CreatedAt < EditWindow;
+    }
+
+    public void Update(string text, DateTime now)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -34,5 +44,6 @@ public sealed class Comment : Entity
         }
 
         Text = text;
+        LastModifiedAt = now;
     }
 }

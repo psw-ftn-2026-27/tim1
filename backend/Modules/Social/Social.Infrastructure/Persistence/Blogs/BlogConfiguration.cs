@@ -10,6 +10,7 @@ internal static class BlogConfiguration
     {
         ConfigureBlog(modelBuilder.Entity<Blog>());
         ConfigureComment(modelBuilder.Entity<Comment>());
+        ConfigureVote(modelBuilder.Entity<Vote>());
     }
 
     private static void ConfigureBlog(EntityTypeBuilder<Blog> builder)
@@ -24,11 +25,25 @@ internal static class BlogConfiguration
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(blog => blog.Comments).AutoInclude();
+
+        builder.HasMany(blog => blog.Votes)
+            .WithOne()
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(blog => blog.Votes).AutoInclude();
     }
 
     private static void ConfigureComment(EntityTypeBuilder<Comment> builder)
     {
         builder.ToTable("Comments");
         builder.Property(comment => comment.Id).ValueGeneratedNever();
+    }
+
+    private static void ConfigureVote(EntityTypeBuilder<Vote> builder)
+    {
+        builder.ToTable("Votes");
+        builder.Property(vote => vote.Id).ValueGeneratedNever();
+        builder.Property(vote => vote.Type).HasConversion<string>().HasMaxLength(20);
     }
 }

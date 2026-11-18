@@ -1,5 +1,21 @@
 <div class="stack">
-  <h1>Wallet</h1>
+  <div class="header">
+    <h1>Wallet</h1>
+
+    @if (!isAdministrator()) {
+      <a
+        class="gift"
+        routerLink="/payment/gift-cards"
+        aria-label="Gift cards"
+        title="Gift cards"
+      >
+        🎁
+        @if ((validReceivedCount.value() ?? 0) > 0) {
+          <span class="dot"></span>
+        }
+      </a>
+    }
+  </div>
 
   @if (isAdministrator()) {
     <p>You are signed in as an administrator, so you do not have a wallet of your own.</p>
@@ -30,6 +46,7 @@
         <tr>
           <th scope="col">Time</th>
           <th scope="col">Type</th>
+          <th scope="col">Product</th>
           <th scope="col">Amount</th>
           <th scope="col">Balance after</th>
         </tr>
@@ -39,12 +56,13 @@
           <tr>
             <td>{{ transaction.occurredAt }}</td>
             <td>{{ transaction.type }}</td>
+            <td>{{ transaction.productName }}</td>
             <td>{{ transaction.amount }}</td>
             <td>{{ transaction.balanceAfter }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">You have no transactions yet.</td>
+            <td colspan="5">You have no transactions yet.</td>
           </tr>
         }
       </tbody>

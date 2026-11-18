@@ -17,6 +17,7 @@ public sealed class SocialChallenge : AggregateRoot
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
     public SocialChallengeStatus Status { get; private set; }
+    public DateTime? CreatedAt { get; private set; }
 
     private SocialChallenge()
     {
@@ -40,6 +41,7 @@ public sealed class SocialChallenge : AggregateRoot
         CompletionMessage = null!;
         SetDetails(name, activeFrom, activeUntil, requiredParticipants, radiusMeters, experiencePoints, completionMessage, latitude, longitude);
         Status = SocialChallengeStatus.Draft;
+        CreatedAt = DateTime.UtcNow;
     }
 
     public void Update(

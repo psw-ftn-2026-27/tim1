@@ -16,6 +16,8 @@ public sealed class Blog : AggregateRoot
     public BlogStatus Status { get; private set; }
     private readonly List<Comment> _comments = [];
     public IReadOnlyList<Comment> Comments => _comments;
+    private readonly List<Vote> _votes = [];
+    public IReadOnlyList<Vote> Votes => _votes;
 
     private Blog()
     {
@@ -80,18 +82,41 @@ public sealed class Blog : AggregateRoot
         _comments.Add(new Comment(userId, text));
     }
 
-    public void UpdateComment(Guid commentId, Guid userId, string text)
+    public void UpdateComment(Guid commentId, Guid userId, string text, DateTime now)
     {
         EnsurePublished();
+        var comment = GetOwnComment(commentId, userId);
+        EnsureEditable(comment, now);
 
-        GetOwnComment(commentId, userId).Update(text);
+        comment.Update(text, now);
     }
 
-    public void DeleteComment(Guid commentId, Guid userId)
+    public void DeleteComment(Guid commentId, Guid userId, DateTime now)
+    {
+        EnsurePublished();
+        var comment = GetOwnComment(commentId, userId);
+        EnsureEditable(comment, now);
+
+        _comments.Remove(comment);
+    }
+
+    public void Vote(Guid userId, VoteType type)
     {
         EnsurePublished();
 
-        _comments.Remove(GetOwnComment(commentId, userId));
+        var vote = _votes.FirstOrDefault(vote => vote.UserId == userId);
+        if (vote is null)
+        {
+            _votes.Add(new Vote(userId, type));
+        }
+        else if (vote.Type == type)
+        {
+            _votes.Remove(vote);
+        }
+        else
+        {
+            vote.ChangeType(type);
+        }
     }
 
     private static void EnsureValidContent(string title, string description, List<Guid>? images)
@@ -114,7 +139,15 @@ public sealed class Blog : AggregateRoot
     {
         if (Status != BlogStatus.Published)
         {
-            throw new DomainException("Comments are allowed only on a published blog.");
+            throw new DomainException("Comments and votes are allowed only on a published blog.");
+        }
+    }
+
+    private static void EnsureEditable(Comment comment, DateTime now)
+    {
+        if (!comment.IsEditableAt(now))
+        {
+            throw new DomainException("A comment can be changed only within 15 minutes of its creation.");
         }
     }
 

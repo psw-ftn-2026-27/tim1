@@ -44,7 +44,9 @@ internal sealed class QuizReadRepository : IQuizReadRepository
                         question.Id,
                         question.Text,
                         question.Answers.Select(answer => new QuizAnswerDto(answer.Text, answer.IsCorrect)).ToList()))
-                    .ToList()))
+                    .ToList(),
+                quiz.Latitude,
+                quiz.Longitude))
             .SingleOrDefaultAsync();
     }
 }

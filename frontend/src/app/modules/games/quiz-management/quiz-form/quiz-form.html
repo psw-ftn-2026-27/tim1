@@ -95,6 +95,31 @@
     </button>
   </section>
 
+  <section class="stack">
+    <h2>Quiz location</h2>
+    <p>Click the map to choose an optional location.</p>
+    <!-- A new instance clears the internal selection marker when the form's pin changes. -->
+    @for (location of [form.location().value()]; track location) {
+      <app-map
+        [pins]="location ? [location] : []"
+        [selectionEnabled]="!pending()"
+        (locationSelected)="form.location().value.set($event)"
+      />
+      @if (location) {
+        <div class="actions">
+          <button
+            type="button"
+            class="button button--small"
+            [disabled]="pending()"
+            (click)="form.location().value.set(null)"
+          >
+            Remove location
+          </button>
+        </div>
+      }
+    }
+  </section>
+
   @if (error(); as message) {
     <p class="alert alert--danger" role="alert">{{ message }}</p>
   }

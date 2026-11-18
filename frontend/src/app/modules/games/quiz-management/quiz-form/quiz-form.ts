@@ -1,5 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormField, form, min, required, validate } from '@angular/forms/signals';
+import { Map, type MapPin } from '../../../../shared/ui/map/map';
 import { SaveQuizDto } from '../../api/games-api-types';
 
 interface QuizQuestionForm {
@@ -16,6 +17,7 @@ export function createQuizForm() {
       instructions: '',
       experiencePoints: null as number | null,
       questions: [] as QuizQuestionForm[],
+      location: null as MapPin | null,
     }),
     (path) => {
       required(path.name, { message: 'Name is required.' });
@@ -43,7 +45,7 @@ export function createQuizForm() {
 
 @Component({
   selector: 'app-quiz-form',
-  imports: [FormField],
+  imports: [FormField, Map],
   templateUrl: './quiz-form.html',
   styleUrl: './quiz-form.scss',
 })
@@ -99,11 +101,13 @@ export class QuizForm {
       return;
     }
 
-    const { name, instructions, experiencePoints, questions } = state.value();
+    const { name, instructions, experiencePoints, questions, location } = state.value();
     this.save.emit({
       name,
       instructions,
       experiencePoints,
+      latitude: location?.latitude ?? null,
+      longitude: location?.longitude ?? null,
       questions: questions.map((question) => ({
         id: question.id,
         text: question.text,

@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
 import { Auth } from '../../core/auth/auth';
+import { ChallengeList } from './challenge-overview/challenge-list/challenge-list';
 import { GamesHome } from './games-home/games-home';
 import { CreateQuiz } from './quiz-management/create-quiz/create-quiz';
 import { EditQuiz } from './quiz-management/edit-quiz/edit-quiz';
@@ -18,6 +19,7 @@ const requireAdministrator: CanActivateFn = () => {
 
 export const gamesRoutes: Routes = [
   { path: '', component: GamesHome },
+  { path: 'challenges', component: ChallengeList, canActivate: [requireAdministrator] },
   { path: 'quizzes', component: Quizzes, canActivate: [requireAdministrator] },
   { path: 'quizzes/new', component: CreateQuiz, canActivate: [requireAdministrator] },
   { path: 'quizzes/:id/edit', component: EditQuiz, canActivate: [requireAdministrator] },

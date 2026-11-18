@@ -12,6 +12,8 @@ internal static class BlogSeed
     public static readonly Blog CommentedMuseumVisit;
     public static readonly Blog PublishedSecondExplorersTrail;
     public static readonly Blog CommentedArchivedFestival;
+    public static readonly Blog VotedLakeShore;
+    public static readonly Blog CommentedByDemoUsersBridge;
 
     static BlogSeed()
     {
@@ -29,7 +31,18 @@ internal static class BlogSeed
         CommentedArchivedFestival.Publish();
         CommentedArchivedFestival.AddComment(WellKnownUsers.Administrator, "Sjajna atmosfera!");
         CommentedArchivedFestival.Archive();
+
+        VotedLakeShore = new(WellKnownUsers.Explorer, "Obala jezera", "Utisci sa šetnje obalom Palićkog jezera.", []);
+        VotedLakeShore.Publish();
+        VotedLakeShore.Vote(WellKnownUsers.Administrator, VoteType.Upvote);
+        VotedLakeShore.Vote(WellKnownUsers.SecondExplorer, VoteType.Upvote);
+        VotedLakeShore.Vote(WellKnownUsers.Explorer, VoteType.Downvote);
+
+        CommentedByDemoUsersBridge = new(WellKnownUsers.Explorer, "Most slobode", "Utisci sa šetnje preko Mosta slobode.", []);
+        CommentedByDemoUsersBridge.Publish();
+        CommentedByDemoUsersBridge.AddComment(DemoUsers.Explorer, "Prelep pogled sa mosta!");
+        CommentedByDemoUsersBridge.AddComment(DemoUsers.SecondExplorer, "Slažem se, posebno uveče.");
     }
 
-    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit, PublishedSecondExplorersTrail, CommentedArchivedFestival];
+    public static Blog[] All => [FortressImpressions, CityNotes, SecondExplorersDiary, PublishedRiverbank, CommentedMuseumVisit, PublishedSecondExplorersTrail, CommentedArchivedFestival, VotedLakeShore, CommentedByDemoUsersBridge];
 }

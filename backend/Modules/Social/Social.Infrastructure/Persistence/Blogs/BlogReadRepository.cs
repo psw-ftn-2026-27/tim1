@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain;
+using Social.Application.BlogReading;
 using Social.Application.Blogs;
 using Social.Domain.Blogs;
 
@@ -17,6 +18,45 @@ internal sealed class BlogReadRepository : IBlogReadRepository
     public Task<BlogDto?> GetByIdAsync(Guid id)
     {
         return ProjectToDtos(_dbContext.Blogs.Where(blog => blog.Id == id)).FirstOrDefaultAsync();
+    }
+
+    // Comments that existed before Comment.LastModifiedAt was added carry 0001-01-01; they
+    // show their creation date as the last modification date. The author name comes from
+    // the Identity module, so the projection leaves it empty for the queries class to fill.
+    public Task<BlogDetailDto?> GetDetailByIdAsync(Guid id, Guid userId, DateTime now)
+    {
+        var editableSince = now - Comment.EditWindow;
+
+        return _dbContext.Blogs
+            .Where(blog => blog.Id == id)
+            .Select(blog => new BlogDetailDto(
+                blog.Id,
+                blog.AuthorId,
+                blog.Title,
+                blog.Description,
+                blog.CreatedAt,
+                blog.LastModifiedAt == DateTime.MinValue ? blog.CreatedAt : blog.LastModifiedAt,
+                blog.Images,
+                blog.Status,
+                blog.Comments
+                    .Select(comment => new BlogCommentDetailDto(
+                        comment.Id,
+                        comment.UserId,
+                        comment.Text,
+                        comment.CreatedAt,
+                        comment.LastModifiedAt == DateTime.MinValue ? comment.CreatedAt : comment.LastModifiedAt,
+                        null,
+                        comment.UserId == userId
+                            && blog.Status == BlogStatus.Published
+                            && comment.CreatedAt > editableSince))
+                    .ToList(),
+                blog.Votes.Count(vote => vote.Type == VoteType.Upvote)
+                    - blog.Votes.Count(vote => vote.Type == VoteType.Downvote),
+                blog.Votes
+                    .Where(vote => vote.UserId == userId)
+                    .Select(vote => (VoteType?)vote.Type)
+                    .FirstOrDefault()))
+            .FirstOrDefaultAsync();
     }
 
     public Task<List<BlogDto>> GetByAuthorAsync(Guid authorId)
@@ -41,6 +81,8 @@ internal sealed class BlogReadRepository : IBlogReadRepository
 
     // Blogs that existed before LastModifiedAt was added carry 0001-01-01; they show their
     // creation date as the last modification date, without changing the stored data.
+    // The score is the number of upvotes minus the number of downvotes, so a blog without
+    // votes scores 0 (P6).
     private static IQueryable<BlogDto> ProjectToDtos(IQueryable<Blog> blogs)
     {
         return blogs
@@ -55,6 +97,8 @@ internal sealed class BlogReadRepository : IBlogReadRepository
                 blog.Status,
                 blog.Comments
                     .Select(comment => new CommentDto(comment.Id, comment.UserId, comment.Text, comment.CreatedAt))
-                    .ToList()));
+                    .ToList(),
+                blog.Votes.Count(vote => vote.Type == VoteType.Upvote)
+                    - blog.Votes.Count(vote => vote.Type == VoteType.Downvote)));
     }
 }
