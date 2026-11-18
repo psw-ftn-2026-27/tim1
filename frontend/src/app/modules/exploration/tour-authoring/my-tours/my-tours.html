@@ -40,6 +40,7 @@
                 <button class="button" type="button" (click)="select(tour.id)">Add time</button>
               }
               @if (tour.status === 'Draft') {
+                <a class="button" [routerLink]="['/exploration/tour', tour.id, 'manage']">Manage tour</a>
                 <button
                   class="button button--primary"
                   type="button"

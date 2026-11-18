@@ -1,0 +1,81 @@
+<form class="stack" (submit)="submit($event)">
+  <div class="field">
+    <label for="keypoint-name">Name</label>
+    <input id="keypoint-name" type="text" [formField]="fields().name" />
+    @if (fields().name().touched()) {
+      @for (message of fields().name().errors(); track $index) {
+        <p class="error">{{ message.message }}</p>
+      }
+    }
+  </div>
+
+  <div class="field">
+    <label for="keypoint-description">Description</label>
+    <textarea id="keypoint-description" rows="4" [formField]="fields().description"></textarea>
+    @if (fields().description().touched()) {
+      @for (message of fields().description().errors(); track $index) {
+        <p class="error">{{ message.message }}</p>
+      }
+    }
+  </div>
+
+  <div class="field">
+    <label for="keypoint-secret">Secret (optional)</label>
+    <textarea id="keypoint-secret" rows="3" [formField]="fields().secret"></textarea>
+  </div>
+
+  <div class="field">
+    <span class="label">Image</span>
+    <app-image-upload
+      [upload]="upload()"
+      (imageIds)="imageIds.set($event)"
+      (sending)="imagesSending.set($event)"
+    />
+    @if (imageError(); as message) {
+      <p class="error">{{ message }}</p>
+    }
+  </div>
+
+  @if (showVisibility()) {
+    <div class="field">
+      <label for="keypoint-visible">
+        <input id="keypoint-visible" type="checkbox" [formField]="fields().publiclyVisible" />
+        Ključna tačka je javno vidljiva
+      </label>
+    </div>
+  }
+
+  <div class="field">
+    <span class="label">Location</span>
+    <p class="meta hint">Click the map to choose the location.</p>
+    <div class="field">
+      <label for="keypoint-mode">Route preview</label>
+      <select id="keypoint-mode" [formField]="routeForm.mode">
+        <option value="Walking">Walking</option>
+        <option value="Bicycle">Bicycle</option>
+        <option value="Car">Car</option>
+      </select>
+    </div>
+    <app-map
+      [pins]="mapPins()"
+      [routeRequest]="routeRequest()"
+      [selectionEnabled]="!pending()"
+      (locationSelected)="pickLocation($event)"
+    />
+    @if (fields().location().value(); as location) {
+      <p class="meta hint">
+        Chosen: {{ location.latitude.toFixed(5) }}, {{ location.longitude.toFixed(5) }}
+      </p>
+    } @else {
+      <p class="error">Choose a location on the map.</p>
+    }
+  </div>
+
+  <button
+    class="button button--primary"
+    type="submit"
+    [disabled]="!fields()().valid() || imageError() !== null || imagesSending() || pending()"
+  >
+    {{ saveLabel() }}
+  </button>
+</form>

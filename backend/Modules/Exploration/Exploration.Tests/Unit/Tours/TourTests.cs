@@ -14,10 +14,17 @@ public class TourTests
     private static Tour CreateTour(string description) =>
         new(WellKnownUsers.Explorer, "Šetnja tvrđavom", description, TourDifficulty.Easy, ["istorija"], DefaultGroupSize);
 
+    private static void AddTwoKeypoints(Tour tour)
+    {
+        tour.AddKeypoint("Prva tačka", "Opis prve tačke.", Guid.NewGuid(), null, false, new Coordinate(45.0, 19.0));
+        tour.AddKeypoint("Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, false, new Coordinate(45.1, 19.1));
+    }
+
     private static Tour CreatePublishedTour()
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Car, 30);
+        AddTwoKeypoints(tour);
         tour.Publish(0);
         return tour;
     }
@@ -159,6 +166,7 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Bicycle, 45);
+        AddTwoKeypoints(tour);
 
         tour.Publish(price);
 
@@ -203,7 +211,25 @@ public class TourTests
     {
         var tour = CreateTour(LongDescription);
         tour.AddTransportTime(TransportMode.Car, 30);
+        AddTwoKeypoints(tour);
         tour.Publish(0);
+
+        var publishing = () => tour.Publish(0);
+
+        publishing.Should().Throw<DomainException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public void Tour_with_fewer_than_two_keypoints_cannot_be_published(int keypointCount)
+    {
+        var tour = CreateTour(LongDescription);
+        tour.AddTransportTime(TransportMode.Walking, 120);
+        for (var index = 0; index < keypointCount; index++)
+        {
+            tour.AddKeypoint("Tačka", "Opis tačke.", Guid.NewGuid(), null, false, new Coordinate(45.0, 19.0));
+        }
 
         var publishing = () => tour.Publish(0);
 

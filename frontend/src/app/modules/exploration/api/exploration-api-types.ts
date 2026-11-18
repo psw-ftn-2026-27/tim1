@@ -45,3 +45,47 @@ export interface TourPreferenceDto {
   tags: string[];
   opensSearch: boolean;
 }
+
+export interface CoordinateDto {
+  latitude: number;
+  longitude: number;
+}
+
+export interface KeypointDto {
+  id: string;
+  name: string;
+  description: string;
+  imageId: string;
+  secret: string | null;
+  location: CoordinateDto;
+  publiclyVisible: boolean;
+}
+
+export interface TourManagementDto {
+  id: string;
+  name: string;
+  description: string;
+  length: number;
+  keypoints: KeypointDto[];
+}
+
+export interface AddKeypointDto {
+  name: string;
+  description: string;
+  imageId: string;
+  secret: string | null;
+  location: CoordinateDto;
+  publiclyVisible: boolean;
+}
+
+export interface UpdateKeypointDto {
+  name: string;
+  description: string;
+  imageId: string;
+  secret: string | null;
+  location: CoordinateDto;
+}
+
+export interface SetKeypointVisibilityDto {
+  publiclyVisible: boolean;
+}

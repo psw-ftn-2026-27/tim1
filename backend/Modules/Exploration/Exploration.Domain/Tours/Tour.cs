@@ -6,8 +6,10 @@ namespace Exploration.Domain.Tours;
 public sealed class Tour : AggregateRoot
 {
     private const int MinimumDescriptionLengthForPublishing = 100;
+    private const int MinimumKeypointsForPublishing = 2;
 
     private readonly List<TransportTime> _transportTimes = [];
+    private readonly List<Keypoint> _keypoints = [];
 
     public Guid AuthorId { get; private set; }
     public string Name { get; private set; }
@@ -19,6 +21,8 @@ public sealed class Tour : AggregateRoot
     public DateTime? ArchivedAt { get; private set; }
     public GroupSize GroupSize { get; private set; }
     public IReadOnlyList<TransportTime> TransportTimes => _transportTimes;
+    public IReadOnlyList<Keypoint> Keypoints => _keypoints;
+    public double Length { get; private set; }
 
     private Tour()
     {
@@ -67,6 +71,37 @@ public sealed class Tour : AggregateRoot
         _transportTimes.Add(new TransportTime(transport, minutes));
     }
 
+    public void AddKeypoint(string name, string description, Guid imageId, string? secret, bool publiclyVisible, Coordinate location)
+    {
+        EnsureDraft();
+
+        _keypoints.Add(new Keypoint(name, description, imageId, secret, publiclyVisible, location));
+        RecalculateLength();
+    }
+
+    public void UpdateKeypoint(Guid keypointId, string name, string description, Guid imageId, string? secret, Coordinate location)
+    {
+        EnsureDraft();
+
+        FindKeypoint(keypointId).Update(name, description, imageId, secret, location);
+        RecalculateLength();
+    }
+
+    public void RemoveKeypoint(Guid keypointId)
+    {
+        EnsureDraft();
+
+        _keypoints.Remove(FindKeypoint(keypointId));
+        RecalculateLength();
+    }
+
+    public void SetKeypointVisibility(Guid keypointId, bool publiclyVisible)
+    {
+        EnsureDraft();
+
+        FindKeypoint(keypointId).SetPubliclyVisible(publiclyVisible);
+    }
+
     public void Publish(decimal price)
     {
         if (Status != TourStatus.Draft)
@@ -85,6 +120,10 @@ public sealed class Tour : AggregateRoot
         if (_transportTimes.Count == 0)
         {
             throw new DomainException("A tour can be published only with at least one transport time.");
+        }
+        if (_keypoints.Count < MinimumKeypointsForPublishing)
+        {
+            throw new DomainException($"A tour can be published only with at least {MinimumKeypointsForPublishing} keypoints.");
         }
 
         Status = TourStatus.Published;
@@ -111,5 +150,33 @@ public sealed class Tour : AggregateRoot
 
         Status = TourStatus.Published;
         ArchivedAt = null;
+    }
+
+    private void EnsureDraft()
+    {
+        if (Status != TourStatus.Draft)
+        {
+            throw new DomainException("Keypoints can be changed only while the tour is a draft.");
+        }
+    }
+
+    private Keypoint FindKeypoint(Guid keypointId)
+    {
+        var keypoint = _keypoints.FirstOrDefault(candidate => candidate.Id == keypointId);
+        if (keypoint is null)
+        {
+            throw new NotFoundException($"Keypoint {keypointId} does not exist.");
+        }
+        return keypoint;
+    }
+
+    private void RecalculateLength()
+    {
+        var length = 0.0;
+        for (var index = 1; index < _keypoints.Count; index++)
+        {
+            length += _keypoints[index - 1].Location.DistanceTo(_keypoints[index].Location);
+        }
+        Length = length;
     }
 }

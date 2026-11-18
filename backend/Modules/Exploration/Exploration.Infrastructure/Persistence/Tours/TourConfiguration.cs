@@ -24,5 +24,13 @@ internal static class TourConfiguration
             transportTimes.ToJson();
             transportTimes.Property(time => time.Transport).HasConversion<string>();
         });
+
+        builder.OwnsMany(tour => tour.Keypoints, keypoints =>
+        {
+            keypoints.ToJson();
+            keypoints.Property(keypoint => keypoint.Id).ValueGeneratedNever();
+            keypoints.Property(keypoint => keypoint.Name).HasMaxLength(200);
+            keypoints.OwnsOne(keypoint => keypoint.Location);
+        });
     }
 }

@@ -1,0 +1,24 @@
+<div class="card stack">
+  <p><a [routerLink]="['/exploration/tour', id(), 'manage']">← Manage tour</a></p>
+  <h1>Add keypoint</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (management.hasValue()) {
+    <app-keypoint-form
+      [fields]="fields"
+      [pins]="pins()"
+      [upload]="uploadImage"
+      [showVisibility]="true"
+      [pending]="pending()"
+      saveLabel="Save"
+      (save)="add($event)"
+    />
+  } @else if (management.isLoading()) {
+    <p>Loading the tour...</p>
+  } @else {
+    <p class="error">Could not load the tour.</p>
+  }
+</div>

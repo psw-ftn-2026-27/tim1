@@ -1,3 +1,4 @@
+using Exploration.Application.KeypointAuthoring;
 using Exploration.Application.TourBrowsing;
 using Exploration.Application.Tours;
 using Exploration.Domain.Tours;
@@ -43,6 +44,34 @@ internal sealed class TourReadRepository : ITourReadRepository
             .Distinct()
             .OrderBy(tag => tag)
             .ToListAsync();
+    }
+
+    public Task<TourManagementDto?> GetManagementAsync(Guid tourId, Guid authorId)
+    {
+        return _dbContext.Tours
+            .Where(tour => tour.Id == tourId && tour.AuthorId == authorId)
+            .Select(tour => new TourManagementDto(
+                tour.Id,
+                tour.Name,
+                tour.Description,
+                tour.Length,
+                tour.Keypoints
+                    .Select(keypoint => new KeypointDto(
+                        keypoint.Id,
+                        keypoint.Name,
+                        keypoint.Description,
+                        keypoint.ImageId,
+                        keypoint.Secret,
+                        new CoordinateDto(keypoint.Location.Latitude, keypoint.Location.Longitude),
+                        keypoint.PubliclyVisible))
+                    .ToList()))
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<KeypointDto?> GetKeypointAsync(Guid tourId, Guid authorId, Guid keypointId)
+    {
+        var management = await GetManagementAsync(tourId, authorId);
+        return management?.Keypoints.FirstOrDefault(keypoint => keypoint.Id == keypointId);
     }
 
     private static IQueryable<Tour> ApplyFilters(IQueryable<Tour> tours, TourSearchDto search)

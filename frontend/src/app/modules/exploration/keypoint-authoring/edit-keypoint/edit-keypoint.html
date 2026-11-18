@@ -1,0 +1,50 @@
+<div class="card stack">
+  <p><a [routerLink]="['/exploration/tour', id(), 'manage']">← Manage tour</a></p>
+  <h1>Edit keypoint</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (keypoint.hasValue()) {
+    @let details = keypoint.value();
+    <app-protected-image [src]="imageUrl()" />
+
+    @if (editing()) {
+      @if (management.hasValue()) {
+        <app-keypoint-form
+          [fields]="fields"
+          [pins]="pins()"
+          [editedPinIndex]="editedPinIndex()"
+          [upload]="uploadImage"
+          [currentImageId]="details.imageId"
+          [pending]="pending()"
+          saveLabel="Save"
+          (save)="update($event)"
+        />
+      } @else if (management.isLoading()) {
+        <p>Loading the tour...</p>
+      } @else {
+        <p class="error">Could not load the tour.</p>
+      }
+      <button class="button" type="button" (click)="cancelEdit()">Cancel</button>
+    } @else {
+      <h2>{{ details.name }}</h2>
+      <p>{{ details.description }}</p>
+      @if (details.secret) {
+        <p><strong>Secret:</strong> {{ details.secret }}</p>
+      }
+      <p class="meta">
+        Location: {{ details.location.latitude.toFixed(5) }},
+        {{ details.location.longitude.toFixed(5) }}
+      </p>
+      <button class="button button--primary" type="button" (click)="startEdit(details)">
+        Edit
+      </button>
+    }
+  } @else if (keypoint.isLoading()) {
+    <p>Loading the keypoint...</p>
+  } @else {
+    <p class="error">Could not load the keypoint.</p>
+  }
+</div>
