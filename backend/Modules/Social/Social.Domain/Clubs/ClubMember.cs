@@ -14,4 +14,10 @@ public sealed class ClubMember : Entity
         UserId = userId;
         Role = role;
     }
+
+    // Internal so that only the Club aggregate changes a role and guards the role rules.
+    internal void ChangeRole(ClubRole role)
+    {
+        Role = role;
+    }
 }

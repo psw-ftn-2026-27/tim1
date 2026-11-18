@@ -117,6 +117,34 @@ public sealed class Club : AggregateRoot
         _invitations.Remove(GetInvitation(userId));
     }
 
+    // P1, P2. The "only an active club" part of P1 belongs here once the club gets a status.
+    public void PromoteToModerator(Guid ownerId, Guid memberId)
+    {
+        EnsureIsOwner(ownerId);
+        var member = _members.FirstOrDefault(member => member.UserId == memberId);
+        if (member is null || member.Role != ClubRole.Member)
+        {
+            throw new DomainException("Only an ordinary club member can be promoted to moderator.");
+        }
+
+        member.ChangeRole(ClubRole.Moderator);
+    }
+
+    // P1, P3, P4, P5, P6. The "only an active club" part of P1 belongs here once the club gets a status.
+    public void TransferOwnership(Guid ownerId, Guid memberId)
+    {
+        var owner = EnsureIsOwner(ownerId);
+        var newOwner = _members.FirstOrDefault(member => member.UserId == memberId);
+        if (newOwner is null || memberId == ownerId)
+        {
+            throw new DomainException("Ownership can only be transferred to another club member.");
+        }
+
+        owner.ChangeRole(ClubRole.Member);
+        newOwner.ChangeRole(ClubRole.Owner);
+        OwnerId = memberId;
+    }
+
     private bool IsMember(Guid userId)
     {
         return _members.Any(member => member.UserId == userId);
@@ -159,6 +187,16 @@ public sealed class Club : AggregateRoot
         {
             throw new DomainException("Only the club owner or a moderator can resolve membership requests.");
         }
+    }
+
+    private ClubMember EnsureIsOwner(Guid ownerId)
+    {
+        var owner = _members.FirstOrDefault(member => member.UserId == ownerId && member.Role == ClubRole.Owner);
+        if (owner is null)
+        {
+            throw new DomainException("Only the club owner can change member roles.");
+        }
+        return owner;
     }
 
     private MembershipRequest GetMembershipRequest(Guid userId)

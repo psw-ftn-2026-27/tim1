@@ -13,10 +13,14 @@ public class ClubTests
     private static readonly Guid OrdinaryMember = Guid.Parse("00000000-0000-0000-0000-000000000010");
     private static readonly Guid Outsider = Guid.Parse("00000000-0000-0000-0000-000000000011");
     private static readonly Guid Invitee = Guid.Parse("00000000-0000-0000-0000-000000000012");
+    private static readonly Guid Moderator = Guid.Parse("00000000-0000-0000-0000-000000000013");
 
     public static TheoryData<Guid> UsersWhoCannotResolveRequests => [OrdinaryMember, Outsider];
     public static TheoryData<Guid> UsersWhoCannotInvite => [OrdinaryMember, Outsider];
     public static TheoryData<Guid> UsersWhoCannotBeInvited => [OrdinaryMember, Invitee, Requester];
+    public static TheoryData<Guid> UsersWhoAreNotTheOwner => [Moderator, OrdinaryMember, Outsider];
+    public static TheoryData<Guid> UsersWhoAreNotOrdinaryMembers => [Owner, Moderator, Outsider];
+    public static TheoryData<Guid> UsersWhoCannotReceiveOwnership => [Owner, Outsider];
 
     private static Club CreateClub() =>
         new(Owner, "Planinari", "Klub ljubitelja planinarenja.", ["https://example.com/planinari.jpg"]);
@@ -34,6 +38,15 @@ public class ClubTests
     {
         var club = CreateClubWithOrdinaryMemberAndPendingRequest();
         club.InviteMember(Owner, Invitee);
+        return club;
+    }
+
+    private static Club CreateClubWithModeratorOrdinaryMemberAndPendingRequest()
+    {
+        var club = CreateClubWithOrdinaryMemberAndPendingRequest();
+        club.RequestMembership(Moderator);
+        club.AcceptMembershipRequest(Owner, Moderator);
+        club.PromoteToModerator(Owner, Moderator);
         return club;
     }
 
@@ -214,5 +227,86 @@ public class ClubTests
         club.Members.Should().ContainSingle(member => member.UserId == Invitee)
             .Which.Role.Should().Be(ClubRole.Member);
         club.Invitations.Should().BeEmpty();
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoAreNotTheOwner))]
+    public void Only_the_owner_can_promote_a_member_to_moderator(Guid promoterId)
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        var promotion = () => club.PromoteToModerator(promoterId, OrdinaryMember);
+
+        promotion.Should().Throw<DomainException>();
+        club.Members.Should().ContainSingle(member => member.UserId == OrdinaryMember)
+            .Which.Role.Should().Be(ClubRole.Member);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoAreNotTheOwner))]
+    public void Only_the_owner_can_transfer_ownership(Guid transferrerId)
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        var transfer = () => club.TransferOwnership(transferrerId, OrdinaryMember);
+
+        transfer.Should().Throw<DomainException>();
+        club.OwnerId.Should().Be(Owner);
+        club.Members.Should().ContainSingle(member => member.Role == ClubRole.Owner)
+            .Which.UserId.Should().Be(Owner);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoAreNotOrdinaryMembers))]
+    public void Only_an_ordinary_member_can_be_promoted_to_moderator(Guid userId)
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+        var rolesBefore = club.Members.Select(member => (member.UserId, member.Role)).ToList();
+
+        var promotion = () => club.PromoteToModerator(Owner, userId);
+
+        promotion.Should().Throw<DomainException>();
+        club.Members.Select(member => (member.UserId, member.Role)).Should().BeEquivalentTo(rolesBefore);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoCannotReceiveOwnership))]
+    public void Ownership_cannot_be_transferred_to_a_non_member_or_to_the_owner(Guid userId)
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        var transfer = () => club.TransferOwnership(Owner, userId);
+
+        transfer.Should().Throw<DomainException>();
+        club.OwnerId.Should().Be(Owner);
+        club.Members.Should().ContainSingle(member => member.Role == ClubRole.Owner)
+            .Which.UserId.Should().Be(Owner);
+    }
+
+    [Fact]
+    public void After_the_transfer_the_moderator_is_the_only_owner_and_the_old_owner_is_an_ordinary_member()
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        club.TransferOwnership(Owner, Moderator);
+
+        club.Members.Should().ContainSingle(member => member.Role == ClubRole.Owner)
+            .Which.UserId.Should().Be(Moderator);
+        club.Members.Should().NotContain(member => member.Role == ClubRole.Moderator);
+        club.Members.Should().ContainSingle(member => member.UserId == Owner)
+            .Which.Role.Should().Be(ClubRole.Member);
+        club.OwnerId.Should().Be(Moderator);
+    }
+
+    [Fact]
+    public void Moderator_accepts_a_request_and_the_requester_becomes_an_ordinary_member()
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+
+        club.AcceptMembershipRequest(Moderator, Requester);
+
+        club.Members.Should().ContainSingle(member => member.UserId == Requester)
+            .Which.Role.Should().Be(ClubRole.Member);
+        club.MembershipRequests.Should().NotContain(request => request.UserId == Requester);
     }
 }

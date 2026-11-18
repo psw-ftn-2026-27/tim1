@@ -10,6 +10,7 @@ internal static class ClubSeed
     public static readonly Club SecondExplorersCyclingClub = new(WellKnownUsers.SecondExplorer, "Biciklisti", "Klub drugog osnivača za vožnju bicikla uz Dunav.", ["https://example.com/biciklisti.jpg"]);
     public static readonly Club RunnersClubWithSecondExplorersPendingRequest;
     public static readonly Club SwimmersClubWithSecondExplorersPendingInvitation;
+    public static readonly Club ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest;
 
     static ClubSeed()
     {
@@ -18,7 +19,13 @@ internal static class ClubSeed
 
         SwimmersClubWithSecondExplorersPendingInvitation = new(WellKnownUsers.Explorer, "Plivači", "Klub ljubitelja plivanja na Štrandu.", ["https://example.com/plivaci.jpg"]);
         SwimmersClubWithSecondExplorersPendingInvitation.InviteMember(WellKnownUsers.Explorer, WellKnownUsers.SecondExplorer);
+
+        ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest = new(WellKnownUsers.Explorer, "Čitaoci", "Klub ljubitelja putopisa.", ["https://example.com/citaoci.jpg"]);
+        ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.RequestMembership(WellKnownUsers.SecondExplorer);
+        ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.AcceptMembershipRequest(WellKnownUsers.Explorer, WellKnownUsers.SecondExplorer);
+        ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.PromoteToModerator(WellKnownUsers.Explorer, WellKnownUsers.SecondExplorer);
+        ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.RequestMembership(DemoUsers.ThirdExplorer);
     }
 
-    public static Club[] All => [HikersClub, PhotographersClub, SecondExplorersCyclingClub, RunnersClubWithSecondExplorersPendingRequest, SwimmersClubWithSecondExplorersPendingInvitation];
+    public static Club[] All => [HikersClub, PhotographersClub, SecondExplorersCyclingClub, RunnersClubWithSecondExplorersPendingRequest, SwimmersClubWithSecondExplorersPendingInvitation, ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest];
 }

@@ -50,6 +50,9 @@
             }
             @case ('Member') {
               <p>You are a member of this club.</p>
+              @if (canSeeRequests()) {
+                <p><a [routerLink]="['/social/clubs', club.id, 'requests']">Requests</a></p>
+              }
             }
           }
         }
@@ -57,6 +60,10 @@
 
       <section class="stack">
         <h2>Members</h2>
+
+        @if (roleError()) {
+          <p class="error">{{ roleError() }}</p>
+        }
 
         @if (members.isLoading()) {
           <p>Loading members...</p>
@@ -68,17 +75,62 @@
               <tr>
                 <th scope="col">User</th>
                 <th scope="col">Role</th>
+                @if (isOwner()) {
+                  <th scope="col">Actions</th>
+                }
               </tr>
             </thead>
             <tbody>
               @for (member of members.value() ?? []; track member.userId) {
                 <tr>
-                  <td>{{ member.userId }}</td>
+                  <td>{{ member.displayName }}</td>
                   <td>{{ member.role }}</td>
+                  @if (isOwner()) {
+                    <td>
+                      @if (member.role !== 'Owner') {
+                        @if (transferringToUserId() === member.userId) {
+                          <div class="actions">
+                            <span>Are you sure?</span>
+                            <button
+                              class="button button--primary"
+                              type="button"
+                              [disabled]="pending()"
+                              (click)="confirmTransfer(member.userId)"
+                            >
+                              Confirm
+                            </button>
+                            <button class="button" type="button" (click)="cancelTransfer()">
+                              Cancel
+                            </button>
+                          </div>
+                        } @else {
+                          <div class="actions">
+                            @if (member.role === 'Member') {
+                              <button
+                                class="button"
+                                type="button"
+                                [disabled]="pending()"
+                                (click)="promote(member.userId)"
+                              >
+                                Make moderator
+                              </button>
+                            }
+                            <button
+                              class="button"
+                              type="button"
+                              (click)="startTransfer(member.userId)"
+                            >
+                              Transfer ownership
+                            </button>
+                          </div>
+                        }
+                      }
+                    </td>
+                  }
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="2">No members yet.</td>
+                  <td [attr.colspan]="isOwner() ? 3 : 2">No members yet.</td>
                 </tr>
               }
             </tbody>
