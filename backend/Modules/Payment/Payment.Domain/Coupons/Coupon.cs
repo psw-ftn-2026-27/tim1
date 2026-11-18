@@ -47,6 +47,26 @@ public sealed class Coupon : AggregateRoot
         Code = RandomNumberGenerator.GetString(CodeAlphabet, CodeLength);
     }
 
+    /// <summary>
+    /// Spends the coupon. A coupon that was used or has expired is refused, so it buys at most once.
+    /// The moment is a parameter, the way <see cref="StatusAt"/> takes it, so expiry can be tested.
+    /// </summary>
+    public void Use(DateTime now)
+    {
+        EnsureValidAt(now);
+
+        UsedAt = now;
+    }
+
+    /// <summary>Refuses a coupon that is used or has expired, without spending it.</summary>
+    public void EnsureValidAt(DateTime now)
+    {
+        if (StatusAt(now) != CouponStatus.Valid)
+        {
+            throw new DomainException("The coupon is not valid: it is already used or has expired.");
+        }
+    }
+
     public CouponStatus StatusAt(DateTime now)
     {
         if (UsedAt is not null)

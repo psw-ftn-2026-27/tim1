@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Payment.Application.Checkout;
 using Payment.Application.GiftCards;
 using Payment.Domain.GiftCards;
 using Shared.Domain;
@@ -30,6 +31,18 @@ internal sealed class GiftCardReadRepository : IGiftCardReadRepository
 
         return _dbContext.GiftCards.CountAsync(giftCard =>
             giftCard.RecipientId == recipientId && giftCard.UsedAt == null && giftCard.ExpiresAt >= now);
+    }
+
+    // Mirrors the validity of GiftCard.StatusAt, because a list is projected and never loads aggregates.
+    public Task<List<UsableGiftCardDto>> GetValidReceivedAsync(Guid recipientId)
+    {
+        var now = DateTime.UtcNow;
+
+        return _dbContext.GiftCards
+            .Where(giftCard => giftCard.RecipientId == recipientId && giftCard.UsedAt == null && giftCard.ExpiresAt >= now)
+            .OrderBy(giftCard => giftCard.ExpiresAt)
+            .Select(giftCard => new UsableGiftCardDto(giftCard.Id, giftCard.Amount, giftCard.ExpiresAt))
+            .ToListAsync();
     }
 
     // Display names live in Identity, so they stay empty here and the queries class fills them in.

@@ -70,6 +70,7 @@ public static class PaymentModuleExtensions
     {
         services.AddScoped<CartAddition>();
         services.AddScoped<CartCheckout>();
+        services.AddScoped<CartPricing>();
         services.AddScoped<CouponIssuance>();
     }
 
@@ -86,6 +87,7 @@ public static class PaymentModuleExtensions
         services.AddScoped<ShoppingCartService>();
         services.AddScoped<ShoppingCartQueries>();
         services.AddScoped<CheckoutService>();
+        services.AddScoped<CheckoutQueries>();
         services.AddScoped<PurchaseVerificationQueries>();
         services.AddScoped<CouponsService>();
         services.AddScoped<CouponsQueries>();

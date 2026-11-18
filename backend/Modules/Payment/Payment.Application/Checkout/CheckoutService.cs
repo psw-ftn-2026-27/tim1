@@ -1,7 +1,11 @@
+using Payment.Application.Coupons;
+using Payment.Application.GiftCards;
 using Payment.Application.Products;
 using Payment.Application.Purchases;
 using Payment.Application.ShoppingCarts;
 using Payment.Application.Wallets;
+using Payment.Domain.Coupons;
+using Payment.Domain.GiftCards;
 using Payment.Domain.Products;
 using Payment.Domain.Purchases;
 using Payment.Domain.Wallets;
@@ -15,6 +19,8 @@ public sealed class CheckoutService
     private readonly IProductRepository _productRepository;
     private readonly IWalletRepository _walletRepository;
     private readonly IPurchaseRepository _purchaseRepository;
+    private readonly ICouponRepository _couponRepository;
+    private readonly IGiftCardRepository _giftCardRepository;
     private readonly CartCheckout _cartCheckout;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -23,6 +29,8 @@ public sealed class CheckoutService
         IProductRepository productRepository,
         IWalletRepository walletRepository,
         IPurchaseRepository purchaseRepository,
+        ICouponRepository couponRepository,
+        IGiftCardRepository giftCardRepository,
         CartCheckout cartCheckout,
         IUnitOfWork unitOfWork)
     {
@@ -30,6 +38,8 @@ public sealed class CheckoutService
         _productRepository = productRepository;
         _walletRepository = walletRepository;
         _purchaseRepository = purchaseRepository;
+        _couponRepository = couponRepository;
+        _giftCardRepository = giftCardRepository;
         _cartCheckout = cartCheckout;
         _unitOfWork = unitOfWork;
     }
@@ -37,9 +47,11 @@ public sealed class CheckoutService
     /// <summary>
     /// Pays for everything the customer has in their cart. The wallets, the purchases and the
     /// emptied cart are written by the single save at the end, so a checkout the domain refuses
-    /// leaves the database untouched.
+    /// leaves the database untouched. The coupon and the gift card, when given, are looked up
+    /// here and spent by the domain, which prices the cart itself instead of trusting a price
+    /// from the client.
     /// </summary>
-    public async Task CheckoutAsync(Guid customerId)
+    public async Task CheckoutAsync(Guid customerId, string? couponCode, Guid? giftCardId)
     {
         var cart = await _cartRepository.GetByOwnerAsync(customerId);
         if (cart is null)
@@ -53,7 +65,22 @@ public sealed class CheckoutService
         var sellerWallets = await SellerWalletsOfAsync(products);
         var ownedPurchases = await _purchaseRepository.GetOfBuyerAsync(customerId, references);
 
-        var purchases = _cartCheckout.Checkout(cart, products, buyerWallet, sellerWallets, ownedPurchases);
+        Coupon? coupon = null;
+        if (!string.IsNullOrWhiteSpace(couponCode))
+        {
+            coupon = await _couponRepository.GetByCodeAsync(couponCode)
+                ?? throw new NotFoundException("The coupon does not exist.");
+        }
+
+        GiftCard? giftCard = null;
+        if (giftCardId is not null)
+        {
+            giftCard = await _giftCardRepository.GetByIdAsync(giftCardId.Value)
+                ?? throw new NotFoundException("The gift card does not exist.");
+        }
+
+        var purchases = _cartCheckout.Checkout(
+            cart, products, buyerWallet, sellerWallets, ownedPurchases, coupon, giftCard);
         foreach (var purchase in purchases)
         {
             _purchaseRepository.Add(purchase);

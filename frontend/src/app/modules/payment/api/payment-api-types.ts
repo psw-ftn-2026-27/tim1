@@ -139,3 +139,23 @@ export interface CreateCouponDto {
   percent: number;
   expiresAt: string;
 }
+
+export interface CheckoutDto {
+  couponCode: string | null;
+  giftCardId: string | null;
+}
+
+export interface PriceDto {
+  total: number;
+  couponDiscount: number;
+  couponProductName: string | null;
+  cardDiscount: number;
+  finalPrice: number;
+  cardLost: number;
+}
+
+export interface UsableGiftCardDto {
+  id: string;
+  amount: number;
+  expiresAt: string;
+}

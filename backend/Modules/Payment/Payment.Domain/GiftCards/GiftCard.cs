@@ -46,6 +46,31 @@ public sealed class GiftCard : AggregateRoot
         ExpiresAt = CreatedAt.AddYears(ValidYears);
     }
 
+    /// <summary>
+    /// Spends the card for its recipient, whole. A card meant for someone else, used or expired is
+    /// refused. The moment is a parameter, the way <see cref="StatusAt"/> takes it, so expiry can be tested.
+    /// </summary>
+    public void Use(Guid buyerId, DateTime now)
+    {
+        EnsureUsableBy(buyerId, now);
+
+        UsedAt = now;
+    }
+
+    /// <summary>Refuses a card meant for someone else, used or expired, without spending it.</summary>
+    public void EnsureUsableBy(Guid buyerId, DateTime now)
+    {
+        if (buyerId != RecipientId)
+        {
+            throw new DomainException("The gift card was not given to you.");
+        }
+
+        if (StatusAt(now) != GiftCardStatus.Valid)
+        {
+            throw new DomainException("The gift card is not valid: it is already used or has expired.");
+        }
+    }
+
     public GiftCardStatus StatusAt(DateTime now)
     {
         if (UsedAt is not null)

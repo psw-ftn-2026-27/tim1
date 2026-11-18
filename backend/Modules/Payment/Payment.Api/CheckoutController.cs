@@ -11,16 +11,31 @@ namespace Payment.Api;
 public sealed class CheckoutController : ControllerBase
 {
     private readonly CheckoutService _checkoutService;
+    private readonly CheckoutQueries _checkoutQueries;
 
-    public CheckoutController(CheckoutService checkoutService)
+    public CheckoutController(CheckoutService checkoutService, CheckoutQueries checkoutQueries)
     {
         _checkoutService = checkoutService;
+        _checkoutQueries = checkoutQueries;
     }
 
-    [HttpPost("checkout")]
-    public async Task<ActionResult> Checkout()
+    [HttpGet("price")]
+    public async Task<ActionResult<PriceDto>> GetPrice([FromQuery] string? couponCode, [FromQuery] Guid? giftCardId)
     {
-        await _checkoutService.CheckoutAsync(User.GetUserId());
+        return await _checkoutQueries.GetPriceAsync(User.GetUserId(), couponCode, giftCardId);
+    }
+
+    [HttpGet("usable-gift-cards")]
+    public async Task<ActionResult<List<UsableGiftCardDto>>> GetUsableGiftCards()
+    {
+        return await _checkoutQueries.GetUsableGiftCardsAsync(User.GetUserId());
+    }
+
+    // The body is optional, so a client that posts nothing still buys the cart without a discount.
+    [HttpPost("checkout")]
+    public async Task<ActionResult> Checkout([FromBody] CheckoutDto? dto = null)
+    {
+        await _checkoutService.CheckoutAsync(User.GetUserId(), dto?.CouponCode, dto?.GiftCardId);
         return NoContent();
     }
 }
