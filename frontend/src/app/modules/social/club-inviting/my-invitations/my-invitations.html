@@ -1,0 +1,57 @@
+<div class="stack">
+  <p><a routerLink="/social/clubs">Back to clubs</a></p>
+
+  <h1>My invitations</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (invitations.isLoading()) {
+    <p>Loading invitations...</p>
+  } @else if (invitations.error()) {
+    <p class="error">Could not load your invitations. Log in and try again.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Club</th>
+          <th scope="col">Invited at</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invitation of invitations.value() ?? []; track invitation.clubId) {
+          <tr>
+            <td>{{ invitation.clubName }}</td>
+            <td>{{ invitation.createdAt }}</td>
+            <td>
+              <div class="actions">
+                <button
+                  class="button button--primary"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="accept(invitation.clubId)"
+                >
+                  Accept
+                </button>
+                <button
+                  class="button"
+                  type="button"
+                  [disabled]="pending()"
+                  (click)="reject(invitation.clubId)"
+                >
+                  Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3">No pending invitations.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

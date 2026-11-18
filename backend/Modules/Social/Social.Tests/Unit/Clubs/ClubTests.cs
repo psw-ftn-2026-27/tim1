@@ -12,8 +12,11 @@ public class ClubTests
     private static readonly Guid Requester = WellKnownUsers.SecondExplorer;
     private static readonly Guid OrdinaryMember = Guid.Parse("00000000-0000-0000-0000-000000000010");
     private static readonly Guid Outsider = Guid.Parse("00000000-0000-0000-0000-000000000011");
+    private static readonly Guid Invitee = Guid.Parse("00000000-0000-0000-0000-000000000012");
 
     public static TheoryData<Guid> UsersWhoCannotResolveRequests => [OrdinaryMember, Outsider];
+    public static TheoryData<Guid> UsersWhoCannotInvite => [OrdinaryMember, Outsider];
+    public static TheoryData<Guid> UsersWhoCannotBeInvited => [OrdinaryMember, Invitee, Requester];
 
     private static Club CreateClub() =>
         new(Owner, "Planinari", "Klub ljubitelja planinarenja.", ["https://example.com/planinari.jpg"]);
@@ -24,6 +27,13 @@ public class ClubTests
         club.RequestMembership(OrdinaryMember);
         club.AcceptMembershipRequest(Owner, OrdinaryMember);
         club.RequestMembership(Requester);
+        return club;
+    }
+
+    private static Club CreateClubWithOrdinaryMemberPendingRequestAndPendingInvitation()
+    {
+        var club = CreateClubWithOrdinaryMemberAndPendingRequest();
+        club.InviteMember(Owner, Invitee);
         return club;
     }
 
@@ -155,5 +165,54 @@ public class ClubTests
 
         acceptance.Should().Throw<NotFoundException>();
         club.Members.Should().NotContain(member => member.UserId == Requester);
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoCannotInvite))]
+    public void Only_the_club_owner_can_invite_a_user(Guid inviterId)
+    {
+        var club = CreateClubWithOrdinaryMemberAndPendingRequest();
+
+        var invitation = () => club.InviteMember(inviterId, Invitee);
+
+        invitation.Should().Throw<DomainException>();
+        club.Invitations.Should().BeEmpty();
+    }
+
+    [Theory]
+    [MemberData(nameof(UsersWhoCannotBeInvited))]
+    public void Club_member_already_invited_user_or_user_with_a_pending_request_cannot_be_invited(Guid userId)
+    {
+        var club = CreateClubWithOrdinaryMemberPendingRequestAndPendingInvitation();
+
+        var invitation = () => club.InviteMember(Owner, userId);
+
+        invitation.Should().Throw<DomainException>();
+        club.Invitations.Should().ContainSingle().Which.UserId.Should().Be(Invitee);
+    }
+
+    [Fact]
+    public void User_with_a_pending_invitation_cannot_request_membership_in_the_same_club()
+    {
+        var club = CreateClub();
+        club.InviteMember(Owner, Invitee);
+
+        var request = () => club.RequestMembership(Invitee);
+
+        request.Should().Throw<DomainException>();
+        club.MembershipRequests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Invited_user_who_accepts_becomes_an_ordinary_member_and_their_invitation_is_gone()
+    {
+        var club = CreateClub();
+        club.InviteMember(Owner, Invitee);
+
+        club.AcceptInvitation(Invitee);
+
+        club.Members.Should().ContainSingle(member => member.UserId == Invitee)
+            .Which.Role.Should().Be(ClubRole.Member);
+        club.Invitations.Should().BeEmpty();
     }
 }

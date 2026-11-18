@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain;
+using Social.Application.ClubInviting;
 using Social.Application.ClubMembership;
 using Social.Application.Clubs;
 using Social.Domain.Clubs;
@@ -72,6 +73,29 @@ internal sealed class ClubReadRepository : IClubReadRepository
                 .Select(request => new MembershipRequestDto(request.UserId, request.CreatedAt))
                 .ToList())
             .FirstOrDefaultAsync();
+    }
+
+    public Task<List<SentInvitationDto>?> GetSentInvitationsAsync(Guid clubId, Guid ownerId)
+    {
+        return _dbContext.Clubs
+            .Where(club => club.Id == clubId
+                && club.Members.Any(member => member.UserId == ownerId && member.Role == ClubRole.Owner))
+            .Select(club => club.Invitations
+                .OrderBy(invitation => invitation.CreatedAt)
+                .Select(invitation => new SentInvitationDto(invitation.UserId, "", invitation.CreatedAt))
+                .ToList())
+            .FirstOrDefaultAsync();
+    }
+
+    public Task<List<MyInvitationDto>> GetInvitationsOfUserAsync(Guid userId)
+    {
+        return _dbContext.Clubs
+            .SelectMany(
+                club => club.Invitations.Where(invitation => invitation.UserId == userId),
+                (club, invitation) => new { club.Id, club.Name, invitation.CreatedAt })
+            .OrderBy(row => row.CreatedAt)
+            .Select(row => new MyInvitationDto(row.Id, row.Name, row.CreatedAt))
+            .ToListAsync();
     }
 
     private static IQueryable<ClubDto> ProjectToDtos(IQueryable<Club> clubs)
