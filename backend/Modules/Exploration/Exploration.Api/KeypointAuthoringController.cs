@@ -22,15 +22,6 @@ public sealed class KeypointAuthoringController : ControllerBase
         _keypointQueries = keypointQueries;
     }
 
-    // The request body limit is global (Host.Api), so this endpoint needs no size attribute;
-    // the shared image processor checks the file size again while reading it.
-    [HttpPost("keypoint-images")]
-    public async Task<ActionResult<Guid>> UploadKeypointImage(IFormFile file)
-    {
-        await using var content = file.OpenReadStream();
-        return await _keypointService.UploadKeypointImageAsync(User.GetUserId(), content);
-    }
-
     [HttpPost("{id:guid}/keypoints")]
     public async Task<ActionResult> AddKeypoint(Guid id, AddKeypointDto dto)
     {

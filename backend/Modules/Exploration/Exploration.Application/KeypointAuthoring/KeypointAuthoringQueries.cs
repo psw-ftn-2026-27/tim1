@@ -7,16 +7,16 @@ namespace Exploration.Application.KeypointAuthoring;
 public sealed class KeypointAuthoringQueries
 {
     private readonly ITourReadRepository _tourReadRepository;
-    private readonly IImageRepository _imageRepository;
+    private readonly IImageReadRepository _imageReadRepository;
     private readonly IImageStorage _imageStorage;
 
     public KeypointAuthoringQueries(
         ITourReadRepository tourReadRepository,
-        IImageRepository imageRepository,
+        IImageReadRepository imageReadRepository,
         IImageStorage imageStorage)
     {
         _tourReadRepository = tourReadRepository;
-        _imageRepository = imageRepository;
+        _imageReadRepository = imageReadRepository;
         _imageStorage = imageStorage;
     }
 
@@ -45,14 +45,13 @@ public sealed class KeypointAuthoringQueries
     {
         var keypoint = await GetKeypointAsync(tourId, authorId, keypointId);
 
-        var images = await _imageRepository.GetByIdsAsync([keypoint.ImageId]);
-        var image = images.FirstOrDefault();
-        if (image is null)
+        var storedFileName = await _imageReadRepository.GetStoredFileNameAsync(keypoint.ImageId);
+        if (storedFileName is null)
         {
             throw new NotFoundException($"Image {keypoint.ImageId} does not exist.");
         }
 
-        var content = await _imageStorage.ReadAsync(image.StoredFileName);
+        var content = await _imageStorage.ReadAsync(storedFileName);
         if (content is null)
         {
             throw new NotFoundException($"Image {keypoint.ImageId} does not exist.");

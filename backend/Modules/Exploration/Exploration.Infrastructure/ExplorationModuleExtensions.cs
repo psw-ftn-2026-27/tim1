@@ -1,6 +1,7 @@
 using Exploration.Application;
 using Exploration.Application.Images;
 using Exploration.Application.KeypointAuthoring;
+using Exploration.Application.KeypointImageUpload;
 using Exploration.Application.TourAuthoring;
 using Exploration.Application.TourBrowsing;
 using Exploration.Application.TourPreferenceEditing;
@@ -34,6 +35,7 @@ public static class ExplorationModuleExtensions
         services.AddScoped<ITourReadRepository, TourReadRepository>();
 
         services.AddScoped<IImageRepository, ImageRepository>();
+        services.AddScoped<IImageReadRepository, ImageReadRepository>();
         services.AddSingleton<IImageProcessor, ImageProcessorAdapter>();
         services.AddSingleton<IImageStorage, ImageStorageAdapter>();
 
@@ -46,6 +48,7 @@ public static class ExplorationModuleExtensions
         services.AddScoped<TourAuthoringQueries>();
         services.AddScoped<KeypointAuthoringService>();
         services.AddScoped<KeypointAuthoringQueries>();
+        services.AddScoped<KeypointImageUploadService>();
         services.AddScoped<TourBrowsingQueries>();
         services.AddScoped<TourPreferenceEditingService>();
         services.AddScoped<TourPreferenceEditingQueries>();

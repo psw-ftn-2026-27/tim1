@@ -78,18 +78,27 @@ public sealed class Tour : AggregateRoot
         _keypoints.Add(new Keypoint(name, description, imageId, secret, publiclyVisible, location));
     }
 
-    public void UpdateKeypoint(Guid keypointId, string name, string description, Guid imageId, string? secret, Coordinate location)
+    // Returns the id of the image the keypoint no longer uses, or null when it keeps its image.
+    public Guid? UpdateKeypoint(Guid keypointId, string name, string description, Guid imageId, string? secret, Coordinate location)
     {
         EnsureDraft();
 
-        FindKeypoint(keypointId).Update(name, description, imageId, secret, location);
+        var keypoint = FindKeypoint(keypointId);
+        var previousImageId = keypoint.ImageId;
+        keypoint.Update(name, description, imageId, secret, location);
+
+        return previousImageId == imageId ? null : previousImageId;
     }
 
-    public void RemoveKeypoint(Guid keypointId)
+    // Returns the id of the image the removed keypoint used.
+    public Guid RemoveKeypoint(Guid keypointId)
     {
         EnsureDraft();
 
-        _keypoints.Remove(FindKeypoint(keypointId));
+        var keypoint = FindKeypoint(keypointId);
+        _keypoints.Remove(keypoint);
+
+        return keypoint.ImageId;
     }
 
     // The length is measured on the map by the client; the domain only checks that it is a sensible number.
