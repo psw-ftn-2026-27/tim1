@@ -1,0 +1,68 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment/products" aria-label="Back to the products">←</a>
+    <h1>My coupons</h1>
+  </div>
+
+  @if (coupons.isLoading()) {
+    <p>Loading coupons...</p>
+  } @else if (coupons.error()) {
+    <p class="alert alert--danger">Could not load the coupons. Try again later.</p>
+  } @else if (coupons.value(); as result) {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">Discount</th>
+          <th scope="col">Valid until</th>
+          <th scope="col">Product</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (coupon of result.items; track coupon.id) {
+          <tr>
+            <td>{{ coupon.code }}</td>
+            <td>{{ coupon.percent }}%</td>
+            <td>{{ formatDate(coupon.expiresAt) }}</td>
+            <td>{{ coupon.productName ?? 'Any product' }}</td>
+            <td>
+              <span
+                class="badge"
+                [class.badge--success]="coupon.status === 'Valid'"
+                [class.badge--info]="coupon.status === 'Used'"
+                [class.badge--danger]="coupon.status === 'Expired'"
+                >{{ coupon.status }}</span
+              >
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">You have not created any coupons yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if (result.totalCount > pageSize || page() > 1) {
+      <nav class="header" aria-label="Coupon pages">
+        <button type="button" class="button" [disabled]="page() === 1" (click)="page.set(page() - 1)">
+          Previous
+        </button>
+        <span>Page {{ page() }}</span>
+        <button
+          type="button"
+          class="button"
+          [disabled]="page() * pageSize >= result.totalCount"
+          (click)="page.set(page() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+
+  <div class="actions">
+    <a class="button button--primary create" routerLink="/payment/coupons/create">Create coupon</a>
+  </div>
+</div>
