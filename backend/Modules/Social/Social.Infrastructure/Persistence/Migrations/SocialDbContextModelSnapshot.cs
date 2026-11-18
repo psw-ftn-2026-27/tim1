@@ -114,6 +114,50 @@ namespace Social.Infrastructure.Persistence.Migrations
                     b.ToTable("Clubs", "social");
                 });
 
+            modelBuilder.Entity("Social.Domain.Clubs.ClubMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.ToTable("ClubMembers", "social");
+                });
+
+            modelBuilder.Entity("Social.Domain.Clubs.MembershipRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.ToTable("ClubMembershipRequests", "social");
+                });
+
             modelBuilder.Entity("Social.Domain.FollowRequests.FollowRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -186,9 +230,34 @@ namespace Social.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Social.Domain.Clubs.ClubMember", b =>
+                {
+                    b.HasOne("Social.Domain.Clubs.Club", null)
+                        .WithMany("Members")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Social.Domain.Clubs.MembershipRequest", b =>
+                {
+                    b.HasOne("Social.Domain.Clubs.Club", null)
+                        .WithMany("MembershipRequests")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Social.Domain.Blogs.Blog", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Social.Domain.Clubs.Club", b =>
+                {
+                    b.Navigation("Members");
+
+                    b.Navigation("MembershipRequests");
                 });
 #pragma warning restore 612, 618
         }

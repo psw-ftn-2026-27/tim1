@@ -121,3 +121,21 @@ export interface FollowCountsDto {
   followerCount: number;
   followingCount: number;
 }
+
+export type ClubRole = 'Owner' | 'Moderator' | 'Member';
+
+export interface ClubMemberDto {
+  userId: string;
+  role: ClubRole;
+}
+
+export type MembershipStatus = 'NotMember' | 'PendingRequest' | 'Member';
+
+export interface MyMembershipDto {
+  status: MembershipStatus;
+}
+
+export interface MembershipRequestDto {
+  userId: string;
+  createdAt: string;
+}

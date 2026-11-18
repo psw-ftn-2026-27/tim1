@@ -30,6 +30,7 @@ internal sealed class ProductReadRepository : IProductReadRepository
             .Select(product => new ProductDto(
                 product.Id,
                 product.Reference.EntityType,
+                product.Reference.EntityId,
                 product.Name,
                 product.Price,
                 product.OwnerId,
