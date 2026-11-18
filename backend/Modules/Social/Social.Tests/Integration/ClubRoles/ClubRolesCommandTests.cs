@@ -111,4 +111,30 @@ public class ClubRolesCommandTests : BaseIntegrationTest
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    [Fact]
+    public async Task Member_of_a_club_that_does_not_exist_cannot_be_removed()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var response = await client.DeleteAsync(
+            $"/api/social/clubs/{Guid.NewGuid()}/members/{WellKnownUsers.SecondExplorer}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Moderator_cannot_remove_the_owner_and_the_owner_stays_in_the_club()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var clubId = ClubSeed.ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.Id;
+
+        var response = await client.DeleteAsync(
+            $"/api/social/clubs/{clubId}/members/{WellKnownUsers.Explorer}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<SocialDbContext>();
+        var stored = assertContext.Clubs.Single(club => club.Id == clubId);
+        stored.Members.Should().Contain(member => member.UserId == WellKnownUsers.Explorer);
+    }
 }

@@ -371,4 +371,37 @@ public class ClubTests
         removal.Should().Throw<DomainException>();
         club.Members.Should().Contain(member => member.UserId == memberId);
     }
+
+    [Fact]
+    public void Moderator_removes_an_ordinary_member_and_they_are_no_longer_a_member()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        club.RemoveMember(Moderator, OrdinaryMember);
+
+        club.Members.Should().NotContain(member => member.UserId == OrdinaryMember);
+    }
+
+    [Fact]
+    public void User_who_is_not_a_club_member_cannot_remove_anyone()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        var removal = () => club.RemoveMember(Outsider, OrdinaryMember);
+
+        removal.Should().Throw<DomainException>();
+        club.Members.Should().Contain(member => member.UserId == OrdinaryMember);
+    }
+
+    [Fact]
+    public void Removing_a_user_who_is_not_a_club_member_reports_that_the_member_does_not_exist()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+        var membersBefore = club.Members.Count;
+
+        var removal = () => club.RemoveMember(Owner, Outsider);
+
+        removal.Should().Throw<NotFoundException>();
+        club.Members.Should().HaveCount(membersBefore);
+    }
 }
