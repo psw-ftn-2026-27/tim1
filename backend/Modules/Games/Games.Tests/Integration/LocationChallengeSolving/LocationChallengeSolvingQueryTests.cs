@@ -32,9 +32,51 @@ public sealed class LocationChallengeSolvingQueryTests : BaseIntegrationTest
         attempt.Circle.Should().Be(new SearchCircleDto(
             new LocationDto(seeded.Circle.Center.Latitude, seeded.Circle.Center.Longitude),
             seeded.Circle.DiameterMeters));
-        attempt.ImageIds.Should().BeEquivalentTo(challenge.HiddenPoints.Select(point => point.ImageId));
+        attempt.Photos.Select(photo => photo.ImageId)
+            .Should().BeEquivalentTo(challenge.HiddenPoints.Select(point => point.ImageId));
         body.EnumerateObject().Select(property => property.Name).Should().BeEquivalentTo(
-            "id", "challengeId", "challengeName", "circle", "imageIds", "startedAt");
+            "id", "challengeId", "challengeName", "circle", "photos", "remainingPointCount", "isSolved",
+            "startedAt", "solvedAt", "awardedExperiencePoints");
+        body.GetProperty("photos").EnumerateArray()
+            .SelectMany(photo => photo.EnumerateObject().Select(property => property.Name))
+            .Should().OnlyContain(name => name == "imageId" || name == "isDiscovered");
+    }
+
+    [Fact]
+    public async Task Attempt_shows_which_photos_are_discovered_and_how_many_points_remain()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var challenge = LocationChallengeSeed.PublishedSquareHunt;
+        var seeded = LocationChallengeAttemptSeed.ExplorersSquareAttemptWithOnePointDiscovered;
+
+        var response = await client.GetAsync($"{Url}/{challenge.Id}/attempt");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var attempt = await response.Content.ReadFromJsonAsync<LocationChallengeAttemptDto>(JsonOptions);
+        attempt!.Photos.Should().BeEquivalentTo(challenge.HiddenPoints.Select(point =>
+            new AttemptPhotoDto(point.ImageId, seeded.DiscoveredPointIds.Contains(point.Id))));
+        attempt.RemainingPointCount.Should().Be(challenge.HiddenPoints.Count - seeded.DiscoveredPointIds.Count);
+        attempt.IsSolved.Should().BeFalse();
+        attempt.SolvedAt.Should().BeNull();
+        attempt.AwardedExperiencePoints.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Solved_attempt_shows_every_photo_discovered_and_the_awarded_experience_points()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var challenge = LocationChallengeSeed.PublishedSquareHunt;
+        var seeded = LocationChallengeAttemptSeed.SecondExplorersSolvedSquareAttempt;
+
+        var response = await client.GetAsync($"{Url}/{challenge.Id}/attempt");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var attempt = await response.Content.ReadFromJsonAsync<LocationChallengeAttemptDto>(JsonOptions);
+        attempt!.Photos.Should().OnlyContain(photo => photo.IsDiscovered);
+        attempt.RemainingPointCount.Should().Be(0);
+        attempt.IsSolved.Should().BeTrue();
+        attempt.SolvedAt.Should().BeCloseTo(seeded.SolvedAt!.Value, TimeSpan.FromMilliseconds(1));
+        attempt.AwardedExperiencePoints.Should().Be(challenge.ExperiencePoints);
     }
 
     [Fact]

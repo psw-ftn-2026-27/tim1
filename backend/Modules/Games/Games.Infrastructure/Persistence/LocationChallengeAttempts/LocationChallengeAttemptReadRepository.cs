@@ -31,8 +31,23 @@ internal sealed class LocationChallengeAttemptReadRepository : ILocationChalleng
                     new SearchCircleDto(
                         new LocationDto(attempt.Circle.Center.Latitude, attempt.Circle.Center.Longitude),
                         attempt.Circle.DiameterMeters),
-                    challenge.HiddenPoints.Select(point => point.ImageId).ToList(),
-                    attempt.StartedAt))
+                    challenge.HiddenPoints
+                        .Select(point => new AttemptPhotoDto(point.ImageId, attempt.DiscoveredPointIds.Contains(point.Id)))
+                        .ToList(),
+                    challenge.HiddenPoints.Count(point => !attempt.DiscoveredPointIds.Contains(point.Id)),
+                    attempt.SolvedAt != null,
+                    attempt.StartedAt,
+                    attempt.SolvedAt,
+                    attempt.AwardedExperiencePoints))
             .SingleOrDefaultAsync();
+    }
+
+    public async Task<IReadOnlyList<Guid>> GetSolvedChallengeIdsAsync(Guid userId)
+    {
+        return await _dbContext.LocationChallengeAttempts
+            .AsNoTracking()
+            .Where(attempt => attempt.UserId == userId && attempt.SolvedAt != null)
+            .Select(attempt => attempt.ChallengeId)
+            .ToListAsync();
     }
 }

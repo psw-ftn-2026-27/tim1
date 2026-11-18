@@ -20,7 +20,33 @@
   gap: var(--space-3);
 }
 
+.check {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.check .meta {
+  margin: 0;
+}
+
 .photo {
+  margin: 0;
+  position: relative;
+}
+
+.photo-image {
   display: block;
   height: 12rem;
+}
+
+.photo--discovered .photo-image {
+  outline: 3px solid var(--color-success);
+}
+
+.photo-caption {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
 }

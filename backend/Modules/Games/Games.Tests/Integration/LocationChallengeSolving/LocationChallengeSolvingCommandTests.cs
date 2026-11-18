@@ -12,6 +12,9 @@ public sealed class LocationChallengeSolvingCommandTests : BaseIntegrationTest
     private static readonly string ActivateUrl =
         $"/api/games/location-challenges/{LocationChallengeSeed.PublishedOldTownHunt.Id}/activate";
 
+    private static readonly string CheckUrl =
+        $"/api/games/location-challenges/{LocationChallengeSeed.PublishedSquareHunt.Id}/attempt/check";
+
     public LocationChallengeSolvingCommandTests(GamesApiFactory factory) : base(factory) { }
 
     // Games' tests never seed Exploration, so no explorer has a saved position here.
@@ -45,6 +48,43 @@ public sealed class LocationChallengeSolvingCommandTests : BaseIntegrationTest
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
 
         var response = await client.PostAsync(ActivateUrl, null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    // A successful check needs a saved position, which Games' tests cannot seed, so the
+    // discovery rules are covered by the unit tests of LocationDiscovery.
+    [Fact]
+    public async Task Explorer_without_a_saved_position_cannot_check_a_location()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+        var seeded = LocationChallengeAttemptSeed.ExplorersSquareAttemptWithOnePointDiscovered;
+
+        var response = await client.PostAsync(CheckUrl, null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<GamesDbContext>();
+        var attempt = assertContext.LocationChallengeAttempts.Single(attempt => attempt.Id == seeded.Id);
+        attempt.DiscoveredPointIds.Should().BeEquivalentTo(seeded.DiscoveredPointIds);
+        attempt.SolvedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Anonymous_visitor_cannot_check_a_location()
+    {
+        var client = Factory.CreateClient();
+
+        var response = await client.PostAsync(CheckUrl, null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Administrator_cannot_check_a_location()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var response = await client.PostAsync(CheckUrl, null);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }

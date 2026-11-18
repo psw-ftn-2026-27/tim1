@@ -6,6 +6,7 @@ internal static class LocationChallengeSeed
 {
     public static readonly LocationChallenge DraftFortressHunt;
     public static readonly LocationChallenge PublishedOldTownHunt;
+    public static readonly LocationChallenge PublishedSquareHunt;
     public static readonly LocationChallenge RetiredParkHunt;
     public static readonly LocationChallenge ArchivedQuayHunt;
 
@@ -21,6 +22,13 @@ internal static class LocationChallengeSeed
             [new HiddenPoint(new Location(45.2553, 19.8449), ImageSeed.CathedralPhoto.Id)]);
         PublishedOldTownHunt.Publish();
 
+        PublishedSquareHunt = new("Potraga oko Trga slobode", new Location(45.2556, 19.8449), 70,
+        [
+            new HiddenPoint(new Location(45.2554, 19.8452), ImageSeed.CityHallPhoto.Id),
+            new HiddenPoint(new Location(45.2560, 19.8443), ImageSeed.TheatrePhoto.Id)
+        ]);
+        PublishedSquareHunt.Publish();
+
         RetiredParkHunt = new("Potraga kroz Dunavski park", new Location(45.2549, 19.8510), 60,
             [new HiddenPoint(new Location(45.2546, 19.8519), ImageSeed.ParkFountainPhoto.Id)]);
         RetiredParkHunt.Publish();
@@ -33,5 +41,5 @@ internal static class LocationChallengeSeed
         ArchivedQuayHunt.Archive();
     }
 
-    public static LocationChallenge[] All => [DraftFortressHunt, PublishedOldTownHunt, RetiredParkHunt, ArchivedQuayHunt];
+    public static LocationChallenge[] All => [DraftFortressHunt, PublishedOldTownHunt, PublishedSquareHunt, RetiredParkHunt, ArchivedQuayHunt];
 }

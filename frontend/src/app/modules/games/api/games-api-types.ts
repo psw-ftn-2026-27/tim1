@@ -159,11 +159,20 @@ export interface SearchCircleDto {
   diameterMeters: number;
 }
 
+export interface AttemptPhotoDto {
+  imageId: string;
+  isDiscovered: boolean;
+}
+
 export interface LocationChallengeAttemptDto {
   id: string;
   challengeId: string;
   challengeName: string;
   circle: SearchCircleDto;
-  imageIds: string[];
+  photos: AttemptPhotoDto[];
+  remainingPointCount: number;
+  isSolved: boolean;
   startedAt: string;
+  solvedAt: string | null;
+  awardedExperiencePoints: number | null;
 }

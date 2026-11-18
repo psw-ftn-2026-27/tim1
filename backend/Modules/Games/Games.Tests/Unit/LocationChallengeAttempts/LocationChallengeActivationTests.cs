@@ -104,6 +104,18 @@ public sealed class LocationChallengeActivationTests
         attempt.Circle.Should().Be(started.Circle);
     }
 
+    [Fact]
+    public void Solved_location_challenge_cannot_be_activated_again()
+    {
+        var challenge = CreateChallengeIn(LocationChallengeStatus.Published);
+        var solved = new LocationChallengeActivation().Activate(challenge, null, UserId, Start, 30);
+        solved.Discover(challenge, challenge.HiddenPoints.Select(point => point.Id).ToList());
+
+        var activation = () => new LocationChallengeActivation().Activate(challenge, solved, UserId, Start, 30);
+
+        activation.Should().Throw<DomainException>();
+    }
+
     // Walks a new challenge forward through the lifecycle, which follows the order of the
     // enum, until it reaches the given status.
     private static LocationChallenge CreateChallengeIn(LocationChallengeStatus status)

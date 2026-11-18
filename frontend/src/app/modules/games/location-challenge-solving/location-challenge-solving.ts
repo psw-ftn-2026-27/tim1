@@ -11,4 +11,8 @@ export class LocationChallengeSolving {
   async activate(challengeId: string): Promise<void> {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/${challengeId}/activate`, {}));
   }
+
+  async checkLocation(challengeId: string): Promise<void> {
+    await firstValueFrom(this.http.post<void>(`${BASE_URL}/${challengeId}/attempt/check`, {}));
+  }
 }
