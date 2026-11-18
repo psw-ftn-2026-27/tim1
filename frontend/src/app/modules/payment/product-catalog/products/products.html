@@ -1,68 +1,98 @@
-<div class="stack">
-  <h1>Products</h1>
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Products</h1>
+      <p>Everything you can buy on Explorer. Add products to your cart and pay for them together.</p>
+    </div>
 
-  <div class="toolbar">
-    <a routerLink="/payment/cart">Your cart ({{ itemCount.value() ?? 0 }})</a>
-    <a class="button button--secondary coupons" routerLink="/payment/coupons">My coupons</a>
+    <nav class="tabs" aria-label="Payment">
+      <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Wallet</a>
+      <a routerLink="/payment/products" routerLinkActive="active" ariaCurrentWhenActive="page">Products</a>
+      <a routerLink="/payment/cart" routerLinkActive="active" ariaCurrentWhenActive="page">
+        Cart
+        @if ((itemCount.value() ?? 0) > 0) {
+          <span class="tab-count">{{ itemCount.value() }}</span>
+        }
+      </a>
+      <a routerLink="/payment/gift-cards" routerLinkActive="active" ariaCurrentWhenActive="page">Gift cards</a>
+      <a routerLink="/payment/coupons" routerLinkActive="active" ariaCurrentWhenActive="page">My coupons</a>
+    </nav>
   </div>
 
   @if (added()) {
-    <p class="alert alert--success">{{ added() }}</p>
+    <p class="alert alert--success" role="status">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m5 12 5 5 9-10" />
+      </svg>
+      {{ added() }}
+    </p>
   }
 
   @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (products.isLoading()) {
-    <p>Loading products...</p>
+    <p class="empty empty--boxed" role="status">Loading products...</p>
   } @else if (products.error()) {
-    <p class="alert alert--danger">Could not load the products. Try again later.</p>
+    <p class="alert alert--danger" role="alert">Could not load the products. Try again later.</p>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Kind</th>
-          <th scope="col">Name</th>
-          <th scope="col">Price</th>
-          <th scope="col">Owner</th>
-          <th scope="col">Status</th>
-          <th scope="col">Cart</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (product of products.value() ?? []; track product.id) {
-          <tr>
-            <td>{{ product.type }}</td>
-            <td>{{ product.name }}</td>
-            <td class="amount">{{ product.price }} EC</td>
-            <td>{{ product.ownerName }}</td>
-            <td>
-              @if (product.purchased) {
-                <span class="badge badge--success">Purchased</span>
-              } @else if (product.inCart) {
-                <span class="badge badge--info">In cart</span>
-              }
-            </td>
-            <td>
-              <button
-                class="button button--secondary button--small"
-                type="button"
-                [disabled]="pending() || product.purchased || product.inCart"
-                (click)="addToCart(product)"
-              >
-                Add to cart
-              </button>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="6">No product has been registered yet.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
+    <ul class="product-grid">
+      @for (product of products.value() ?? []; track product.id) {
+        <li class="card product">
+          <div class="product-badges">
+            <span class="badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 19 10 7l4 6 2-3 5 9z" />
+              </svg>
+              {{ product.type }}
+            </span>
+            @if (product.purchased) {
+              <span class="badge badge--success">Purchased</span>
+            } @else if (product.inCart) {
+              <span class="badge badge--accent">In cart</span>
+            }
+          </div>
 
-  <a routerLink="/payment">Back to your wallet</a>
+          <div class="product-name">
+            <h2>{{ product.name }}</h2>
+            <span class="meta">by {{ product.ownerName }}</span>
+          </div>
+
+          <div class="product-footer">
+            @if (product.price === 0) {
+              <span class="badge badge--success free">Free</span>
+            } @else {
+              <span>
+                <span class="price">{{ formatAmount(product.price) }}</span>
+                <span class="currency">EC</span>
+              </span>
+            }
+            <button
+              class="button button--primary"
+              type="button"
+              [disabled]="pending() || product.purchased || product.inCart"
+              (click)="addToCart(product)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              Add to cart
+            </button>
+          </div>
+        </li>
+      } @empty {
+        <li class="empty empty--boxed">
+          <span class="empty-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7h16l-1.5 12h-13z" />
+              <path d="M9 7a3 3 0 0 1 6 0" />
+            </svg>
+          </span>
+          <h2>No products yet</h2>
+          <p>No product has been registered yet.</p>
+        </li>
+      }
+    </ul>
+  }
 </div>

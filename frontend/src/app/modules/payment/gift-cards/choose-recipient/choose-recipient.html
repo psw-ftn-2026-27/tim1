@@ -1,37 +1,56 @@
-<div class="stack">
-  <div class="header">
-    <a class="back" routerLink="/payment/gift-cards" aria-label="Back to gift cards">←</a>
-    <h1>Buy a gift card</h1>
+<div class="page">
+  <a class="back" routerLink="/payment/gift-cards">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+    Gift cards
+  </a>
+
+  <div class="intro">
+    <span class="eyebrow">Step 1 of 2</span>
+    <h1>Who is the gift card for?</h1>
+    <p class="meta">Find the person by name. Next, you will choose the amount and write a message.</p>
   </div>
 
-  <div class="field">
-    <input
-      type="text"
-      aria-label="Search users"
-      placeholder="Search by name"
-      [formField]="searchForm.text"
-    />
-  </div>
-
-  @if (recipients.error()) {
-    <p class="error">The users could not be loaded. Sign in and try again.</p>
-  } @else if (recipients.value() === undefined) {
-    <p>Loading users...</p>
-  } @else {
-    <div class="stack">
-      @for (user of recipients.value()?.items ?? []; track user.id) {
-        <article class="card row">
-          <h3>{{ user.displayName }}</h3>
-          <a
-            class="button button--primary button--small"
-            [routerLink]="['/payment/gift-cards/buy', user.id]"
-          >
-            Buy a gift card
-          </a>
-        </article>
-      } @empty {
-        <p>No users found.</p>
-      }
+  <section class="card people" aria-label="People">
+    <div class="field search">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <input
+        type="text"
+        aria-label="Search users"
+        placeholder="Search by name"
+        [formField]="searchForm.text"
+      />
     </div>
-  }
+
+    @if (recipients.error()) {
+      <p class="alert alert--danger message" role="alert">The users could not be loaded. Sign in and try again.</p>
+    } @else if (recipients.value() === undefined) {
+      <p class="meta message" role="status">Loading users...</p>
+    } @else {
+      <ul class="list">
+        @for (user of recipients.value()?.items ?? []; track user.id) {
+          <li class="person">
+            <span class="avatar" aria-hidden="true">{{ user.displayName.charAt(0) }}</span>
+            <span class="person-name">{{ user.displayName }}</span>
+            <a
+              class="button button--small"
+              [routerLink]="['/payment/gift-cards/buy', user.id]"
+              [attr.aria-label]="'Buy a gift card for ' + user.displayName"
+            >
+              Buy a gift card
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </a>
+          </li>
+        } @empty {
+          <li class="meta none">No users found.</li>
+        }
+      </ul>
+    }
+  </section>
 </div>

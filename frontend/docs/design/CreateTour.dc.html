@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Create tour</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.input{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#eef2ef;font:400 14px Inter,sans-serif}
+.input::placeholder{color:#8d9b96}
+.input:focus{outline:2px solid #F08A3C;outline-offset:1px;border-color:transparent}
+.input[aria-invalid="true"]{border-color:#e98a8a}
+.lbl{font-size:13px;font-weight:600;color:#d6dedb}
+.hint{font-size:12px;color:#8d9b96}
+.err{font-size:13px;color:#f2a8a8}
+.check{position:relative;flex:1 1 0;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#d6dedb;font:600 14px Inter,sans-serif;cursor:pointer}
+.check:has(input:checked){background:rgba(240,138,60,.14);border-color:rgba(240,138,60,.6);color:#F5A262}
+.check:has(input:focus-visible){outline:2px solid #F08A3C;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="#">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 28px 24px 72px">
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #a9b6b1; margin-bottom: 16px">
+<a href="MyTours.dc.html" style="text-decoration: none">My tours</a><span aria-hidden="true">/</span><span style="color: #eef2ef">Create tour</span>
+</nav>
+<h1 style="margin: 0 0 8px; font-family: Nunito, sans-serif; font-weight: 900; font-size: 40px; line-height: 1.1">Create a new tour</h1>
+<p style="margin: 0 0 28px; font-size: 15px; color: #a9b6b1">Your tour is saved as a draft. Only you can see it until you publish it.</p>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 28px">
+<form onSubmit="{{submit}}" novalidate="novalidate" style="flex: 999 1 560px; min-width: 0; background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 26px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="name" class="lbl">Tour name</label>
+<input id="name" class="input" type="text" placeholder="e.g. Šetnja Petrovaradinskom tvrđavom" value="{{name}}" onInput="{{onName}}" aria-invalid="{{nameInvalid}}">
+<sc-if value="{{nameInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">Enter a name for the tour.</span></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="desc" class="lbl">Description</label>
+<textarea id="desc" class="input" rows="6" placeholder="Describe the route, what tourists will see and who the tour is for." value="{{desc}}" onInput="{{onDesc}}" style="resize: vertical; line-height: 1.6"></textarea>
+<div style="display: flex; justify-content: space-between; gap: 12px">
+<span class="hint">At least 100 characters are needed to publish.</span>
+<span style="font-size: 12px; font-weight: 600; color: {{countColor}}">{{descCount}} / 100</span>
+</div>
+</div>
+
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend class="lbl" style="padding: 0; margin-bottom: 10px">Difficulty</legend>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 480px">
+<label class="check"><input class="sr-only" type="radio" name="diff" value="easy" checked="checked">Easy</label>
+<label class="check"><input class="sr-only" type="radio" name="diff" value="medium">Medium</label>
+<label class="check"><input class="sr-only" type="radio" name="diff" value="hard">Hard</label>
+</div>
+</fieldset>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="tags" class="lbl">Tags</label>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 6px 6px 12px; min-height: 44px; border-radius: 12px; border: 1px solid #2f413b; background: #131c1a">
+<sc-for list="{{tags}}" as="tg" hint-placeholder-count="2">
+<span style="display: inline-flex; align-items: center; gap: 2px; height: 30px; padding: 0 4px 0 10px; border-radius: 999px; background: rgba(240,138,60,.16); color: #F5A262; font-size: 13px; font-weight: 600">#{{tg.name}}<button type="button" aria-label="Remove tag {{tg.name}}" onClick="{{tg.remove}}" style="width: 24px; height: 24px; border: 0; border-radius: 999px; background: transparent; color: #F5A262; cursor: pointer; display: inline-flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button></span>
+</sc-for>
+<input id="tags" type="text" placeholder="Add tag, press Enter" value="{{tagDraft}}" onInput="{{onTagDraft}}" onKeyDown="{{onTagKey}}" style="flex: 1 1 140px; min-width: 0; height: 30px; border: 0; background: transparent; color: #eef2ef; font: 400 14px Inter, sans-serif; outline: none">
+</div>
+<span class="hint">Tags help tourists find your tour in search.</span>
+</div>
+
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend class="lbl" style="padding: 0; margin-bottom: 4px">Recommended group size</legend>
+<p class="hint" style="margin: 0 0 12px">How many people the tour suits best.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 480px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="gmin" style="font-size: 12px; color: #a9b6b1">From</label>
+<input id="gmin" class="input" type="number" min="1" inputmode="numeric" value="{{gmin}}" onInput="{{onMin}}" aria-invalid="{{minInvalid}}" aria-describedby="gmin-err">
+<sc-if value="{{minInvalid}}" hint-placeholder-val="{{ false }}"><span id="gmin-err" class="err">Must be at least 1.</span></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<label for="gmax" style="font-size: 12px; color: #a9b6b1">To</label>
+<input id="gmax" class="input" type="number" min="1" inputmode="numeric" value="{{gmax}}" onInput="{{onMax}}" aria-invalid="{{maxInvalid}}" aria-describedby="gmax-err">
+<sc-if value="{{maxInvalid}}" hint-placeholder-val="{{ false }}"><span id="gmax-err" class="err">Must be equal to or greater than “From”.</span></sc-if>
+</div>
+</div>
+</fieldset>
+
+<sc-if value="{{created}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 14px; background: rgba(74,190,130,.12); border: 1px solid rgba(74,190,130,.4); color: #a8e8c4; font-size: 14px">Draft created. <a href="MyTours.dc.html">Go to My tours</a></div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 8px; border-top: 1px solid #24332e">
+<a class="btn" href="MyTours.dc.html">Cancel</a>
+<button class="btn btn-primary" type="submit">Create tour</button>
+</div>
+</form>
+
+<aside aria-label="Next steps" style="flex: 1 1 300px; max-width: 100%; background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-family: Nunito, sans-serif; font-size: 20px; font-weight: 800">From draft to published</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px">
+<li style="display: flex; gap: 12px"><span style="flex: 0 0 auto; width: 28px; height: 28px; border-radius: 999px; background: #F08A3C; color: #1e1206; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">1</span><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px">Create the draft</strong><span style="font-size: 13px; color: #a9b6b1">Name, description, difficulty, tags and group size.</span></span></li>
+<li style="display: flex; gap: 12px"><span style="flex: 0 0 auto; width: 28px; height: 28px; border-radius: 999px; background: #24332e; color: #eef2ef; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">2</span><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px">Add at least two keypoints</strong><span style="font-size: 13px; color: #a9b6b1">In “Manage tour”: location, photo and an optional secret.</span></span></li>
+<li style="display: flex; gap: 12px"><span style="flex: 0 0 auto; width: 28px; height: 28px; border-radius: 999px; background: #24332e; color: #eef2ef; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">3</span><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px">Add a travel time</strong><span style="font-size: 13px; color: #a9b6b1">Walking, bicycle or car, in minutes.</span></span></li>
+<li style="display: flex; gap: 12px"><span style="flex: 0 0 auto; width: 28px; height: 28px; border-radius: 999px; background: #24332e; color: #eef2ef; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center">4</span><span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px">Publish with a price</strong><span style="font-size: 13px; color: #a9b6b1">Free or paid, from My tours.</span></span></li>
+</ol>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"showValidation":{"editor":"boolean","default":false,"section":"States"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { name: '', desc: '', tags: ['istorija'], tagDraft: '', gmin: '4', gmax: '2', touched: false, created: false };
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    var show = s.touched || (this.props.showValidation ?? false);
+    var min = Number(s.gmin), max = Number(s.gmax);
+    var minBad = !(min >= 1), maxBad = !(max >= 1) || (!minBad && max < min);
+    var nameBad = !s.name.trim();
+    var len = s.desc.length;
+    return {
+      name: s.name, desc: s.desc, gmin: s.gmin, gmax: s.gmax, tagDraft: s.tagDraft,
+      onName: function (e) { self.setState({ name: e.target.value, created: false }); },
+      onDesc: function (e) { self.setState({ desc: e.target.value }); },
+      onMin: function (e) { self.setState({ gmin: e.target.value }); },
+      onMax: function (e) { self.setState({ gmax: e.target.value }); },
+      descCount: len, countColor: len >= 100 ? '#8fe0b4' : '#a9b6b1',
+      nameInvalid: show && nameBad, minInvalid: show && minBad, maxInvalid: show && maxBad,
+      created: s.created,
+      tags: s.tags.map(function (g) { return { name: g, remove: function () { self.setState({ tags: s.tags.filter(function (x) { return x !== g; }) }); } }; }),
+      onTagDraft: function (e) { self.setState({ tagDraft: e.target.value }); },
+      onTagKey: function (e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        var v = s.tagDraft.replace(/^#/, '').trim();
+        self.setState({ tagDraft: '', tags: v && s.tags.indexOf(v) < 0 ? s.tags.concat([v]) : s.tags });
+      },
+      submit: function (e) {
+        e.preventDefault();
+        self.setState({ touched: true, created: !(nameBad || minBad || maxBad) });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

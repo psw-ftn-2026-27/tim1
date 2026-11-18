@@ -1,118 +1,225 @@
 <div class="stack">
-  <h1>Your cart</h1>
+  <div class="page-header">
+    <div>
+      <h1>Your cart</h1>
+      <p>Review your products and pay for all of them at once from your wallet.</p>
+    </div>
+
+    <nav class="tabs" aria-label="Payment">
+      <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Wallet</a>
+      <a routerLink="/payment/products" routerLinkActive="active" ariaCurrentWhenActive="page">Products</a>
+      <a routerLink="/payment/cart" routerLinkActive="active" ariaCurrentWhenActive="page">
+        Cart
+        @if (cart.hasValue() && cart.value().items.length > 0) {
+          <span class="tab-count">{{ cart.value().items.length }}</span>
+        }
+      </a>
+      <a routerLink="/payment/gift-cards" routerLinkActive="active" ariaCurrentWhenActive="page">Gift cards</a>
+      <a routerLink="/payment/coupons" routerLinkActive="active" ariaCurrentWhenActive="page">My coupons</a>
+    </nav>
+  </div>
 
   @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (bought()) {
-    <p class="alert alert--success">{{ bought() }}</p>
+    <p class="alert alert--success" role="status">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m5 12 5 5 9-10" />
+      </svg>
+      {{ bought() }}
+    </p>
   }
 
   @if (buyError()) {
-    <p class="alert alert--danger">
-      {{ buyError() }}
-      <a routerLink="/payment">Top up your wallet</a>
+    <p class="alert alert--danger" role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v6M12 16.5v.5" />
+      </svg>
+      <span>
+        {{ buyError() }}
+        <a routerLink="/payment">Top up your wallet</a>
+      </span>
     </p>
   }
 
   @if (cart.isLoading()) {
-    <p>Loading your cart...</p>
+    <p class="empty empty--boxed" role="status">Loading your cart...</p>
   } @else if (cart.error()) {
-    <p class="alert alert--danger">Could not load your cart. Try again later.</p>
+    <p class="alert alert--danger" role="alert">Could not load your cart. Try again later.</p>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Price</th>
-          <th scope="col">Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of cart.value()?.items ?? []; track item.type + item.entityId) {
-          <tr>
-            <td>{{ item.name }}</td>
-            <td class="amount">{{ item.price }} EC</td>
-            <td>
-              <button
-                class="button button--danger button--small"
-                type="button"
-                [disabled]="pending()"
-                (click)="removeItem(item)"
-              >
-                Remove
-              </button>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="3">Your cart is empty.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-
-    <p class="total">Total: <span class="amount">{{ cart.value()?.total ?? 0 }} EC</span></p>
-
-    @if (hasItems()) {
-      <section class="card stack">
-        <h2>Discounts</h2>
-
-        <div class="field">
-          <label for="coupon-code">Coupon code</label>
-          <input id="coupon-code" type="text" [formField]="discounts.couponCode" />
-        </div>
-        <div class="form-actions">
-          <button class="button" type="button" [disabled]="pending()" (click)="applyCoupon()">
-            Apply coupon
-          </button>
-        </div>
-
-        <div class="field">
-          <label for="gift-card">Gift card</label>
-          <select id="gift-card" [formField]="discounts.giftCardId">
-            <option value="">No gift card</option>
-            @for (card of usableGiftCards.value() ?? []; track card.id) {
-              <option [value]="card.id">{{ card.amount }} EC, expires {{ formatDate(card.expiresAt) }}</option>
+    <div class="layout">
+      <div class="main">
+        <section class="card items" aria-label="Cart items">
+          <ul>
+            @for (item of cart.value()?.items ?? []; track item.type + item.entityId) {
+              <li class="item">
+                <span class="item-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 19 10 7l4 6 2-3 5 9z" />
+                  </svg>
+                </span>
+                <div class="item-name">
+                  <strong>{{ item.name }}</strong>
+                  <span class="meta">{{ item.type }}</span>
+                  @if (couponPercent(item); as percent) {
+                    <span class="badge badge--success">Coupon −{{ percent }}%</span>
+                  }
+                </div>
+                <span class="item-price">
+                  @if (couponPercent(item)) {
+                    <span class="old-price">{{ formatAmount(item.price) }} EC</span>
+                    <span class="amount">{{ formatAmount(item.price - (price.value()?.couponDiscount ?? 0)) }} EC</span>
+                  } @else if (item.price === 0) {
+                    <span class="amount amount--positive">Free</span>
+                  } @else {
+                    <span class="amount">{{ formatAmount(item.price) }} EC</span>
+                  }
+                </span>
+                <button
+                  class="button button--ghost button--small"
+                  type="button"
+                  [disabled]="pending()"
+                  [attr.aria-label]="'Remove ' + item.name"
+                  (click)="removeItem(item)"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+                  </svg>
+                  Remove
+                </button>
+              </li>
+            } @empty {
+              <li class="empty">
+                <h2>Your cart is empty</h2>
+                <p>Find a tour you like and add it to your cart.</p>
+                <a class="button" routerLink="/payment/products">Browse products</a>
+              </li>
             }
-          </select>
-        </div>
+          </ul>
+        </section>
 
-        @if (price.error()) {
-          <p class="alert alert--danger">
-            {{ priceError() }}
-          </p>
-        } @else if (price.hasValue()) {
-          <p>Total: <span class="amount">{{ price.value().total }} EC</span></p>
-          @if (price.value().couponProductName) {
-            <p>
-              Coupon discount on {{ price.value().couponProductName }}:
-              <span class="amount discount">-{{ price.value().couponDiscount }} EC</span>
+        @if (hasItems()) {
+          <section class="card discounts" aria-labelledby="discounts-title">
+            <h2 id="discounts-title">Discounts</h2>
+
+            <div class="group">
+              <label class="label" for="coupon-code">Coupon code</label>
+              <div class="coupon-row">
+                <div class="field coupon-field">
+                  <input id="coupon-code" class="code" type="text" autocomplete="off" placeholder="e.g. JESEN25X" [formField]="discounts.couponCode" />
+                </div>
+                <button class="button" type="button" [disabled]="pending()" (click)="applyCoupon()">
+                  Apply coupon
+                </button>
+              </div>
+
+              @if (price.error()) {
+                <p class="alert alert--danger" role="alert">{{ priceError() }}</p>
+              } @else if (appliedCode() && price.value()?.couponProductName) {
+                <p class="alert alert--success" role="status">
+                  <span>
+                    <strong class="code">{{ appliedCode() }}</strong> ·
+                    −{{ formatAmount(price.value()?.couponDiscount ?? 0) }} EC on {{ price.value()?.couponProductName }}
+                  </span>
+                </p>
+              }
+            </div>
+
+            <fieldset class="group">
+              <legend class="label">Gift card</legend>
+              <label class="option">
+                <input type="radio" value="" [formField]="discounts.giftCardId" />
+                <span class="option-text"><strong>No gift card</strong></span>
+              </label>
+              @for (card of usableGiftCards.value() ?? []; track card.id) {
+                <label class="option">
+                  <input type="radio" [value]="card.id" [formField]="discounts.giftCardId" />
+                  <span class="option-text">
+                    <strong>{{ formatAmount(card.amount) }} EC</strong>
+                    <span class="hint">Expires {{ formatDate(card.expiresAt) }}</span>
+                  </span>
+                  <svg class="option-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="8" width="18" height="13" rx="2" />
+                    <path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1.5S9 8 12 8c3 0 6-1 6-1.5S14 4 12 8z" />
+                  </svg>
+                </label>
+              }
+              <span class="hint">
+                A gift card is always used in full. If it is worth more than what is left to pay, the rest is lost.
+              </span>
+            </fieldset>
+          </section>
+        }
+      </div>
+
+      <aside class="card summary" aria-labelledby="summary-title">
+        <h2 id="summary-title">Summary</h2>
+
+        @if (price.hasValue() && !price.error()) {
+          <dl class="lines">
+            <div class="line">
+              <dt>Total ({{ cart.value()?.items?.length ?? 0 }} items)</dt>
+              <dd>{{ formatAmount(price.value().total) }} EC</dd>
+            </div>
+            <div class="line">
+              <dt>Coupon discount</dt>
+              <dd [class.saving]="price.value().couponDiscount > 0">−{{ formatAmount(price.value().couponDiscount) }} EC</dd>
+            </div>
+            <div class="line">
+              <dt>Gift card</dt>
+              <dd [class.saving]="price.value().cardDiscount > 0">−{{ formatAmount(price.value().cardDiscount) }} EC</dd>
+            </div>
+          </dl>
+          <div class="to-pay">
+            <span>To pay</span>
+            <span>
+              <span class="total-amount">{{ formatAmount(price.value().finalPrice) }}</span>
+              <span class="currency">EC</span>
+            </span>
+          </div>
+          @if (price.value().cardLost > 0) {
+            <p class="alert alert--warning" role="note">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 3 2 20h20z" />
+                <path d="M12 10v4M12 17v.5" />
+              </svg>
+              <span>
+                <strong>{{ formatAmount(price.value().cardLost) }} EC of the gift card will be lost.</strong>
+                Choose “No gift card” to keep it for a bigger purchase.
+              </span>
             </p>
           }
-          @if (price.value().cardDiscount > 0) {
-            <p>Gift card discount: <span class="amount discount">-{{ price.value().cardDiscount }} EC</span></p>
-          }
-          @if (price.value().cardLost > 0) {
-            <p>Lost from the gift card: <span class="amount">{{ price.value().cardLost }} EC</span></p>
-          }
-          <p class="total">Final price: <span class="amount">{{ price.value().finalPrice }} EC</span></p>
+        } @else {
+          <dl class="lines">
+            <div class="line">
+              <dt>Total ({{ cart.value()?.items?.length ?? 0 }} items)</dt>
+              <dd>{{ formatAmount(cart.value()?.total ?? 0) }} EC</dd>
+            </div>
+          </dl>
+          <div class="to-pay">
+            <span>To pay</span>
+            <span>
+              <span class="total-amount">{{ formatAmount(cart.value()?.total ?? 0) }}</span>
+              <span class="currency">EC</span>
+            </span>
+          </div>
         }
-      </section>
 
-      <div class="form-actions">
-        <button
-          class="button button--primary"
-          type="button"
-          [disabled]="pending() || price.error()"
-          (click)="buyProducts()"
-        >
-          Buy products
-        </button>
-      </div>
-    }
+        @if (hasItems()) {
+          <button
+            class="button button--primary buy"
+            type="button"
+            [disabled]="pending() || price.error()"
+            (click)="buyProducts()"
+          >
+            Buy products
+          </button>
+        }
+        <p class="hint">Prices are calculated by the server and paid from your wallet's available EC.</p>
+      </aside>
+    </div>
   }
-
-  <a routerLink="/payment/products">Back to the products</a>
 </div>

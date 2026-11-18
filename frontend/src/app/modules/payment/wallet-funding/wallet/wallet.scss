@@ -1,40 +1,178 @@
-.balances {
+
+// Naslov i ikonica poklona u istom redu
+.title {
+  align-items: center;
   display: flex;
-  gap: var(--space-6);
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
-.balance {
-  font-size: var(--font-size-xl);
+.title h1 {
   margin: 0;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.button {
-  text-decoration: none;
-}
-
+// Veza ka poklon karticama; crveni krug označava da postoji važeća primljena kartica
 .gift {
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  color: var(--color-link);
+  display: inline-flex;
+  height: var(--control-height);
+  justify-content: center;
   position: relative;
-  font-size: var(--font-size-xl);
-  line-height: 1;
-  text-decoration: none;
+  width: var(--control-height);
+}
+
+.gift:hover {
+  background: var(--color-surface-hover);
 }
 
 .dot {
+  background: var(--color-notification);
+  border: 2px solid var(--color-bg);
+  border-radius: var(--radius-pill);
+  height: 0.875rem;
   position: absolute;
-  top: 0.15rem;
-  right: 0.2rem;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  background: var(--color-danger);
+  right: -0.25rem;
+  top: -0.25rem;
+  width: 0.875rem;
 }
 
-form {
-  max-width: 20rem;
+.admin {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.admin-icon {
+  align-items: center;
+  background: var(--color-info-bg);
+  border-radius: var(--radius);
+  color: var(--color-info);
+  display: flex;
+  height: 3.5rem;
+  justify-content: center;
+  width: 3.5rem;
+}
+
+.admin-text {
+  flex: 1 1 20rem;
+}
+
+.admin-text h2 {
+  margin-bottom: var(--space-1);
+}
+
+// Dve kolone (stanja, forme) koje se na uskom ekranu slažu jedna ispod druge
+.balances,
+.forms {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+}
+
+.balance-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.balance-card--main {
+  background: linear-gradient(135deg, var(--color-surface-raised), var(--color-surface));
+}
+
+.balance-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.balance {
+  font-family: var(--font-family-heading);
+  font-size: 3rem;
+  font-weight: var(--font-weight-display);
+  line-height: 1.1;
+}
+
+.currency {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-left: var(--space-1);
+}
+
+.form-title {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.form-title h2 {
+  margin: 0;
+}
+
+.form-icon {
+  align-items: center;
+  border-radius: var(--radius);
+  display: flex;
+  flex: 0 0 auto;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.form-icon--in {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.form-icon--out {
+  background: var(--color-accent-bg);
+  color: var(--color-link);
+}
+
+.forms .button {
+  width: 100%;
+}
+
+.number {
+  text-align: right;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.type {
+  font-weight: var(--font-weight-bold);
+}
+
+.status {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.reason {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.from-reserved {
+  color: var(--color-text-subtle);
+  display: block;
+  font-size: var(--font-size-xs);
+}
+
+// Tabela se ne sabija ispod ove širine; na telefonu se pomera vodoravno
+.table {
+  min-width: 44rem;
+}
+
+td {
+  font-size: var(--font-size-sm);
 }

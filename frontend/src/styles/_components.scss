@@ -1,21 +1,27 @@
 // Dugmad: .button, varijante --primary, --secondary, --danger, --ghost, --small
+// Važi i za link koji izgleda kao dugme: <a class="button">.
 .button {
+  align-items: center;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-field);
   border-radius: var(--radius);
   color: var(--color-text);
   cursor: pointer;
+  display: inline-flex;
   font: inherit;
-  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2);
+  justify-content: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .button:hover {
   background: var(--color-surface-hover);
-}
-
-.button:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 2px;
+  color: var(--color-text);
 }
 
 .button--primary {
@@ -27,49 +33,67 @@
 .button--primary:hover {
   background: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
+  color: var(--color-accent-text);
 }
 
-// Obrubljeno dugme: providna pozadina, svetla ivica
+// Obrubljeno narandžasto dugme bez pozadine, uz primarno
 .button--secondary {
   background: var(--color-secondary);
-  border-color: var(--color-secondary-text);
+  border-color: var(--color-accent);
   color: var(--color-secondary-text);
 }
 
 .button--secondary:hover {
   background: var(--color-secondary-hover);
+  color: var(--color-link-hover);
 }
 
+// Obrubljeno crveno dugme: odbijanje, brisanje, arhiviranje
 .button--danger {
-  background: var(--color-surface);
-  border-color: var(--color-danger);
+  background: transparent;
+  border-color: var(--color-danger-border);
   color: var(--color-danger);
 }
 
 .button--danger:hover {
   background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
 
 .button--ghost {
   background: transparent;
   border-color: transparent;
-  color: var(--color-accent);
+  color: var(--color-link);
 }
 
 .button--ghost:hover {
   background: var(--color-surface-hover);
+  color: var(--color-link-hover);
 }
 
 .button--small {
-  font-size: var(--font-size-sm);
-  padding: var(--space-1) var(--space-3);
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
 }
 
+// Neaktivno dugme zadržava boje, samo izbledi
 .button:disabled {
-  background: var(--color-surface-hover);
-  border-color: var(--color-border);
-  color: var(--color-text-disabled);
   cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.button:disabled:hover {
+  background: var(--color-surface);
+}
+
+.button--primary:disabled:hover {
+  background: var(--color-accent);
+}
+
+.button--secondary:disabled:hover,
+.button--danger:disabled:hover,
+.button--ghost:disabled:hover {
+  background: transparent;
 }
 
 // Dugmad ispod forme ili u redu tabele
@@ -79,13 +103,61 @@
   gap: var(--space-2);
 }
 
-// Kartica: .card, varijanta --interactive (podiže se na hover)
+// Tabovi: navigacija između srodnih stranica jednog modula.
+// <nav class="tabs"><a routerLink="…" routerLinkActive="active">…</a></nav>
+.tabs {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1);
+}
+
+.tabs a {
+  align-items: center;
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: 0 var(--space-4);
+  text-decoration: none;
+}
+
+.tabs a:hover {
+  color: var(--color-text);
+}
+
+.tabs a.active {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+// Broj uz tab (npr. broj stavki u korpi)
+.tab-count {
+  align-items: center;
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  color: var(--color-accent-text);
+  display: inline-flex;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  height: 1.375rem;
+  justify-content: center;
+  min-width: 1.375rem;
+  padding: 0 0.375rem;
+}
+
+// Kartica: .card, varijanta --interactive (ivica se istakne na hover)
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-4);
+  padding: var(--space-5);
 }
 
 .card--interactive:hover {
@@ -97,43 +169,50 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .field label {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
 .field input,
 .field select,
 .field textarea {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
   border-radius: var(--radius);
   color: var(--color-text);
   font: inherit;
-  padding: var(--space-2);
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-3);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--color-text-subtle);
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: var(--color-accent);
-  outline: 1px solid var(--color-accent);
+  border-color: transparent;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
 }
 
 .field input:disabled,
 .field select:disabled,
 .field textarea:disabled {
-  background: var(--color-surface-hover);
-  color: var(--color-text-disabled);
+  opacity: 0.4;
 }
 
 .field--error input,
 .field--error select,
 .field--error textarea {
-  border-color: var(--color-danger);
+  border-color: var(--color-danger-border);
 }
 
 // Tabela: .table, varijanta --compact
@@ -145,14 +224,17 @@
 .table th,
 .table td {
   border-bottom: 1px solid var(--color-border);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
   text-align: left;
 }
 
+// Zaglavlje kolona: mala velika slova, najslabiji tekst
 .table th {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .table tbody tr:hover {
@@ -164,50 +246,130 @@
   padding: var(--space-1) var(--space-2);
 }
 
-// Prazno stanje liste ili tabele
+// Tabela u kartici: zaobljen okvir, zaglavlje kartice sa naslovom, a tabela se na uskom
+// ekranu pomera vodoravno unutar .table-scroll umesto da širi stranicu.
+// <section class="table-card">
+//   <div class="table-card-header"><h2>…</h2><span class="meta">…</span></div>
+//   <div class="table-scroll"><table class="table">…</table></div>
+// </section>
+.table-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table-card-header {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+}
+
+.table-card-header h2 {
+  margin: 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-card .table tr:last-child td {
+  border-bottom: none;
+}
+
+// Prazno stanje liste ili tabele; --boxed dobija isprekidan okvir kada stoji samo
 .empty {
+  align-items: center;
   color: var(--color-text-muted);
-  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-5);
   text-align: center;
+}
+
+.empty h2,
+.empty p {
+  margin: 0;
+}
+
+.empty--boxed {
+  border: 1px dashed var(--color-border-field);
+  border-radius: var(--radius-lg);
+}
+
+// Ikonica u krugu iznad poruke praznog stanja
+.empty-icon {
+  align-items: center;
+  background: var(--color-surface-hover);
+  border-radius: var(--radius-pill);
+  color: var(--color-link);
+  display: flex;
+  height: 3.75rem;
+  justify-content: center;
+  width: 3.75rem;
 }
 
 // Poruka na stranici: .alert, varijante --success, --warning, --danger, --info
 .alert {
-  border: 1px solid currentColor;
+  align-items: flex-start;
+  border: 1px solid transparent;
   border-radius: var(--radius);
+  display: flex;
+  font-size: var(--font-size-sm);
+  gap: var(--space-3);
+  line-height: 1.5;
   margin: 0;
   padding: var(--space-3) var(--space-4);
 }
 
+// Ikonica na početku poruke ne sme da se skupi
+.alert svg {
+  flex: 0 0 auto;
+  margin-top: 0.125rem;
+}
+
 .alert--success {
   background: var(--color-success-bg);
+  border-color: var(--color-success-border);
   color: var(--color-success);
 }
 
 .alert--warning {
   background: var(--color-warning-bg);
+  border-color: var(--color-warning);
   color: var(--color-warning);
 }
 
 .alert--danger {
   background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
   color: var(--color-danger);
 }
 
 .alert--info {
   background: var(--color-info-bg);
+  border-color: var(--color-info);
   color: var(--color-info);
 }
 
-// Bedž (status, oznaka): .badge, iste varijante kao .alert
+// Bedž (status, oznaka): .badge, varijante kao .alert, plus --accent i --gold
 .badge {
-  background: var(--color-surface-hover);
+  align-items: center;
+  background: var(--color-border);
   border-radius: var(--radius-pill);
-  color: var(--color-text-muted);
-  display: inline-block;
+  color: var(--color-text);
+  display: inline-flex;
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-1) var(--space-2);
+  font-weight: 700;
+  gap: var(--space-1);
+  min-height: 1.5rem;
+  padding: 0 0.625rem;
+  white-space: nowrap;
 }
 
 .badge--success {
@@ -215,16 +377,9 @@
   color: var(--color-success);
 }
 
-// Senf je pozadina, pa tekst mora biti tamni (boja pozadine stranice)
 .badge--warning {
-  background: var(--color-warning);
-  color: var(--color-bg);
-}
-
-// Titule i pečati („otkriveno")
-.badge--gold {
-  background: var(--color-gold);
-  color: var(--color-bg);
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
 }
 
 .badge--danger {
@@ -237,10 +392,22 @@
   color: var(--color-info);
 }
 
+// Narandžasta oznaka (npr. „In cart", isplata)
+.badge--accent {
+  background: var(--color-accent-bg);
+  color: var(--color-link);
+}
+
+// Titule i pečati („otkriveno"); senf je pozadina, pa je tekst tamni
+.badge--gold {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
 // Iznos novca: .amount, varijante --positive, --negative, --old
 .amount {
   font-variant-numeric: tabular-nums;
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   white-space: nowrap;
 }
 

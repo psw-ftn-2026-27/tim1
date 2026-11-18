@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Buy a gift card – choose recipient</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;color:#a9b6b1;text-decoration:none;font-weight:600;font-size:14px}
+.tab:hover{color:#fff}
+.tab[aria-current="page"]{background:#24332e;color:#fff}
+.count{min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#F08A3C;color:#1e1206;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:700 12px Inter,sans-serif;white-space:nowrap}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.alert-err{background:rgba(235,100,100,.1);border:1px solid rgba(235,110,110,.4);color:#f4b3b3}
+.alert-ok{background:rgba(74,190,130,.1);border:1px solid rgba(74,190,130,.4);color:#a8e8c4}
+.card{transition:border-color .15s}
+.card:hover{border-color:#3d5650}
+.input{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#eef2ef;font:400 14px Inter,sans-serif}
+.input::placeholder{color:#8d9b96}
+.input:focus{outline:2px solid #F08A3C;outline-offset:1px;border-color:transparent}
+.avatar{flex:0 0 auto;width:36px;height:36px;border-radius:999px;background:#24332e;color:#eef2ef;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.pick{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid transparent;background:transparent;color:#eef2ef;font:500 14px Inter,sans-serif;text-align:left;cursor:pointer}
+.pick:hover{background:#1f2c28}
+.pick[aria-pressed="true"]{background:rgba(240,138,60,.1);border-color:rgba(240,138,60,.55)}
+.chip{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #2f413b;background:#131c1a;color:#d6dedb;font:600 14px Inter,sans-serif;cursor:pointer}
+.chip:hover{border-color:#47605a}
+.chip[aria-pressed="true"]{background:rgba(240,138,60,.14);border-color:rgba(240,138,60,.6);color:#F5A262}
+.btn-sm{min-height:40px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn-ghost{background:transparent;border-color:transparent;color:#cfd8d4}
+.btn-ghost:hover{background:rgba(235,100,100,.1);color:#f4b3b3}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.th{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8d9b96}
+.opt{position:relative;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;cursor:pointer}
+.opt:hover{border-color:#47605a}
+.opt:has(input:checked){border-color:#F08A3C;background:rgba(240,138,60,.08)}
+.opt:has(input:focus-visible){outline:2px solid #F08A3C;outline-offset:2px}
+.opt input{accent-color:#F08A3C;width:18px;height:18px;margin:0;flex:0 0 auto}
+.lbl{font-size:13px;font-weight:600;color:#d6dedb}
+.hint{font-size:12px;line-height:1.5;color:#8d9b96}
+.pg{min-width:40px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 13px Inter,sans-serif;cursor:pointer}
+.pg[aria-current="page"]{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.pg[disabled]{opacity:.4;cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="#">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="Wallet.dc.html" aria-current="page">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+<main style="max-width: 880px; margin: 0 auto; padding: 28px 24px 72px; display: flex; flex-direction: column; gap: 22px">
+<a href="GiftCards.dc.html" style="display: inline-flex; align-items: center; gap: 6px; min-height: 32px; font-weight: 600; font-size: 14px; text-decoration: none; align-self: flex-start"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Gift cards</a>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: -6px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #F5A262">Step 1 of 2</span>
+<h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 900; font-size: 40px; line-height: 1.1">Who is the gift card for?</h1>
+<p style="margin: 0; font-size: 15px; color: #a9b6b1">Find the person by name. Next, you’ll choose the amount and write a message.</p>
+</div>
+
+<section aria-label="People" style="background: #182320; border: 1px solid #24332e; border-radius: 20px; overflow: hidden">
+<div style="padding: 18px; border-bottom: 1px solid #24332e; position: relative">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8d9b96" stroke-width="2" stroke-linecap="round" style="position: absolute; left: 32px; top: 32px"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input class="input" type="search" aria-label="Search people by name" placeholder="Search by name" value="{{q}}" onInput="{{onQ}}" style="padding-left: 40px">
+</div>
+<ul style="list-style: none; margin: 0; padding: 6px 0">
+<sc-for list="{{users}}" as="u" hint-placeholder-count="6">
+<li style="display: flex; align-items: center; gap: 12px; padding: 10px 18px">
+<span class="avatar" aria-hidden="true">{{u.initial}}</span>
+<span style="flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis">{{u.email}}</span>
+<a class="btn btn-sm" href="GiftCardForm.dc.html" aria-label="Buy a gift card for {{u.email}}" style="min-height: 40px; padding: 0 14px; font-size: 13px">Buy a gift card<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+</li>
+</sc-for>
+</ul>
+<sc-if value="{{none}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding: 28px 18px; text-align: center; font-size: 14px; color: #a9b6b1">No one matches “{{q}}”.</p></sc-if>
+<sc-if value="{{hasPages}}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Pagination" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; border-top: 1px solid #24332e">
+<span style="font-size: 13px; color: #a9b6b1">{{rangeLabel}}</span>
+<span style="display: flex; gap: 8px"><button class="pg" type="button" disabled="{{prevOff}}" onClick="{{prev}}">← Previous</button><button class="pg" type="button" disabled="{{nextOff}}" onClick="{{next}}">Next →</button></span>
+</nav>
+</sc-if>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+var USERS = ['admin1@explorer.dev', 'admin2@explorer.dev', 'ana.kovac@explorer.dev', 'explorer1@explorer.dev', 'explorer2@explorer.dev', 'explorer3@explorer.dev', 'jovan.ilic@explorer.dev', 'marko.savic@explorer.dev', 'milica.petrovic@explorer.dev', 'nikola.jovic@explorer.dev', 'sara.djordjevic@explorer.dev'];
+var SIZE = 8;
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { q: '', page: 1 }; }
+  renderVals() {
+    var s = this.state, self = this;
+    var q = s.q.trim().toLowerCase();
+    var all = USERS.filter(function (u) { return !q || u.indexOf(q) >= 0; });
+    var pages = Math.max(1, Math.ceil(all.length / SIZE)), page = Math.min(s.page, pages);
+    var from = (page - 1) * SIZE, slice = all.slice(from, from + SIZE);
+    return {
+      q: s.q, onQ: function (e) { self.setState({ q: e.target.value, page: 1 }); },
+      users: slice.map(function (u) { return { email: u, initial: u.charAt(0).toUpperCase() }; }),
+      none: all.length === 0, hasPages: all.length > 0,
+      rangeLabel: (from + 1) + '–' + (from + slice.length) + ' of ' + all.length,
+      prevOff: page <= 1, nextOff: page >= pages,
+      prev: function () { self.setState({ page: page - 1 }); }, next: function () { self.setState({ page: page + 1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

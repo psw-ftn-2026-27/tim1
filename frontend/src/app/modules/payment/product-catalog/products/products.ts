@@ -1,13 +1,14 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Analytics } from '../../../../core/analytics/analytics';
+import { formatAmount } from '../../../../shared/util/format-amount';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { ProductDto } from '../../api/payment-api-types';
 import { ProductCatalog } from '../product-catalog';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   selector: 'app-products',
   styleUrl: './products.scss',
   templateUrl: './products.html',
@@ -18,6 +19,8 @@ export class Products {
 
   protected readonly products = httpResource<ProductDto[]>(() => '/api/payment/products');
   protected readonly itemCount = httpResource<number>(() => '/api/payment/cart/item-count');
+
+  protected readonly formatAmount = formatAmount;
 
   protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);

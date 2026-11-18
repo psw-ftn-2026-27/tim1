@@ -1,0 +1,6 @@
+// Dekorativna kontura poklona u donjem desnom uglu poklon kartice. Crtež je pozicioniran
+// prema kartici (position: relative, overflow: hidden), boju uzima od teksta kartice, a
+// prozirnost određuje kartica koja ga koristi.
+:host {
+  display: contents;
+}
