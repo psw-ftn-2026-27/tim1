@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using Payment.Application.Checkout;
+using Payment.Application.GiftCards;
 using Payment.Tests.Integration.Seeds;
 using Xunit;
 

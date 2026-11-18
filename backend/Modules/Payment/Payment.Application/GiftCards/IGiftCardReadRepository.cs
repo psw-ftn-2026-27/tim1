@@ -1,4 +1,3 @@
-using Payment.Application.Checkout;
 using Shared.Domain;
 
 namespace Payment.Application.GiftCards;

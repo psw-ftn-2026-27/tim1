@@ -17,9 +17,9 @@ public sealed class CartPricing
         ShoppingCart cart,
         IReadOnlyList<Product> products,
         Coupon? coupon,
-        GiftCard? giftCard)
+        GiftCard? giftCard,
+        DateTime now)
     {
-        var now = DateTime.UtcNow;
         var total = cart.Total();
 
         var couponDiscount = 0m;

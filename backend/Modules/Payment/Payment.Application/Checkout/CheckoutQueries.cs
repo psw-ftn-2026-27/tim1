@@ -1,12 +1,8 @@
-using Payment.Application.Coupons;
 using Payment.Application.GiftCards;
 using Payment.Application.Products;
 using Payment.Application.ShoppingCarts;
-using Payment.Domain.Coupons;
-using Payment.Domain.GiftCards;
 using Payment.Domain.Purchases;
 using Payment.Domain.ShoppingCarts;
-using Shared.Domain.Exceptions;
 
 namespace Payment.Application.Checkout;
 
@@ -14,23 +10,20 @@ public sealed class CheckoutQueries
 {
     private readonly IShoppingCartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
-    private readonly ICouponRepository _couponRepository;
-    private readonly IGiftCardRepository _giftCardRepository;
+    private readonly CheckoutDiscounts _discounts;
     private readonly IGiftCardReadRepository _giftCardReadRepository;
     private readonly CartPricing _cartPricing;
 
     public CheckoutQueries(
         IShoppingCartRepository cartRepository,
         IProductRepository productRepository,
-        ICouponRepository couponRepository,
-        IGiftCardRepository giftCardRepository,
+        CheckoutDiscounts discounts,
         IGiftCardReadRepository giftCardReadRepository,
         CartPricing cartPricing)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
-        _couponRepository = couponRepository;
-        _giftCardRepository = giftCardRepository;
+        _discounts = discounts;
         _giftCardReadRepository = giftCardReadRepository;
         _cartPricing = cartPricing;
     }
@@ -46,21 +39,10 @@ public sealed class CheckoutQueries
         var references = cart.Items.Select(item => item.Reference).ToList();
         var products = await _productRepository.GetByReferencesAsync(references);
 
-        Coupon? coupon = null;
-        if (!string.IsNullOrWhiteSpace(couponCode))
-        {
-            coupon = await _couponRepository.GetByCodeAsync(couponCode)
-                ?? throw new NotFoundException("The coupon does not exist.");
-        }
+        var coupon = await _discounts.FindCouponAsync(couponCode);
+        var giftCard = await _discounts.FindGiftCardAsync(giftCardId);
 
-        GiftCard? giftCard = null;
-        if (giftCardId is not null)
-        {
-            giftCard = await _giftCardRepository.GetByIdAsync(giftCardId.Value)
-                ?? throw new NotFoundException("The gift card does not exist.");
-        }
-
-        var price = _cartPricing.Calculate(cart, products, coupon, giftCard);
+        var price = _cartPricing.Calculate(cart, products, coupon, giftCard, DateTime.UtcNow);
 
         var couponProductName = cart.Items.FirstOrDefault(item => item.Reference == price.CouponReference)?.Name;
         return new PriceDto(

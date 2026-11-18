@@ -59,7 +59,7 @@ public class CartPricingTests
         var cart = CreateCartWithAllTours();
         var coupon = CreateCoupon(Ride.Id, 25);
 
-        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, null);
+        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, null, DateTime.UtcNow);
 
         price.CouponReference.Should().Be(MountainRide);
         price.CouponDiscount.Should().Be(225m);
@@ -73,7 +73,7 @@ public class CartPricingTests
         var cart = CreateCartWithAllTours();
         var coupon = CreateCoupon(null, 10);
 
-        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, null);
+        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, null, DateTime.UtcNow);
 
         price.CouponReference.Should().Be(FortressTour);
         price.CouponDiscount.Should().Be(120m);
@@ -86,7 +86,7 @@ public class CartPricingTests
         var cart = CreateCartWithTheRideAlone();
         var coupon = CreateCoupon(Fortress.Id, 25);
 
-        var pricing = () => new CartPricing().Calculate(cart, CreateProducts(), coupon, null);
+        var pricing = () => new CartPricing().Calculate(cart, CreateProducts(), coupon, null, DateTime.UtcNow);
 
         pricing.Should().Throw<DomainException>();
     }
@@ -98,7 +98,7 @@ public class CartPricingTests
         var coupon = CreateCoupon(Ride.Id, 25);
         var giftCard = CreateGiftCard(100m);
 
-        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, giftCard);
+        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, giftCard, DateTime.UtcNow);
 
         price.CardDiscount.Should().Be(100m);
         price.CardLost.Should().Be(0);
@@ -111,10 +111,32 @@ public class CartPricingTests
         var cart = CreateCartWithTheRideAlone();
         var giftCard = CreateGiftCard(1000m);
 
-        var price = new CartPricing().Calculate(cart, CreateProducts(), null, giftCard);
+        var price = new CartPricing().Calculate(cart, CreateProducts(), null, giftCard, DateTime.UtcNow);
 
         price.CardDiscount.Should().Be(900m);
         price.FinalPrice.Should().Be(0);
         price.CardLost.Should().Be(100m);
+    }
+
+    [Fact]
+    public void Coupon_that_has_expired_is_not_priced()
+    {
+        var cart = CreateCartWithAllTours();
+        var coupon = CreateCoupon(Ride.Id, 25);
+
+        var pricing = () => new CartPricing().Calculate(cart, CreateProducts(), coupon, null, DateTime.UtcNow.AddDays(8));
+
+        pricing.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Gift_card_that_has_expired_is_not_priced()
+    {
+        var cart = CreateCartWithTheRideAlone();
+        var giftCard = CreateGiftCard(100m);
+
+        var pricing = () => new CartPricing().Calculate(cart, CreateProducts(), null, giftCard, giftCard.ExpiresAt.AddDays(1));
+
+        pricing.Should().Throw<DomainException>();
     }
 }

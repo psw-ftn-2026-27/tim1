@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.Application.Checkout;
+using Payment.Application.GiftCards;
 using Shared.Api;
 
 namespace Payment.Api;

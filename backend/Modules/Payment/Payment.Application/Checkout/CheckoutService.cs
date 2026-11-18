@@ -1,11 +1,7 @@
-using Payment.Application.Coupons;
-using Payment.Application.GiftCards;
 using Payment.Application.Products;
 using Payment.Application.Purchases;
 using Payment.Application.ShoppingCarts;
 using Payment.Application.Wallets;
-using Payment.Domain.Coupons;
-using Payment.Domain.GiftCards;
 using Payment.Domain.Products;
 using Payment.Domain.Purchases;
 using Payment.Domain.Wallets;
@@ -19,8 +15,7 @@ public sealed class CheckoutService
     private readonly IProductRepository _productRepository;
     private readonly IWalletRepository _walletRepository;
     private readonly IPurchaseRepository _purchaseRepository;
-    private readonly ICouponRepository _couponRepository;
-    private readonly IGiftCardRepository _giftCardRepository;
+    private readonly CheckoutDiscounts _discounts;
     private readonly CartCheckout _cartCheckout;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -29,8 +24,7 @@ public sealed class CheckoutService
         IProductRepository productRepository,
         IWalletRepository walletRepository,
         IPurchaseRepository purchaseRepository,
-        ICouponRepository couponRepository,
-        IGiftCardRepository giftCardRepository,
+        CheckoutDiscounts discounts,
         CartCheckout cartCheckout,
         IUnitOfWork unitOfWork)
     {
@@ -38,8 +32,7 @@ public sealed class CheckoutService
         _productRepository = productRepository;
         _walletRepository = walletRepository;
         _purchaseRepository = purchaseRepository;
-        _couponRepository = couponRepository;
-        _giftCardRepository = giftCardRepository;
+        _discounts = discounts;
         _cartCheckout = cartCheckout;
         _unitOfWork = unitOfWork;
     }
@@ -65,19 +58,8 @@ public sealed class CheckoutService
         var sellerWallets = await SellerWalletsOfAsync(products);
         var ownedPurchases = await _purchaseRepository.GetOfBuyerAsync(customerId, references);
 
-        Coupon? coupon = null;
-        if (!string.IsNullOrWhiteSpace(couponCode))
-        {
-            coupon = await _couponRepository.GetByCodeAsync(couponCode)
-                ?? throw new NotFoundException("The coupon does not exist.");
-        }
-
-        GiftCard? giftCard = null;
-        if (giftCardId is not null)
-        {
-            giftCard = await _giftCardRepository.GetByIdAsync(giftCardId.Value)
-                ?? throw new NotFoundException("The gift card does not exist.");
-        }
+        var coupon = await _discounts.FindCouponAsync(couponCode);
+        var giftCard = await _discounts.FindGiftCardAsync(giftCardId);
 
         var purchases = _cartCheckout.Checkout(
             cart, products, buyerWallet, sellerWallets, ownedPurchases, coupon, giftCard);

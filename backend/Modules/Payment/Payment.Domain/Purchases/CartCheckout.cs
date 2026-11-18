@@ -19,7 +19,12 @@ namespace Payment.Domain.Purchases;
 /// </summary>
 public sealed class CartCheckout
 {
-    private readonly CartPricing _cartPricing = new();
+    private readonly CartPricing _cartPricing;
+
+    public CartCheckout(CartPricing cartPricing)
+    {
+        _cartPricing = cartPricing;
+    }
 
     public IReadOnlyList<Purchase> Checkout(
         ShoppingCart cart,
@@ -42,29 +47,36 @@ public sealed class CartCheckout
             throw new DomainException($"You already own {ownedItem.Name}.");
         }
 
-        var price = _cartPricing.Calculate(cart, products, coupon, giftCard);
-        coupon?.Use(DateTime.UtcNow);
-        giftCard?.Use(cart.OwnerId, DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        var price = _cartPricing.Calculate(cart, products, coupon, giftCard, now);
+        coupon?.Use(now);
+        giftCard?.Use(cart.OwnerId, now);
 
         var cardLeft = price.CardDiscount;
         var purchases = new List<Purchase>();
         foreach (var item in cart.Items)
         {
-            var soldProduct = products.Single(product => product.Reference == item.Reference);
-            var sellerWallet = sellerWallets[soldProduct.OwnerId];
-
-            var hasCoupon = coupon is not null && item.Reference == price.CouponReference;
+            var hasCoupon = item.Reference == price.CouponReference;
             var couponDiscount = hasCoupon ? price.CouponDiscount : 0m;
             var itemPrice = item.Price - couponDiscount;
             var cardShare = Math.Min(cardLeft, itemPrice);
             cardLeft -= cardShare;
 
-            buyerWallet.PayFor(item.Reference, item.Name, itemPrice - cardShare, soldProduct.OwnerId);
-            sellerWallet.ReceivePayment(item.Reference, item.Name, itemPrice);
+            var soldProduct = products.Single(product => product.Reference == item.Reference);
+            Pay(item, itemPrice, cardShare, buyerWallet, sellerWallets[soldProduct.OwnerId], soldProduct.OwnerId);
+
             purchases.Add(new Purchase(cart.OwnerId, item.Reference, itemPrice, hasCoupon ? coupon!.Id : null, couponDiscount));
         }
 
         cart.Clear();
         return purchases;
+    }
+
+    /// <summary>The seller earns the whole item price; the buyer pays it less the share of the card.</summary>
+    private static void Pay(
+        OrderItem item, decimal itemPrice, decimal cardShare, Wallet buyerWallet, Wallet sellerWallet, Guid sellerId)
+    {
+        buyerWallet.PayFor(item.Reference, item.Name, itemPrice - cardShare, sellerId);
+        sellerWallet.ReceivePayment(item.Reference, item.Name, itemPrice);
     }
 }

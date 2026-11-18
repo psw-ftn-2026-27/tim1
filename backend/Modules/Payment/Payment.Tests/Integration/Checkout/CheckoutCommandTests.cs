@@ -145,6 +145,9 @@ public class CheckoutCommandTests : BaseIntegrationTest
         using var assertContext = Factory.CreateContext<PaymentDbContext>();
         var buyersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.BuyersWallet.Id);
         buyersWallet.AvailableBalance.Should().Be(WalletSeed.BuyersWallet.AvailableBalance - finalPrice);
+        var ownersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.ProductOwnersWallet.Id);
+        ownersWallet.AvailableBalance.Should().Be(
+            WalletSeed.ProductOwnersWallet.AvailableBalance + ProductSeed.DemoExplorersTour.Price - couponDiscount);
         var purchase = assertContext.Purchases.Single(purchase =>
             purchase.BuyerId == DemoUsers.SecondExplorer
             && purchase.Reference.EntityId == ProductSeed.DemoExplorersTour.Reference.EntityId);

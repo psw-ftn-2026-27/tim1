@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Payment.Application.Checkout;
 using Payment.Application.GiftCards;
 using Payment.Domain.GiftCards;
 using Shared.Domain;
