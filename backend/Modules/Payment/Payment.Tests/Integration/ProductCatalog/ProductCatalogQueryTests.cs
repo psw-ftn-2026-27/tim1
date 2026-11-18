@@ -27,6 +27,7 @@ public class ProductCatalogQueryTests : BaseIntegrationTest
         products!.Should().HaveCount(ProductSeed.All.Length);
         var tour = products.Single(product => product.Id == ProductSeed.DemoExplorersTour.Id);
         tour.Type.Should().Be(DomainProductType.Tour);
+        tour.EntityId.Should().Be(ProductSeed.DemoExplorersTour.Reference.EntityId);
         tour.Name.Should().Be(ProductSeed.DemoExplorersTour.Name);
         tour.Price.Should().Be(ProductSeed.DemoExplorersTour.Price);
         tour.OwnerName.Should().NotBeNullOrWhiteSpace();

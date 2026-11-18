@@ -16,6 +16,8 @@ public sealed class Blog : AggregateRoot
     public BlogStatus Status { get; private set; }
     private readonly List<Comment> _comments = [];
     public IReadOnlyList<Comment> Comments => _comments;
+    private readonly List<Vote> _votes = [];
+    public IReadOnlyList<Vote> Votes => _votes;
 
     private Blog()
     {
@@ -94,6 +96,25 @@ public sealed class Blog : AggregateRoot
         _comments.Remove(GetOwnComment(commentId, userId));
     }
 
+    public void Vote(Guid userId, VoteType type)
+    {
+        EnsurePublished();
+
+        var vote = _votes.FirstOrDefault(vote => vote.UserId == userId);
+        if (vote is null)
+        {
+            _votes.Add(new Vote(userId, type));
+        }
+        else if (vote.Type == type)
+        {
+            _votes.Remove(vote);
+        }
+        else
+        {
+            vote.ChangeType(type);
+        }
+    }
+
     private static void EnsureValidContent(string title, string description, List<Guid>? images)
     {
         if (string.IsNullOrWhiteSpace(title))
@@ -114,7 +135,7 @@ public sealed class Blog : AggregateRoot
     {
         if (Status != BlogStatus.Published)
         {
-            throw new DomainException("Comments are allowed only on a published blog.");
+            throw new DomainException("Comments and votes are allowed only on a published blog.");
         }
     }
 

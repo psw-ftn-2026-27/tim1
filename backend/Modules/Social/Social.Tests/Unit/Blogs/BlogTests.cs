@@ -238,4 +238,53 @@ public class BlogTests
         blog.Comments.Should().BeEmpty();
     }
 
+    [Fact]
+    public void User_votes_on_a_published_blog()
+    {
+        var blog = CreatePublishedBlog();
+
+        blog.Vote(WellKnownUsers.Administrator, VoteType.Upvote);
+
+        var vote = blog.Votes.Should().ContainSingle().Which;
+        vote.UserId.Should().Be(WellKnownUsers.Administrator);
+        vote.Type.Should().Be(VoteType.Upvote);
+        vote.VotedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void Opposite_vote_changes_the_users_vote_and_its_time()
+    {
+        var blog = CreatePublishedBlog();
+        blog.Vote(WellKnownUsers.Administrator, VoteType.Upvote);
+        var votedAt = blog.Votes.Single().VotedAt;
+
+        blog.Vote(WellKnownUsers.Administrator, VoteType.Downvote);
+
+        var vote = blog.Votes.Should().ContainSingle(vote => vote.UserId == WellKnownUsers.Administrator).Which;
+        vote.Type.Should().Be(VoteType.Downvote);
+        vote.VotedAt.Should().BeAfter(votedAt);
+    }
+
+    [Theory]
+    [InlineData(VoteType.Upvote)]
+    [InlineData(VoteType.Downvote)]
+    public void Repeated_vote_of_the_same_type_removes_the_vote(VoteType type)
+    {
+        var blog = CreatePublishedBlog();
+        blog.Vote(WellKnownUsers.Administrator, type);
+
+        blog.Vote(WellKnownUsers.Administrator, type);
+
+        blog.Votes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Archived_blog_cannot_be_voted_on()
+    {
+        var blog = CreateArchivedBlog();
+
+        var voting = () => blog.Vote(WellKnownUsers.Administrator, VoteType.Upvote);
+
+        voting.Should().Throw<DomainException>();
+    }
 }
