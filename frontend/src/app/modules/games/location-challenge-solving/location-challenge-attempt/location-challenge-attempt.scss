@@ -1,0 +1,26 @@
+.page {
+  margin-inline: auto;
+  max-width: 52rem;
+}
+
+.back {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.photo {
+  display: block;
+  height: 12rem;
+}

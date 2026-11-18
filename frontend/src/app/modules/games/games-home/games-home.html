@@ -4,6 +4,23 @@
     <p class="subtitle">Challenges that get people outside together.</p>
   </div>
 
+  @if (isExplorer()) {
+    <section class="stack">
+      <h2 class="section-label">Play</h2>
+
+      <div class="grid">
+        <a class="card card--interactive tile" routerLink="/games/location-challenges/nearby">
+          <span>
+            <span class="tile-title">Location challenges</span>
+            <span class="tile-description">
+              Find the places where the photos were taken, starting near you.
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  }
+
   @if (isAdministrator()) {
     <section class="stack">
       <h2 class="section-label">Administration</h2>

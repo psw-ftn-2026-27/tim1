@@ -1,5 +1,7 @@
 using Games.Application.LocationChallengeManagement;
 using Games.Application.LocationChallenges;
+using Games.Application.LocationChallengeSolving;
+using Games.Domain.LocationChallenges;
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain;
 
@@ -54,5 +56,18 @@ internal sealed class LocationChallengeReadRepository : ILocationChallengeReadRe
                         point.ImageId))
                     .ToList()))
             .SingleOrDefaultAsync();
+    }
+
+    public async Task<IReadOnlyList<PublishedLocationChallengeDto>> GetPublishedAsync()
+    {
+        return await _dbContext.LocationChallenges
+            .AsNoTracking()
+            .Where(challenge => challenge.Status == LocationChallengeStatus.Published)
+            .Select(challenge => new PublishedLocationChallengeDto(
+                challenge.Id,
+                challenge.Name,
+                new LocationDto(challenge.StartLocation.Latitude, challenge.StartLocation.Longitude),
+                challenge.ExperiencePoints))
+            .ToListAsync();
     }
 }

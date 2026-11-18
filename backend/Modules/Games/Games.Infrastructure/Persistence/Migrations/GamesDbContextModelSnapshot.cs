@@ -48,6 +48,48 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.ToTable("Images", "games");
                 });
 
+            modelBuilder.Entity("Games.Domain.LocationChallengeAttempts.LocationChallengeAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChallengeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "Circle", "Games.Domain.LocationChallengeAttempts.LocationChallengeAttempt.Circle#SearchCircle", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<double>("DiameterMeters")
+                                .HasColumnType("double precision");
+
+                            b1.ComplexProperty(typeof(Dictionary<string, object>), "Center", "Games.Domain.LocationChallengeAttempts.LocationChallengeAttempt.Circle#SearchCircle.Center#Location", b2 =>
+                                {
+                                    b2.IsRequired();
+
+                                    b2.Property<double>("Latitude")
+                                        .HasColumnType("double precision");
+
+                                    b2.Property<double>("Longitude")
+                                        .HasColumnType("double precision");
+                                });
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("LocationChallengeAttempts", "games");
+                });
+
             modelBuilder.Entity("Games.Domain.LocationChallenges.HiddenPoint", b =>
                 {
                     b.Property<Guid>("Id")

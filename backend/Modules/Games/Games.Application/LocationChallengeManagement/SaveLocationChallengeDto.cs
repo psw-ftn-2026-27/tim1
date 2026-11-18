@@ -1,3 +1,5 @@
+using Games.Application.LocationChallenges;
+
 namespace Games.Application.LocationChallengeManagement;
 
 public sealed record SaveLocationChallengeDto(

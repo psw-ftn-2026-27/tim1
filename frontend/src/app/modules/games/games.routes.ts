@@ -6,6 +6,8 @@ import { GamesHome } from './games-home/games-home';
 import { CreateLocationChallenge } from './location-challenge-management/create-location-challenge/create-location-challenge';
 import { EditLocationChallenge } from './location-challenge-management/edit-location-challenge/edit-location-challenge';
 import { LocationChallenges } from './location-challenge-management/location-challenges/location-challenges';
+import { LocationChallengeAttempt } from './location-challenge-solving/location-challenge-attempt/location-challenge-attempt';
+import { NearbyLocationChallenges } from './location-challenge-solving/nearby-location-challenges/nearby-location-challenges';
 import { CreateQuiz } from './quiz-management/create-quiz/create-quiz';
 import { EditQuiz } from './quiz-management/edit-quiz/edit-quiz';
 import { Quizzes } from './quiz-management/quizzes/quizzes';
@@ -16,6 +18,13 @@ import { SocialChallenges } from './social-challenge-management/social-challenge
 const requireAdministrator: CanActivateFn = () => {
   const auth = inject(Auth);
   return auth.user()?.roles.includes('administrator') === true
+    ? true
+    : inject(Router).createUrlTree(['/games']);
+};
+
+const requireExplorer: CanActivateFn = () => {
+  const auth = inject(Auth);
+  return auth.user()?.roles.includes('explorer') === true
     ? true
     : inject(Router).createUrlTree(['/games']);
 };
@@ -43,5 +52,15 @@ export const gamesRoutes: Routes = [
     path: 'location-challenges/:id/edit',
     component: EditLocationChallenge,
     canActivate: [requireAdministrator],
+  },
+  {
+    path: 'location-challenges/nearby',
+    component: NearbyLocationChallenges,
+    canActivate: [requireExplorer],
+  },
+  {
+    path: 'location-challenges/:id/attempt',
+    component: LocationChallengeAttempt,
+    canActivate: [requireExplorer],
   },
 ];

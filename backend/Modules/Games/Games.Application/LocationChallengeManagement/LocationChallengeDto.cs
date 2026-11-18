@@ -1,3 +1,4 @@
+using Games.Application.LocationChallenges;
 using Games.Domain.LocationChallenges;
 
 namespace Games.Application.LocationChallengeManagement;
@@ -18,5 +19,3 @@ public sealed record LocationChallengeSummaryDto(
     int HiddenPointCount,
     int ExperiencePoints,
     LocationChallengeStatus Status);
-
-public sealed record LocationDto(double Latitude, double Longitude);
