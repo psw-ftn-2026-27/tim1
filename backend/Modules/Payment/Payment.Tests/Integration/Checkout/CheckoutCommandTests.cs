@@ -1,5 +1,7 @@
 using System.Net;
+using System.Net.Http.Json;
 using FluentAssertions;
+using Payment.Application.Checkout;
 using Payment.Domain.Wallets;
 using Payment.Infrastructure.Persistence;
 using Payment.Tests.Integration.Seeds;
@@ -125,6 +127,74 @@ public class CheckoutCommandTests : BaseIntegrationTest
         customersWallet.AvailableBalance.Should().Be(WalletSeed.ProductOwnersWallet.AvailableBalance);
         assertContext.ShoppingCarts.Single(cart => cart.OwnerId == DemoUsers.Explorer)
             .Items.Should().HaveCount(ShoppingCartSeed.CartWithAnUnregisteredProduct.Items.Count);
+    }
+
+    [Fact]
+    public async Task Cart_bought_with_a_coupon_and_a_gift_card_is_paid_lower_and_spends_both()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");
+        var coupon = CouponSeed.DemoExplorersTourCoupon;
+        var giftCard = GiftCardSeed.ExplorersGiftCardForSecondExplorer;
+        var couponDiscount = ProductSeed.DemoExplorersTour.Price * coupon.Percent / 100m;
+        var finalPrice = ShoppingCartSeed.BuyersCart.Total() - couponDiscount - giftCard.Amount;
+
+        var response = await client.PostAsJsonAsync(
+            "/api/payment/cart/checkout", new CheckoutDto(coupon.Code, giftCard.Id));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        var buyersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.BuyersWallet.Id);
+        buyersWallet.AvailableBalance.Should().Be(WalletSeed.BuyersWallet.AvailableBalance - finalPrice);
+        var ownersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.ProductOwnersWallet.Id);
+        ownersWallet.AvailableBalance.Should().Be(
+            WalletSeed.ProductOwnersWallet.AvailableBalance + ProductSeed.DemoExplorersTour.Price - couponDiscount);
+        var purchase = assertContext.Purchases.Single(purchase =>
+            purchase.BuyerId == DemoUsers.SecondExplorer
+            && purchase.Reference.EntityId == ProductSeed.DemoExplorersTour.Reference.EntityId);
+        purchase.CouponId.Should().Be(coupon.Id);
+        purchase.CouponDiscount.Should().Be(couponDiscount);
+        purchase.Price.Should().Be(ProductSeed.DemoExplorersTour.Price - couponDiscount);
+        assertContext.Coupons.Single(stored => stored.Id == coupon.Id).UsedAt.Should().NotBeNull();
+        assertContext.GiftCards.Single(stored => stored.Id == giftCard.Id).UsedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task Coupon_code_that_does_not_exist_stops_the_purchase()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var purchaseCountBefore = arrangeContext.Purchases.Count();
+
+        var response = await client.PostAsJsonAsync(
+            "/api/payment/cart/checkout", new CheckoutDto("NOSUCHCD", null));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.Purchases.Count().Should().Be(purchaseCountBefore);
+        var buyersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.BuyersWallet.Id);
+        buyersWallet.AvailableBalance.Should().Be(WalletSeed.BuyersWallet.AvailableBalance);
+        assertContext.ShoppingCarts.Single(cart => cart.OwnerId == DemoUsers.SecondExplorer)
+            .Items.Should().HaveCount(ShoppingCartSeed.BuyersCart.Items.Count);
+    }
+
+    [Fact]
+    public async Task Used_coupon_stops_the_purchase_and_spends_nothing()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");
+        var coupon = CouponSeed.ForgottenOwnersUsedCoupon;
+        var giftCard = GiftCardSeed.ExplorersGiftCardForSecondExplorer;
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var purchaseCountBefore = arrangeContext.Purchases.Count();
+
+        var response = await client.PostAsJsonAsync(
+            "/api/payment/cart/checkout", new CheckoutDto(coupon.Code, giftCard.Id));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.Purchases.Count().Should().Be(purchaseCountBefore);
+        assertContext.GiftCards.Single(stored => stored.Id == giftCard.Id).UsedAt.Should().BeNull();
+        var buyersWallet = assertContext.Wallets.Single(wallet => wallet.Id == WalletSeed.BuyersWallet.Id);
+        buyersWallet.AvailableBalance.Should().Be(WalletSeed.BuyersWallet.AvailableBalance);
     }
 
     [Fact]

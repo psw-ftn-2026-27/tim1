@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Payment.Domain.Coupons;
+using Payment.Domain.GiftCards;
 using Payment.Domain.Products;
 using Payment.Domain.Purchases;
 using Payment.Domain.ShoppingCarts;
@@ -57,6 +59,8 @@ public class CartCheckoutTests
         };
     }
 
+    private static CartCheckout CreateCheckout() => new(new CartPricing());
+
     [Fact]
     public void Bought_cart_takes_its_total_from_the_buyer_and_pays_every_owner_the_price_of_their_item()
     {
@@ -64,7 +68,7 @@ public class CartCheckoutTests
         var buyerWallet = CreateBuyerWallet();
         var ownerWallets = CreateOwnerWallets();
 
-        new CartCheckout().Checkout(cart, CreateBothProducts(), buyerWallet, ownerWallets, []);
+        CreateCheckout().Checkout(cart, CreateBothProducts(), buyerWallet, ownerWallets, []);
 
         buyerWallet.AvailableBalance.Should().Be(2900m);
         ownerWallets[FortressTourOwner].AvailableBalance.Should().Be(1200m);
@@ -77,7 +81,7 @@ public class CartCheckoutTests
         var cart = CreateCartWithBothTours();
         var startedAt = DateTime.UtcNow;
 
-        var purchases = new CartCheckout().Checkout(
+        var purchases = CreateCheckout().Checkout(
             cart, CreateBothProducts(), CreateBuyerWallet(), CreateOwnerWallets(), []);
 
         purchases.Should().HaveCount(2);
@@ -94,7 +98,7 @@ public class CartCheckoutTests
     {
         var cart = CreateCartWithBothTours();
 
-        new CartCheckout().Checkout(cart, CreateBothProducts(), CreateBuyerWallet(), CreateOwnerWallets(), []);
+        CreateCheckout().Checkout(cart, CreateBothProducts(), CreateBuyerWallet(), CreateOwnerWallets(), []);
 
         cart.Items.Should().BeEmpty();
         cart.Total().Should().Be(0);
@@ -108,7 +112,7 @@ public class CartCheckoutTests
         var ownerWallets = CreateOwnerWallets();
         Purchase[] ownedPurchases = [new Purchase(Buyer, FortressTour, 1200m)];
 
-        var buying = () => new CartCheckout().Checkout(
+        var buying = () => CreateCheckout().Checkout(
             cart, CreateBothProducts(), buyerWallet, ownerWallets, ownedPurchases);
 
         buying.Should().Throw<DomainException>();
@@ -124,11 +128,47 @@ public class CartCheckoutTests
         var cart = new ShoppingCart(Buyer);
         var buyerWallet = CreateBuyerWallet();
 
-        var buying = () => new CartCheckout().Checkout(cart, [], buyerWallet, CreateOwnerWallets(), []);
+        var buying = () => CreateCheckout().Checkout(cart, [], buyerWallet, CreateOwnerWallets(), []);
 
         buying.Should().Throw<DomainException>();
         buyerWallet.AvailableBalance.Should().Be(5000m);
         buyerWallet.Transactions.Should().NotContain(transaction =>
             transaction.Type == TransactionType.Purchase);
+    }
+
+    [Fact]
+    public void Gift_card_lowers_only_what_the_buyer_pays_and_the_sellers_still_earn_the_full_price()
+    {
+        var cart = CreateCartWithBothTours();
+        var buyerWallet = CreateBuyerWallet();
+        var ownerWallets = CreateOwnerWallets();
+        var giftCard = new GiftCard(FortressTourOwner, Buyer, 1000m, "Enjoy the tours!");
+
+        CreateCheckout().Checkout(cart, CreateBothProducts(), buyerWallet, ownerWallets, [], null, giftCard);
+
+        buyerWallet.AvailableBalance.Should().Be(3900m);
+        ownerWallets[FortressTourOwner].AvailableBalance.Should().Be(1200m);
+        ownerWallets[MountainRideOwner].AvailableBalance.Should().Be(900m);
+        giftCard.UsedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Coupon_lowers_the_price_the_buyer_pays_and_the_seller_earns_and_the_purchase_remembers_it()
+    {
+        var cart = CreateCartWithBothTours();
+        var buyerWallet = CreateBuyerWallet();
+        var ownerWallets = CreateOwnerWallets();
+        var coupon = new Coupon(FortressTourOwner, null, 25, DateTime.UtcNow.AddDays(7));
+
+        var purchases = CreateCheckout().Checkout(
+            cart, CreateBothProducts(), buyerWallet, ownerWallets, [], coupon, null);
+
+        buyerWallet.AvailableBalance.Should().Be(3200m);
+        ownerWallets[FortressTourOwner].AvailableBalance.Should().Be(900m);
+        ownerWallets[MountainRideOwner].AvailableBalance.Should().Be(900m);
+        var discounted = purchases.Single(purchase => purchase.Reference == FortressTour);
+        discounted.CouponId.Should().Be(coupon.Id);
+        discounted.CouponDiscount.Should().Be(300m);
+        coupon.UsedAt.Should().NotBeNull();
     }
 }

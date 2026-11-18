@@ -64,6 +64,39 @@ public class GiftCardTests
     }
 
     [Fact]
+    public void Gift_card_meant_for_someone_else_cannot_be_used()
+    {
+        var giftCard = CreateGiftCard();
+
+        var usage = () => giftCard.Use(WellKnownUsers.Administrator, DateTime.UtcNow);
+
+        usage.Should().Throw<DomainException>();
+        giftCard.UsedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public void Expired_gift_card_cannot_be_used()
+    {
+        var giftCard = CreateGiftCard();
+
+        var usage = () => giftCard.Use(WellKnownUsers.SecondExplorer, giftCard.ExpiresAt.AddDays(1));
+
+        usage.Should().Throw<DomainException>();
+        giftCard.UsedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public void Used_gift_card_cannot_be_used_again()
+    {
+        var giftCard = CreateGiftCard();
+        giftCard.Use(WellKnownUsers.SecondExplorer, DateTime.UtcNow);
+
+        var usage = () => giftCard.Use(WellKnownUsers.SecondExplorer, DateTime.UtcNow);
+
+        usage.Should().Throw<DomainException>();
+    }
+
+    [Fact]
     public void Gift_card_is_valid_until_three_years_after_its_creation()
     {
         var giftCard = CreateGiftCard();

@@ -8,6 +8,18 @@ internal static class GiftCardSeed
     public static readonly GiftCard SecondExplorersGiftCardForExplorer = new(DemoUsers.SecondExplorer, DemoUsers.Explorer, 250m, "Happy birthday!");
     public static readonly GiftCard SecondExplorersGiftCardForThirdExplorer = new(DemoUsers.SecondExplorer, DemoUsers.ThirdExplorer, 50m, "Thank you!");
 
+    /// <summary>A card the explorer received and has already spent.</summary>
+    public static readonly GiftCard ThirdExplorersUsedGiftCardForExplorer;
+
+    static GiftCardSeed()
+    {
+        ThirdExplorersUsedGiftCardForExplorer = new GiftCard(DemoUsers.ThirdExplorer, DemoUsers.Explorer, 20m, "Spent already.");
+        ThirdExplorersUsedGiftCardForExplorer.Use(DemoUsers.Explorer, DateTime.UtcNow);
+    }
+
     public static GiftCard[] All =>
-        [ExplorersGiftCardForSecondExplorer, SecondExplorersGiftCardForExplorer, SecondExplorersGiftCardForThirdExplorer];
+    [
+        ExplorersGiftCardForSecondExplorer, SecondExplorersGiftCardForExplorer,
+        SecondExplorersGiftCardForThirdExplorer, ThirdExplorersUsedGiftCardForExplorer
+    ];
 }
