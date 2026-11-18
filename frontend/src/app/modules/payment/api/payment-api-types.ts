@@ -59,8 +59,26 @@ export type ProductType = 'Tour';
 export interface ProductDto {
   id: string;
   type: ProductType;
+  entityId: string;
   name: string;
   price: number;
   ownerId: string;
   ownerName: string;
+}
+
+export interface CartItemDto {
+  type: ProductType;
+  entityId: string;
+  name: string;
+  price: number;
+}
+
+export interface CartDto {
+  items: CartItemDto[];
+  total: number;
+}
+
+export interface ProductReferenceDto {
+  type: ProductType;
+  entityId: string;
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Api;
 using Shared.Domain;
 using Social.Application.BlogReading;
 using Social.Application.Blogs;
@@ -25,9 +26,9 @@ public sealed class BlogReadingController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<BlogDto>> GetById(Guid id)
+    public async Task<ActionResult<BlogDetailDto>> GetById(Guid id)
     {
-        return await _readingQueries.GetByIdAsync(id);
+        return await _readingQueries.GetByIdAsync(id, User.GetUserId());
     }
 
     // Returns the image file itself (image/webp), not a JSON DTO.

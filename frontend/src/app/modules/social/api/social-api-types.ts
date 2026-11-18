@@ -1,5 +1,7 @@
 export type BlogStatus = 'Draft' | 'Published' | 'Archived';
 
+export type VoteType = 'Upvote' | 'Downvote';
+
 export interface CommentDto {
   id: string;
   userId: string;
@@ -17,6 +19,25 @@ export interface BlogDto {
   images: string[];
   status: BlogStatus;
   comments: CommentDto[];
+  score: number;
+}
+
+export interface BlogDetailDto {
+  id: string;
+  authorId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  images: string[];
+  status: BlogStatus;
+  comments: CommentDto[];
+  score: number;
+  myVote: VoteType | null;
+}
+
+export interface VoteDto {
+  type: VoteType;
 }
 
 export interface CreateBlogDto {
@@ -99,4 +120,22 @@ export interface FollowingDto {
 export interface FollowCountsDto {
   followerCount: number;
   followingCount: number;
+}
+
+export type ClubRole = 'Owner' | 'Moderator' | 'Member';
+
+export interface ClubMemberDto {
+  userId: string;
+  role: ClubRole;
+}
+
+export type MembershipStatus = 'NotMember' | 'PendingRequest' | 'Member';
+
+export interface MyMembershipDto {
+  status: MembershipStatus;
+}
+
+export interface MembershipRequestDto {
+  userId: string;
+  createdAt: string;
 }
