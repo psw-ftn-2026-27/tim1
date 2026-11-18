@@ -43,4 +43,32 @@ public sealed class QuizManagementController : ControllerBase
         await _managementService.UpdateAsync(id, dto);
         return NoContent();
     }
+
+    [HttpPost("{id:guid}/publish")]
+    public async Task<ActionResult> Publish(Guid id)
+    {
+        await _managementService.PublishAsync(id);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/retire")]
+    public async Task<ActionResult> Retire(Guid id)
+    {
+        await _managementService.RetireAsync(id);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/archive")]
+    public async Task<ActionResult> Archive(Guid id)
+    {
+        await _managementService.ArchiveAsync(id);
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        await _managementService.DeleteAsync(id);
+        return NoContent();
+    }
 }
