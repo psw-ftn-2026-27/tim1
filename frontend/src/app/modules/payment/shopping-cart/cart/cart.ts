@@ -2,6 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
+import { Analytics } from '../../../../core/analytics/analytics';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { CartDto, CartItemDto, PriceDto, UsableGiftCardDto } from '../../api/payment-api-types';
 import { ShoppingCart } from '../shopping-cart';
@@ -14,6 +15,7 @@ import { ShoppingCart } from '../shopping-cart';
 })
 export class Cart {
   private readonly shoppingCart = inject(ShoppingCart);
+  private readonly analytics = inject(Analytics);
 
   protected readonly cart = httpResource<CartDto>(() => '/api/payment/cart');
 
@@ -65,11 +67,19 @@ export class Cart {
   protected async buyProducts(): Promise<void> {
     this.pending.set(true);
     this.clearMessages();
+    // The cart is emptied by the purchase, so what the event needs is remembered first.
+    const items = this.cart.value()?.items ?? [];
+    const paid = this.price.value()?.finalPrice ?? this.cart.value()?.total ?? 0;
     try {
       await this.shoppingCart.checkout(
         this.appliedCode() || undefined,
         this.discounts.giftCardId().value() || undefined,
       );
+      this.analytics.track('purchase', {
+        product_types: [...new Set(items.map((item) => item.type))].join(','),
+        item_count: items.length,
+        value: paid,
+      });
       this.bought.set('Your products are paid for from your wallet.');
       this.discounts().reset({ couponCode: '', giftCardId: '' });
       this.appliedCode.set('');
