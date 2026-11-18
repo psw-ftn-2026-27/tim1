@@ -6,8 +6,10 @@ namespace Exploration.Domain.Tours;
 public sealed class Tour : AggregateRoot
 {
     private const int MinimumDescriptionLengthForPublishing = 100;
+    private const int MinimumKeypointsForPublishing = 2;
 
     private readonly List<TransportTime> _transportTimes = [];
+    private readonly List<Keypoint> _keypoints = [];
 
     public Guid AuthorId { get; private set; }
     public string Name { get; private set; }
@@ -19,6 +21,8 @@ public sealed class Tour : AggregateRoot
     public DateTime? ArchivedAt { get; private set; }
     public GroupSize GroupSize { get; private set; }
     public IReadOnlyList<TransportTime> TransportTimes => _transportTimes;
+    public IReadOnlyList<Keypoint> Keypoints => _keypoints;
+    public double Length { get; private set; }
 
     private Tour()
     {
@@ -67,6 +71,53 @@ public sealed class Tour : AggregateRoot
         _transportTimes.Add(new TransportTime(transport, minutes));
     }
 
+    public void AddKeypoint(string name, string description, Guid imageId, string? secret, bool publiclyVisible, Coordinate location)
+    {
+        EnsureDraft();
+
+        _keypoints.Add(new Keypoint(name, description, imageId, secret, publiclyVisible, location));
+    }
+
+    // Returns the id of the image the keypoint no longer uses, or null when it keeps its image.
+    public Guid? UpdateKeypoint(Guid keypointId, string name, string description, Guid imageId, string? secret, Coordinate location)
+    {
+        EnsureDraft();
+
+        var keypoint = FindKeypoint(keypointId);
+        var previousImageId = keypoint.ImageId;
+        keypoint.Update(name, description, imageId, secret, location);
+
+        return previousImageId == imageId ? null : previousImageId;
+    }
+
+    // Returns the id of the image the removed keypoint used.
+    public Guid RemoveKeypoint(Guid keypointId)
+    {
+        EnsureDraft();
+
+        var keypoint = FindKeypoint(keypointId);
+        _keypoints.Remove(keypoint);
+
+        return keypoint.ImageId;
+    }
+
+    // The length is measured on the map by the client; the domain only checks that it is a sensible number.
+    public void SetLength(double lengthKm)
+    {
+        EnsureDraft();
+        if (double.IsNaN(lengthKm) || double.IsInfinity(lengthKm) || lengthKm < 0)
+        {
+            throw new DomainException("A tour length cannot be negative.");
+        }
+
+        Length = lengthKm;
+    }
+
+    public void SetKeypointVisibility(Guid keypointId, bool publiclyVisible)
+    {
+        FindKeypoint(keypointId).SetPubliclyVisible(publiclyVisible);
+    }
+
     public void Publish(decimal price)
     {
         if (Status != TourStatus.Draft)
@@ -85,6 +136,10 @@ public sealed class Tour : AggregateRoot
         if (_transportTimes.Count == 0)
         {
             throw new DomainException("A tour can be published only with at least one transport time.");
+        }
+        if (_keypoints.Count < MinimumKeypointsForPublishing)
+        {
+            throw new DomainException($"A tour can be published only with at least {MinimumKeypointsForPublishing} keypoints.");
         }
 
         Status = TourStatus.Published;
@@ -111,5 +166,23 @@ public sealed class Tour : AggregateRoot
 
         Status = TourStatus.Published;
         ArchivedAt = null;
+    }
+
+    private void EnsureDraft()
+    {
+        if (Status != TourStatus.Draft)
+        {
+            throw new DomainException("Keypoints can be changed only while the tour is a draft.");
+        }
+    }
+
+    private Keypoint FindKeypoint(Guid keypointId)
+    {
+        var keypoint = _keypoints.FirstOrDefault(candidate => candidate.Id == keypointId);
+        if (keypoint is null)
+        {
+            throw new NotFoundException($"Keypoint {keypointId} does not exist.");
+        }
+        return keypoint;
     }
 }

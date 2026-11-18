@@ -24,6 +24,44 @@ namespace Exploration.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Exploration.Domain.Images.Image", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("AttachedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("UploaderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images", "exploration");
+                });
+
             modelBuilder.Entity("Exploration.Domain.TourPreferences.TourPreference", b =>
                 {
                     b.Property<Guid>("Id")
@@ -73,6 +111,9 @@ namespace Exploration.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<double>("Length")
+                        .HasColumnType("double precision");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -135,6 +176,61 @@ namespace Exploration.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Exploration.Domain.Tours.Tour", b =>
                 {
+                    b.OwnsMany("Exploration.Domain.Tours.Keypoint", "Keypoints", b1 =>
+                        {
+                            b1.Property<Guid>("TourId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<string>("Description")
+                                .IsRequired();
+
+                            b1.Property<Guid>("Id");
+
+                            b1.Property<Guid>("ImageId");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200);
+
+                            b1.Property<bool>("PubliclyVisible");
+
+                            b1.Property<string>("Secret");
+
+                            b1.HasKey("TourId", "__synthesizedOrdinal");
+
+                            b1.ToTable("Tours", "exploration");
+
+                            b1
+                                .ToJson("Keypoints")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TourId");
+
+                            b1.OwnsOne("Exploration.Domain.Tours.Coordinate", "Location", b2 =>
+                                {
+                                    b2.Property<Guid>("KeypointTourId");
+
+                                    b2.Property<int>("Keypoint__synthesizedOrdinal");
+
+                                    b2.Property<double>("Latitude");
+
+                                    b2.Property<double>("Longitude");
+
+                                    b2.HasKey("KeypointTourId", "Keypoint__synthesizedOrdinal");
+
+                                    b2.ToTable("Tours", "exploration");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("KeypointTourId", "Keypoint__synthesizedOrdinal");
+                                });
+
+                            b1.Navigation("Location")
+                                .IsRequired();
+                        });
+
                     b.OwnsMany("Exploration.Domain.Tours.TransportTime", "TransportTimes", b1 =>
                         {
                             b1.Property<Guid>("TourId");
@@ -158,6 +254,8 @@ namespace Exploration.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("TourId");
                         });
+
+                    b.Navigation("Keypoints");
 
                     b.Navigation("TransportTimes");
                 });

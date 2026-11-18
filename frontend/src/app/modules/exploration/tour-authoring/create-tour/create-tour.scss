@@ -1,4 +1,93 @@
+// Same card as the blog form: centred, narrow, with the title inside.
 .card {
   margin-inline: auto;
   max-width: 32rem;
+}
+
+// Room under the form, so it does not stick to the bottom of the window.
+:host {
+  display: block;
+  padding-bottom: var(--space-7);
+}
+
+// Looks like the other field labels; a <label> needs one control, and the difficulty has several buttons.
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.back {
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+// The two group size fields share one row.
+.row {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr 1fr;
+}
+
+// Difficulty: one choice at a time, the chosen button is outlined in the accent colour.
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.option {
+  background: var(--color-bg);
+  border: 1px solid var(--color-surface-hover);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-2) var(--space-3);
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+.option--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+// The same tag box as in the tour search: added tags are pills, the input follows them.
+.tag-box {
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1);
+
+  input {
+    border: 0;
+    flex: 1;
+    min-width: 8rem;
+  }
+}
+
+.pill {
+  align-items: center;
+  background: var(--color-border);
+  border-radius: var(--radius);
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+}
+
+.pill-remove {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
 }

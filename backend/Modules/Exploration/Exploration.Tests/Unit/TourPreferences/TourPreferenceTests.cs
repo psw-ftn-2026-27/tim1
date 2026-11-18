@@ -16,6 +16,8 @@ public class TourPreferenceTests
     {
         var tour = new Tour(WellKnownUsers.SecondExplorer, "Šetnja tvrđavom", new string('o', 100), TourDifficulty.Easy, tags, new GroupSize(2, 8));
         tour.AddTransportTime(TransportMode.Walking, 60);
+        tour.AddKeypoint("Prva tačka", "Opis prve tačke.", Guid.NewGuid(), null, false, new Coordinate(45.0, 19.0));
+        tour.AddKeypoint("Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, false, new Coordinate(45.1, 19.1));
         tour.Publish(0);
         return tour;
     }

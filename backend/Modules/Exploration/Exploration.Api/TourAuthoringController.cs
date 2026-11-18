@@ -23,9 +23,10 @@ public sealed class TourAuthoringController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TourDto>> Create(CreateTourDto dto)
+    public async Task<ActionResult> Create(CreateTourDto dto)
     {
-        return await _authoringService.CreateAsync(User.GetUserId(), dto);
+        await _authoringService.CreateAsync(User.GetUserId(), dto);
+        return NoContent();
     }
 
     [HttpPost("{id:guid}/transport-times")]
@@ -60,5 +61,11 @@ public sealed class TourAuthoringController : ControllerBase
     public async Task<ActionResult<List<TourDto>>> GetMine()
     {
         return await _authoringQueries.GetByAuthorAsync(User.GetUserId());
+    }
+
+    [HttpGet("mine/{id:guid}")]
+    public async Task<ActionResult<TourDto>> GetMineById(Guid id)
+    {
+        return await _authoringQueries.GetByIdAsync(id, User.GetUserId());
     }
 }

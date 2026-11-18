@@ -1,149 +1,102 @@
 <div class="stack">
-  <h1>My tours</h1>
+  <header class="heading">
+    <h1>Tours</h1>
 
-  <p><a routerLink="/exploration/create">Create tour</a></p>
+    <nav class="tabs" aria-label="Tours">
+      <a class="tab" routerLink="/exploration">All tours</a>
+      <a class="tab tab--active" routerLink="/exploration/mine" aria-current="page">My tours</a>
+    </nav>
+
+    <nav class="header-actions">
+      <a class="button button--primary" routerLink="/exploration/create">Create tour</a>
+    </nav>
+  </header>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger">{{ error() }}</p>
   }
 
   @if (tours.isLoading()) {
-    <p>Loading your tours...</p>
+    <p class="meta">Loading your tours...</p>
   } @else if (tours.error()) {
-    <p class="error">Could not load your tours. Log in and try again.</p>
+    <p class="alert alert--danger">Could not load your tours. Log in and try again.</p>
+  } @else if ((tours.value() ?? []).length === 0) {
+    <p class="empty">You have no tours yet.</p>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Difficulty</th>
-          <th scope="col">Status</th>
-          <th scope="col">Transport times</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (tour of tours.value() ?? []; track tour.id) {
-          <tr>
-            <td>{{ tour.name }}</td>
-            <td>{{ tour.difficulty }}</td>
-            <td>{{ tour.status }}</td>
-            <td>
+    <div class="grid">
+      @for (tour of tours.value(); track tour.id) {
+        <article class="card tour">
+          <div class="top">
+            <span
+              class="badge"
+              [class.badge--success]="tour.difficulty === 'Easy'"
+              [class.badge--warning]="tour.difficulty === 'Moderate'"
+              [class.badge--danger]="tour.difficulty === 'Hard'"
+            >
+              {{ tour.difficulty }}
+            </span>
+            <span
+              class="badge"
+              [class.badge--warning]="tour.status === 'Draft'"
+              [class.badge--success]="tour.status === 'Published'"
+            >
+              {{ tour.status }}
+            </span>
+          </div>
+
+          <h3>{{ tour.name }}</h3>
+
+          <p class="description">{{ tour.description }}</p>
+
+          @if (tour.transportTimes.length > 0) {
+            <ul class="times">
               @for (time of tour.transportTimes; track time.transport) {
-                <span class="time">{{ time.transport }} {{ time.minutes }} min</span>
-              } @empty {
-                <span class="meta">none</span>
+                <li class="time">{{ time.transport }} · {{ time.minutes }} min</li>
               }
-            </td>
-            <td class="actions">
-              @if (tour.status !== 'Archived') {
-                <button class="button" type="button" (click)="select(tour.id)">Add time</button>
+            </ul>
+          } @else {
+            <p class="meta">No transport times yet.</p>
+          }
+
+          @if (tour.tags.length > 0) {
+            <ul class="tags">
+              @for (tag of tour.tags; track tag) {
+                <li>#{{ tag }}</li>
               }
-              @if (tour.status === 'Draft') {
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="selectForPublishing(tour.id)"
-                >
-                  Publish
-                </button>
-              } @else if (tour.status === 'Published') {
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="archive(tour.id)"
-                >
-                  Archive
-                </button>
-              } @else {
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="reactivate(tour.id)"
-                >
-                  Reactivate
-                </button>
-              }
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="5">You have no tours yet.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  }
+            </ul>
+          }
 
-  @if (publishingTourId()) {
-    <form class="card stack" (submit)="publish($event)">
-      <h2>Publish tour</h2>
-
-      <div class="field">
-        <label for="charge">Pricing</label>
-        <select id="charge" [formField]="publishForm.charge">
-          <option value="Free">Free</option>
-          <option value="Paid">Paid</option>
-        </select>
-      </div>
-
-      @if (publishForm.charge().value() === 'Paid') {
-        <div class="field">
-          <label for="price">Price</label>
-          <input id="price" type="number" step="0.01" [formField]="publishForm.price" />
-          @if (publishForm.price().touched()) {
-            @for (message of publishForm.price().errors(); track $index) {
-              <p class="error">{{ message.message }}</p>
+          <div class="actions">
+            @if (tour.status !== 'Archived') {
+              <a
+                class="button button--small"
+                [routerLink]="['/exploration/tour', tour.id, 'edit']"
+              >
+                Manage tour
+              </a>
             }
-          }
-        </div>
+            @if (tour.status === 'Published') {
+              <button
+                class="button button--small button--danger"
+                type="button"
+                [disabled]="pending()"
+                (click)="archive(tour.id)"
+              >
+                Archive
+              </button>
+            } @else if (tour.status === 'Archived') {
+              <button
+                class="button button--small"
+                type="button"
+                [disabled]="pending()"
+                (click)="reactivate(tour.id)"
+              >
+                Reactivate
+              </button>
+            }
+          </div>
+        </article>
       }
-
-      <button
-        class="button button--primary"
-        type="submit"
-        [disabled]="!publishForm().valid() || pending()"
-      >
-        Publish
-      </button>
-      <button class="button" type="button" (click)="closePublishing()">Cancel</button>
-    </form>
-  }
-
-  @if (selectedTourId()) {
-    <form class="card stack" (submit)="addTransportTime($event)">
-      <h2>Add transport time</h2>
-
-      <div class="field">
-        <label for="transport">Transport</label>
-        <select id="transport" [formField]="form.transport">
-          <option value="Walking">Walking</option>
-          <option value="Bicycle">Bicycle</option>
-          <option value="Car">Car</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="minutes">Minutes</label>
-        <input id="minutes" type="number" [formField]="form.minutes" />
-        @if (form.minutes().touched()) {
-          @for (message of form.minutes().errors(); track $index) {
-            <p class="error">{{ message.message }}</p>
-          }
-        }
-      </div>
-
-      <button
-        class="button button--primary"
-        type="submit"
-        [disabled]="!form().valid() || pending()"
-      >
-        Save
-      </button>
-      <button class="button" type="button" (click)="closeTransportTime()">Cancel</button>
-    </form>
+    </div>
   }
 </div>

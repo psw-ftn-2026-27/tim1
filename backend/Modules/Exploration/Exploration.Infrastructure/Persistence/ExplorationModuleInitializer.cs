@@ -1,3 +1,4 @@
+using Exploration.Domain.Images;
 using Exploration.Domain.Tours;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,25 +28,42 @@ internal sealed class ExplorationModuleInitializer : IHostedService
 
         if (_environment.IsDevelopment() && !await dbContext.Tours.AnyAsync())
         {
-            dbContext.Tours.AddRange(CreateDemoTours());
+            var images = new List<Image>();
+            dbContext.Tours.AddRange(CreateDemoTours(images));
+            dbContext.Images.AddRange(images);
             await dbContext.SaveChangesAsync();
         }
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
-    private static List<Tour> CreateDemoTours()
+    // The demo keypoints get image records only, without files; reading their images returns 404.
+    private static Guid CreateAttachedImage(List<Image> images)
+    {
+        var image = new Image(FirstExplorer, 800, 600, 1000);
+        image.AttachToKeypoint(FirstExplorer);
+        images.Add(image);
+        return image.Id;
+    }
+
+    private static List<Tour> CreateDemoTours(List<Image> images)
     {
         var fortress = new Tour(FirstExplorer, "Šetnja Petrovaradinskom tvrđavom",
             "Šetnja počinje na Gornjem platou Petrovaradinske tvrđave, vodi pored Sahat kule i podzemnih vojnih galerija, a završava se pogledom na Dunav i stari deo Novog Sada.",
             TourDifficulty.Easy, ["istorija", "priroda"], new GroupSize(1, 15));
         fortress.AddTransportTime(TransportMode.Walking, 120);
+        fortress.AddKeypoint("Gornji plato", "Polazna tačka na Gornjem platou tvrđave.", CreateAttachedImage(images), null, true, new Coordinate(45.2517, 19.8647));
+        fortress.AddKeypoint("Vidikovac na Dunav", "Završna tačka sa pogledom na Dunav i stari deo grada.", CreateAttachedImage(images), null, false, new Coordinate(45.2530, 19.8610));
+        fortress.SetLength(2.7);
         fortress.Publish(0);
 
         var fruskaGora = new Tour(FirstExplorer, "Biciklom preko Fruške gore",
             "Ruta vodi od Sremske Kamenice preko Popovice do Iriškog venca, pored manastira Beočin i vidikovaca sa kojih se vidi ceo Srem, uz nekoliko dužih uspona.",
             TourDifficulty.Hard, ["biciklizam", "planina"], new GroupSize(2, 8));
         fruskaGora.AddTransportTime(TransportMode.Bicycle, 240);
+        fruskaGora.AddKeypoint("Sremska Kamenica", "Polazna tačka rute u podnožju Fruške gore.", CreateAttachedImage(images), null, true, new Coordinate(45.2290, 19.8640));
+        fruskaGora.AddKeypoint("Iriški venac", "Završna tačka rute na grebenu Fruške gore.", CreateAttachedImage(images), null, false, new Coordinate(45.1560, 19.7220));
+        fruskaGora.SetLength(18.4);
         fruskaGora.Publish(0);
 
         var cityCenter = new Tour(FirstExplorer, "Obilazak centra grada",
@@ -56,6 +74,9 @@ internal sealed class ExplorationModuleInitializer : IHostedService
             "Tura vodi kroz vinograde Sremskih Karlovaca, uz zaustavljanje u podrumima i degustaciju lokalnih vina, a završava se na vidikovcu iznad Dunava.",
             TourDifficulty.Moderate, ["gastronomija", "priroda"], new GroupSize(2, 8));
         vineyards.AddTransportTime(TransportMode.Car, 90);
+        vineyards.AddKeypoint("Podrum u Sremskim Karlovcima", "Polazna tačka sa degustacijom prvog vina.", CreateAttachedImage(images), null, true, new Coordinate(45.2000, 20.0960));
+        vineyards.AddKeypoint("Vidikovac iznad Dunava", "Završna tačka sa pogledom na reku.", CreateAttachedImage(images), null, false, new Coordinate(45.2050, 20.1000));
+        vineyards.SetLength(4.9);
         vineyards.Publish(0);
         vineyards.Archive();
 

@@ -1,4 +1,99 @@
-.links {
+// Room under the last element, so the content does not stick to the bottom of the window.
+:host {
+  display: block;
+  padding-bottom: var(--space-7);
+}
+
+.heading {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-4);
+  justify-content: space-between;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+// A link that looks like a button must not look like a link: no underline, the button's own colour.
+.actions a {
+  text-decoration: none;
+}
+
+.actions .button--secondary {
+  color: var(--color-secondary-text);
+}
+
+.actions .button--primary {
+  color: var(--color-accent-text);
+}
+
+.layout {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 17.5rem 1fr;
+}
+
+.filters {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.grid {
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+
+// More room between the last row of cards and the pagination.
+.results > app-tour-pagination {
+  display: block;
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 48rem) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+// The same tabs as on the other page: two links that look like one switch. The page marks its own tab.
+.tabs {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+}
+
+.tab {
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.tab--active {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.heading h1 {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.heading .tabs {
+  margin-right: auto;
 }
