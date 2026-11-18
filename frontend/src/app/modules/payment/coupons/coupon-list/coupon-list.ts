@@ -11,4 +11,8 @@ import { CouponDto } from '../../api/payment-api-types';
 })
 export class CouponList {
   protected readonly coupons = httpResource<CouponDto[]>(() => '/api/payment/coupons');
+
+  protected isExpired(expiresAt: string): boolean {
+    return new Date(expiresAt) < new Date();
+  }
 }

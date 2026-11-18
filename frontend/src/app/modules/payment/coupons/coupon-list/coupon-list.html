@@ -29,6 +29,8 @@
             <td>
               @if (coupon.used) {
                 <span class="badge badge--info">Used</span>
+              } @else if (isExpired(coupon.expiresAt)) {
+                <span class="badge badge--danger">Expired</span>
               } @else {
                 <span class="badge badge--success">Unused</span>
               }
