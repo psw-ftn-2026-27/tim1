@@ -1,0 +1,14 @@
+.toolbar {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+// A link that looks like a button: no underline, and the button's text colour on hover.
+.coupons {
+  text-decoration: none;
+}
+
+.coupons:hover {
+  color: var(--color-secondary-text);
+}

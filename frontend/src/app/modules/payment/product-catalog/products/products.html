@@ -1,9 +1,10 @@
 <div class="stack">
   <h1>Products</h1>
 
-  <p>
+  <div class="toolbar">
     <a routerLink="/payment/cart">Your cart ({{ itemCount.value() ?? 0 }})</a>
-  </p>
+    <a class="button button--secondary coupons" routerLink="/payment/coupons">My coupons</a>
+  </div>
 
   @if (added()) {
     <p class="alert alert--success">{{ added() }}</p>

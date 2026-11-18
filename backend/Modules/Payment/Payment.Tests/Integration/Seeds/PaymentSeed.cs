@@ -5,6 +5,6 @@ internal static class PaymentSeed
     public static object[] All =>
     [
         .. WalletSeed.All, .. TopUpRequestSeed.All, .. WithdrawalRequestSeed.All,
-        .. ProductSeed.All, .. ShoppingCartSeed.All, .. PurchaseSeed.All, .. GiftCardSeed.All
+        .. ProductSeed.All, .. ShoppingCartSeed.All, .. PurchaseSeed.All, .. GiftCardSeed.All, .. CouponSeed.All
     ];
 }

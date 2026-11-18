@@ -35,6 +35,11 @@ internal sealed class ProductRepository : IProductRepository
         return [.. products.Where(product => references.Contains(product.Reference))];
     }
 
+    public Task<List<Product>> GetByOwnerAsync(Guid ownerId)
+    {
+        return _dbContext.Products.Where(product => product.OwnerId == ownerId).ToListAsync();
+    }
+
     public void Add(Product product)
     {
         _dbContext.Products.Add(product);
