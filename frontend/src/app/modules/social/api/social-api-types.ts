@@ -151,3 +151,20 @@ export interface MembershipRequestDto {
   userId: string;
   createdAt: string;
 }
+
+export interface UserToInviteDto {
+  id: string;
+  displayName: string;
+}
+
+export interface SentInvitationDto {
+  userId: string;
+  userDisplayName: string;
+  createdAt: string;
+}
+
+export interface MyInvitationDto {
+  clubId: string;
+  clubName: string;
+  createdAt: string;
+}

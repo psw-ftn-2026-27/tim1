@@ -11,6 +11,7 @@ internal static class ClubConfiguration
         ConfigureClub(modelBuilder.Entity<Club>());
         ConfigureClubMember(modelBuilder.Entity<ClubMember>());
         ConfigureMembershipRequest(modelBuilder.Entity<MembershipRequest>());
+        ConfigureClubInvitation(modelBuilder.Entity<ClubInvitation>());
     }
 
     private static void ConfigureClub(EntityTypeBuilder<Club> builder)
@@ -25,9 +26,14 @@ internal static class ClubConfiguration
             .WithOne()
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(club => club.Invitations)
+            .WithOne()
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(club => club.Members).AutoInclude();
         builder.Navigation(club => club.MembershipRequests).AutoInclude();
+        builder.Navigation(club => club.Invitations).AutoInclude();
     }
 
     private static void ConfigureClubMember(EntityTypeBuilder<ClubMember> builder)
@@ -41,5 +47,11 @@ internal static class ClubConfiguration
     {
         builder.ToTable("ClubMembershipRequests");
         builder.Property(request => request.Id).ValueGeneratedNever();
+    }
+
+    private static void ConfigureClubInvitation(EntityTypeBuilder<ClubInvitation> builder)
+    {
+        builder.ToTable("ClubInvitations");
+        builder.Property(invitation => invitation.Id).ValueGeneratedNever();
     }
 }

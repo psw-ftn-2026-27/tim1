@@ -3,7 +3,10 @@
 
   <h1>Clubs</h1>
 
-  <p><a routerLink="/social/clubs/mine">My clubs</a></p>
+  <p>
+    <a routerLink="/social/clubs/mine">My clubs</a>
+    <a routerLink="/social/invitations">My invitations</a>
+  </p>
 
   @if (clubs.isLoading()) {
     <p>Loading clubs...</p>

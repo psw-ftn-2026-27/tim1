@@ -1,0 +1,80 @@
+<div class="stack">
+  <p><a routerLink="/social/clubs/mine">Back to my clubs</a></p>
+
+  <h1>Invitations</h1>
+
+  <h2>Invite users</h2>
+
+  <div class="field">
+    <input type="text" aria-label="Search users" placeholder="Search by name" [formField]="form.text" />
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (users.error()) {
+    <p class="error">Users could not be loaded. Log in and try again.</p>
+  } @else if (users.value() === undefined) {
+    <p>Loading users...</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users.value()?.items ?? []; track user.id) {
+          <tr>
+            <td>{{ user.displayName }}</td>
+            <td>
+              <button
+                class="button button--primary"
+                type="button"
+                [disabled]="pending()"
+                (click)="invite(user.id)"
+              >
+                Invite
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="2">No users found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <h2>Pending invitations</h2>
+
+  @if (invitations.isLoading()) {
+    <p>Loading invitations...</p>
+  } @else if (invitations.error()) {
+    <p class="error">Could not load the invitations. Only the club's owner can see them.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">User</th>
+          <th scope="col">Invited at</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (invitation of invitations.value() ?? []; track invitation.userId) {
+          <tr>
+            <td>{{ invitation.userDisplayName }}</td>
+            <td>{{ invitation.createdAt }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="2">No pending invitations.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>

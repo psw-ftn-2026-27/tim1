@@ -143,6 +143,27 @@ namespace Social.Infrastructure.Persistence.Migrations
                     b.ToTable("Clubs", "social");
                 });
 
+            modelBuilder.Entity("Social.Domain.Clubs.ClubInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.ToTable("ClubInvitations", "social");
+                });
+
             modelBuilder.Entity("Social.Domain.Clubs.ClubMember", b =>
                 {
                     b.Property<Guid>("Id")
@@ -268,6 +289,15 @@ namespace Social.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Social.Domain.Clubs.ClubInvitation", b =>
+                {
+                    b.HasOne("Social.Domain.Clubs.Club", null)
+                        .WithMany("Invitations")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Social.Domain.Clubs.ClubMember", b =>
                 {
                     b.HasOne("Social.Domain.Clubs.Club", null)
@@ -295,6 +325,8 @@ namespace Social.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Social.Domain.Clubs.Club", b =>
                 {
+                    b.Navigation("Invitations");
+
                     b.Navigation("Members");
 
                     b.Navigation("MembershipRequests");

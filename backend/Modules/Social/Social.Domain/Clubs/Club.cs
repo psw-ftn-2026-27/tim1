@@ -13,6 +13,8 @@ public sealed class Club : AggregateRoot
     public IReadOnlyList<ClubMember> Members => _members;
     private readonly List<MembershipRequest> _membershipRequests = [];
     public IReadOnlyList<MembershipRequest> MembershipRequests => _membershipRequests;
+    private readonly List<ClubInvitation> _invitations = [];
+    public IReadOnlyList<ClubInvitation> Invitations => _invitations;
 
     private Club()
     {
@@ -37,16 +39,20 @@ public sealed class Club : AggregateRoot
         SetDetails(name, description, images);
     }
 
-    // P2, P3. The "only an active club" part of P2 belongs here once the club gets a status.
+    // P2, P3; invitations P6. The "only an active club" part of P2 belongs here once the club gets a status.
     public void RequestMembership(Guid userId)
     {
         if (IsMember(userId))
         {
             throw new DomainException("A club member cannot request membership in the same club.");
         }
-        if (_membershipRequests.Any(request => request.UserId == userId))
+        if (HasPendingRequest(userId))
         {
             throw new DomainException("A membership request for this club is already pending.");
+        }
+        if (HasPendingInvitation(userId))
+        {
+            throw new DomainException("A user with a pending invitation to this club cannot request membership in it.");
         }
 
         _membershipRequests.Add(new MembershipRequest(userId));
@@ -74,6 +80,41 @@ public sealed class Club : AggregateRoot
         EnsureCanResolveRequests(resolverId);
 
         _membershipRequests.Remove(GetMembershipRequest(requesterId));
+    }
+
+    // Invitations P1, P5. The "only an active club" part of P1 belongs here once the club gets a status.
+    public void InviteMember(Guid inviterId, Guid userId)
+    {
+        EnsureCanInvite(inviterId);
+        if (IsMember(userId))
+        {
+            throw new DomainException("A club member cannot be invited to the same club.");
+        }
+        if (HasPendingInvitation(userId))
+        {
+            throw new DomainException("An invitation to this club is already pending for the user.");
+        }
+        if (HasPendingRequest(userId))
+        {
+            throw new DomainException("The user already has a pending membership request for this club.");
+        }
+
+        _invitations.Add(new ClubInvitation(userId));
+    }
+
+    // Invitations P2, P3, P4: the invitation is found by the invited user, so nobody else can accept it.
+    public void AcceptInvitation(Guid userId)
+    {
+        var invitation = GetInvitation(userId);
+
+        _invitations.Remove(invitation);
+        _members.Add(new ClubMember(userId, ClubRole.Member));
+    }
+
+    // Invitations P2, P4
+    public void DeclineInvitation(Guid userId)
+    {
+        _invitations.Remove(GetInvitation(userId));
     }
 
     // P1, P2. The "only an active club" part of P1 belongs here once the club gets a status.
@@ -107,6 +148,35 @@ public sealed class Club : AggregateRoot
     private bool IsMember(Guid userId)
     {
         return _members.Any(member => member.UserId == userId);
+    }
+
+    private bool HasPendingRequest(Guid userId)
+    {
+        return _membershipRequests.Any(request => request.UserId == userId);
+    }
+
+    private bool HasPendingInvitation(Guid userId)
+    {
+        return _invitations.Any(invitation => invitation.UserId == userId);
+    }
+
+    private void EnsureCanInvite(Guid inviterId)
+    {
+        var isOwner = _members.Any(member => member.UserId == inviterId && member.Role == ClubRole.Owner);
+        if (!isOwner)
+        {
+            throw new DomainException("Only the club owner can invite users to the club.");
+        }
+    }
+
+    private ClubInvitation GetInvitation(Guid userId)
+    {
+        var invitation = _invitations.FirstOrDefault(invitation => invitation.UserId == userId);
+        if (invitation is null)
+        {
+            throw new NotFoundException($"Invitation of user {userId} does not exist.");
+        }
+        return invitation;
     }
 
     private void EnsureCanResolveRequests(Guid resolverId)
