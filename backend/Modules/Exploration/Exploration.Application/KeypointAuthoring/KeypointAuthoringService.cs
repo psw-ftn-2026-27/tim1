@@ -64,26 +64,32 @@ public sealed class KeypointAuthoringService
         await _unitOfWork.SaveChangesAsync();
     }
 
-    // The kept image is already attached; a different image is attached, and the old one
-    // stays attached (its record and file remain), because there is no detach yet.
+    // The kept image is already attached. A different image is attached and the old one is
+    // detached, so the next image cleanup removes its record and file.
     public async Task UpdateKeypointAsync(Guid tourId, Guid authorId, Guid keypointId, UpdateKeypointDto dto)
     {
         var tour = await GetOwnedTourAsync(tourId, authorId);
         var currentImageId = tour.Keypoints.FirstOrDefault(keypoint => keypoint.Id == keypointId)?.ImageId;
+        var imageChanged = currentImageId is not null && currentImageId != dto.ImageId;
         var newImage = currentImageId == dto.ImageId ? null : await GetImageAsync(dto.ImageId);
+        var oldImage = imageChanged ? await FindImageAsync(currentImageId!.Value) : null;
 
         tour.UpdateKeypoint(keypointId, dto.Name, dto.Description, dto.ImageId, dto.Secret,
             new Coordinate(dto.Location.Latitude, dto.Location.Longitude));
         tour.SetLength(dto.LengthKm);
         newImage?.AttachToKeypoint(authorId);
+        oldImage?.Detach();
         await _unitOfWork.SaveChangesAsync();
     }
 
     public async Task RemoveKeypointAsync(Guid tourId, Guid authorId, Guid keypointId)
     {
         var tour = await GetOwnedTourAsync(tourId, authorId);
+        var imageId = tour.Keypoints.FirstOrDefault(keypoint => keypoint.Id == keypointId)?.ImageId;
+        var image = imageId is null ? null : await FindImageAsync(imageId.Value);
 
         tour.RemoveKeypoint(keypointId);
+        image?.Detach();
         await _unitOfWork.SaveChangesAsync();
     }
 
@@ -114,10 +120,15 @@ public sealed class KeypointAuthoringService
         return tour;
     }
 
-    private async Task<Image> GetImageAsync(Guid imageId)
+    private async Task<Image?> FindImageAsync(Guid imageId)
     {
         var images = await _imageRepository.GetByIdsAsync([imageId]);
-        var image = images.FirstOrDefault();
+        return images.FirstOrDefault();
+    }
+
+    private async Task<Image> GetImageAsync(Guid imageId)
+    {
+        var image = await FindImageAsync(imageId);
         if (image is null)
         {
             throw new NotFoundException($"Image {imageId} does not exist.");

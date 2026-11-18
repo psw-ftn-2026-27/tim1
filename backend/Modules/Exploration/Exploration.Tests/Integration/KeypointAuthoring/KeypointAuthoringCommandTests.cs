@@ -14,7 +14,8 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
 {
     private static readonly Guid DraftId = TourSeed.DraftWithKeypoints.Id;
     private static readonly Guid DraftKeypointId = TourSeed.DraftWithKeypoints.Keypoints[0].Id;
-    private static readonly Guid PublishedId = TourSeed.PublishedVineyards.Id;
+    private static readonly Guid DraftKeypointImageId = TourSeed.DraftWithKeypoints.Keypoints[0].ImageId;
+    private static readonly Guid PublishedId =TourSeed.PublishedVineyards.Id;
     private static readonly Guid PublishedKeypointId = TourSeed.PublishedVineyards.Keypoints[0].Id;
     private static readonly Guid UnattachedImageId = ImageSeed.ExplorersUnattachedImage.Id;
 
@@ -77,6 +78,7 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
         stored.Location.Latitude.Should().Be(request.Location.Latitude);
         stored.ImageId.Should().Be(UnattachedImageId);
         assertContext.Images.Single(image => image.Id == UnattachedImageId).Status.Should().Be(ImageStatus.Attached);
+        assertContext.Images.Single(image => image.Id == DraftKeypointImageId).Status.Should().Be(ImageStatus.Unattached);
     }
 
     [Fact]
@@ -89,6 +91,7 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
         assertContext.Tours.Single(tour => tour.Id == DraftId).Keypoints.Should().NotContain(keypoint => keypoint.Id == DraftKeypointId);
+        assertContext.Images.Single(image => image.Id == DraftKeypointImageId).Status.Should().Be(ImageStatus.Unattached);
     }
 
     [Fact]

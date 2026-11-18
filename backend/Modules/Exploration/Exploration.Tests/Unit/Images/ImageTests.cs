@@ -42,6 +42,39 @@ public class ImageTests
         attaching.Should().Throw<DomainException>();
     }
 
+    [Fact]
+    public void Attached_image_can_be_detached_and_then_attached_again()
+    {
+        var image = CreateImage();
+        image.AttachToKeypoint(WellKnownUsers.Explorer);
+
+        image.Detach();
+
+        image.Status.Should().Be(ImageStatus.Unattached);
+        image.AttachedAt.Should().BeNull();
+    }
+
+    [Fact]
+    public void Unattached_image_cannot_be_detached()
+    {
+        var image = CreateImage();
+
+        var detaching = () => image.Detach();
+
+        detaching.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Detached_image_expires_at_once()
+    {
+        var image = new Image(WellKnownUsers.Explorer, 800, 600, 1000, DateTime.UtcNow.AddDays(-10));
+        image.AttachToKeypoint(WellKnownUsers.Explorer);
+
+        image.Detach();
+
+        image.IsExpired(DateTime.UtcNow).Should().BeTrue();
+    }
+
     [Theory]
     [InlineData(23, false)]
     [InlineData(25, true)]

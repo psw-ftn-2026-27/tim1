@@ -59,6 +59,18 @@ public sealed class Image : AggregateRoot
         AttachedAt = DateTime.UtcNow;
     }
 
+    // CreatedAt stays, so a detached image is already past its lifetime and the next cleanup removes it.
+    public void Detach()
+    {
+        if (Status != ImageStatus.Attached)
+        {
+            throw new DomainException("Only an attached image can be detached.");
+        }
+
+        Status = ImageStatus.Unattached;
+        AttachedAt = null;
+    }
+
     public bool IsExpired(DateTime now)
     {
         return Status == ImageStatus.Unattached && now - CreatedAt > UnattachedLifetime;
