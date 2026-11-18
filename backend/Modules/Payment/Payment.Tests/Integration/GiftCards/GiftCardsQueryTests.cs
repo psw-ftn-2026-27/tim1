@@ -92,4 +92,22 @@ public class GiftCardsQueryTests : BaseIntegrationTest
         recipients!.Items.Should().BeEmpty();
         recipients.TotalCount.Should().Be(0);
     }
+
+    [Fact]
+    public async Task Recipient_search_reports_the_same_total_on_every_page_whether_or_not_the_buyer_is_on_it()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+        var otherClient = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");
+
+        var firstPage = await client.GetFromJsonAsync<PageResult<RecipientDto>>(
+            "/api/payment/gift-cards/recipients?text=explorer&page=1&pageSize=1", JsonOptions);
+        var secondPage = await client.GetFromJsonAsync<PageResult<RecipientDto>>(
+            "/api/payment/gift-cards/recipients?text=explorer&page=2&pageSize=1", JsonOptions);
+        var otherBuyersFirstPage = await otherClient.GetFromJsonAsync<PageResult<RecipientDto>>(
+            "/api/payment/gift-cards/recipients?text=explorer&page=1&pageSize=1", JsonOptions);
+
+        firstPage!.TotalCount.Should().Be(secondPage!.TotalCount);
+        firstPage.TotalCount.Should().Be(otherBuyersFirstPage!.TotalCount);
+        firstPage.Items.Concat(secondPage.Items).Should().NotContain(recipient => recipient.Id == DemoUsers.Explorer);
+    }
 }

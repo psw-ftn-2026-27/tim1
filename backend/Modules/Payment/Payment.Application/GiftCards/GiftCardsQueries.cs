@@ -61,9 +61,11 @@ public sealed class GiftCardsQueries
             .Select(user => new RecipientDto(user.Id, user.DisplayName))
             .ToList();
 
-        // The buyer is removed after Identity has paged, so the total drops by one when they were on this page.
-        var removedBuyer = items.Count < users.Items.Count;
-        return new PageResult<RecipientDto>(items, removedBuyer ? users.TotalCount - 1 : users.TotalCount);
+        // Identity pages and counts every match, buyer included, and exposes no way to leave one user out.
+        // Taking the buyer off the total whenever they match the text keeps it the same on every page.
+        var buyers = await _identityApi.GetUsersAsync([userId]);
+        var buyerMatches = buyers.Any(buyer => buyer.DisplayName.Contains(text ?? "", StringComparison.OrdinalIgnoreCase));
+        return new PageResult<RecipientDto>(items, buyerMatches ? users.TotalCount - 1 : users.TotalCount);
     }
 
     private async Task<PageResult<GiftCardDto>> WithDisplayNamesAsync(PageResult<GiftCardDto> giftCards)
