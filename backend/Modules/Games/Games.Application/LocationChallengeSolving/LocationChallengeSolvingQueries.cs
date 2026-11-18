@@ -30,9 +30,8 @@ public sealed class LocationChallengeSolvingQueries
         _explorationApi = explorationApi;
     }
 
-    // Solving a location challenge does not exist yet, so every published challenge counts
-    // as not solved. The list is small, because administrators make every challenge, so it
-    // is sorted by distance in memory and not paged.
+    // Challenges the explorer has solved are left out. The list is small, because
+    // administrators make every challenge, so it is sorted by distance in memory and not paged.
     public async Task<NearbyLocationChallengesDto> GetNearbyAsync(Guid userId)
     {
         var position = await _explorationApi.GetCurrentPositionAsync(userId);
@@ -43,8 +42,11 @@ public sealed class LocationChallengeSolvingQueries
 
         var userLocation = new Location(position.Latitude, position.Longitude);
         var published = await _locationChallengeReadRepository.GetPublishedAsync();
+        var solvedChallengeIds = await _attemptReadRepository.GetSolvedChallengeIdsAsync(userId);
+        var startedChallengeIds = await _attemptReadRepository.GetStartedChallengeIdsAsync(userId);
         var challenges = published
-            .Select(challenge => ToNearby(challenge, userLocation))
+            .Where(challenge => !solvedChallengeIds.Contains(challenge.Id))
+            .Select(challenge => ToNearby(challenge, userLocation, startedChallengeIds.Contains(challenge.Id)))
             .OrderBy(challenge => challenge.DistanceMeters)
             .ToList();
 
@@ -65,7 +67,7 @@ public sealed class LocationChallengeSolvingQueries
     public async Task<ImageContentDto> GetAttemptImageAsync(Guid challengeId, Guid imageId, Guid userId)
     {
         var attempt = await GetAttemptAsync(challengeId, userId);
-        if (!attempt.ImageIds.Contains(imageId))
+        if (!attempt.Photos.Any(photo => photo.ImageId == imageId))
         {
             throw new NotFoundException($"Image {imageId} is not a photo of location challenge {challengeId}.");
         }
@@ -85,7 +87,10 @@ public sealed class LocationChallengeSolvingQueries
         return content;
     }
 
-    private static NearbyLocationChallengeDto ToNearby(PublishedLocationChallengeDto challenge, Location userLocation)
+    private static NearbyLocationChallengeDto ToNearby(
+        PublishedLocationChallengeDto challenge,
+        Location userLocation,
+        bool isStarted)
     {
         var startLocation = new Location(challenge.StartLocation.Latitude, challenge.StartLocation.Longitude);
         var distance = userLocation.DistanceTo(startLocation);
@@ -95,6 +100,7 @@ public sealed class LocationChallengeSolvingQueries
             challenge.Name,
             challenge.ExperiencePoints,
             distance,
-            distance <= LocationChallengeActivation.MaxDistanceMeters);
+            distance <= LocationChallengeActivation.MaxDistanceMeters,
+            isStarted);
     }
 }

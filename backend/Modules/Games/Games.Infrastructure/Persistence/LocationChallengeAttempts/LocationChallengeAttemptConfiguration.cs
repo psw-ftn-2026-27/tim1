@@ -16,5 +16,6 @@ internal static class LocationChallengeAttemptConfiguration
     {
         builder.ComplexProperty(attempt => attempt.Circle, circle => circle.ComplexProperty(c => c.Center));
         builder.HasIndex(attempt => new { attempt.ChallengeId, attempt.UserId }).IsUnique();
+        builder.PrimitiveCollection(attempt => attempt.DiscoveredPointIds).HasField("_discoveredPointIds");
     }
 }

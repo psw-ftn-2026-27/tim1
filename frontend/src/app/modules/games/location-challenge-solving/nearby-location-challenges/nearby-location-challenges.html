@@ -42,7 +42,14 @@
                 <td class="number">{{ distance(challenge.distanceMeters) }}</td>
                 <td class="number">{{ challenge.experiencePoints }}</td>
                 <td class="actions">
-                  @if (challenge.canActivate) {
+                  @if (challenge.isStarted) {
+                    <a
+                      class="button button--primary button--small"
+                      [routerLink]="['/games/location-challenges', challenge.id, 'attempt']"
+                    >
+                      Continue
+                    </a>
+                  } @else if (challenge.canActivate) {
                     <button
                       class="button button--primary button--small"
                       type="button"
@@ -58,7 +65,7 @@
           </tbody>
         </table>
         @if (nearby.value().challenges.length === 0) {
-          <p class="empty">There are no location challenges to solve yet.</p>
+          <p class="empty">No location challenges to solve right now.</p>
         }
       </div>
     } @else {

@@ -147,6 +147,7 @@ export interface NearbyLocationChallengeDto {
   experiencePoints: number;
   distanceMeters: number;
   canActivate: boolean;
+  isStarted: boolean;
 }
 
 export interface NearbyLocationChallengesDto {
@@ -159,13 +160,23 @@ export interface SearchCircleDto {
   diameterMeters: number;
 }
 
+export interface AttemptPhotoDto {
+  pointId: string;
+  imageId: string;
+  isDiscovered: boolean;
+}
+
 export interface LocationChallengeAttemptDto {
   id: string;
   challengeId: string;
   challengeName: string;
   circle: SearchCircleDto;
-  imageIds: string[];
+  photos: AttemptPhotoDto[];
+  remainingPointCount: number;
+  isSolved: boolean;
   startedAt: string;
+  solvedAt: string | null;
+  awardedExperiencePoints: number | null;
 }
 
 export interface AvailableQuizDto {

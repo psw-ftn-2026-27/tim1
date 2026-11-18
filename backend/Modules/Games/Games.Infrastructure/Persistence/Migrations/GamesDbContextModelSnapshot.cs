@@ -88,6 +88,13 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("ChallengeId")
                         .HasColumnType("uuid");
 
+                    b.PrimitiveCollection<Guid[]>("DiscoveredPointIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]");
+
+                    b.Property<DateTime?>("SolvedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("StartedAt")
                         .HasColumnType("timestamp with time zone");
 

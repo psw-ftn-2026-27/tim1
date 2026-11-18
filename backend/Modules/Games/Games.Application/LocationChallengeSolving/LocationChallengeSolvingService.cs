@@ -1,4 +1,5 @@
 using Exploration.Contracts;
+using Games.Application.ChallengeCompletions;
 using Games.Application.LocationChallengeAttempts;
 using Games.Application.LocationChallenges;
 using Games.Domain.LocationChallengeAttempts;
@@ -11,20 +12,26 @@ public sealed class LocationChallengeSolvingService
 {
     private readonly ILocationChallengeRepository _locationChallengeRepository;
     private readonly ILocationChallengeAttemptRepository _attemptRepository;
+    private readonly IChallengeCompletionRepository _completionRepository;
     private readonly LocationChallengeActivation _activation;
+    private readonly LocationDiscovery _discovery;
     private readonly IExplorationApi _explorationApi;
     private readonly IUnitOfWork _unitOfWork;
 
     public LocationChallengeSolvingService(
         ILocationChallengeRepository locationChallengeRepository,
         ILocationChallengeAttemptRepository attemptRepository,
+        IChallengeCompletionRepository completionRepository,
         LocationChallengeActivation activation,
+        LocationDiscovery discovery,
         IExplorationApi explorationApi,
         IUnitOfWork unitOfWork)
     {
         _locationChallengeRepository = locationChallengeRepository;
         _attemptRepository = attemptRepository;
+        _completionRepository = completionRepository;
         _activation = activation;
+        _discovery = discovery;
         _explorationApi = explorationApi;
         _unitOfWork = unitOfWork;
     }
@@ -56,6 +63,35 @@ public sealed class LocationChallengeSolvingService
         {
             _attemptRepository.Add(attempt);
         }
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task CheckLocationAsync(Guid challengeId, Guid userId)
+    {
+        var challenge = await _locationChallengeRepository.GetByIdAsync(challengeId);
+        if (challenge is null)
+        {
+            throw new NotFoundException($"Location challenge {challengeId} does not exist.");
+        }
+
+        var attempt = await _attemptRepository.GetAsync(challengeId, userId);
+        if (attempt is null)
+        {
+            throw new NotFoundException($"You have not activated location challenge {challengeId}.");
+        }
+
+        var position = await _explorationApi.GetCurrentPositionAsync(userId);
+        if (position is null)
+        {
+            throw new DomainException("Set your position before checking a location.");
+        }
+
+        var completion = _discovery.Check(challenge, attempt, new Location(position.Latitude, position.Longitude));
+        if (completion is not null)
+        {
+            _completionRepository.Add(completion);
+        }
+
         await _unitOfWork.SaveChangesAsync();
     }
 }

@@ -74,6 +74,7 @@ public static class GamesModuleExtensions
         services.AddScoped<ILocationChallengeAttemptRepository, LocationChallengeAttemptRepository>();
         services.AddScoped<ILocationChallengeAttemptReadRepository, LocationChallengeAttemptReadRepository>();
         services.AddScoped<LocationChallengeActivation>();
+        services.AddScoped<LocationDiscovery>();
         services.AddScoped<LocationChallengeSolvingService>();
         services.AddScoped<LocationChallengeSolvingQueries>();
 

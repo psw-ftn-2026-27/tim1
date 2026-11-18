@@ -19,6 +19,10 @@ public sealed class LocationChallengeActivation
         Location position,
         double extraMeters)
     {
+        if (existingAttempt is { IsSolved: true })
+        {
+            throw new DomainException("A solved location challenge cannot be activated again.");
+        }
         // An attempt started before the challenge was retired can still be continued.
         if (existingAttempt is not null)
         {
