@@ -4,6 +4,7 @@ using System.Text;
 using FluentAssertions;
 using Games.Application.QuizManagement;
 using Games.Domain.Quizzes;
+using Games.Infrastructure.Persistence;
 using Games.Tests.Integration.Seeds;
 using Shared.Tests;
 using Xunit;
@@ -21,7 +22,8 @@ public sealed class QuizManagementCommandTests : BaseIntegrationTest
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
         var request = new SaveQuizDto("Town walk", "Visit the park.", 0,
-            [new QuizQuestionInputDto(null, "Which sign?", [new QuizAnswerDto("First", true), new QuizAnswerDto("Second", false)])]);
+            [new QuizQuestionInputDto(null, "Which sign?", [new QuizAnswerDto("First", true), new QuizAnswerDto("Second", false)])],
+            45.25, 19.85);
 
         var response = await client.PostAsJsonAsync(Url, request);
 
@@ -33,7 +35,60 @@ public sealed class QuizManagementCommandTests : BaseIntegrationTest
         stored.Instructions.Should().Be(request.Instructions);
         stored.ExperiencePoints.Should().Be(0);
         stored.Status.Should().Be(QuizStatus.Draft);
+        stored.Latitude.Should().Be(45.25);
+        stored.Longitude.Should().Be(19.85);
         stored.Questions.Should().ContainSingle().Which.Answers.Should().Equal(request.Questions![0].Answers!);
+    }
+
+    [Theory]
+    [InlineData(46, 20)]
+    [InlineData(45, 19)]
+    public async Task Saving_a_draft_stores_the_submitted_location(double latitude, double longitude)
+    {
+        using var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        var quiz = SeedQuizWithLocation();
+        var url = $"{Url}/{quiz.Id}";
+        var request = new SaveQuizDto("Changed", quiz.Instructions, quiz.ExperiencePoints, [], latitude, longitude);
+
+        var response = await client.PutAsJsonAsync(url, request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var stored = await client.GetFromJsonAsync<QuizDto>(url, JsonOptions);
+        stored!.Name.Should().Be("Changed");
+        stored.Latitude.Should().Be(latitude);
+        stored.Longitude.Should().Be(longitude);
+    }
+
+    [Theory]
+    [InlineData("{\"name\":\"City walk\",\"instructions\":\"Read the signs.\",\"experiencePoints\":10,\"latitude\":null,\"longitude\":null}")]
+    [InlineData("{\"name\":\"City walk\",\"instructions\":\"Read the signs.\",\"experiencePoints\":10}")]
+    public async Task A_draft_location_can_be_removed(string json)
+    {
+        using var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        var url = $"{Url}/{SeedQuizWithLocation().Id}";
+        using var request = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await client.PutAsync(url, request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var stored = await client.GetFromJsonAsync<QuizDto>(url, JsonOptions);
+        stored!.Latitude.Should().BeNull();
+        stored.Longitude.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task An_invalid_location_rejects_the_entire_quiz_update()
+    {
+        using var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+        var url = $"{Url}/{SeedQuizWithLocation().Id}";
+        var original = await client.GetFromJsonAsync<QuizDto>(url, JsonOptions);
+        var request = new SaveQuizDto("Changed", "New instructions.", 0, [], 46, null);
+
+        var response = await client.PutAsJsonAsync(url, request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var stored = await client.GetFromJsonAsync<QuizDto>(url, JsonOptions);
+        stored.Should().BeEquivalentTo(original);
     }
 
     [Fact]
@@ -111,5 +166,12 @@ public sealed class QuizManagementCommandTests : BaseIntegrationTest
         var response = await client.PutAsJsonAsync($"{Url}/{QuizSeed.DraftCityWalk.Id}", request);
 
         response.StatusCode.Should().Be(expectedStatus);
+    }
+
+    private Quiz SeedQuizWithLocation()
+    {
+        var quiz = new Quiz("City walk", "Read the signs.", 10, [], 45, 19);
+        Factory.Reseed<GamesDbContext>([quiz]);
+        return quiz;
     }
 }
