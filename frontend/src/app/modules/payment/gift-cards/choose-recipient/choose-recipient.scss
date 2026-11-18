@@ -1,0 +1,22 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.back {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.button {
+  text-decoration: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}

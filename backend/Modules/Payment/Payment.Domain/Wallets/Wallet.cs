@@ -114,4 +114,20 @@ public sealed class Wallet : AggregateRoot
         AvailableBalance += amount;
         _transactions.Add(new Transaction(TransactionType.ReservationReturn, amount, AvailableBalance));
     }
+
+    public void PayForGiftCard(decimal amount)
+    {
+        if (amount <= 0)
+        {
+            throw new DomainException("The gift card payment must be greater than zero.");
+        }
+
+        if (amount > AvailableBalance)
+        {
+            throw new DomainException("You do not have enough EC in your wallet.");
+        }
+
+        AvailableBalance -= amount;
+        _transactions.Add(new Transaction(TransactionType.GiftCardPurchase, amount, AvailableBalance));
+    }
 }

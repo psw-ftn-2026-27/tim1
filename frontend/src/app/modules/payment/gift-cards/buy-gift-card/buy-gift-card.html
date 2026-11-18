@@ -1,0 +1,48 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment/gift-cards/buy" aria-label="Back to choosing a recipient">←</a>
+    <h1>Buy a gift card</h1>
+  </div>
+
+  @if (recipient.error()) {
+    <p class="error">The user could not be loaded. Go back and choose them again.</p>
+  } @else if (recipient.value() === undefined) {
+    <p>Loading the user...</p>
+  } @else {
+    <h2>Gift card for: {{ recipient.value()?.displayName }}</h2>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <form class="card stack" (submit)="purchase($event)">
+      <div class="field">
+        <label for="gift-card-amount">Amount in EC</label>
+        <input id="gift-card-amount" type="number" step="1" [formField]="purchaseForm.amount" />
+        @if (purchaseForm.amount().touched()) {
+          @for (message of purchaseForm.amount().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
+        }
+      </div>
+
+      <div class="field">
+        <label for="gift-card-message">Message</label>
+        <textarea id="gift-card-message" [formField]="purchaseForm.message"></textarea>
+        @if (purchaseForm.message().touched()) {
+          @for (message of purchaseForm.message().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
+        }
+      </div>
+
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="!purchaseForm().valid() || pending()"
+      >
+        Buy
+      </button>
+    </form>
+  }
+</div>

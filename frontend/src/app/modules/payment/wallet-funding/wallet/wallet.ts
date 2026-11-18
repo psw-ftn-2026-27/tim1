@@ -29,6 +29,10 @@ export class Wallet {
 
   protected readonly wallet = httpResource<WalletOverviewDto>(() => '/api/payment/wallet');
 
+  protected readonly validReceivedCount = httpResource<number>(() =>
+    this.isAdministrator() ? undefined : '/api/payment/gift-cards/received/valid-count',
+  );
+
   protected readonly topUpPending = signal(false);
   protected readonly topUpError = signal<string | null>(null);
 
