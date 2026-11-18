@@ -140,3 +140,46 @@ export interface ChallengeOverviewDto {
   page: PageResult<ChallengeOverviewItemDto>;
   hasChallenges: boolean;
 }
+
+export interface AvailableQuizDto {
+  id: string;
+  name: string;
+  experiencePoints: number;
+  hasLocation: boolean;
+  inProgress: boolean;
+}
+
+export type QuizPlayKind = 'NotStarted' | 'InProgress' | 'Completed' | 'Unavailable';
+
+export interface QuizPlayQuestionDto {
+  id: string;
+  text: string;
+  answers: string[];
+}
+
+export interface QuizPlayStateDto {
+  quizId: string;
+  kind: QuizPlayKind;
+  quizName: string | null;
+  experiencePoints: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  question: QuizPlayQuestionDto | null;
+  questionNumber: number | null;
+  questionCount: number | null;
+  points: number | null;
+  lastAnswerWasCorrect: boolean | null;
+  correctAnswers: number | null;
+  percent: number | null;
+  experiencePointsAwarded: number | null;
+}
+
+export interface ActivateQuizDto {
+  latitude: number;
+  longitude: number;
+}
+
+export interface AnswerQuestionDto {
+  questionId: string;
+  answerIndex: number;
+}

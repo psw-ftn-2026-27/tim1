@@ -1,0 +1,27 @@
+<section class="stack">
+  <h2>{{ state().quizName }}</h2>
+  <p>XP: {{ state().experiencePoints }}</p>
+  @if (quizPin().length > 0) {
+    <p>Click the map to choose your position. You must be close to the quiz location.</p>
+    <app-map
+      [pins]="quizPin()"
+      [selectionEnabled]="!pending()"
+      (locationSelected)="position.set($event)"
+    />
+    @if (position(); as chosen) {
+      <p>Chosen position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+    }
+  } @else {
+    <p>This quiz has no location. You can start it right away.</p>
+  }
+  <div class="actions">
+    <button
+      type="button"
+      class="button button--primary"
+      [disabled]="pending() || (quizPin().length > 0 && !position())"
+      (click)="activate()"
+    >
+      Activate
+    </button>
+  </div>
+</section>
