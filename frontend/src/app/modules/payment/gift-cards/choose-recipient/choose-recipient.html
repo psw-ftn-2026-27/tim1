@@ -1,22 +1,22 @@
 <div class="stack">
   <div class="header">
-    <a class="back" routerLink="/payment/gift-cards" aria-label="Nazad na kartice">←</a>
-    <h1>Kupi karticu</h1>
+    <a class="back" routerLink="/payment/gift-cards" aria-label="Back to gift cards">←</a>
+    <h1>Buy a gift card</h1>
   </div>
 
   <div class="field">
     <input
       type="text"
-      aria-label="Pretraga korisnika"
-      placeholder="Pretraži po imenu"
+      aria-label="Search users"
+      placeholder="Search by name"
       [formField]="searchForm.text"
     />
   </div>
 
   @if (recipients.error()) {
-    <p class="error">Korisnici nisu učitani. Prijavite se i pokušajte ponovo.</p>
+    <p class="error">The users could not be loaded. Sign in and try again.</p>
   } @else if (recipients.value() === undefined) {
-    <p>Učitavanje korisnika...</p>
+    <p>Loading users...</p>
   } @else {
     <div class="stack">
       @for (user of recipients.value()?.items ?? []; track user.id) {
@@ -26,11 +26,11 @@
             class="button button--primary button--small"
             [routerLink]="['/payment/gift-cards/buy', user.id]"
           >
-            Kupi karticu
+            Buy a gift card
           </a>
         </article>
       } @empty {
-        <p>Nema korisnika.</p>
+        <p>No users found.</p>
       }
     </div>
   }

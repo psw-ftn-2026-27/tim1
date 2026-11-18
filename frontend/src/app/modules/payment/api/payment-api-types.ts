@@ -107,11 +107,6 @@ export interface GiftCardDto {
   status: GiftCardStatus;
 }
 
-export interface GiftCardsDto {
-  created: GiftCardDto[];
-  received: GiftCardDto[];
-}
-
 export interface PurchaseGiftCardDto {
   recipientId: string;
   amount: number;

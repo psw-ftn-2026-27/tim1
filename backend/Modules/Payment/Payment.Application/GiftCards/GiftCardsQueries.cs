@@ -15,21 +15,24 @@ public sealed class GiftCardsQueries
         _identityApi = identityApi;
     }
 
-    public async Task<GiftCardsDto> GetGiftCardsAsync(Guid userId)
+    public async Task<PageResult<GiftCardDto>> GetCreatedGiftCardsAsync(Guid userId, int page, int pageSize)
     {
-        var created = await _giftCardReadRepository.GetCreatedAsync(userId);
-        var received = await _giftCardReadRepository.GetReceivedAsync(userId);
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var userIds = created.Concat(received)
-            .SelectMany(card => new[] { card.CreatorId, card.RecipientId })
-            .Distinct()
-            .ToList();
-        var users = await _identityApi.GetUsersAsync(userIds);
-        var displayNames = users.ToDictionary(user => user.Id, user => user.DisplayName);
+        var created = await _giftCardReadRepository.GetCreatedAsync(userId, page, pageSize);
 
-        return new GiftCardsDto(
-            [.. created.Select(card => WithDisplayNames(card, displayNames))],
-            [.. received.Select(card => WithDisplayNames(card, displayNames))]);
+        return await WithDisplayNamesAsync(created);
+    }
+
+    public async Task<PageResult<GiftCardDto>> GetReceivedGiftCardsAsync(Guid userId, int page, int pageSize)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var received = await _giftCardReadRepository.GetReceivedAsync(userId, page, pageSize);
+
+        return await WithDisplayNamesAsync(received);
     }
 
     public Task<int> GetValidReceivedCountAsync(Guid userId)
@@ -41,7 +44,7 @@ public sealed class GiftCardsQueries
     {
         var users = await _identityApi.GetUsersAsync([recipientId]);
         var user = users.SingleOrDefault()
-            ?? throw new NotFoundException("Korisnik ne postoji.");
+            ?? throw new NotFoundException("The user does not exist.");
 
         return new RecipientDto(user.Id, user.DisplayName);
     }
@@ -60,12 +63,22 @@ public sealed class GiftCardsQueries
         return new PageResult<RecipientDto>(items, users.TotalCount);
     }
 
-    private static GiftCardDto WithDisplayNames(GiftCardDto card, Dictionary<Guid, string> displayNames)
+    private async Task<PageResult<GiftCardDto>> WithDisplayNamesAsync(PageResult<GiftCardDto> giftCards)
     {
-        return card with
-        {
-            CreatorDisplayName = displayNames.GetValueOrDefault(card.CreatorId, ""),
-            RecipientDisplayName = displayNames.GetValueOrDefault(card.RecipientId, "")
-        };
+        var userIds = giftCards.Items
+            .SelectMany(card => new[] { card.CreatorId, card.RecipientId })
+            .Distinct()
+            .ToList();
+        var users = await _identityApi.GetUsersAsync(userIds);
+        var displayNames = users.ToDictionary(user => user.Id, user => user.DisplayName);
+
+        var items = giftCards.Items
+            .Select(card => card with
+            {
+                CreatorDisplayName = displayNames.GetValueOrDefault(card.CreatorId, ""),
+                RecipientDisplayName = displayNames.GetValueOrDefault(card.RecipientId, "")
+            })
+            .ToList();
+        return new PageResult<GiftCardDto>(items, giftCards.TotalCount);
     }
 }

@@ -3,6 +3,7 @@ using FluentAssertions;
 using Payment.Application.GiftCards;
 using Payment.Domain.GiftCards;
 using Payment.Tests.Integration.Seeds;
+using Shared.Domain;
 using Xunit;
 
 namespace Payment.Tests.Integration.GiftCards;
@@ -12,26 +13,48 @@ public class GiftCardsQueryTests : BaseIntegrationTest
     public GiftCardsQueryTests(PaymentApiFactory factory) : base(factory) { }
 
     [Fact]
-    public async Task Customer_sees_the_gift_cards_they_created_and_received_with_their_status_but_not_others()
+    public async Task Customer_sees_the_gift_cards_they_created_with_their_status_but_not_others()
     {
         var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
 
-        var giftCards = await client.GetFromJsonAsync<GiftCardsDto>("/api/payment/gift-cards", JsonOptions);
+        var giftCards = await client.GetFromJsonAsync<PageResult<GiftCardDto>>("/api/payment/gift-cards/created", JsonOptions);
 
-        giftCards!.Created.Should().Contain(giftCard =>
+        giftCards!.Items.Should().Contain(giftCard =>
             giftCard.Id == GiftCardSeed.ExplorersGiftCardForSecondExplorer.Id
             && giftCard.Amount == GiftCardSeed.ExplorersGiftCardForSecondExplorer.Amount
             && giftCard.Message == GiftCardSeed.ExplorersGiftCardForSecondExplorer.Message
             && giftCard.Status == GiftCardStatus.Valid
             && giftCard.RecipientDisplayName != "");
-        giftCards.Received.Should().Contain(giftCard =>
+        giftCards.Items.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForExplorer.Id);
+        giftCards.Items.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForThirdExplorer.Id);
+    }
+
+    [Fact]
+    public async Task Customer_sees_the_gift_cards_they_received_with_their_status_but_not_others()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var giftCards = await client.GetFromJsonAsync<PageResult<GiftCardDto>>("/api/payment/gift-cards/received", JsonOptions);
+
+        giftCards!.Items.Should().Contain(giftCard =>
             giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForExplorer.Id
             && giftCard.Status == GiftCardStatus.Valid
             && giftCard.CreatorDisplayName != "");
-        giftCards.Created.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForExplorer.Id);
-        giftCards.Received.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.ExplorersGiftCardForSecondExplorer.Id);
-        giftCards.Created.Concat(giftCards.Received).Should().NotContain(giftCard =>
-            giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForThirdExplorer.Id);
+        giftCards.Items.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.ExplorersGiftCardForSecondExplorer.Id);
+        giftCards.Items.Should().NotContain(giftCard => giftCard.Id == GiftCardSeed.SecondExplorersGiftCardForThirdExplorer.Id);
+    }
+
+    [Fact]
+    public async Task Created_gift_cards_come_in_pages_with_the_total_of_all_of_them()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.SecondExplorer, "explorer");
+        var expectedTotal = GiftCardSeed.All.Count(giftCard => giftCard.CreatorId == DemoUsers.SecondExplorer);
+
+        var giftCards = await client.GetFromJsonAsync<PageResult<GiftCardDto>>(
+            "/api/payment/gift-cards/created?page=1&pageSize=1", JsonOptions);
+
+        giftCards!.Items.Should().HaveCount(1);
+        giftCards.TotalCount.Should().Be(expectedTotal);
     }
 
     [Fact]
@@ -44,5 +67,17 @@ public class GiftCardsQueryTests : BaseIntegrationTest
         var count = await client.GetFromJsonAsync<int>("/api/payment/gift-cards/received/valid-count", JsonOptions);
 
         count.Should().Be(expectedCount);
+    }
+
+    [Fact]
+    public async Task Recipient_search_finds_other_users_but_never_the_buyer()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var recipients = await client.GetFromJsonAsync<PageResult<RecipientDto>>(
+            "/api/payment/gift-cards/recipients?text=&page=1&pageSize=50", JsonOptions);
+
+        recipients!.Items.Should().Contain(recipient => recipient.Id == DemoUsers.SecondExplorer);
+        recipients.Items.Should().NotContain(recipient => recipient.Id == DemoUsers.Explorer);
     }
 }

@@ -1,8 +1,10 @@
+using Shared.Domain;
+
 namespace Payment.Application.GiftCards;
 
 public interface IGiftCardReadRepository
 {
-    Task<List<GiftCardDto>> GetCreatedAsync(Guid creatorId);
-    Task<List<GiftCardDto>> GetReceivedAsync(Guid recipientId);
+    Task<PageResult<GiftCardDto>> GetCreatedAsync(Guid creatorId, int page, int pageSize);
+    Task<PageResult<GiftCardDto>> GetReceivedAsync(Guid recipientId, int page, int pageSize);
     Task<int> CountValidReceivedAsync(Guid recipientId);
 }

@@ -119,12 +119,12 @@ public sealed class Wallet : AggregateRoot
     {
         if (amount <= 0)
         {
-            throw new DomainException("Iznos plaćanja kartice mora biti veći od nule.");
+            throw new DomainException("The gift card payment must be greater than zero.");
         }
 
         if (amount > AvailableBalance)
         {
-            throw new DomainException("Nemate dovoljno EC u novčaniku.");
+            throw new DomainException("You do not have enough EC in your wallet.");
         }
 
         AvailableBalance -= amount;

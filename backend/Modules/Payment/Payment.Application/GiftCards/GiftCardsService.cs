@@ -30,7 +30,7 @@ public sealed class GiftCardsService
         var recipients = await _identityApi.GetUsersAsync([dto.RecipientId]);
         if (recipients.Count == 0)
         {
-            throw new NotFoundException("Korisnik kome kupujete karticu ne postoji.");
+            throw new NotFoundException("The user you are buying the gift card for does not exist.");
         }
 
         var wallet = await _walletRepository.GetByOwnerAsync(buyerId);

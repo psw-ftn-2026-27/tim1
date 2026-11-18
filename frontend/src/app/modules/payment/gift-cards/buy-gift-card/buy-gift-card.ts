@@ -28,10 +28,10 @@ export class BuyGiftCard {
   private readonly purchaseModel = signal({ amount: 10, message: '' });
 
   protected readonly purchaseForm = form(this.purchaseModel, (path) => {
-    required(path.amount, { message: 'Iznos je obavezan.' });
-    min(path.amount, 10, { message: 'Iznos mora biti najmanje 10 EC.' });
-    max(path.amount, 1000, { message: 'Iznos može biti najviše 1000 EC.' });
-    maxLength(path.message, 200, { message: 'Poruka može imati najviše 200 karaktera.' });
+    required(path.amount, { message: 'The amount is required.' });
+    min(path.amount, 10, { message: 'The amount must be at least 10 EC.' });
+    max(path.amount, 1000, { message: 'The amount can be at most 1000 EC.' });
+    maxLength(path.message, 200, { message: 'The message can have at most 200 characters.' });
   });
 
   protected async purchase(event: Event): Promise<void> {
@@ -46,7 +46,7 @@ export class BuyGiftCard {
       });
       await this.router.navigateByUrl('/payment/gift-cards');
     } catch (failure) {
-      this.error.set(serverMessage(failure, 'Kartica nije kupljena.'));
+      this.error.set(serverMessage(failure, 'The gift card was not bought.'));
     } finally {
       this.pending.set(false);
     }

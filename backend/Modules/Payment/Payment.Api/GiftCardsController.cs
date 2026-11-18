@@ -20,10 +20,16 @@ public sealed class GiftCardsController : ControllerBase
         _giftCardsQueries = giftCardsQueries;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<GiftCardsDto>> GetGiftCards()
+    [HttpGet("created")]
+    public async Task<ActionResult<PageResult<GiftCardDto>>> GetCreatedGiftCards([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        return await _giftCardsQueries.GetGiftCardsAsync(User.GetUserId());
+        return await _giftCardsQueries.GetCreatedGiftCardsAsync(User.GetUserId(), page, pageSize);
+    }
+
+    [HttpGet("received")]
+    public async Task<ActionResult<PageResult<GiftCardDto>>> GetReceivedGiftCards([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        return await _giftCardsQueries.GetReceivedGiftCardsAsync(User.GetUserId(), page, pageSize);
     }
 
     [HttpGet("recipients")]

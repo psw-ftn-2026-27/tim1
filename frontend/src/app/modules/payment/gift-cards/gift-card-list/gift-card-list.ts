@@ -1,12 +1,13 @@
 import { httpResource } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { GiftCardStatus, GiftCardsDto } from '../../api/payment-api-types';
+import { PageResult } from '../../../../shared/api/page-result';
+import { GiftCardDto, GiftCardStatus } from '../../api/payment-api-types';
 
 const STATUS_LABELS: Record<GiftCardStatus, string> = {
-  Valid: 'važeća',
-  Used: 'iskorišćena',
-  Expired: 'istekla',
+  Valid: 'valid',
+  Used: 'used',
+  Expired: 'expired',
 };
 
 @Component({
@@ -16,7 +17,16 @@ const STATUS_LABELS: Record<GiftCardStatus, string> = {
   templateUrl: './gift-card-list.html',
 })
 export class GiftCardList {
-  protected readonly giftCards = httpResource<GiftCardsDto>(() => '/api/payment/gift-cards');
+  protected readonly pageSize = 10;
+  protected readonly createdPage = signal(1);
+  protected readonly receivedPage = signal(1);
+
+  protected readonly created = httpResource<PageResult<GiftCardDto>>(
+    () => `/api/payment/gift-cards/created?page=${this.createdPage()}&pageSize=${this.pageSize}`,
+  );
+  protected readonly received = httpResource<PageResult<GiftCardDto>>(
+    () => `/api/payment/gift-cards/received?page=${this.receivedPage()}&pageSize=${this.pageSize}`,
+  );
 
   protected statusLabel(status: GiftCardStatus): string {
     return STATUS_LABELS[status];

@@ -1,15 +1,15 @@
 <div class="stack">
   <div class="header">
-    <a class="back" routerLink="/payment/gift-cards/buy" aria-label="Nazad na izbor primaoca">←</a>
-    <h1>Kupi karticu</h1>
+    <a class="back" routerLink="/payment/gift-cards/buy" aria-label="Back to choosing a recipient">←</a>
+    <h1>Buy a gift card</h1>
   </div>
 
   @if (recipient.error()) {
-    <p class="error">Korisnik nije učitan. Vratite se i izaberite ga ponovo.</p>
+    <p class="error">The user could not be loaded. Go back and choose them again.</p>
   } @else if (recipient.value() === undefined) {
-    <p>Učitavanje korisnika...</p>
+    <p>Loading the user...</p>
   } @else {
-    <h2>Kartica za: {{ recipient.value()?.displayName }}</h2>
+    <h2>Gift card for: {{ recipient.value()?.displayName }}</h2>
 
     @if (error()) {
       <p class="error">{{ error() }}</p>
@@ -17,7 +17,7 @@
 
     <form class="card stack" (submit)="purchase($event)">
       <div class="field">
-        <label for="gift-card-amount">Iznos u EC</label>
+        <label for="gift-card-amount">Amount in EC</label>
         <input id="gift-card-amount" type="number" step="1" [formField]="purchaseForm.amount" />
         @if (purchaseForm.amount().touched()) {
           @for (message of purchaseForm.amount().errors(); track $index) {
@@ -27,7 +27,7 @@
       </div>
 
       <div class="field">
-        <label for="gift-card-message">Poruka</label>
+        <label for="gift-card-message">Message</label>
         <textarea id="gift-card-message" [formField]="purchaseForm.message"></textarea>
         @if (purchaseForm.message().touched()) {
           @for (message of purchaseForm.message().errors(); track $index) {
@@ -41,7 +41,7 @@
         type="submit"
         [disabled]="!purchaseForm().valid() || pending()"
       >
-        Kupi
+        Buy
       </button>
     </form>
   }
