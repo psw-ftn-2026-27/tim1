@@ -2,5 +2,8 @@ namespace Games.Tests.Integration.Seeds;
 
 internal static class GamesSeed
 {
-    public static object[] All => [.. SocialChallengeSeed.All, .. QuizSeed.All];
+    public static object[] All =>
+    [
+        .. SocialChallengeSeed.All, .. QuizSeed.All, .. QuizAttemptSeed.All, .. ChallengeCompletionSeed.All
+    ];
 }

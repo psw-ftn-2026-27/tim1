@@ -31,7 +31,7 @@ public sealed class ChallengeOverviewQueryTests : BaseIntegrationTest
         var result = await client.GetFromJsonAsync<ChallengeOverviewDto>(Url, JsonOptions);
 
         result!.HasChallenges.Should().BeTrue();
-        result.Page.TotalCount.Should().Be(GamesSeed.All.Length);
+        result.Page.TotalCount.Should().Be(QuizSeed.All.Length + SocialChallengeSeed.All.Length);
         result.Page.Items.Should().BeEquivalentTo(expected, options => options
             .Using<DateTime>(date => date.Subject.Should().BeCloseTo(date.Expectation, TimeSpan.FromTicks(10)))
             .WhenTypeIs<DateTime>());
