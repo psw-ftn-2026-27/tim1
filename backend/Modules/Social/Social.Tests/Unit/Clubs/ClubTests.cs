@@ -14,6 +14,8 @@ public class ClubTests
     private static readonly Guid Outsider = Guid.Parse("00000000-0000-0000-0000-000000000011");
     private static readonly Guid Invitee = Guid.Parse("00000000-0000-0000-0000-000000000012");
     private static readonly Guid Moderator = Guid.Parse("00000000-0000-0000-0000-000000000013");
+    private static readonly Guid SecondModerator = Guid.Parse("00000000-0000-0000-0000-000000000014");
+    private static readonly Guid SecondOrdinaryMember = Guid.Parse("00000000-0000-0000-0000-000000000015");
 
     public static TheoryData<Guid> UsersWhoCannotResolveRequests => [OrdinaryMember, Outsider];
     public static TheoryData<Guid> UsersWhoCannotInvite => [OrdinaryMember, Outsider];
@@ -21,6 +23,9 @@ public class ClubTests
     public static TheoryData<Guid> UsersWhoAreNotTheOwner => [Moderator, OrdinaryMember, Outsider];
     public static TheoryData<Guid> UsersWhoAreNotOrdinaryMembers => [Owner, Moderator, Outsider];
     public static TheoryData<Guid> UsersWhoCannotReceiveOwnership => [Owner, Outsider];
+    public static TheoryData<Guid> MembersTheOwnerCanRemove => [Moderator, OrdinaryMember];
+    public static TheoryData<Guid> MembersAModeratorCannotRemove => [Owner, SecondModerator];
+    public static TheoryData<Guid> MembersAnOrdinaryMemberCannotRemove => [Owner, Moderator, SecondOrdinaryMember];
 
     private static Club CreateClub() =>
         new(Owner, "Planinari", "Klub ljubitelja planinarenja.", ["https://example.com/planinari.jpg"]);
@@ -47,6 +52,17 @@ public class ClubTests
         club.RequestMembership(Moderator);
         club.AcceptMembershipRequest(Owner, Moderator);
         club.PromoteToModerator(Owner, Moderator);
+        return club;
+    }
+
+    private static Club CreateClubWithTwoModeratorsAndTwoOrdinaryMembers()
+    {
+        var club = CreateClubWithModeratorOrdinaryMemberAndPendingRequest();
+        club.RequestMembership(SecondModerator);
+        club.AcceptMembershipRequest(Owner, SecondModerator);
+        club.PromoteToModerator(Owner, SecondModerator);
+        club.RequestMembership(SecondOrdinaryMember);
+        club.AcceptMembershipRequest(Owner, SecondOrdinaryMember);
         return club;
     }
 
@@ -308,5 +324,84 @@ public class ClubTests
         club.Members.Should().ContainSingle(member => member.UserId == Requester)
             .Which.Role.Should().Be(ClubRole.Member);
         club.MembershipRequests.Should().NotContain(request => request.UserId == Requester);
+    }
+
+    [Fact]
+    public void Owner_cannot_remove_themselves_from_the_club()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        var removal = () => club.RemoveMember(Owner, Owner);
+
+        removal.Should().Throw<DomainException>();
+        club.Members.Should().Contain(member => member.UserId == Owner);
+    }
+
+    [Theory]
+    [MemberData(nameof(MembersTheOwnerCanRemove))]
+    public void Owner_removes_a_moderator_or_an_ordinary_member_and_they_are_no_longer_a_member(Guid memberId)
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        club.RemoveMember(Owner, memberId);
+
+        club.Members.Should().NotContain(member => member.UserId == memberId);
+    }
+
+    [Theory]
+    [MemberData(nameof(MembersAModeratorCannotRemove))]
+    public void Moderator_cannot_remove_the_owner_or_another_moderator(Guid memberId)
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        var removal = () => club.RemoveMember(Moderator, memberId);
+
+        removal.Should().Throw<DomainException>();
+        club.Members.Should().Contain(member => member.UserId == memberId);
+    }
+
+    [Theory]
+    [MemberData(nameof(MembersAnOrdinaryMemberCannotRemove))]
+    public void Ordinary_member_cannot_remove_anyone(Guid memberId)
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        var removal = () => club.RemoveMember(OrdinaryMember, memberId);
+
+        removal.Should().Throw<DomainException>();
+        club.Members.Should().Contain(member => member.UserId == memberId);
+    }
+
+    [Fact]
+    public void Moderator_removes_an_ordinary_member_and_they_are_no_longer_a_member()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        club.RemoveMember(Moderator, OrdinaryMember);
+
+        club.Members.Should().NotContain(member => member.UserId == OrdinaryMember);
+    }
+
+    [Fact]
+    public void User_who_is_not_a_club_member_cannot_remove_anyone()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+
+        var removal = () => club.RemoveMember(Outsider, OrdinaryMember);
+
+        removal.Should().Throw<DomainException>();
+        club.Members.Should().Contain(member => member.UserId == OrdinaryMember);
+    }
+
+    [Fact]
+    public void Removing_a_user_who_is_not_a_club_member_reports_that_the_member_does_not_exist()
+    {
+        var club = CreateClubWithTwoModeratorsAndTwoOrdinaryMembers();
+        var membersBefore = club.Members.Count;
+
+        var removal = () => club.RemoveMember(Owner, Outsider);
+
+        removal.Should().Throw<NotFoundException>();
+        club.Members.Should().HaveCount(membersBefore);
     }
 }

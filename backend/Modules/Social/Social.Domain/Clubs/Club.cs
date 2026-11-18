@@ -145,6 +145,32 @@ public sealed class Club : AggregateRoot
         OwnerId = memberId;
     }
 
+    // Removal P1, P2, P3. No "only an active club" check once the club gets a status, because P4 allows removal in a closed club.
+    public void RemoveMember(Guid removerId, Guid memberId)
+    {
+        var remover = _members.FirstOrDefault(member => member.UserId == removerId
+            && (member.Role == ClubRole.Owner || member.Role == ClubRole.Moderator));
+        if (remover is null)
+        {
+            throw new DomainException("Only the club owner or a moderator can remove members.");
+        }
+        var member = _members.FirstOrDefault(member => member.UserId == memberId);
+        if (member is null)
+        {
+            throw new NotFoundException($"Member {memberId} of the club does not exist.");
+        }
+        if (remover.Role == ClubRole.Owner && memberId == removerId)
+        {
+            throw new DomainException("The club owner cannot remove themselves from the club.");
+        }
+        if (remover.Role == ClubRole.Moderator && member.Role != ClubRole.Member)
+        {
+            throw new DomainException("A moderator can remove only ordinary members.");
+        }
+
+        _members.Remove(member);
+    }
+
     private bool IsMember(Guid userId)
     {
         return _members.Any(member => member.UserId == userId);

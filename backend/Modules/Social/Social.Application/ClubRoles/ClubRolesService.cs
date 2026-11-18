@@ -31,6 +31,14 @@ public sealed class ClubRolesService
         await _unitOfWork.SaveChangesAsync();
     }
 
+    public async Task RemoveMemberAsync(Guid clubId, Guid removerId, Guid memberId)
+    {
+        var club = await GetClubAsync(clubId);
+
+        club.RemoveMember(removerId, memberId);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
     private async Task<Club> GetClubAsync(Guid clubId)
     {
         var club = await _clubRepository.GetByIdAsync(clubId);
