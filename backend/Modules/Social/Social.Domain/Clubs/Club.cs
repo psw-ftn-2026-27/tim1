@@ -9,6 +9,7 @@ public sealed class Club : AggregateRoot
     public string Name { get; private set; }
     public string Description { get; private set; }
     public List<string> Images { get; private set; }
+    public ClubStatus Status { get; private set; }
     private readonly List<ClubMember> _members = [];
     public IReadOnlyList<ClubMember> Members => _members;
     private readonly List<MembershipRequest> _membershipRequests = [];
@@ -31,6 +32,7 @@ public sealed class Club : AggregateRoot
         Description = null!;
         Images = null!;
         SetDetails(name, description, images);
+        Status = ClubStatus.Active;
         _members.Add(new ClubMember(ownerId, ClubRole.Owner));
     }
 
@@ -39,9 +41,36 @@ public sealed class Club : AggregateRoot
         SetDetails(name, description, images);
     }
 
-    // P2, P3; invitations P6. The "only an active club" part of P2 belongs here once the club gets a status.
+    // Closing P2, P5: closing removes every pending request and invitation in the same change.
+    public void Close(Guid ownerId)
+    {
+        EnsureIsOwner(ownerId);
+        if (Status == ClubStatus.Closed)
+        {
+            throw new DomainException("The club is already closed.");
+        }
+
+        Status = ClubStatus.Closed;
+        _membershipRequests.Clear();
+        _invitations.Clear();
+    }
+
+    // Closing P2
+    public void Reopen(Guid ownerId)
+    {
+        EnsureIsOwner(ownerId);
+        if (Status == ClubStatus.Active)
+        {
+            throw new DomainException("The club is already active.");
+        }
+
+        Status = ClubStatus.Active;
+    }
+
+    // P2, P3; invitations P6; closing P4.
     public void RequestMembership(Guid userId)
     {
+        EnsureIsActive();
         if (IsMember(userId))
         {
             throw new DomainException("A club member cannot request membership in the same club.");
@@ -82,9 +111,10 @@ public sealed class Club : AggregateRoot
         _membershipRequests.Remove(GetMembershipRequest(requesterId));
     }
 
-    // Invitations P1, P5. The "only an active club" part of P1 belongs here once the club gets a status.
+    // Invitations P1, P5; closing P4.
     public void InviteMember(Guid inviterId, Guid userId)
     {
+        EnsureIsActive();
         EnsureCanInvite(inviterId);
         if (IsMember(userId))
         {
@@ -117,9 +147,10 @@ public sealed class Club : AggregateRoot
         _invitations.Remove(GetInvitation(userId));
     }
 
-    // P1, P2. The "only an active club" part of P1 belongs here once the club gets a status.
+    // P1, P2; closing P4.
     public void PromoteToModerator(Guid ownerId, Guid memberId)
     {
+        EnsureIsActive();
         EnsureIsOwner(ownerId);
         var member = _members.FirstOrDefault(member => member.UserId == memberId);
         if (member is null || member.Role != ClubRole.Member)
@@ -130,9 +161,10 @@ public sealed class Club : AggregateRoot
         member.ChangeRole(ClubRole.Moderator);
     }
 
-    // P1, P3, P4, P5, P6. The "only an active club" part of P1 belongs here once the club gets a status.
+    // P1, P3, P4, P5, P6; closing P4.
     public void TransferOwnership(Guid ownerId, Guid memberId)
     {
+        EnsureIsActive();
         var owner = EnsureIsOwner(ownerId);
         var newOwner = _members.FirstOrDefault(member => member.UserId == memberId);
         if (newOwner is null || memberId == ownerId)
@@ -145,7 +177,7 @@ public sealed class Club : AggregateRoot
         OwnerId = memberId;
     }
 
-    // Removal P1, P2, P3. No "only an active club" check once the club gets a status, because P4 allows removal in a closed club.
+    // Removal P1, P2, P3. No "only an active club" check, because closing P4 allows removal in a closed club.
     public void RemoveMember(Guid removerId, Guid memberId)
     {
         var remover = _members.FirstOrDefault(member => member.UserId == removerId
@@ -220,9 +252,17 @@ public sealed class Club : AggregateRoot
         var owner = _members.FirstOrDefault(member => member.UserId == ownerId && member.Role == ClubRole.Owner);
         if (owner is null)
         {
-            throw new DomainException("Only the club owner can change member roles.");
+            throw new DomainException("Only the club owner can do this.");
         }
         return owner;
+    }
+
+    private void EnsureIsActive()
+    {
+        if (Status != ClubStatus.Active)
+        {
+            throw new DomainException("The club is closed.");
+        }
     }
 
     private MembershipRequest GetMembershipRequest(Guid userId)

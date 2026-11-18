@@ -70,12 +70,15 @@ export interface UpdateCommentDto {
   text: string;
 }
 
+export type ClubStatus = 'Active' | 'Closed';
+
 export interface ClubDto {
   id: string;
   ownerId: string;
   name: string;
   description: string;
   images: string[];
+  status: ClubStatus;
 }
 
 export interface CreateClubDto {

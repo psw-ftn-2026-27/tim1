@@ -11,6 +11,7 @@ internal static class ClubSeed
     public static readonly Club RunnersClubWithSecondExplorersPendingRequest;
     public static readonly Club SwimmersClubWithSecondExplorersPendingInvitation;
     public static readonly Club ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest;
+    public static readonly Club SkatersClubWithSecondExplorersPendingRequestAndThirdExplorersPendingInvitation;
 
     static ClubSeed()
     {
@@ -25,7 +26,11 @@ internal static class ClubSeed
         ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.AcceptMembershipRequest(WellKnownUsers.Explorer, WellKnownUsers.SecondExplorer);
         ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.PromoteToModerator(WellKnownUsers.Explorer, WellKnownUsers.SecondExplorer);
         ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest.RequestMembership(DemoUsers.ThirdExplorer);
+
+        SkatersClubWithSecondExplorersPendingRequestAndThirdExplorersPendingInvitation = new(WellKnownUsers.Explorer, "Klizači", "Klub ljubitelja klizanja na Spensu.", ["https://example.com/klizaci.jpg"]);
+        SkatersClubWithSecondExplorersPendingRequestAndThirdExplorersPendingInvitation.RequestMembership(WellKnownUsers.SecondExplorer);
+        SkatersClubWithSecondExplorersPendingRequestAndThirdExplorersPendingInvitation.InviteMember(WellKnownUsers.Explorer, DemoUsers.ThirdExplorer);
     }
 
-    public static Club[] All => [HikersClub, PhotographersClub, SecondExplorersCyclingClub, RunnersClubWithSecondExplorersPendingRequest, SwimmersClubWithSecondExplorersPendingInvitation, ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest];
+    public static Club[] All => [HikersClub, PhotographersClub, SecondExplorersCyclingClub, RunnersClubWithSecondExplorersPendingRequest, SwimmersClubWithSecondExplorersPendingInvitation, ReadersClubWithSecondExplorerAsModeratorAndThirdExplorersPendingRequest, SkatersClubWithSecondExplorersPendingRequestAndThirdExplorersPendingInvitation];
 }

@@ -48,6 +48,32 @@ public sealed class ClubManagementService
         await _unitOfWork.SaveChangesAsync();
     }
 
+    public async Task CloseAsync(Guid clubId, Guid ownerId)
+    {
+        var club = await GetClubAsync(clubId);
+
+        club.Close(ownerId);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    public async Task ReopenAsync(Guid clubId, Guid ownerId)
+    {
+        var club = await GetClubAsync(clubId);
+
+        club.Reopen(ownerId);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    private async Task<Club> GetClubAsync(Guid clubId)
+    {
+        var club = await _clubRepository.GetByIdAsync(clubId);
+        if (club is null)
+        {
+            throw new NotFoundException($"Club {clubId} does not exist.");
+        }
+        return club;
+    }
+
     private async Task<Club> GetOwnedClubAsync(Guid clubId, Guid ownerId)
     {
         var club = await _clubRepository.GetByIdAsync(clubId);
