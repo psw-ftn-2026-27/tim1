@@ -6,8 +6,6 @@ namespace Payment.Domain.Wallets;
 
 public sealed class Wallet : AggregateRoot
 {
-    public const string InsufficientFundsMessage = "Nemate dovoljno EC u novčaniku.";
-
     private readonly List<Transaction> _transactions = [];
 
     public Guid OwnerId { get; private set; }
@@ -126,7 +124,7 @@ public sealed class Wallet : AggregateRoot
 
         if (amount > AvailableBalance)
         {
-            throw new DomainException(InsufficientFundsMessage);
+            throw new DomainException("Nemate dovoljno EC u novčaniku.");
         }
 
         AvailableBalance -= amount;

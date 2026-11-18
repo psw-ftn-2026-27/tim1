@@ -29,7 +29,7 @@ public sealed class GiftCardsController : ControllerBase
     [HttpGet("recipients")]
     public async Task<ActionResult<PageResult<RecipientDto>>> SearchRecipients([FromQuery] string text = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        return await _giftCardsQueries.SearchRecipientsAsync(text, page, pageSize);
+        return await _giftCardsQueries.SearchRecipientsAsync(User.GetUserId(), text, page, pageSize);
     }
 
     [HttpGet("recipients/{recipientId:guid}")]

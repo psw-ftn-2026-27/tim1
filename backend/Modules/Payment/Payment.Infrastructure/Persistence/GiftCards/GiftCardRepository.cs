@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Payment.Application.GiftCards;
 using Payment.Domain.GiftCards;
 
@@ -11,13 +10,6 @@ internal sealed class GiftCardRepository : IGiftCardRepository
     public GiftCardRepository(PaymentDbContext dbContext)
     {
         _dbContext = dbContext;
-    }
-
-    public Task<List<GiftCard>> GetOfUserAsync(Guid userId)
-    {
-        return _dbContext.GiftCards
-            .Where(giftCard => giftCard.CreatorId == userId || giftCard.RecipientId == userId)
-            .ToListAsync();
     }
 
     public void Add(GiftCard giftCard)

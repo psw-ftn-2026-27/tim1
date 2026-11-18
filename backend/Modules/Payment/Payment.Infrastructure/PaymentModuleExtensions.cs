@@ -58,6 +58,7 @@ public static class PaymentModuleExtensions
         services.AddScoped<IPurchaseRepository, PurchaseRepository>();
         services.AddScoped<IPurchaseReadRepository, PurchaseReadRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+        services.AddScoped<IGiftCardReadRepository, GiftCardReadRepository>();
     }
 
     private static void AddDomainServices(IServiceCollection services)

@@ -36,7 +36,8 @@ public sealed class GiftCardsService
         var wallet = await _walletRepository.GetByOwnerAsync(buyerId);
         if (wallet is null)
         {
-            throw new DomainException(Wallet.InsufficientFundsMessage);
+            wallet = new Wallet(buyerId);
+            _walletRepository.Add(wallet);
         }
 
         wallet.PayForGiftCard(dto.Amount);
