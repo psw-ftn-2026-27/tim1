@@ -39,7 +39,7 @@ public sealed class LocationChallengeSolvingQueryTests : BaseIntegrationTest
             "startedAt", "solvedAt", "awardedExperiencePoints");
         body.GetProperty("photos").EnumerateArray()
             .SelectMany(photo => photo.EnumerateObject().Select(property => property.Name))
-            .Should().OnlyContain(name => name == "imageId" || name == "isDiscovered");
+            .Should().OnlyContain(name => name == "pointId" || name == "imageId" || name == "isDiscovered");
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public sealed class LocationChallengeSolvingQueryTests : BaseIntegrationTest
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var attempt = await response.Content.ReadFromJsonAsync<LocationChallengeAttemptDto>(JsonOptions);
         attempt!.Photos.Should().BeEquivalentTo(challenge.HiddenPoints.Select(point =>
-            new AttemptPhotoDto(point.ImageId, seeded.DiscoveredPointIds.Contains(point.Id))));
+            new AttemptPhotoDto(point.Id, point.ImageId, seeded.DiscoveredPointIds.Contains(point.Id))));
         attempt.RemainingPointCount.Should().Be(challenge.HiddenPoints.Count - seeded.DiscoveredPointIds.Count);
         attempt.IsSolved.Should().BeFalse();
         attempt.SolvedAt.Should().BeNull();
@@ -67,6 +67,7 @@ public sealed class LocationChallengeSolvingQueryTests : BaseIntegrationTest
         var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
         var challenge = LocationChallengeSeed.PublishedSquareHunt;
         var seeded = LocationChallengeAttemptSeed.SecondExplorersSolvedSquareAttempt;
+        var completion = ChallengeCompletionSeed.SecondExplorerSolvedSquareHunt;
 
         var response = await client.GetAsync($"{Url}/{challenge.Id}/attempt");
 
@@ -76,7 +77,7 @@ public sealed class LocationChallengeSolvingQueryTests : BaseIntegrationTest
         attempt.RemainingPointCount.Should().Be(0);
         attempt.IsSolved.Should().BeTrue();
         attempt.SolvedAt.Should().BeCloseTo(seeded.SolvedAt!.Value, TimeSpan.FromMilliseconds(1));
-        attempt.AwardedExperiencePoints.Should().Be(challenge.ExperiencePoints);
+        attempt.AwardedExperiencePoints.Should().Be(completion.ExperiencePointsAwarded);
     }
 
     [Fact]

@@ -161,6 +161,7 @@ export interface SearchCircleDto {
 }
 
 export interface AttemptPhotoDto {
+  pointId: string;
   imageId: string;
   isDiscovered: boolean;
 }

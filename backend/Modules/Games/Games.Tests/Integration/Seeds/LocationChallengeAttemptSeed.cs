@@ -24,11 +24,11 @@ internal static class LocationChallengeAttemptSeed
             25);
 
         ExplorersSquareAttemptWithOnePointDiscovered = new(squareHunt.Id, WellKnownUsers.Explorer, squareCircle);
-        ExplorersSquareAttemptWithOnePointDiscovered.Discover(squareHunt, [squareHunt.HiddenPoints[0].Id]);
+        ExplorersSquareAttemptWithOnePointDiscovered.Discover([squareHunt.HiddenPoints[0].Id], squareHunt.HiddenPoints.Count);
 
         SecondExplorersSolvedSquareAttempt = new(squareHunt.Id, WellKnownUsers.SecondExplorer, squareCircle);
-        SecondExplorersSolvedSquareAttempt.Discover(squareHunt, [squareHunt.HiddenPoints[1].Id]);
-        SecondExplorersSolvedSquareAttempt.Discover(squareHunt, [squareHunt.HiddenPoints[0].Id]);
+        SecondExplorersSolvedSquareAttempt.Discover([squareHunt.HiddenPoints[1].Id], squareHunt.HiddenPoints.Count);
+        SecondExplorersSolvedSquareAttempt.Discover([squareHunt.HiddenPoints[0].Id], squareHunt.HiddenPoints.Count);
     }
 
     public static LocationChallengeAttempt[] All =>

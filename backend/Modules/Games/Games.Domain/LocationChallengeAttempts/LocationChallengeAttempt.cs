@@ -1,4 +1,3 @@
-using Games.Domain.LocationChallenges;
 using Shared.Domain;
 using Shared.Domain.Exceptions;
 
@@ -19,7 +18,6 @@ public sealed class LocationChallengeAttempt : AggregateRoot
     public SearchCircle Circle { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? SolvedAt { get; private set; }
-    public int? AwardedExperiencePoints { get; private set; }
     public IReadOnlyList<Guid> DiscoveredPointIds => _discoveredPointIds.AsReadOnly();
     public bool IsSolved => SolvedAt is not null;
 
@@ -39,31 +37,21 @@ public sealed class LocationChallengeAttempt : AggregateRoot
 
     /// <summary>
     /// Records the discovered hidden points, in any order. When every hidden point of the
-    /// challenge is discovered, the attempt is solved and the challenge's XP is awarded once.
+    /// challenge is discovered, the attempt is solved. Whether the points belong to the
+    /// challenge is checked by <see cref="LocationDiscovery"/>, which knows the challenge.
     /// </summary>
-    public void Discover(LocationChallenge challenge, IReadOnlyList<Guid> pointIds)
+    public void Discover(IReadOnlyList<Guid> pointIds, int totalPointCount)
     {
-        if (challenge.Id != ChallengeId)
-        {
-            throw new DomainException("An attempt can discover only the hidden points of its own challenge.");
-        }
         if (IsSolved)
         {
             throw new DomainException("This location challenge is already solved.");
         }
 
-        var challengePointIds = challenge.HiddenPoints.Select(point => point.Id).ToList();
-        if (pointIds.Any(pointId => !challengePointIds.Contains(pointId)))
-        {
-            throw new DomainException("An attempt can discover only the hidden points of its own challenge.");
-        }
-
         _discoveredPointIds.AddRange(pointIds.Where(pointId => !_discoveredPointIds.Contains(pointId)).Distinct());
 
-        if (challengePointIds.All(_discoveredPointIds.Contains))
+        if (_discoveredPointIds.Count == totalPointCount)
         {
             SolvedAt = DateTime.UtcNow;
-            AwardedExperiencePoints = challenge.ExperiencePoints;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Games.Application.LocationChallengeSolving;
 
 /// <summary>
 /// What the explorer sees while searching: the circle and the photos, never the hidden points' locations.
-/// SolvedAt and AwardedExperiencePoints are null until the attempt is solved.
+/// SolvedAt and AwardedExperiencePoints (from the challenge completion) are null until the attempt is solved.
 /// </summary>
 public sealed record LocationChallengeAttemptDto(
     Guid Id,
@@ -20,4 +20,4 @@ public sealed record LocationChallengeAttemptDto(
 
 public sealed record SearchCircleDto(LocationDto Center, double DiameterMeters);
 
-public sealed record AttemptPhotoDto(Guid ImageId, bool IsDiscovered);
+public sealed record AttemptPhotoDto(Guid PointId, Guid ImageId, bool IsDiscovered);

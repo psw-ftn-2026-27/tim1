@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Games.Domain.ChallengeCompletions;
 using Games.Domain.LocationChallengeAttempts;
 using Games.Domain.LocationChallenges;
 using Shared.Domain.Exceptions;
@@ -67,10 +68,10 @@ public sealed class LocationDiscoveryTests
     {
         var (challenge, attempt) = ActivateChallengeWith(Cathedral, Fountain);
 
-        new LocationDiscovery().Check(challenge, attempt, Fountain);
+        var completion = new LocationDiscovery().Check(challenge, attempt, Fountain);
 
+        completion.Should().BeNull();
         attempt.SolvedAt.Should().BeNull();
-        attempt.AwardedExperiencePoints.Should().BeNull();
     }
 
     [Fact]
@@ -79,10 +80,15 @@ public sealed class LocationDiscoveryTests
         var (challenge, attempt) = ActivateChallengeWith(Cathedral, Fountain);
         new LocationDiscovery().Check(challenge, attempt, Fountain);
 
-        new LocationDiscovery().Check(challenge, attempt, Cathedral);
+        var completion = new LocationDiscovery().Check(challenge, attempt, Cathedral);
 
         attempt.SolvedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
-        attempt.AwardedExperiencePoints.Should().Be(challenge.ExperiencePoints);
+        completion.Should().NotBeNull();
+        completion!.PlayerId.Should().Be(attempt.UserId);
+        completion.ChallengeId.Should().Be(challenge.Id);
+        completion.ChallengeType.Should().Be(ChallengeType.Location);
+        completion.CompletedAt.Should().Be(attempt.SolvedAt!.Value);
+        completion.ExperiencePointsAwarded.Should().Be(challenge.ExperiencePoints);
     }
 
     [Fact]
@@ -91,7 +97,7 @@ public sealed class LocationDiscoveryTests
         var (challenge, attempt) = ActivateChallengeWith(Cathedral);
         new LocationDiscovery().Check(challenge, attempt, Cathedral);
 
-        var discovery = () => attempt.Discover(challenge, [challenge.HiddenPoints[0].Id]);
+        var discovery = () => attempt.Discover([challenge.HiddenPoints[0].Id], challenge.HiddenPoints.Count);
 
         discovery.Should().Throw<DomainException>();
     }

@@ -15,6 +15,7 @@ internal sealed class LocationChallengeAttemptReadRepository : ILocationChalleng
     }
 
     // The hidden points' locations are deliberately left out: the explorer sees only the photos.
+    // The awarded experience points come from the challenge completion, which exists once the attempt is solved.
     public Task<LocationChallengeAttemptDto?> GetAsync(Guid challengeId, Guid userId)
     {
         return _dbContext.LocationChallengeAttempts
@@ -32,13 +33,17 @@ internal sealed class LocationChallengeAttemptReadRepository : ILocationChalleng
                         new LocationDto(attempt.Circle.Center.Latitude, attempt.Circle.Center.Longitude),
                         attempt.Circle.DiameterMeters),
                     challenge.HiddenPoints
-                        .Select(point => new AttemptPhotoDto(point.ImageId, attempt.DiscoveredPointIds.Contains(point.Id)))
+                        .Select(point => new AttemptPhotoDto(point.Id, point.ImageId, attempt.DiscoveredPointIds.Contains(point.Id)))
                         .ToList(),
                     challenge.HiddenPoints.Count(point => !attempt.DiscoveredPointIds.Contains(point.Id)),
                     attempt.SolvedAt != null,
                     attempt.StartedAt,
                     attempt.SolvedAt,
-                    attempt.AwardedExperiencePoints))
+                    _dbContext.ChallengeCompletions
+                        .Where(completion => completion.PlayerId == attempt.UserId
+                            && completion.ChallengeId == attempt.ChallengeId)
+                        .Select(completion => (int?)completion.ExperiencePointsAwarded)
+                        .SingleOrDefault()))
             .SingleOrDefaultAsync();
     }
 

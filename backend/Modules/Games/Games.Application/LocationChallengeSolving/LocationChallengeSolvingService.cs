@@ -1,4 +1,5 @@
 using Exploration.Contracts;
+using Games.Application.ChallengeCompletions;
 using Games.Application.LocationChallengeAttempts;
 using Games.Application.LocationChallenges;
 using Games.Domain.LocationChallengeAttempts;
@@ -11,6 +12,7 @@ public sealed class LocationChallengeSolvingService
 {
     private readonly ILocationChallengeRepository _locationChallengeRepository;
     private readonly ILocationChallengeAttemptRepository _attemptRepository;
+    private readonly IChallengeCompletionRepository _completionRepository;
     private readonly LocationChallengeActivation _activation;
     private readonly LocationDiscovery _discovery;
     private readonly IExplorationApi _explorationApi;
@@ -19,6 +21,7 @@ public sealed class LocationChallengeSolvingService
     public LocationChallengeSolvingService(
         ILocationChallengeRepository locationChallengeRepository,
         ILocationChallengeAttemptRepository attemptRepository,
+        IChallengeCompletionRepository completionRepository,
         LocationChallengeActivation activation,
         LocationDiscovery discovery,
         IExplorationApi explorationApi,
@@ -26,6 +29,7 @@ public sealed class LocationChallengeSolvingService
     {
         _locationChallengeRepository = locationChallengeRepository;
         _attemptRepository = attemptRepository;
+        _completionRepository = completionRepository;
         _activation = activation;
         _discovery = discovery;
         _explorationApi = explorationApi;
@@ -82,7 +86,12 @@ public sealed class LocationChallengeSolvingService
             throw new DomainException("Set your position before checking a location.");
         }
 
-        _discovery.Check(challenge, attempt, new Location(position.Latitude, position.Longitude));
+        var completion = _discovery.Check(challenge, attempt, new Location(position.Latitude, position.Longitude));
+        if (completion is not null)
+        {
+            _completionRepository.Add(completion);
+        }
+
         await _unitOfWork.SaveChangesAsync();
     }
 }

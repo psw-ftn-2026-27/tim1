@@ -85,9 +85,6 @@ namespace Games.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("AwardedExperiencePoints")
-                        .HasColumnType("integer");
-
                     b.Property<Guid>("ChallengeId")
                         .HasColumnType("uuid");
 

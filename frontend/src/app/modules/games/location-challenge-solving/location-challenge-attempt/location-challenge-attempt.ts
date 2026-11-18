@@ -36,7 +36,7 @@ export class LocationChallengeAttempt {
   }
 
   protected diameter(meters: number): string {
-    return `${Math.round(meters)} m`;
+    return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
   }
 
   protected async checkLocation(): Promise<void> {

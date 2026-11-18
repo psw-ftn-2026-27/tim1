@@ -109,7 +109,7 @@ public sealed class LocationChallengeActivationTests
     {
         var challenge = CreateChallengeIn(LocationChallengeStatus.Published);
         var solved = new LocationChallengeActivation().Activate(challenge, null, UserId, Start, 30);
-        solved.Discover(challenge, challenge.HiddenPoints.Select(point => point.Id).ToList());
+        solved.Discover(challenge.HiddenPoints.Select(point => point.Id).ToList(), challenge.HiddenPoints.Count);
 
         var activation = () => new LocationChallengeActivation().Activate(challenge, solved, UserId, Start, 30);
 

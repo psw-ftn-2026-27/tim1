@@ -27,9 +27,8 @@
             {{ checking() ? 'Checking…' : 'Check' }}
           </button>
           <p class="meta">
-            Stand where a photo was taken, then check your location.
-            <a routerLink="/exploration/position-test">Set my position</a>, then come back through
-            Location challenges → Continue.
+            Go where a photo was taken (<a routerLink="/exploration/position-test">set my position</a>),
+            come back with Continue, then check.
           </p>
         </div>
       }
@@ -44,7 +43,7 @@
       <h2>Photos</h2>
       <p class="meta">{{ attempt.value().remainingPointCount }} of {{ attempt.value().photos.length }} places left to find.</p>
       <div class="photos">
-        @for (photo of attempt.value().photos; track photo.imageId) {
+        @for (photo of attempt.value().photos; track photo.pointId) {
           <figure class="photo" [class.photo--discovered]="photo.isDiscovered">
             <app-protected-image class="photo-image" [src]="imageUrl(photo.imageId)" />
             @if (photo.isDiscovered) {

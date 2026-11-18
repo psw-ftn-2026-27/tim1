@@ -70,6 +70,24 @@ public sealed class LocationChallengeSolvingCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Explorer_cannot_check_a_location_in_a_challenge_they_have_not_activated()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var challenge = LocationChallengeSeed.PublishedOldTownHunt;
+        using var arrangeContext = Factory.CreateContext<GamesDbContext>();
+        var completionCountBefore = arrangeContext.ChallengeCompletions.Count();
+
+        var response = await client.PostAsync($"/api/games/location-challenges/{challenge.Id}/attempt/check", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertContext = Factory.CreateContext<GamesDbContext>();
+        assertContext.LocationChallengeAttempts
+            .Any(attempt => attempt.ChallengeId == challenge.Id && attempt.UserId == WellKnownUsers.SecondExplorer)
+            .Should().BeFalse();
+        assertContext.ChallengeCompletions.Count().Should().Be(completionCountBefore);
+    }
+
+    [Fact]
     public async Task Anonymous_visitor_cannot_check_a_location()
     {
         var client = Factory.CreateClient();
