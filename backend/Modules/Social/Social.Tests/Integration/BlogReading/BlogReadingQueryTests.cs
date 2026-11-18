@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using Shared.Domain;
 using Shared.Tests;
+using Social.Application.BlogReading;
 using Social.Application.Blogs;
 using Social.Domain.Blogs;
 using Social.Tests.Integration.Seeds;
@@ -44,7 +45,7 @@ public class BlogReadingQueryTests : BaseIntegrationTest
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
 
-        var blog = await client.GetFromJsonAsync<BlogDto>(
+        var blog = await client.GetFromJsonAsync<BlogDetailDto>(
             $"/api/social/blogs/{BlogSeed.CommentedMuseumVisit.Id}", JsonOptions);
 
         blog!.Id.Should().Be(BlogSeed.CommentedMuseumVisit.Id);
@@ -58,12 +59,39 @@ public class BlogReadingQueryTests : BaseIntegrationTest
     {
         var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
 
-        var blog = await client.GetFromJsonAsync<BlogDto>(
+        var blog = await client.GetFromJsonAsync<BlogDetailDto>(
             $"/api/social/blogs/{BlogSeed.CommentedArchivedFestival.Id}", JsonOptions);
 
         blog!.Id.Should().Be(BlogSeed.CommentedArchivedFestival.Id);
         blog.Status.Should().Be(BlogStatus.Archived);
         blog.Comments.Should().ContainSingle(comment => comment.UserId == WellKnownUsers.Administrator);
+    }
+
+    [Fact]
+    public async Task Listed_blogs_are_shown_with_their_score_and_a_blog_without_votes_scores_zero()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var blogs = await client.GetFromJsonAsync<PageResult<BlogDto>>("/api/social/blogs/published", JsonOptions);
+
+        blogs!.Items.Should().OnlyContain(blog => blog.Score == ScoreOf(BlogSeed.All.Single(seed => seed.Id == blog.Id)));
+        blogs.Items.Should().ContainSingle(blog => blog.Id == BlogSeed.VotedLakeShore.Id)
+            .Which.Score.Should().Be(ScoreOf(BlogSeed.VotedLakeShore));
+        blogs.Items.Should().ContainSingle(blog => blog.Id == BlogSeed.PublishedRiverbank.Id)
+            .Which.Score.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task Blog_page_shows_the_vote_of_the_user_who_opens_it()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Administrator, "administrator");
+
+        var blog = await client.GetFromJsonAsync<BlogDetailDto>(
+            $"/api/social/blogs/{BlogSeed.VotedLakeShore.Id}", JsonOptions);
+
+        blog!.MyVote.Should().Be(BlogSeed.VotedLakeShore.Votes
+            .Single(vote => vote.UserId == WellKnownUsers.Administrator).Type);
+        blog.Score.Should().Be(ScoreOf(BlogSeed.VotedLakeShore));
     }
 
     [Fact]
@@ -132,4 +160,7 @@ public class BlogReadingQueryTests : BaseIntegrationTest
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    private static int ScoreOf(Blog blog) =>
+        blog.Votes.Count(vote => vote.Type == VoteType.Upvote) - blog.Votes.Count(vote => vote.Type == VoteType.Downvote);
 }

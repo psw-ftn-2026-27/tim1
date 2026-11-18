@@ -25,6 +25,34 @@
 
       <p class="meta">Last modified: {{ formatDate(blog.lastModifiedAt) }}</p>
 
+      <section class="votes">
+        @if (blog.status !== 'Archived') {
+          <button
+            class="button"
+            type="button"
+            [class.button--primary]="blog.myVote === 'Upvote'"
+            [attr.aria-pressed]="blog.myVote === 'Upvote'"
+            (click)="vote('Upvote')"
+          >
+            Upvote
+          </button>
+        }
+
+        <span>Score: {{ blog.score }}</span>
+
+        @if (blog.status !== 'Archived') {
+          <button
+            class="button"
+            type="button"
+            [class.button--primary]="blog.myVote === 'Downvote'"
+            [attr.aria-pressed]="blog.myVote === 'Downvote'"
+            (click)="vote('Downvote')"
+          >
+            Downvote
+          </button>
+        }
+      </section>
+
       <app-blog-comments
         [comments]="blog.comments"
         [currentUserId]="auth.user()?.id ?? null"
