@@ -9,4 +9,6 @@ public sealed record ProductDto(
     string Name,
     decimal Price,
     Guid OwnerId,
-    string OwnerName);
+    string OwnerName,
+    bool Purchased,
+    bool InCart);

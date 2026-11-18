@@ -5,5 +5,7 @@ public enum TransactionType
     TopUp,
     Reservation,
     Payout,
-    ReservationReturn
+    ReservationReturn,
+    Purchase,
+    Sale
 }

@@ -1,5 +1,7 @@
 using Payment.Application.Products;
+using Payment.Application.Purchases;
 using Payment.Domain.Products;
+using Payment.Domain.Purchases;
 using Payment.Domain.ShoppingCarts;
 using Shared.Domain.Exceptions;
 
@@ -9,15 +11,21 @@ public sealed class ShoppingCartService
 {
     private readonly IShoppingCartRepository _cartRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IPurchaseRepository _purchaseRepository;
+    private readonly CartAddition _cartAddition;
     private readonly IUnitOfWork _unitOfWork;
 
     public ShoppingCartService(
         IShoppingCartRepository cartRepository,
         IProductRepository productRepository,
+        IPurchaseRepository purchaseRepository,
+        CartAddition cartAddition,
         IUnitOfWork unitOfWork)
     {
         _cartRepository = cartRepository;
         _productRepository = productRepository;
+        _purchaseRepository = purchaseRepository;
+        _cartAddition = cartAddition;
         _unitOfWork = unitOfWork;
     }
 
@@ -37,7 +45,9 @@ public sealed class ShoppingCartService
             _cartRepository.Add(cart);
         }
 
-        cart.AddItem(reference, product.Name, product.Price);
+        var ownedPurchases = await _purchaseRepository.GetOfBuyerAsync(ownerId, [reference]);
+
+        _cartAddition.Add(cart, product, ownedPurchases);
         await _unitOfWork.SaveChangesAsync();
     }
 

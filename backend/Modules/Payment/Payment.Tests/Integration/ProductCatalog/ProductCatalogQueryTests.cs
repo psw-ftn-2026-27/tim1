@@ -46,6 +46,41 @@ public class ProductCatalogQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Product_the_explorer_already_bought_is_marked_as_purchased()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var products = await client.GetFromJsonAsync<List<ProductDto>>("/api/payment/products", JsonOptions);
+
+        var bought = products!.Single(product =>
+            product.EntityId == PurchaseSeed.SecondExplorersRide.Reference.EntityId);
+        bought.Purchased.Should().BeTrue();
+        products!.Single(product => product.Id == ProductSeed.DemoExplorersTour.Id)
+            .Purchased.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Product_waiting_in_the_explorers_cart_is_marked_as_in_the_cart()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var products = await client.GetFromJsonAsync<List<ProductDto>>("/api/payment/products", JsonOptions);
+
+        products!.Single(product => product.Id == ProductSeed.DemoExplorersTour.Id)
+            .InCart.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Explorer_without_a_cart_or_a_purchase_sees_no_marks()
+    {
+        var client = Factory.CreateClientFor(Guid.NewGuid(), "explorer");
+
+        var products = await client.GetFromJsonAsync<List<ProductDto>>("/api/payment/products", JsonOptions);
+
+        products!.Should().OnlyContain(product => !product.Purchased && !product.InCart);
+    }
+
+    [Fact]
     public async Task Anonymous_user_cannot_see_the_offer()
     {
         var client = Factory.CreateClient();
