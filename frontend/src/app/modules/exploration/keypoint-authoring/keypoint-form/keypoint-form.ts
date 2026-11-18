@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, WritableSignal, computed, input, output, signal } from '@angular/core';
 import { FormField, form, required, validate } from '@angular/forms/signals';
 import { ImageUpload } from '../../../../shared/ui/image-upload/image-upload';
 import { Map, type MapPin, type MapRouteMode } from '../../../../shared/ui/map/map';
@@ -12,23 +12,27 @@ export interface KeypointFormValue {
   location: MapPin;
 }
 
-export function createKeypointForm() {
-  return form(
-    signal({
-      name: '',
-      description: '',
-      secret: '',
-      publiclyVisible: false,
-      location: null as MapPin | null,
-    }),
-    (path) => {
-      required(path.name, { message: 'Name is required.' });
-      required(path.description, { message: 'Description is required.' });
-      validate(path.location, ({ value }) =>
-        value() === null ? { kind: 'location', message: 'Choose a location on the map.' } : null,
-      );
-    },
-  );
+// What the form edits. The page owns it, so the page decides what the form starts with.
+export interface KeypointFormModel {
+  name: string;
+  description: string;
+  secret: string;
+  publiclyVisible: boolean;
+  location: MapPin | null;
+}
+
+export function emptyKeypointModel(): KeypointFormModel {
+  return { name: '', description: '', secret: '', publiclyVisible: false, location: null };
+}
+
+export function createKeypointForm(model: WritableSignal<KeypointFormModel>) {
+  return form(model, (path) => {
+    required(path.name, { message: 'Name is required.' });
+    required(path.description, { message: 'Description is required.' });
+    validate(path.location, ({ value }) =>
+      value() === null ? { kind: 'location', message: 'Choose a location on the map.' } : null,
+    );
+  });
 }
 
 @Component({
@@ -54,6 +58,8 @@ export class KeypointForm {
 
   protected readonly imageIds = signal<string[]>([]);
   protected readonly imagesSending = signal(false);
+  protected readonly modes: MapRouteMode[] = ['Walking', 'Bicycle', 'Car'];
+
   protected readonly routeForm = form(signal({ mode: 'Walking' as MapRouteMode }));
 
   // The pins the map shows: the tour's keypoints with the chosen location in them. On add the

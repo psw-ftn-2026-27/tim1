@@ -25,6 +25,7 @@ export interface TourDto {
   publishedAt: string | null;
   transportTimes: TransportTimeDto[];
   groupSize: GroupSizeDto;
+  length: number;
 }
 
 export interface CreateTourDto {
@@ -59,14 +60,6 @@ export interface KeypointDto {
   secret: string | null;
   location: CoordinateDto;
   publiclyVisible: boolean;
-}
-
-export interface TourManagementDto {
-  id: string;
-  name: string;
-  description: string;
-  length: number;
-  keypoints: KeypointDto[];
 }
 
 export interface AddKeypointDto {

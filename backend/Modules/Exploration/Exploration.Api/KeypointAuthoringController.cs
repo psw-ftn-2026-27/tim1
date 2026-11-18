@@ -59,10 +59,10 @@ public sealed class KeypointAuthoringController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("{id:guid}/management")]
-    public async Task<ActionResult<TourManagementDto>> GetManagement(Guid id)
+    [HttpGet("{id:guid}/keypoints")]
+    public async Task<ActionResult<List<KeypointDto>>> GetKeypoints(Guid id)
     {
-        return await _keypointQueries.GetManagementAsync(id, User.GetUserId());
+        return await _keypointQueries.GetKeypointsAsync(id, User.GetUserId());
     }
 
     [HttpGet("{id:guid}/keypoints/{keypointId:guid}")]

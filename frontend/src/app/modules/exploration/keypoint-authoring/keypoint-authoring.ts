@@ -17,18 +17,6 @@ export class KeypointAuthoring {
     await firstValueFrom(this.http.put<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}`, dto));
   }
 
-  async remove(tourId: string, keypointId: string): Promise<void> {
-    await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}`));
-  }
-
-  async setVisibility(tourId: string, keypointId: string, publiclyVisible: boolean): Promise<void> {
-    await firstValueFrom(
-      this.http.put<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}/visibility`, {
-        publiclyVisible,
-      }),
-    );
-  }
-
   // Sends one image and returns its new id.
   async uploadImage(file: File): Promise<string> {
     const body = new FormData();

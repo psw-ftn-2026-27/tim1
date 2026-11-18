@@ -20,14 +20,14 @@ public sealed class KeypointAuthoringQueries
         _imageStorage = imageStorage;
     }
 
-    public async Task<TourManagementDto> GetManagementAsync(Guid tourId, Guid authorId)
+    public async Task<List<KeypointDto>> GetKeypointsAsync(Guid tourId, Guid authorId)
     {
-        var management = await _tourReadRepository.GetManagementAsync(tourId, authorId);
-        if (management is null)
+        var keypoints = await _tourReadRepository.GetKeypointsAsync(tourId, authorId);
+        if (keypoints is null)
         {
             throw new NotFoundException($"Tour {tourId} does not exist.");
         }
-        return management;
+        return keypoints;
     }
 
     public async Task<KeypointDto> GetKeypointAsync(Guid tourId, Guid authorId, Guid keypointId)

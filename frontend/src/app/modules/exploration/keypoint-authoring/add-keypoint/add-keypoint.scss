@@ -2,3 +2,14 @@
   margin-inline: auto;
   max-width: 40rem;
 }
+
+// Room under the card, so it does not stick to the bottom of the window.
+:host {
+  display: block;
+  padding-bottom: var(--space-7);
+}
+
+.back {
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}

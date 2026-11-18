@@ -1,35 +1,50 @@
 <div class="stack">
-  <h1>Tours</h1>
-  <a routerLink="/examples/map-route">Probni primer mape — putanja</a>
+  <header class="heading">
+    <h1>Tours</h1>
 
-  @if (auth.isLoggedIn()) {
-    <p class="links">
-      <a routerLink="/exploration/mine">My tours</a>
-      <a routerLink="/exploration/create">Create tour</a>
-      <a routerLink="/exploration/preferences">My preferences</a>
-    </p>
-  }
+    @if (auth.isLoggedIn()) {
+      <nav class="tabs" aria-label="Tours">
+        <a class="tab tab--active" routerLink="/exploration" aria-current="page">All tours</a>
+        <a class="tab" routerLink="/exploration/mine">My tours</a>
+      </nav>
 
-  <app-tour-search [criteria]="criteria()" (criteriaChange)="applyCriteria($event)" />
+      <nav class="actions">
+        <a class="button button--secondary" routerLink="/exploration/preferences">My preferences</a>
+        <a class="button button--primary" routerLink="/exploration/create">Create tour</a>
+      </nav>
+    }
+  </header>
 
-  @if (!preferencesSettled() || tours.isLoading()) {
-    <p>Loading tours...</p>
-  } @else if (tours.error()) {
-    <p class="error">Could not load tours. Log in and try again.</p>
-  } @else if ((tours.value()?.items ?? []).length === 0) {
-    <p>No tours match the criteria.</p>
-  } @else {
-    <div class="grid">
-      @for (tour of tours.value()?.items; track tour.id) {
-        <app-tour-card [tour]="tour" />
+  <div class="layout">
+    <aside class="filters">
+      <app-tour-search [criteria]="criteria()" (criteriaChange)="applyCriteria($event)" />
+    </aside>
+
+    <section class="results stack">
+      @if (!preferencesSettled() || tours.isLoading()) {
+        <p class="meta">Loading tours...</p>
+      } @else if (tours.error()) {
+        <p class="error">Could not load tours. Log in and try again.</p>
+      } @else if ((tours.value()?.items ?? []).length === 0) {
+        <p class="empty">No tours match the criteria.</p>
+      } @else {
+        <p class="meta">
+          Showing {{ tours.value()?.items?.length }} of {{ tours.value()?.totalCount }} tours
+        </p>
+
+        <div class="grid">
+          @for (tour of tours.value()?.items; track tour.id) {
+            <app-tour-card [tour]="tour" />
+          }
+        </div>
+
+        <app-tour-pagination
+          [page]="page()"
+          [pageSize]="pageSize"
+          [totalCount]="tours.value()?.totalCount ?? 0"
+          (pageChange)="goToPage($event)"
+        />
       }
-    </div>
-
-    <app-tour-pagination
-      [page]="page()"
-      [pageSize]="pageSize"
-      [totalCount]="tours.value()?.totalCount ?? 0"
-      (pageChange)="goToPage($event)"
-    />
-  }
+    </section>
+  </div>
 </div>

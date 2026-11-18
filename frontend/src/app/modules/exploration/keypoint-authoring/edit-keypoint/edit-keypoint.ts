@@ -1,12 +1,18 @@
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { type MapPin } from '../../../../shared/ui/map/map';
 import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { KeypointDto, TourManagementDto } from '../../api/exploration-api-types';
+import { KeypointDto } from '../../api/exploration-api-types';
 import { KeypointAuthoring } from '../keypoint-authoring';
-import { KeypointForm, KeypointFormValue, createKeypointForm } from '../keypoint-form/keypoint-form';
+import {
+  KeypointForm,
+  KeypointFormModel,
+  KeypointFormValue,
+  createKeypointForm,
+  emptyKeypointModel,
+} from '../keypoint-form/keypoint-form';
 
 @Component({
   imports: [KeypointForm, ProtectedImage, RouterLink],
@@ -25,17 +31,17 @@ export class EditKeypoint {
     () => `/api/exploration/tours/${this.id()}/keypoints/${this.keypointId()}`,
   );
 
-  protected readonly management = httpResource<TourManagementDto>(
-    () => `/api/exploration/tours/${this.id()}/management`,
+  protected readonly keypoints = httpResource<KeypointDto[]>(
+    () => `/api/exploration/tours/${this.id()}/keypoints`,
   );
 
   protected readonly pins = computed<MapPin[]>(() =>
-    this.management.hasValue() ? this.management.value().keypoints.map((k) => k.location) : [],
+    this.keypoints.hasValue() ? this.keypoints.value().map((k) => k.location) : [],
   );
 
   protected readonly editedPinIndex = computed(() =>
-    this.management.hasValue()
-      ? this.management.value().keypoints.findIndex((k) => k.id === this.keypointId())
+    this.keypoints.hasValue()
+      ? this.keypoints.value().findIndex((k) => k.id === this.keypointId())
       : -1,
   );
 
@@ -43,29 +49,26 @@ export class EditKeypoint {
     () => `/api/exploration/tours/${this.id()}/keypoints/${this.keypointId()}/image`,
   );
 
-  protected readonly fields = createKeypointForm();
+  // The form starts with the loaded keypoint: the model is recomputed from the resource when it arrives.
+  private readonly model = linkedSignal<KeypointFormModel>(() => {
+    const loaded = this.keypoint.hasValue() ? this.keypoint.value() : null;
+    if (loaded === null) {
+      return emptyKeypointModel();
+    }
+    return {
+      name: loaded.name,
+      description: loaded.description,
+      secret: loaded.secret ?? '',
+      publiclyVisible: loaded.publiclyVisible,
+      location: loaded.location,
+    };
+  });
+
+  protected readonly fields = createKeypointForm(this.model);
   protected readonly uploadImage = (file: File) => this.keypointAuthoring.uploadImage(file);
 
-  protected readonly editing = signal(false);
   protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);
-
-  protected startEdit(keypoint: KeypointDto): void {
-    this.error.set(null);
-    this.fields().reset({
-      name: keypoint.name,
-      description: keypoint.description,
-      secret: keypoint.secret ?? '',
-      publiclyVisible: keypoint.publiclyVisible,
-      location: keypoint.location,
-    });
-    this.editing.set(true);
-  }
-
-  protected cancelEdit(): void {
-    this.error.set(null);
-    this.editing.set(false);
-  }
 
   protected async update(value: KeypointFormValue): Promise<void> {
     this.pending.set(true);
@@ -78,7 +81,7 @@ export class EditKeypoint {
         secret: value.secret,
         location: value.location,
       });
-      await this.router.navigate(['/exploration/tour', this.id(), 'manage']);
+      await this.router.navigate(['/exploration/tour', this.id(), 'edit']);
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not save the keypoint.'));
     } finally {

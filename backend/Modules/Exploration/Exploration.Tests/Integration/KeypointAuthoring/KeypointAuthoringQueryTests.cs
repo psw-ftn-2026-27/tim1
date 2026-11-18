@@ -13,16 +13,24 @@ public class KeypointAuthoringQueryTests : BaseIntegrationTest
     public KeypointAuthoringQueryTests(ExplorationApiFactory factory) : base(factory) { }
 
     [Fact]
-    public async Task Author_gets_the_tour_for_management_with_keypoints_in_the_order_they_were_added()
+    public async Task Author_gets_the_keypoints_of_their_tour_in_the_order_they_were_added()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
         var seeded = TourSeed.DraftWithKeypoints;
 
-        var management = await client.GetFromJsonAsync<TourManagementDto>($"/api/exploration/tours/{seeded.Id}/management", JsonOptions);
+        var keypoints = await client.GetFromJsonAsync<List<KeypointDto>>($"/api/exploration/tours/{seeded.Id}/keypoints", JsonOptions);
 
-        management!.Name.Should().Be(seeded.Name);
-        management.Length.Should().BeApproximately(seeded.Length, 0.0001);
-        management.Keypoints.Select(keypoint => keypoint.Id).Should().Equal(seeded.Keypoints.Select(keypoint => keypoint.Id));
+        keypoints!.Select(keypoint => keypoint.Id).Should().Equal(seeded.Keypoints.Select(keypoint => keypoint.Id));
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_get_the_keypoints_of_another_authors_tour()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.GetAsync($"/api/exploration/tours/{TourSeed.DraftWithKeypoints.Id}/keypoints");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -49,14 +57,4 @@ public class KeypointAuthoringQueryTests : BaseIntegrationTest
 
     private static string KeypointImageUrl() =>
         $"/api/exploration/tours/{TourSeed.DraftWithKeypoints.Id}/keypoints/{TourSeed.DraftWithKeypoints.Keypoints[0].Id}/image";
-
-    [Fact]
-    public async Task Explorer_cannot_get_another_authors_tour_for_management()
-    {
-        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
-
-        var response = await client.GetAsync($"/api/exploration/tours/{TourSeed.DraftWithKeypoints.Id}/management");
-
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
 }

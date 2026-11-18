@@ -49,12 +49,19 @@
     <span class="label">Location</span>
     <p class="meta hint">Click the map to choose the location.</p>
     <div class="field">
-      <label for="keypoint-mode">Route preview</label>
-      <select id="keypoint-mode" [formField]="routeForm.mode">
-        <option value="Walking">Walking</option>
-        <option value="Bicycle">Bicycle</option>
-        <option value="Car">Car</option>
-      </select>
+      <span class="label">Route preview</span>
+      <div class="options">
+        @for (mode of modes; track mode) {
+          <button
+            type="button"
+            class="option"
+            [class.option--active]="routeForm.mode().value() === mode"
+            (click)="routeForm.mode().value.set(mode)"
+          >
+            {{ mode }}
+          </button>
+        }
+      </div>
     </div>
     <app-map
       [pins]="mapPins()"

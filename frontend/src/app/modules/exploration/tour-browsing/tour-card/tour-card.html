@@ -1,25 +1,34 @@
-<article class="card stack">
+<article class="card">
+  <div class="top">
+    <span
+      class="badge"
+      [class.badge--success]="tour().difficulty === 'Easy'"
+      [class.badge--warning]="tour().difficulty === 'Moderate'"
+      [class.badge--danger]="tour().difficulty === 'Hard'"
+    >
+      {{ tour().difficulty }}
+    </span>
+  </div>
+
   <h3>{{ tour().name }}</h3>
 
-  <p>{{ tour().description }}</p>
-
-  <p class="meta">Difficulty: {{ tour().difficulty }}</p>
-
-  @if (tour().tags.length > 0) {
-    <ul class="tags">
-      @for (tag of tour().tags; track tag) {
-        <li>{{ tag }}</li>
-      }
-    </ul>
-  }
+  <p class="description">{{ tour().description }}</p>
 
   @if (tour().transportTimes.length > 0) {
     <ul class="times">
       @for (time of tour().transportTimes; track time.transport) {
-        <li class="meta">{{ time.transport }}: {{ time.minutes }} min</li>
+        <li class="time">{{ time.transport }} · {{ time.minutes }} min</li>
       }
     </ul>
   } @else {
     <p class="meta">No transport times yet.</p>
+  }
+
+  @if (tour().tags.length > 0) {
+    <ul class="tags">
+      @for (tag of tour().tags; track tag) {
+        <li>#{{ tag }}</li>
+      }
+    </ul>
   }
 </article>

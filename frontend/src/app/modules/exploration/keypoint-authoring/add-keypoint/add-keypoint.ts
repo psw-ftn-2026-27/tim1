@@ -3,9 +3,14 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { type MapPin } from '../../../../shared/ui/map/map';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { TourManagementDto } from '../../api/exploration-api-types';
+import { KeypointDto } from '../../api/exploration-api-types';
 import { KeypointAuthoring } from '../keypoint-authoring';
-import { KeypointForm, KeypointFormValue, createKeypointForm } from '../keypoint-form/keypoint-form';
+import {
+  KeypointForm,
+  KeypointFormValue,
+  createKeypointForm,
+  emptyKeypointModel,
+} from '../keypoint-form/keypoint-form';
 
 @Component({
   imports: [KeypointForm, RouterLink],
@@ -19,15 +24,15 @@ export class AddKeypoint {
 
   readonly id = input.required<string>();
 
-  protected readonly management = httpResource<TourManagementDto>(
-    () => `/api/exploration/tours/${this.id()}/management`,
+  protected readonly keypoints = httpResource<KeypointDto[]>(
+    () => `/api/exploration/tours/${this.id()}/keypoints`,
   );
 
   protected readonly pins = computed<MapPin[]>(() =>
-    this.management.hasValue() ? this.management.value().keypoints.map((k) => k.location) : [],
+    this.keypoints.hasValue() ? this.keypoints.value().map((k) => k.location) : [],
   );
 
-  protected readonly fields = createKeypointForm();
+  protected readonly fields = createKeypointForm(signal(emptyKeypointModel()));
   protected readonly uploadImage = (file: File) => this.keypointAuthoring.uploadImage(file);
 
   protected readonly pending = signal(false);
@@ -45,7 +50,7 @@ export class AddKeypoint {
         publiclyVisible: value.publiclyVisible,
         location: value.location,
       });
-      await this.router.navigate(['/exploration/tour', this.id(), 'manage']);
+      await this.router.navigate(['/exploration/tour', this.id(), 'edit']);
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not add the keypoint.'));
     } finally {

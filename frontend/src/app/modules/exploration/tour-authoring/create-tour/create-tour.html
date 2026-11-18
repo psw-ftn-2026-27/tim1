@@ -1,4 +1,6 @@
 <div class="card stack">
+  <a class="back" routerLink="/exploration">&larr; Back to tours</a>
+
   <h1>Create tour</h1>
 
   <form class="stack" (submit)="submit($event)">
@@ -23,37 +25,44 @@
     </div>
 
     <div class="field">
-      <label for="difficulty">Difficulty</label>
-      <select id="difficulty" [formField]="form.difficulty">
-        <option value="Easy">Easy</option>
-        <option value="Moderate">Moderate</option>
-        <option value="Hard">Hard</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="tags">Tags, separated by commas</label>
-      <input id="tags" type="text" [formField]="form.tags" />
-    </div>
-
-    <div class="field">
-      <label for="group-size-min">Recommended group size, from</label>
-      <input id="group-size-min" type="number" [formField]="form.groupSizeMin" />
-      @if (form.groupSizeMin().touched()) {
-        @for (message of form.groupSizeMin().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
+      <span class="label">Difficulty</span>
+      <div class="options">
+        @for (difficulty of difficulties; track difficulty) {
+          <button
+            type="button"
+            class="option"
+            [class.option--active]="form.difficulty().value() === difficulty"
+            (click)="form.difficulty().value.set(difficulty)"
+          >
+            {{ difficulty }}
+          </button>
         }
-      }
+      </div>
     </div>
 
     <div class="field">
-      <label for="group-size-max">Recommended group size, to</label>
-      <input id="group-size-max" type="number" [formField]="form.groupSizeMax" />
-      @if (form.groupSizeMax().touched()) {
-        @for (message of form.groupSizeMax().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
+      <label for="tag-input">Tags (press Enter to add)</label>
+      <div class="tag-box">
+        @for (tag of tags(); track tag) {
+          <span class="pill">
+            {{ tag }}
+            <button
+              type="button"
+              class="pill-remove"
+              [attr.aria-label]="'Remove tag ' + tag"
+              (click)="removeTag(tag)"
+            >
+              &#10005;
+            </button>
+          </span>
         }
-      }
+        <input
+          id="tag-input"
+          type="text"
+          [formField]="form.tagInput"
+          (keydown.enter)="addTag($event)"
+        />
+      </div>
     </div>
 
     @if (error()) {
