@@ -1,4 +1,3 @@
-using Social.Application.Blogs;
 using Social.Domain.Blogs;
 
 namespace Social.Application.BlogReading;
@@ -12,6 +11,6 @@ public sealed record BlogDetailDto(
     DateTime LastModifiedAt,
     List<Guid> Images,
     BlogStatus Status,
-    List<CommentDto> Comments,
+    List<BlogCommentDetailDto> Comments,
     int Score,
     VoteType? MyVote);

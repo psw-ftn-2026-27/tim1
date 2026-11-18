@@ -1,6 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { CommentDto } from '../../api/social-api-types';
+import { BlogCommentDetailDto } from '../../api/social-api-types';
 
 export interface CommentEdit {
   commentId: string;
@@ -14,9 +14,9 @@ export interface CommentEdit {
   templateUrl: './blog-comments.html',
 })
 export class BlogComments {
-  readonly comments = input.required<CommentDto[]>();
+  readonly comments = input.required<BlogCommentDetailDto[]>();
   readonly currentUserId = input<string | null>(null);
-  // An archived blog shows its comments without the form and the comment buttons.
+  // An archived blog shows its comments without the form for a new comment.
   readonly archived = input(false);
 
   readonly addComment = output<string>();
@@ -39,7 +39,7 @@ export class BlogComments {
     this.form().reset({ text: '' });
   }
 
-  protected startEdit(comment: CommentDto): void {
+  protected startEdit(comment: BlogCommentDetailDto): void {
     this.editingCommentId.set(comment.id);
     this.editForm().reset({ text: comment.text });
   }
@@ -48,5 +48,10 @@ export class BlogComments {
     event.preventDefault();
     this.editComment.emit({ commentId, text: this.editForm.text().value() });
     this.editingCommentId.set(null);
+  }
+
+  // The server sends dates as ISO text; this shows them in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleString('sr-Latn');
   }
 }
