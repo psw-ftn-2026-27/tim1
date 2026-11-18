@@ -1,19 +1,21 @@
-import { httpResource } from '@angular/common/http';
-import { Component, inject, input, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { HttpErrorResponse, httpResource } from '@angular/common/http';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { QuizDto, SaveQuizDto } from '../../api/games-api-types';
+import { QuizAction, QuizActions } from '../quiz-actions/quiz-actions';
 import { QuizForm, createQuizForm } from '../quiz-form/quiz-form';
 import { QuizManagement } from '../quiz-management';
 
 @Component({
   selector: 'app-edit-quiz',
-  imports: [QuizForm, RouterLink],
+  imports: [QuizActions, QuizForm, RouterLink],
   templateUrl: './edit-quiz.html',
   styleUrl: './edit-quiz.scss',
 })
 export class EditQuiz {
   private readonly management = inject(QuizManagement);
+  private readonly router = inject(Router);
 
   readonly id = input.required<string>();
 
@@ -22,11 +24,17 @@ export class EditQuiz {
   protected readonly editing = signal(false);
   protected readonly pending = signal(false);
   protected readonly saved = signal(false);
+  protected readonly statusUpdated = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly missing = computed(() => {
+    const failure = this.quiz.error();
+    return failure instanceof HttpErrorResponse && failure.status === 404;
+  });
 
   protected startEdit(quiz: QuizDto): void {
     this.error.set(null);
     this.saved.set(false);
+    this.statusUpdated.set(false);
     this.fields().reset({
       name: quiz.name,
       instructions: quiz.instructions,
@@ -57,5 +65,29 @@ export class EditQuiz {
     } finally {
       this.pending.set(false);
     }
+  }
+
+  protected async changeLifecycle(action: QuizAction): Promise<void> {
+    if (this.pending()) {
+      return;
+    }
+
+    this.pending.set(true);
+    this.saved.set(false);
+    this.statusUpdated.set(false);
+    this.error.set(null);
+    try {
+      await this.management.changeLifecycle(this.id(), action);
+      if (action === 'delete') {
+        await this.router.navigate(['/games/quizzes']);
+        return;
+      }
+      this.statusUpdated.set(true);
+    } catch (failure) {
+      this.error.set(serverMessage(failure, 'Could not update the quiz.'));
+    } finally {
+      this.pending.set(false);
+    }
+    this.quiz.reload();
   }
 }

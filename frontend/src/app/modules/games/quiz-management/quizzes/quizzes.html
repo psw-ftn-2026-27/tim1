@@ -5,6 +5,13 @@
     <a class="button button--primary" routerLink="/games/quizzes/new">Create quiz</a>
   </div>
 
+  @if (error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+  @if (confirmation(); as message) {
+    <p class="alert alert--success" role="status">{{ message }}</p>
+  }
+
   @if (quizzes.isLoading()) {
     <p role="status">Loading quizzes…</p>
   } @else if (quizzes.hasValue()) {
@@ -16,6 +23,7 @@
             <tr>
               <th scope="col">Name</th>
               <th scope="col">Status</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -26,6 +34,13 @@
                 </td>
                 <td>
                   <span class="badge">{{ quiz.status }}</span>
+                </td>
+                <td>
+                  <app-quiz-actions
+                    [status]="quiz.status"
+                    [pending]="pending()"
+                    (requested)="changeLifecycle(quiz, $event)"
+                  />
                 </td>
               </tr>
             }
@@ -40,7 +55,7 @@
         <button
           type="button"
           class="button"
-          [disabled]="page() === 1"
+          [disabled]="pending() || page() === 1"
           (click)="page.set(page() - 1)"
         >
           Previous
@@ -49,7 +64,7 @@
         <button
           type="button"
           class="button"
-          [disabled]="page() * pageSize >= result.totalCount"
+          [disabled]="pending() || page() * pageSize >= result.totalCount"
           (click)="page.set(page() + 1)"
         >
           Next
