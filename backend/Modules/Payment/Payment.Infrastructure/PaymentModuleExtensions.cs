@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Payment.Application;
+using Payment.Application.Checkout;
 using Payment.Application.ProductCatalog;
 using Payment.Application.Products;
+using Payment.Application.Purchases;
 using Payment.Application.ShoppingCarts;
 using Payment.Application.TopUpRequests;
 using Payment.Application.WalletFunding;
@@ -10,8 +12,10 @@ using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
 using Payment.Application.WithdrawalRequests;
 using Payment.Contracts;
+using Payment.Domain.Purchases;
 using Payment.Infrastructure.Persistence;
 using Payment.Infrastructure.Persistence.Products;
+using Payment.Infrastructure.Persistence.Purchases;
 using Payment.Infrastructure.Persistence.ShoppingCarts;
 using Payment.Infrastructure.Persistence.TopUpRequests;
 using Payment.Infrastructure.Persistence.Wallets;
@@ -37,6 +41,8 @@ public static class PaymentModuleExtensions
         services.AddScoped<IProductReadRepository, ProductReadRepository>();
         services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
         services.AddScoped<IShoppingCartReadRepository, ShoppingCartReadRepository>();
+        services.AddScoped<IPurchaseRepository, PurchaseRepository>();
+        services.AddScoped<IPurchaseReadRepository, PurchaseReadRepository>();
 
         services.AddScoped<WalletFundingService>();
         services.AddScoped<WalletFundingQueries>();
@@ -46,6 +52,8 @@ public static class PaymentModuleExtensions
         services.AddScoped<ProductCatalogQueries>();
         services.AddScoped<ShoppingCartService>();
         services.AddScoped<ShoppingCartQueries>();
+        services.AddScoped<CartCheckout>();
+        services.AddScoped<CheckoutService>();
 
         services.AddScoped<IPaymentApi, PaymentApi>();
 

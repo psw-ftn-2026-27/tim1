@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
-using Payment.Application.ShoppingCarts;
+using Payment.Application.Products;
 using Payment.Domain.Products;
 using Payment.Infrastructure.Persistence;
 using Payment.Tests.Integration.Seeds;

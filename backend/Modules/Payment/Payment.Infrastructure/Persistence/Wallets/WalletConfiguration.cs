@@ -29,5 +29,11 @@ internal static class WalletConfiguration
         builder.ToTable("Transactions");
         builder.Property(transaction => transaction.Id).ValueGeneratedNever();
         builder.Property(transaction => transaction.Type).HasConversion<string>().HasMaxLength(20);
+        builder.Property(transaction => transaction.ProductName).HasMaxLength(200);
+
+        builder.OwnsOne(transaction => transaction.Reference, reference =>
+        {
+            reference.Property(entity => entity.EntityType).HasConversion<string>().HasMaxLength(20);
+        });
     }
 }

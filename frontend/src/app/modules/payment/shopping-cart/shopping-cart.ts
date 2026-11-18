@@ -12,4 +12,8 @@ export class ShoppingCart {
       this.http.delete<void>(`/api/payment/cart/items/${dto.type}/${dto.entityId}`),
     );
   }
+
+  async checkout(): Promise<void> {
+    await firstValueFrom(this.http.post<void>('/api/payment/cart/checkout', {}));
+  }
 }

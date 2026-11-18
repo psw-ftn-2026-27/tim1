@@ -19,6 +19,15 @@ internal static class ShoppingCartSeed
     /// <summary>Holds the tour of a forgotten owner alone.</summary>
     public static readonly ShoppingCart SecondExplorersCart;
 
+    /// <summary>
+    /// Holds both tours at the price their products carry, for a customer who owns neither of
+    /// them and whose wallet covers the whole cart.
+    /// </summary>
+    public static readonly ShoppingCart BuyersCart;
+
+    /// <summary>Holds a tour no product stands for any more.</summary>
+    public static readonly ShoppingCart CartWithAnUnregisteredProduct;
+
     static ShoppingCartSeed()
     {
         ExplorersCart = new ShoppingCart(WellKnownUsers.Explorer);
@@ -36,7 +45,24 @@ internal static class ShoppingCartSeed
             new ProductReference(ProductType.Tour, ProductSeed.TourOfAForgottenOwner.Reference.EntityId),
             ProductSeed.TourOfAForgottenOwner.Name,
             ProductSeed.TourOfAForgottenOwner.Price);
+
+        BuyersCart = new ShoppingCart(DemoUsers.SecondExplorer);
+        BuyersCart.AddItem(
+            new ProductReference(ProductType.Tour, ProductSeed.DemoExplorersTour.Reference.EntityId),
+            ProductSeed.DemoExplorersTour.Name,
+            ProductSeed.DemoExplorersTour.Price);
+        BuyersCart.AddItem(
+            new ProductReference(ProductType.Tour, ProductSeed.TourOfAForgottenOwner.Reference.EntityId),
+            ProductSeed.TourOfAForgottenOwner.Name,
+            ProductSeed.TourOfAForgottenOwner.Price);
+
+        CartWithAnUnregisteredProduct = new ShoppingCart(DemoUsers.Explorer);
+        CartWithAnUnregisteredProduct.AddItem(
+            new ProductReference(ProductType.Tour, Guid.Parse("30000000-0000-0000-0000-000000000009")),
+            "Tour of the city museums",
+            700m);
     }
 
-    public static ShoppingCart[] All => [ExplorersCart, SecondExplorersCart];
+    public static ShoppingCart[] All =>
+        [ExplorersCart, SecondExplorersCart, BuyersCart, CartWithAnUnregisteredProduct];
 }

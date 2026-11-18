@@ -1,4 +1,10 @@
-export type TransactionType = 'TopUp' | 'Reservation' | 'Payout' | 'ReservationReturn';
+export type TransactionType =
+  | 'TopUp'
+  | 'Reservation'
+  | 'Payout'
+  | 'ReservationReturn'
+  | 'Purchase'
+  | 'Sale';
 
 export type WalletRequestType = 'TopUp' | 'Withdrawal';
 
@@ -9,6 +15,7 @@ export interface WalletTransactionDto {
   type: TransactionType;
   amount: number;
   balanceAfter: number;
+  productName: string | null;
 }
 
 export interface WalletRequestDto {
@@ -64,6 +71,8 @@ export interface ProductDto {
   price: number;
   ownerId: string;
   ownerName: string;
+  purchased: boolean;
+  inCart: boolean;
 }
 
 export interface CartItemDto {

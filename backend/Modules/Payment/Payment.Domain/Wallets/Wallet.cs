@@ -1,3 +1,4 @@
+using Payment.Domain.Products;
 using Shared.Domain;
 using Shared.Domain.Exceptions;
 
@@ -63,6 +64,38 @@ public sealed class Wallet : AggregateRoot
 
         ReservedBalance -= amount;
         _transactions.Add(new Transaction(TransactionType.Payout, amount, AvailableBalance));
+    }
+
+    public void PayFor(ProductReference reference, string productName, decimal price, Guid sellerId)
+    {
+        if (price < 0)
+        {
+            throw new DomainException("A payment cannot have a negative amount.");
+        }
+
+        if (sellerId == OwnerId)
+        {
+            throw new DomainException("A customer cannot pay for their own product.");
+        }
+
+        if (price > AvailableBalance)
+        {
+            throw new DomainException("A payment cannot exceed the available balance.");
+        }
+
+        AvailableBalance -= price;
+        _transactions.Add(new Transaction(TransactionType.Purchase, price, AvailableBalance, reference, productName));
+    }
+
+    public void ReceivePayment(ProductReference reference, string productName, decimal price)
+    {
+        if (price < 0)
+        {
+            throw new DomainException("A sale cannot have a negative amount.");
+        }
+
+        AvailableBalance += price;
+        _transactions.Add(new Transaction(TransactionType.Sale, price, AvailableBalance, reference, productName));
     }
 
     public void ReturnReserved(decimal amount)
