@@ -80,4 +80,16 @@ public class GiftCardsQueryTests : BaseIntegrationTest
         recipients!.Items.Should().Contain(recipient => recipient.Id == DemoUsers.SecondExplorer);
         recipients.Items.Should().NotContain(recipient => recipient.Id == DemoUsers.Explorer);
     }
+
+    [Fact]
+    public async Task Recipient_search_that_finds_only_the_buyer_returns_nothing()
+    {
+        var client = Factory.CreateClientFor(DemoUsers.Explorer, "explorer");
+
+        var recipients = await client.GetFromJsonAsync<PageResult<RecipientDto>>(
+            "/api/payment/gift-cards/recipients?text=explorer1@explorer.dev&page=1&pageSize=50", JsonOptions);
+
+        recipients!.Items.Should().BeEmpty();
+        recipients.TotalCount.Should().Be(0);
+    }
 }

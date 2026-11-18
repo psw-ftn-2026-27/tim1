@@ -60,7 +60,10 @@ public sealed class GiftCardsQueries
             .Where(user => user.Id != userId)
             .Select(user => new RecipientDto(user.Id, user.DisplayName))
             .ToList();
-        return new PageResult<RecipientDto>(items, users.TotalCount);
+
+        // The buyer is removed after Identity has paged, so the total drops by one when they were on this page.
+        var removedBuyer = items.Count < users.Items.Count;
+        return new PageResult<RecipientDto>(items, removedBuyer ? users.TotalCount - 1 : users.TotalCount);
     }
 
     private async Task<PageResult<GiftCardDto>> WithDisplayNamesAsync(PageResult<GiftCardDto> giftCards)
