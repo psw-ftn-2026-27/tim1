@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Shared.Domain;
+using Social.Application.ClubInviting;
 using Social.Application.ClubMembership;
 using Social.Application.Clubs;
 using Social.Domain.Clubs;
@@ -43,7 +44,7 @@ internal sealed class ClubReadRepository : IClubReadRepository
         return _dbContext.Clubs
             .Where(club => club.Id == clubId)
             .Select(club => club.Members
-                .Select(member => new ClubMemberDto(member.UserId, member.Role))
+                .Select(member => new ClubMemberDto(member.UserId, "", member.Role))
                 .ToList())
             .FirstOrDefaultAsync();
     }
@@ -57,7 +58,11 @@ internal sealed class ClubReadRepository : IClubReadRepository
                     ? MembershipStatus.Member
                     : club.MembershipRequests.Any(request => request.UserId == userId)
                         ? MembershipStatus.PendingRequest
-                        : MembershipStatus.NotMember))
+                        : MembershipStatus.NotMember,
+                club.Members
+                    .Where(member => member.UserId == userId)
+                    .Select(member => (ClubRole?)member.Role)
+                    .FirstOrDefault()))
             .FirstOrDefaultAsync();
     }
 
@@ -74,8 +79,31 @@ internal sealed class ClubReadRepository : IClubReadRepository
             .FirstOrDefaultAsync();
     }
 
+    public Task<List<SentInvitationDto>?> GetSentInvitationsAsync(Guid clubId, Guid ownerId)
+    {
+        return _dbContext.Clubs
+            .Where(club => club.Id == clubId
+                && club.Members.Any(member => member.UserId == ownerId && member.Role == ClubRole.Owner))
+            .Select(club => club.Invitations
+                .OrderBy(invitation => invitation.CreatedAt)
+                .Select(invitation => new SentInvitationDto(invitation.UserId, "", invitation.CreatedAt))
+                .ToList())
+            .FirstOrDefaultAsync();
+    }
+
+    public Task<List<MyInvitationDto>> GetInvitationsOfUserAsync(Guid userId)
+    {
+        return _dbContext.Clubs
+            .SelectMany(
+                club => club.Invitations.Where(invitation => invitation.UserId == userId),
+                (club, invitation) => new { club.Id, club.Name, invitation.CreatedAt })
+            .OrderBy(row => row.CreatedAt)
+            .Select(row => new MyInvitationDto(row.Id, row.Name, row.CreatedAt))
+            .ToListAsync();
+    }
+
     private static IQueryable<ClubDto> ProjectToDtos(IQueryable<Club> clubs)
     {
-        return clubs.Select(club => new ClubDto(club.Id, club.OwnerId, club.Name, club.Description, club.Images));
+        return clubs.Select(club => new ClubDto(club.Id, club.OwnerId, club.Name, club.Description, club.Images, club.Status));
     }
 }

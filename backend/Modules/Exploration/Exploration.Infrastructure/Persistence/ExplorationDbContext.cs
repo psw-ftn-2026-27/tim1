@@ -2,9 +2,11 @@
 using Exploration.Domain.Images;
 using Exploration.Domain.TourPreferences;
 using Exploration.Domain.Tours;
+using Exploration.Domain.UserPositions;
 using Exploration.Infrastructure.Persistence.Images;
 using Exploration.Infrastructure.Persistence.TourPreferences;
 using Exploration.Infrastructure.Persistence.Tours;
+using Exploration.Infrastructure.Persistence.UserPositions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Exploration.Infrastructure.Persistence;
@@ -16,6 +18,7 @@ internal sealed class ExplorationDbContext : DbContext, IUnitOfWork
     public DbSet<Tour> Tours => Set<Tour>();
     public DbSet<TourPreference> TourPreferences => Set<TourPreference>();
     public DbSet<Image> Images => Set<Image>();
+    public DbSet<UserPosition> UserPositions => Set<UserPosition>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -23,5 +26,6 @@ internal sealed class ExplorationDbContext : DbContext, IUnitOfWork
         builder.ConfigureTours();
         builder.ConfigureTourPreferences();
         builder.ConfigureImages();
+        builder.ConfigureUserPositions();
     }
 }

@@ -117,3 +117,45 @@ export interface RecipientDto {
   id: string;
   displayName: string;
 }
+
+export type CouponStatus = 'Valid' | 'Used' | 'Expired';
+
+export interface CouponDto {
+  id: string;
+  code: string;
+  percent: number;
+  expiresAt: string;
+  productName: string | null;
+  status: CouponStatus;
+}
+
+export interface OwnedProductDto {
+  id: string;
+  name: string;
+}
+
+export interface CreateCouponDto {
+  productId: string | null;
+  percent: number;
+  expiresAt: string;
+}
+
+export interface CheckoutDto {
+  couponCode: string | null;
+  giftCardId: string | null;
+}
+
+export interface PriceDto {
+  total: number;
+  couponDiscount: number;
+  couponProductName: string | null;
+  cardDiscount: number;
+  finalPrice: number;
+  cardLost: number;
+}
+
+export interface UsableGiftCardDto {
+  id: string;
+  amount: number;
+  expiresAt: string;
+}

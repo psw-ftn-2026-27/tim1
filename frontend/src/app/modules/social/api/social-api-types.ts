@@ -31,9 +31,19 @@ export interface BlogDetailDto {
   lastModifiedAt: string;
   images: string[];
   status: BlogStatus;
-  comments: CommentDto[];
+  comments: BlogCommentDetailDto[];
   score: number;
   myVote: VoteType | null;
+}
+
+export interface BlogCommentDetailDto {
+  id: string;
+  userId: string;
+  text: string;
+  createdAt: string;
+  lastModifiedAt: string;
+  authorName: string | null;
+  canEditOrDelete: boolean;
 }
 
 export interface VoteDto {
@@ -60,12 +70,15 @@ export interface UpdateCommentDto {
   text: string;
 }
 
+export type ClubStatus = 'Active' | 'Closed';
+
 export interface ClubDto {
   id: string;
   ownerId: string;
   name: string;
   description: string;
   images: string[];
+  status: ClubStatus;
 }
 
 export interface CreateClubDto {
@@ -126,6 +139,7 @@ export type ClubRole = 'Owner' | 'Moderator' | 'Member';
 
 export interface ClubMemberDto {
   userId: string;
+  displayName: string;
   role: ClubRole;
 }
 
@@ -133,9 +147,27 @@ export type MembershipStatus = 'NotMember' | 'PendingRequest' | 'Member';
 
 export interface MyMembershipDto {
   status: MembershipStatus;
+  role: ClubRole | null;
 }
 
 export interface MembershipRequestDto {
   userId: string;
+  createdAt: string;
+}
+
+export interface UserToInviteDto {
+  id: string;
+  displayName: string;
+}
+
+export interface SentInvitationDto {
+  userId: string;
+  userDisplayName: string;
+  createdAt: string;
+}
+
+export interface MyInvitationDto {
+  clubId: string;
+  clubName: string;
   createdAt: string;
 }

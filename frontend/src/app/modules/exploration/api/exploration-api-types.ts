@@ -1,5 +1,16 @@
 export type TourDifficulty = 'Easy' | 'Moderate' | 'Hard';
 
+export interface CurrentPositionDto {
+  latitude: number;
+  longitude: number;
+  updatedAt: string;
+}
+
+export interface SaveCurrentPositionDto {
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export type TourStatus = 'Draft' | 'Published' | 'Archived';
 
 export type TransportMode = 'Walking' | 'Bicycle' | 'Car';

@@ -33,6 +33,6 @@ export class GiftCardList {
   }
 
   protected formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('sr-Latn-RS');
+    return new Date(iso).toLocaleDateString('sr-Latn-RS', { timeZone: 'UTC' });
   }
 }

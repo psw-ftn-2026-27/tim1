@@ -56,11 +56,56 @@
     <p class="total">Total: <span class="amount">{{ cart.value()?.total ?? 0 }} EC</span></p>
 
     @if (hasItems()) {
+      <section class="card stack">
+        <h2>Discounts</h2>
+
+        <div class="field">
+          <label for="coupon-code">Coupon code</label>
+          <input id="coupon-code" type="text" [formField]="discounts.couponCode" />
+        </div>
+        <div class="form-actions">
+          <button class="button" type="button" [disabled]="pending()" (click)="applyCoupon()">
+            Apply coupon
+          </button>
+        </div>
+
+        <div class="field">
+          <label for="gift-card">Gift card</label>
+          <select id="gift-card" [formField]="discounts.giftCardId">
+            <option value="">No gift card</option>
+            @for (card of usableGiftCards.value() ?? []; track card.id) {
+              <option [value]="card.id">{{ card.amount }} EC, expires {{ formatDate(card.expiresAt) }}</option>
+            }
+          </select>
+        </div>
+
+        @if (price.error()) {
+          <p class="alert alert--danger">
+            {{ priceError() }}
+          </p>
+        } @else if (price.hasValue()) {
+          <p>Total: <span class="amount">{{ price.value().total }} EC</span></p>
+          @if (price.value().couponProductName) {
+            <p>
+              Coupon discount on {{ price.value().couponProductName }}:
+              <span class="amount discount">-{{ price.value().couponDiscount }} EC</span>
+            </p>
+          }
+          @if (price.value().cardDiscount > 0) {
+            <p>Gift card discount: <span class="amount discount">-{{ price.value().cardDiscount }} EC</span></p>
+          }
+          @if (price.value().cardLost > 0) {
+            <p>Lost from the gift card: <span class="amount">{{ price.value().cardLost }} EC</span></p>
+          }
+          <p class="total">Final price: <span class="amount">{{ price.value().finalPrice }} EC</span></p>
+        }
+      </section>
+
       <div class="form-actions">
         <button
           class="button button--primary"
           type="button"
-          [disabled]="pending()"
+          [disabled]="pending() || price.error()"
           (click)="buyProducts()"
         >
           Buy products

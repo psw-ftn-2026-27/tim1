@@ -15,16 +15,29 @@ public sealed class Purchase : AggregateRoot
     public decimal Price { get; private set; }
     public DateTime PurchasedAt { get; private set; }
 
+    /// <summary>The coupon that lowered the price of this item, when one did.</summary>
+    public Guid? CouponId { get; private set; }
+
+    /// <summary>What the coupon took off this item; Price is already the lowered price.</summary>
+    public decimal CouponDiscount { get; private set; }
+
     private Purchase()
     {
         Reference = null!;
     }
 
-    public Purchase(Guid buyerId, ProductReference reference, decimal price) : base(Guid.NewGuid())
+    public Purchase(
+        Guid buyerId,
+        ProductReference reference,
+        decimal price,
+        Guid? couponId = null,
+        decimal couponDiscount = 0) : base(Guid.NewGuid())
     {
         BuyerId = buyerId;
         Reference = reference;
         Price = price;
         PurchasedAt = DateTime.UtcNow;
+        CouponId = couponId;
+        CouponDiscount = couponDiscount;
     }
 }

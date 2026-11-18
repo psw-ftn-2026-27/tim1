@@ -1,3 +1,5 @@
+using Payment.Domain.Coupons;
+using Payment.Domain.GiftCards;
 using Payment.Domain.Products;
 using Payment.Domain.ShoppingCarts;
 using Payment.Domain.Wallets;
@@ -10,15 +12,28 @@ namespace Payment.Domain.Purchases;
 /// moves the price of every item from the customer's wallet to the wallet of the item's owner,
 /// leaves one purchase behind for each item and empties the cart. The purchases are handed back
 /// so the command that saves can store them.
+/// An optional coupon and gift card lower the price, as <see cref="CartPricing"/> works out, and
+/// are spent by the checkout. The coupon lowers the price of its item, which the seller earns
+/// and the purchase keeps. The card lowers only what the buyer pays, taken from the items in
+/// order, because the platform already holds the money the giver paid for it.
 /// </summary>
 public sealed class CartCheckout
 {
+    private readonly CartPricing _cartPricing;
+
+    public CartCheckout(CartPricing cartPricing)
+    {
+        _cartPricing = cartPricing;
+    }
+
     public IReadOnlyList<Purchase> Checkout(
         ShoppingCart cart,
         IReadOnlyList<Product> products,
         Wallet buyerWallet,
         IReadOnlyDictionary<Guid, Wallet> sellerWallets,
-        IReadOnlyList<Purchase> ownedPurchases)
+        IReadOnlyList<Purchase> ownedPurchases,
+        Coupon? coupon = null,
+        GiftCard? giftCard = null)
     {
         if (cart.Items.Count == 0)
         {
@@ -32,18 +47,36 @@ public sealed class CartCheckout
             throw new DomainException($"You already own {ownedItem.Name}.");
         }
 
+        var now = DateTime.UtcNow;
+        var price = _cartPricing.Calculate(cart, products, coupon, giftCard, now);
+        coupon?.Use(now);
+        giftCard?.Use(cart.OwnerId, now);
+
+        var cardLeft = price.CardDiscount;
         var purchases = new List<Purchase>();
         foreach (var item in cart.Items)
         {
-            var soldProduct = products.Single(product => product.Reference == item.Reference);
-            var sellerWallet = sellerWallets[soldProduct.OwnerId];
+            var hasCoupon = item.Reference == price.CouponReference;
+            var couponDiscount = hasCoupon ? price.CouponDiscount : 0m;
+            var itemPrice = item.Price - couponDiscount;
+            var cardShare = Math.Min(cardLeft, itemPrice);
+            cardLeft -= cardShare;
 
-            buyerWallet.PayFor(item.Reference, item.Name, item.Price, soldProduct.OwnerId);
-            sellerWallet.ReceivePayment(item.Reference, item.Name, item.Price);
-            purchases.Add(new Purchase(cart.OwnerId, item.Reference, item.Price));
+            var soldProduct = products.Single(product => product.Reference == item.Reference);
+            Pay(item, itemPrice, cardShare, buyerWallet, sellerWallets[soldProduct.OwnerId], soldProduct.OwnerId);
+
+            purchases.Add(new Purchase(cart.OwnerId, item.Reference, itemPrice, hasCoupon ? coupon!.Id : null, couponDiscount));
         }
 
         cart.Clear();
         return purchases;
+    }
+
+    /// <summary>The seller earns the whole item price; the buyer pays it less the share of the card.</summary>
+    private static void Pay(
+        OrderItem item, decimal itemPrice, decimal cardShare, Wallet buyerWallet, Wallet sellerWallet, Guid sellerId)
+    {
+        buyerWallet.PayFor(item.Reference, item.Name, itemPrice - cardShare, sellerId);
+        sellerWallet.ReceivePayment(item.Reference, item.Name, itemPrice);
     }
 }

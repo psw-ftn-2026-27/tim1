@@ -9,8 +9,8 @@
 export interface EventParams {
   tour_published: { tour_id: string; difficulty: string };
   view_item: never;
-  add_to_cart: never;
-  purchase: never;
+  add_to_cart: { product_type: string; product_id: string; price: number };
+  purchase: { product_types: string; item_count: number; value: number };
   tour_started: never;
   tour_completed: never;
   challenge_solved: never;

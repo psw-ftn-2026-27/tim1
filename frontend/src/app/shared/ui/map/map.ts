@@ -43,6 +43,7 @@ export class Map {
   readonly pins = input.required<readonly MapPin[]>();
   readonly routeRequest = input<MapRouteRequest | null>(null);
   readonly selectionEnabled = input(false);
+  readonly showSelectionPin = input(true);
   readonly routeLengthKm = output<number | null>();
   readonly locationSelected = output<MapPin>();
 
@@ -50,6 +51,8 @@ export class Map {
   protected readonly routeStatus = signal<'idle' | 'loading' | 'not-found' | 'error'>('idle');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
+  // After a click the map must stay where it is, so the pin remains under the cursor.
+  private keepView = false;
   private readonly routing = inject(MapRouting);
   private readonly mapView = signal<{
     map: LeafletMap;
@@ -84,6 +87,9 @@ export class Map {
       // Leaflet emits the map click after release and suppresses it after dragging.
       view.on('click', ({ latlng }: LeafletMouseEvent) => {
         if (!this.selectionEnabled()) return;
+        this.keepView = true;
+        this.locationSelected.emit({ latitude: latlng.lat, longitude: latlng.lng });
+        if (!this.showSelectionPin()) return;
 
         if (selectedPin) {
           selectedPin.setLatLng(latlng);
@@ -96,7 +102,6 @@ export class Map {
             zIndexOffset: 1000,
           }).addTo(view);
         }
-        this.locationSelected.emit({ latitude: latlng.lat, longitude: latlng.lng });
       });
 
       this.destroyRef.onDestroy(() => view.remove());
@@ -114,6 +119,7 @@ export class Map {
       }
 
       const bounds = view.markers.getBounds();
+      if (this.keepView && bounds.isValid()) return;
       if (bounds.isValid()) {
         view.map.fitBounds(bounds, { padding: [24, 24], maxZoom: 15, animate: false });
       } else {

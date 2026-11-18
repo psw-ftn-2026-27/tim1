@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ProductReferenceDto } from '../api/payment-api-types';
+import { CheckoutDto, ProductReferenceDto } from '../api/payment-api-types';
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingCart {
@@ -13,7 +13,8 @@ export class ShoppingCart {
     );
   }
 
-  async checkout(): Promise<void> {
-    await firstValueFrom(this.http.post<void>('/api/payment/cart/checkout', {}));
+  async checkout(couponCode?: string, giftCardId?: string): Promise<void> {
+    const dto: CheckoutDto = { couponCode: couponCode ?? null, giftCardId: giftCardId ?? null };
+    await firstValueFrom(this.http.post<void>('/api/payment/cart/checkout', dto));
   }
 }
