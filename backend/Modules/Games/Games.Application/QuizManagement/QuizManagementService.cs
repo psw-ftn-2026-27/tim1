@@ -17,7 +17,8 @@ public sealed class QuizManagementService
 
     public async Task<Guid> CreateAsync(SaveQuizDto dto)
     {
-        var quiz = new Quiz(dto.Name, dto.Instructions, dto.ExperiencePoints, MapQuestions(dto.Questions));
+        var quiz = new Quiz(dto.Name, dto.Instructions, dto.ExperiencePoints, MapQuestions(dto.Questions),
+            dto.Latitude, dto.Longitude);
         _quizRepository.Add(quiz);
         await _unitOfWork.SaveChangesAsync();
         return quiz.Id;
@@ -27,7 +28,8 @@ public sealed class QuizManagementService
     {
         var quiz = await GetQuizAsync(id);
 
-        quiz.Update(dto.Name, dto.Instructions, dto.ExperiencePoints, MapQuestions(dto.Questions));
+        quiz.Update(dto.Name, dto.Instructions, dto.ExperiencePoints, MapQuestions(dto.Questions),
+            dto.Latitude, dto.Longitude);
         await _unitOfWork.SaveChangesAsync();
     }
 

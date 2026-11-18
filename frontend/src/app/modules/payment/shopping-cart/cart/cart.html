@@ -5,6 +5,17 @@
     <p class="alert alert--danger">{{ error() }}</p>
   }
 
+  @if (bought()) {
+    <p class="alert alert--success">{{ bought() }}</p>
+  }
+
+  @if (buyError()) {
+    <p class="alert alert--danger">
+      {{ buyError() }}
+      <a routerLink="/payment">Top up your wallet</a>
+    </p>
+  }
+
   @if (cart.isLoading()) {
     <p>Loading your cart...</p>
   } @else if (cart.error()) {
@@ -43,6 +54,19 @@
     </table>
 
     <p class="total">Total: <span class="amount">{{ cart.value()?.total ?? 0 }} EC</span></p>
+
+    @if (hasItems()) {
+      <div class="form-actions">
+        <button
+          class="button button--primary"
+          type="button"
+          [disabled]="pending()"
+          (click)="buyProducts()"
+        >
+          Buy products
+        </button>
+      </div>
+    }
   }
 
   <a routerLink="/payment/products">Back to the products</a>

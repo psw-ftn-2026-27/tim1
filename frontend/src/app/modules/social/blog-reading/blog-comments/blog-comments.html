@@ -2,9 +2,12 @@
   @for (comment of comments(); track comment.id) {
     <li class="stack">
       <p>{{ comment.text }}</p>
-      <p class="meta">{{ comment.createdAt }}</p>
+      <p class="meta">{{ comment.authorName ?? 'Unknown user' }}</p>
+      <p class="meta">Created: {{ formatDate(comment.createdAt) }}</p>
+      <p class="meta">Last modified: {{ formatDate(comment.lastModifiedAt) }}</p>
 
-      @if (!archived() && comment.userId === currentUserId()) {
+      <!-- The server decides whether the edit window is still open; the client only reads the flag. -->
+      @if (comment.canEditOrDelete) {
         @if (editingCommentId() === comment.id) {
           <form class="comment-actions" (submit)="saveEdit($event, comment.id)">
             <input type="text" aria-label="Edit comment" [formField]="editForm.text" />

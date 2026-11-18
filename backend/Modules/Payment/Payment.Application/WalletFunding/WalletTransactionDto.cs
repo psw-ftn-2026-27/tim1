@@ -6,4 +6,5 @@ public sealed record WalletTransactionDto(
     DateTime OccurredAt,
     TransactionType Type,
     decimal Amount,
-    decimal BalanceAfter);
+    decimal BalanceAfter,
+    string? ProductName);

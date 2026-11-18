@@ -4,7 +4,9 @@ public sealed record SaveQuizDto(
     string? Name,
     string? Instructions,
     int? ExperiencePoints,
-    IReadOnlyList<QuizQuestionInputDto>? Questions);
+    IReadOnlyList<QuizQuestionInputDto>? Questions,
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record QuizQuestionInputDto(
     Guid? Id,

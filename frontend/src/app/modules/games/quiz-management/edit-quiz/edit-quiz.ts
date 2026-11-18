@@ -1,6 +1,7 @@
 import { HttpErrorResponse, httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Map, type MapPin } from '../../../../shared/ui/map/map';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { QuizDto, SaveQuizDto } from '../../api/games-api-types';
 import { QuizAction, QuizActions } from '../quiz-actions/quiz-actions';
@@ -9,7 +10,7 @@ import { QuizManagement } from '../quiz-management';
 
 @Component({
   selector: 'app-edit-quiz',
-  imports: [QuizActions, QuizForm, RouterLink],
+  imports: [Map, QuizActions, QuizForm, RouterLink],
   templateUrl: './edit-quiz.html',
   styleUrl: './edit-quiz.scss',
 })
@@ -20,6 +21,13 @@ export class EditQuiz {
   readonly id = input.required<string>();
 
   protected readonly quiz = httpResource<QuizDto>(() => `/api/games/quizzes/${this.id()}`);
+  protected readonly locationPins = computed<MapPin[]>(() => {
+    if (!this.quiz.hasValue()) {
+      return [];
+    }
+    const { latitude, longitude } = this.quiz.value();
+    return latitude === null || longitude === null ? [] : [{ latitude, longitude }];
+  });
   protected readonly fields = createQuizForm();
   protected readonly editing = signal(false);
   protected readonly pending = signal(false);
@@ -39,6 +47,7 @@ export class EditQuiz {
       name: quiz.name,
       instructions: quiz.instructions,
       experiencePoints: quiz.experiencePoints,
+      location: this.locationPins()[0] ?? null,
       questions: quiz.questions.map((question) => {
         const correctAnswer = question.answers.findIndex((answer) => answer.isCorrect);
         return {

@@ -9,7 +9,9 @@ public sealed record QuizDto(
     int ExperiencePoints,
     QuizStatus Status,
     DateTime CreatedAt,
-    IReadOnlyList<QuizQuestionDto> Questions);
+    IReadOnlyList<QuizQuestionDto> Questions,
+    double? Latitude,
+    double? Longitude);
 
 public sealed record QuizQuestionDto(Guid Id, string Text, IReadOnlyList<QuizAnswerDto> Answers);
 

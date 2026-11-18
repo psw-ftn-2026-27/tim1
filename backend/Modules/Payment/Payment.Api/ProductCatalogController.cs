@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payment.Application.ProductCatalog;
+using Shared.Api;
 
 namespace Payment.Api;
 
@@ -19,6 +20,6 @@ public sealed class ProductCatalogController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<ProductDto>>> GetProducts()
     {
-        return await _productCatalogQueries.GetProductsAsync();
+        return await _productCatalogQueries.GetProductsAsync(User.GetUserId());
     }
 }

@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.back {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.buy {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+}
+
+.expiry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.columns {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  align-items: start;
+}

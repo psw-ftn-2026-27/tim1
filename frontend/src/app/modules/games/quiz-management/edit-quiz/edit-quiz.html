@@ -38,6 +38,14 @@
         <h2>Instructions</h2>
         <p class="saved-text">{{ details.instructions }}</p>
       </div>
+      <section class="stack">
+        <h2>Quiz location</h2>
+        @if (locationPins().length) {
+          <app-map [pins]="locationPins()" />
+        } @else {
+          <p>No location assigned.</p>
+        }
+      </section>
       <div class="stack">
         <h2>Questions</h2>
         @for (question of details.questions; track question.id) {

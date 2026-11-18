@@ -20,6 +20,21 @@ internal sealed class ProductRepository : IProductRepository
             && product.Reference.EntityId == reference.EntityId);
     }
 
+    /// <summary>
+    /// The products the given references stand for. The database narrows the rows down by entity
+    /// ID, and the pair of kind and ID decides which of them answer a reference.
+    /// </summary>
+    public async Task<List<Product>> GetByReferencesAsync(IReadOnlyList<ProductReference> references)
+    {
+        var entityIds = references.Select(reference => reference.EntityId).ToList();
+
+        var products = await _dbContext.Products
+            .Where(product => entityIds.Contains(product.Reference.EntityId))
+            .ToListAsync();
+
+        return [.. products.Where(product => references.Contains(product.Reference))];
+    }
+
     public void Add(Product product)
     {
         _dbContext.Products.Add(product);

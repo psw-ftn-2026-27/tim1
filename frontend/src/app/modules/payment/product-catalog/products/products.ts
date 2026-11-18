@@ -28,6 +28,7 @@ export class Products {
     try {
       await this.productCatalog.addToCart({ type: product.type, entityId: product.entityId });
       this.added.set(`${product.name} is in your cart.`);
+      this.products.reload();
       this.itemCount.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not add the product to your cart.'));
