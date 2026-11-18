@@ -1,6 +1,18 @@
 <div class="stack">
   <h1>Products</h1>
 
+  <p>
+    <a routerLink="/payment/cart">Your cart ({{ itemCount.value() ?? 0 }})</a>
+  </p>
+
+  @if (added()) {
+    <p class="alert alert--success">{{ added() }}</p>
+  }
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
   @if (products.isLoading()) {
     <p>Loading products...</p>
   } @else if (products.error()) {
@@ -13,6 +25,7 @@
           <th scope="col">Name</th>
           <th scope="col">Price</th>
           <th scope="col">Owner</th>
+          <th scope="col">Cart</th>
         </tr>
       </thead>
       <tbody>
@@ -20,12 +33,22 @@
           <tr>
             <td>{{ product.type }}</td>
             <td>{{ product.name }}</td>
-            <td class="amount">{{ product.price }} RSD</td>
+            <td class="amount">{{ product.price }} EC</td>
             <td>{{ product.ownerName }}</td>
+            <td>
+              <button
+                class="button button--secondary button--small"
+                type="button"
+                [disabled]="pending()"
+                (click)="addToCart(product)"
+              >
+                Add to cart
+              </button>
+            </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">No product has been registered yet.</td>
+            <td colspan="5">No product has been registered yet.</td>
           </tr>
         }
       </tbody>
