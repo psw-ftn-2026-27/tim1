@@ -50,4 +50,13 @@ internal sealed class LocationChallengeAttemptReadRepository : ILocationChalleng
             .Select(attempt => attempt.ChallengeId)
             .ToListAsync();
     }
+
+    public async Task<IReadOnlyList<Guid>> GetStartedChallengeIdsAsync(Guid userId)
+    {
+        return await _dbContext.LocationChallengeAttempts
+            .AsNoTracking()
+            .Where(attempt => attempt.UserId == userId && attempt.SolvedAt == null)
+            .Select(attempt => attempt.ChallengeId)
+            .ToListAsync();
+    }
 }

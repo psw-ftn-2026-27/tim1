@@ -43,9 +43,10 @@ public sealed class LocationChallengeSolvingQueries
         var userLocation = new Location(position.Latitude, position.Longitude);
         var published = await _locationChallengeReadRepository.GetPublishedAsync();
         var solvedChallengeIds = await _attemptReadRepository.GetSolvedChallengeIdsAsync(userId);
+        var startedChallengeIds = await _attemptReadRepository.GetStartedChallengeIdsAsync(userId);
         var challenges = published
             .Where(challenge => !solvedChallengeIds.Contains(challenge.Id))
-            .Select(challenge => ToNearby(challenge, userLocation))
+            .Select(challenge => ToNearby(challenge, userLocation, startedChallengeIds.Contains(challenge.Id)))
             .OrderBy(challenge => challenge.DistanceMeters)
             .ToList();
 
@@ -86,7 +87,10 @@ public sealed class LocationChallengeSolvingQueries
         return content;
     }
 
-    private static NearbyLocationChallengeDto ToNearby(PublishedLocationChallengeDto challenge, Location userLocation)
+    private static NearbyLocationChallengeDto ToNearby(
+        PublishedLocationChallengeDto challenge,
+        Location userLocation,
+        bool isStarted)
     {
         var startLocation = new Location(challenge.StartLocation.Latitude, challenge.StartLocation.Longitude);
         var distance = userLocation.DistanceTo(startLocation);
@@ -96,6 +100,7 @@ public sealed class LocationChallengeSolvingQueries
             challenge.Name,
             challenge.ExperiencePoints,
             distance,
-            distance <= LocationChallengeActivation.MaxDistanceMeters);
+            distance <= LocationChallengeActivation.MaxDistanceMeters,
+            isStarted);
     }
 }

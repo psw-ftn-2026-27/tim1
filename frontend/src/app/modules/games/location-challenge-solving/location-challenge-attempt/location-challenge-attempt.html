@@ -26,7 +26,11 @@
           >
             {{ checking() ? 'Checking…' : 'Check' }}
           </button>
-          <p class="meta">Stand where a photo was taken, then check your location.</p>
+          <p class="meta">
+            Stand where a photo was taken, then check your location.
+            <a routerLink="/exploration/position-test">Set my position</a>, then come back through
+            Location challenges → Continue.
+          </p>
         </div>
       }
       <app-map [pins]="centerPins()" />

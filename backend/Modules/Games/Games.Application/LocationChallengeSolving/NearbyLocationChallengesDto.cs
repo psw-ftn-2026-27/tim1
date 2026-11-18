@@ -12,7 +12,8 @@ public sealed record NearbyLocationChallengeDto(
     string Name,
     int ExperiencePoints,
     double DistanceMeters,
-    bool CanActivate);
+    bool CanActivate,
+    bool IsStarted);
 
 public sealed record PublishedLocationChallengeDto(
     Guid Id,

@@ -147,6 +147,7 @@ export interface NearbyLocationChallengeDto {
   experiencePoints: number;
   distanceMeters: number;
   canActivate: boolean;
+  isStarted: boolean;
 }
 
 export interface NearbyLocationChallengesDto {
