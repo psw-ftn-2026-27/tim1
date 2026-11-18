@@ -260,11 +260,90 @@ hiljade, zarez za decimale: `5.200`, `1.200,5`). Komponenta je izloži šablonu 
 Cifre su iste širine, pa se iznosi u koloni tabele poravnavaju. `--old` je precrtana cena
 pored cene sa kuponom.
 
+### Izabrano dugme `.button.is-selected`
+
+```html
+<button class="button" [class.is-selected]="myVote() === 'Upvote'" [attr.aria-pressed]="myVote() === 'Upvote'">Upvote</button>
+```
+
+Dugme iz grupe koje je trenutno izabrano (npr. glas korisnika). Uvek ide uz `aria-pressed`.
+
+### Dugme sa ikonicom `.icon-btn` i kružić `.dot`
+
+```html
+<button class="icon-btn icon-btn--success" type="button" aria-label="Accept request from Ana">…svg…</button>
+<button class="icon-btn icon-btn--danger" type="button" aria-label="Reject request from Ana">…svg…</button>
+<a class="icon-btn" routerLink="/social/received-requests" aria-label="Received follow requests, 2 pending">
+  …svg…
+  <span class="dot"></span>
+</a>
+```
+
+Kvadrat 40×40 sa samo ikonicom, zato je `aria-label` obavezan. `.dot` je crveni kružić
+(`--color-notification`) u gornjem desnom uglu kad ima nešto novo.
+
+### Kartica u redu `.list-card`
+
+```html
+<div class="list-card">
+  <span class="list-card__avatar">A</span>
+  <div class="list-card__main"><strong>Ana</strong><span class="meta">Sent Nov 18, 2026</span></div>
+  <div class="list-card__end"><span class="badge badge--warning">Pending</span>…dugmad…</div>
+</div>
+```
+
+Za liste ljudi (zahtevi, pratioci, članovi, pozivi). Na uskom ekranu `__end` prelazi u novi
+red. `.confirm` unutar kartice zauzima ceo red.
+
+### Potvrda u redu `.confirm`
+
+```html
+<div class="confirm">
+  <span class="confirm__text">Archive this blog? It can’t be edited afterwards.</span>
+  <button class="button button--small button--primary" type="button">Confirm</button>
+  <button class="button button--small" type="button">Cancel</button>
+</div>
+```
+
+Projekat nema dijaloge: potvrda zamenjuje dugmad u istom redu tabele ili na istoj kartici.
+Otvorena je najviše jedna potvrda na stranici.
+
+### Sličica `.thumb`
+
+```html
+<img class="thumb" [src]="club.images[0]" alt="" />
+<app-protected-image class="thumb thumb--sm" [src]="…" />
+```
+
+Kvadrat 56px (`--sm`: 44px), slika ispunjava kvadrat (`object-fit: cover`).
+
+### Obaveštenje `.notice`
+
+```html
+<p class="notice">…svg… This blog is archived. Comments and voting are closed.</p>
+```
+
+Neutralna traka za stanje koje nije greška (arhiviran blog, zatvoren klub). Za grešku se
+koristi `.alert--danger`.
+
+### Straničenje `.pager`
+
+```html
+<nav class="pager" aria-label="Pages">
+  <button class="button button--small" type="button">Previous</button>
+  <span class="meta">Page 1 of 3</span>
+  <button class="button button--small" type="button">Next</button>
+</nav>
+```
+
 ### Ostalo
 
-`.error` (tekst greške), `.meta` (sporedan tekst), a iz `_layout.scss`: `.container`,
-`.stack` (vertikalni razmak između dece), `.grid` (mreža kartica) i `.page-header` (vrh
-stranice: levo `h1` i podnaslov u `p`, desno tabovi ili dugmad).
+`.error` (tekst greške), `.meta` (sporedan tekst), `.back` (veza nazad na vrhu stranice,
+„← Blogs"), a iz `_layout.scss`: `.container`, `.stack` (vertikalni razmak između dece),
+`.grid` (mreža kartica), `.page-header` (vrh stranice: levo `h1` i podnaslov u `p`, desno
+tabovi ili dugmad), `.page-narrow` (uska kolona do 820px) i `.layout-side` sa `__aside`
+(oko 260px) i `__main` (dve kolone koje se na telefonu slažu jedna ispod druge; kolona koja
+je prva u kodu stoji levo).
 
 ## Odluke
 
@@ -286,6 +365,15 @@ stranice: levo `h1` i podnaslov u `p`, desno tabovi ili dugmad).
 - **Sekundarno dugme je obrubljeno narandžastom**, a obično dugme (`.button`) je tamna
   površina sa ivicom. Druga puna boja pored narandžaste bi se otimala za pažnju.
 - **Neaktivno dugme samo izbledi** (`opacity: 0.4`), pa se i dalje vidi koje je vrste.
+- **Klase iz redizajna Social-a su globalne iako ih za sada koristi samo Social.**
+  `.list-card`, `.icon-btn`, `.dot`, `.confirm`, `.thumb`, `.notice`, `.pager`, `.back`,
+  `.page-narrow` i `.layout-side` koriste dve ili više stranica, a isti obrasci (lista
+  ljudi, potvrda u redu, veza nazad) postoje i u Payment-u i Games-u. Zato su odmah
+  globalne, a ne kopirane u petnaestak komponenti. Ovo je izuzetak od pravila „više od
+  jednog modula" iz `frontend/AGENTS.md`.
+- **Statusni tokeni se nisu menjali u redizajnu Social-a.** Skica ima malo drugačije
+  vrednosti (npr. `#7fd6a4` za uspeh), ali tokeni `--color-success`, `-warning`, `-danger`
+  i `-info` već postoje i važe za celu aplikaciju.
 
 ## Za timove modula
 
