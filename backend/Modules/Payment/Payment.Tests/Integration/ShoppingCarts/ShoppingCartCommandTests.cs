@@ -100,6 +100,40 @@ public class ShoppingCartCommandTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Customer_who_has_no_cart_cannot_remove_an_item()
+    {
+        var newCustomer = Guid.NewGuid();
+        var client = Factory.CreateClientFor(newCustomer, "explorer");
+        var removedItem = ProductSeed.TourOfAForgottenOwner.Reference;
+        using var arrangeContext = Factory.CreateContext<PaymentDbContext>();
+        var cartCountBefore = arrangeContext.ShoppingCarts.Count();
+
+        var response = await client.DeleteAsync(
+            $"/api/payment/cart/items/{removedItem.EntityType}/{removedItem.EntityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        assertContext.ShoppingCarts.Count().Should().Be(cartCountBefore);
+        assertContext.ShoppingCarts.Should().NotContain(cart => cart.OwnerId == newCustomer);
+    }
+
+    [Fact]
+    public async Task Product_the_cart_does_not_hold_cannot_be_removed()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+        var removedItem = ProductSeed.DemoExplorersTour.Reference;
+
+        var response = await client.DeleteAsync(
+            $"/api/payment/cart/items/{removedItem.EntityType}/{removedItem.EntityId}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<PaymentDbContext>();
+        var storedCart = assertContext.ShoppingCarts.Single(cart =>
+            cart.OwnerId == WellKnownUsers.SecondExplorer);
+        storedCart.Items.Should().HaveCount(ShoppingCartSeed.SecondExplorersCart.Items.Count);
+    }
+
+    [Fact]
     public async Task Anonymous_user_cannot_add_a_product_to_a_cart()
     {
         var client = Factory.CreateClient();
