@@ -1,0 +1,25 @@
+<div class="stack page">
+  <p><a class="back" routerLink="/games/location-challenges">← Location challenges</a></p>
+
+  <div>
+    <h1>New challenge</h1>
+    <p class="subtitle">
+      People start at the start location and look for the places shown in the photos. New challenges
+      start as drafts.
+    </p>
+  </div>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  <section class="card">
+    <app-location-challenge-form
+      [fields]="fields"
+      [upload]="uploadImage"
+      [pending]="pending()"
+      saveLabel="Create draft"
+      (save)="create($event)"
+    />
+  </section>
+</div>

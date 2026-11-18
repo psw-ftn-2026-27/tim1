@@ -1,0 +1,93 @@
+<div class="stack page">
+  <p><a class="back" routerLink="/games/location-challenges">← Location challenges</a></p>
+
+  <div>
+    <h1>Edit challenge</h1>
+    <p class="subtitle">Only drafts can be edited. Publish it from the list when it is ready.</p>
+  </div>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  @if (challenge.isLoading()) {
+    <p>Loading the challenge…</p>
+  } @else if (challenge.error()) {
+    <p class="alert alert--danger">
+      Could not load the challenge. It may not exist, or you may need to log in as an administrator.
+    </p>
+  } @else if (challenge.hasValue()) {
+    @if (!editing()) {
+      <div class="card stack">
+        @if (challenge.value().status !== 'Draft') {
+          <p class="alert alert--info">
+            This challenge is {{ challenge.value().status }}, so it can no longer be edited.
+          </p>
+        }
+
+        <div class="columns">
+          <div class="field">
+            <span class="label">Name</span>
+            <p class="value">{{ challenge.value().name }}</p>
+          </div>
+          <div class="field">
+            <span class="label">XP</span>
+            <p class="value">{{ challenge.value().experiencePoints }}</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="group-label">Locations</p>
+          <app-map [pins]="challengePins()" />
+        </div>
+
+        <div class="row">
+          <div>
+            <p class="row-title">Start location</p>
+            <p class="meta">{{ coordinates(challenge.value().startLocation) }}</p>
+          </div>
+        </div>
+
+        <div class="stack">
+          <p class="group-label">Hidden points</p>
+          @for (point of challenge.value().hiddenPoints; track point.id; let index = $index) {
+            <div class="row">
+              <div>
+                <p class="row-title">Point {{ index + 1 }}</p>
+                <p class="meta">{{ coordinates(point.location) }}</p>
+              </div>
+              <app-protected-image class="photo" [src]="'/api/games/images/' + point.imageId" />
+            </div>
+          }
+        </div>
+
+        <div class="card-footer">
+          <div class="form-actions">
+            <a class="button cancel" routerLink="/games/location-challenges">Cancel</a>
+            @if (challenge.value().status === 'Draft') {
+              <button
+                class="button button--primary"
+                type="button"
+                (click)="startEdit(challenge.value())"
+              >
+                Edit
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    } @else {
+      <section class="card">
+        <app-location-challenge-form
+          [fields]="fields"
+          [upload]="uploadImage"
+          [pending]="pending()"
+          [showCancel]="true"
+          saveLabel="Save changes"
+          (save)="update($event)"
+          (cancelled)="cancelEdit()"
+        />
+      </section>
+    }
+  }
+</div>

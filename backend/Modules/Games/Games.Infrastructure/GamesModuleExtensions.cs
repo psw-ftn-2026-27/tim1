@@ -1,11 +1,18 @@
 using Games.Application;
+using Games.Application.ChallengeImages;
 using Games.Application.ChallengeOverview;
+using Games.Application.Images;
+using Games.Application.LocationChallengeManagement;
+using Games.Application.LocationChallenges;
 using Games.Application.QuizManagement;
 using Games.Application.Quizzes;
 using Games.Application.SocialChallengeManagement;
 using Games.Application.SocialChallenges;
+using Games.Infrastructure.Images;
 using Games.Infrastructure.Persistence;
 using Games.Infrastructure.Persistence.ChallengeOverview;
+using Games.Infrastructure.Persistence.Images;
+using Games.Infrastructure.Persistence.LocationChallenges;
 using Games.Infrastructure.Persistence.Quizzes;
 using Games.Infrastructure.Persistence.SocialChallenges;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +42,18 @@ public static class GamesModuleExtensions
         services.AddScoped<QuizManagementQueries>();
         services.AddScoped<IChallengeOverviewReadRepository, ChallengeOverviewReadRepository>();
         services.AddScoped<ChallengeOverviewQueries>();
+
+        services.AddScoped<ILocationChallengeRepository, LocationChallengeRepository>();
+        services.AddScoped<ILocationChallengeReadRepository, LocationChallengeReadRepository>();
+        services.AddScoped<LocationChallengeManagementService>();
+        services.AddScoped<LocationChallengeManagementQueries>();
+
+        services.AddScoped<IImageRepository, ImageRepository>();
+        services.AddScoped<IImageReadRepository, ImageReadRepository>();
+        services.AddSingleton<IImageProcessor, ImageProcessorAdapter>();
+        services.AddSingleton<IImageStorage, ImageStorageAdapter>();
+        services.AddScoped<ChallengeImagesService>();
+        services.AddScoped<ChallengeImagesQueries>();
 
         return services;
     }
