@@ -13,6 +13,8 @@ import { EditQuiz } from './quiz-management/edit-quiz/edit-quiz';
 import { Quizzes } from './quiz-management/quizzes/quizzes';
 import { CreateSocialChallenge } from './social-challenge-management/create-social-challenge/create-social-challenge';
 import { EditSocialChallenge } from './social-challenge-management/edit-social-challenge/edit-social-challenge';
+import { AvailableQuizzes } from './quiz-playing/available-quizzes/available-quizzes';
+import { PlayQuiz } from './quiz-playing/play-quiz/play-quiz';
 import { SocialChallenges } from './social-challenge-management/social-challenges/social-challenges';
 
 const requireAdministrator: CanActivateFn = () => {
@@ -35,6 +37,8 @@ export const gamesRoutes: Routes = [
   { path: 'quizzes', component: Quizzes, canActivate: [requireAdministrator] },
   { path: 'quizzes/new', component: CreateQuiz, canActivate: [requireAdministrator] },
   { path: 'quizzes/:id/edit', component: EditQuiz, canActivate: [requireAdministrator] },
+  { path: 'play/quizzes', component: AvailableQuizzes, canActivate: [requireExplorer] },
+  { path: 'play/quizzes/:id', component: PlayQuiz, canActivate: [requireExplorer] },
   { path: 'social-challenges', component: SocialChallenges },
   { path: 'social-challenges/new', component: CreateSocialChallenge },
   { path: 'social-challenges/:id/edit', component: EditSocialChallenge },

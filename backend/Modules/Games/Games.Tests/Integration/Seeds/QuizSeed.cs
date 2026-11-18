@@ -13,8 +13,15 @@ internal static class QuizSeed
     public static readonly Quiz PublishedSquare;
     public static readonly Quiz RetiredPark;
     public static readonly Quiz ArchivedBridge;
+    public static readonly Quiz PublishedLandmarkWalk;
+    public static readonly Quiz PublishedFountainTrail;
+    public static readonly Quiz PublishedMonumentTrail;
 
-    public static Quiz[] All => [DraftCityWalk, DraftMuseum, PublishedSquare, RetiredPark, ArchivedBridge];
+    public static Quiz[] All =>
+    [
+        DraftCityWalk, DraftMuseum, PublishedSquare, RetiredPark, ArchivedBridge,
+        PublishedLandmarkWalk, PublishedFountainTrail, PublishedMonumentTrail
+    ];
 
     static QuizSeed()
     {
@@ -32,5 +39,18 @@ internal static class QuizSeed
         ArchivedBridge.Publish();
         ArchivedBridge.Retire();
         ArchivedBridge.Archive();
+        PublishedLandmarkWalk = new Quiz("The landmark walk", "Find the landmark.", 100,
+            [new QuizQuestion("Which landmark?", [new QuizAnswer("First", true), new QuizAnswer("Second", false)]),
+             new QuizQuestion("Which year?", [new QuizAnswer("First", false), new QuizAnswer("Second", true)])],
+            45.2517, 19.8369);
+        PublishedLandmarkWalk.Publish();
+        PublishedFountainTrail = new Quiz("The fountain trail", "Follow the fountains.", 25,
+            [new QuizQuestion("Which fountain?", [new QuizAnswer("First", true), new QuizAnswer("Second", false)]),
+             new QuizQuestion("Which statue?", [new QuizAnswer("First", false), new QuizAnswer("Second", true)])]);
+        PublishedFountainTrail.Publish();
+        PublishedMonumentTrail = new Quiz("The monument trail", "Visit the monuments.", 15,
+            [new QuizQuestion("Which monument?", [new QuizAnswer("First", true), new QuizAnswer("Second", false)]),
+             new QuizQuestion("Which sculptor?", [new QuizAnswer("First", false), new QuizAnswer("Second", true)])]);
+        PublishedMonumentTrail.Publish();
     }
 }

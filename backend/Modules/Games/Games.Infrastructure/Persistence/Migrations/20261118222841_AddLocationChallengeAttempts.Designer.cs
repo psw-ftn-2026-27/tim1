@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Games.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(GamesDbContext))]
-    [Migration("20261118214947_AddLocationChallengeAttempts")]
+    [Migration("20261118222841_AddLocationChallengeAttempts")]
     partial class AddLocationChallengeAttempts
     {
         /// <inheritdoc />
@@ -26,6 +26,37 @@ namespace Games.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Games.Domain.ChallengeCompletions.ChallengeCompletion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChallengeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChallengeType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExperiencePointsAwarded")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "ChallengeId")
+                        .IsUnique();
+
+                    b.ToTable("ChallengeCompletions", "games");
+                });
 
             modelBuilder.Entity("Games.Domain.Images.Image", b =>
                 {
@@ -159,6 +190,32 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.ToTable("LocationChallenges", "games");
                 });
 
+            modelBuilder.Entity("Games.Domain.QuizAttempts.QuizAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("QuizId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "QuizId")
+                        .IsUnique();
+
+                    b.ToTable("QuizAttempts", "games");
+                });
+
             modelBuilder.Entity("Games.Domain.Quizzes.Quiz", b =>
                 {
                     b.Property<Guid>("Id")
@@ -270,6 +327,37 @@ namespace Games.Infrastructure.Persistence.Migrations
                         .HasForeignKey("LocationChallengeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Games.Domain.QuizAttempts.QuizAttempt", b =>
+                {
+                    b.OwnsMany("Games.Domain.QuizAttempts.GivenAnswer", "Answers", b1 =>
+                        {
+                            b1.Property<Guid>("QuizAttemptId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("QuestionId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("AnswerIndex")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("AnsweredAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<bool>("IsCorrect")
+                                .HasColumnType("boolean");
+
+                            b1.HasKey("QuizAttemptId", "QuestionId");
+
+                            b1.ToTable("GivenAnswers", "games");
+
+                            b1.WithOwner()
+                                .HasForeignKey("QuizAttemptId");
+                        });
+
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("Games.Domain.Quizzes.QuizQuestion", b =>

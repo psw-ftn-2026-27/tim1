@@ -1,0 +1,17 @@
+<section class="stack">
+  <h2>{{ state().quizName }}: result</h2>
+  <p class="result">Correct answers: {{ state().correctAnswers }} of {{ state().questionCount }}</p>
+  <p class="result">Percent: {{ state().percent }}%</p>
+  <p class="result">XP awarded: {{ state().experiencePointsAwarded }}</p>
+  @if (state().lastAnswerWasCorrect !== null) {
+    <p
+      class="alert"
+      [class.alert--success]="state().lastAnswerWasCorrect"
+      [class.alert--danger]="!state().lastAnswerWasCorrect"
+      role="status"
+    >
+      Your last answer was {{ state().lastAnswerWasCorrect ? 'correct' : 'incorrect' }}.
+    </p>
+  }
+  <p><a class="button" routerLink="/games/play/quizzes">Back to the list</a></p>
+</section>
