@@ -1,0 +1,78 @@
+<div class="stack">
+  <p><a routerLink="/games">← Games</a></p>
+  <div class="heading">
+    <h1>Quizzes</h1>
+    <a class="button button--primary" routerLink="/games/quizzes/new">Create quiz</a>
+  </div>
+
+  @if (error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+  @if (confirmation(); as message) {
+    <p class="alert alert--success" role="status">{{ message }}</p>
+  }
+
+  @if (quizzes.isLoading()) {
+    <p role="status">Loading quizzes…</p>
+  } @else if (quizzes.hasValue()) {
+    @let result = quizzes.value();
+    @if (result.items.length > 0) {
+      <div class="card table-card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (quiz of result.items; track quiz.id) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/games/quizzes', quiz.id, 'edit']">{{ quiz.name }}</a>
+                </td>
+                <td>
+                  <span class="badge">{{ quiz.status }}</span>
+                </td>
+                <td>
+                  <app-quiz-actions
+                    [status]="quiz.status"
+                    [pending]="pending()"
+                    (requested)="changeLifecycle(quiz, $event)"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p>No quizzes on this page.</p>
+    }
+    @if (result.totalCount > pageSize || page() > 1) {
+      <nav class="heading" aria-label="Quiz pages">
+        <button
+          type="button"
+          class="button"
+          [disabled]="pending() || page() === 1"
+          (click)="page.set(page() - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ page() }}</span>
+        <button
+          type="button"
+          class="button"
+          [disabled]="pending() || page() * pageSize >= result.totalCount"
+          (click)="page.set(page() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  } @else {
+    <p class="alert alert--danger" role="alert">Could not load quizzes.</p>
+    <button type="button" class="button" (click)="quizzes.reload()">Try again</button>
+  }
+</div>

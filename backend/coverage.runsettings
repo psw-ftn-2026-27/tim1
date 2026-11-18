@@ -23,7 +23,7 @@
           -->
           <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
           <ExcludeByFile>**/Migrations/**/*.cs,**/*.Designer.cs,**/Program.cs</ExcludeByFile>
-          <Exclude>[*]*.Migrations.*,[*]*Dto,[*]*Dtos.*</Exclude>
+          <Exclude>[*]*.Migrations.*,[*]*Dto,[*]*Dtos.*,[*.Tests]*</Exclude>
           <IncludeTestAssembly>false</IncludeTestAssembly>
         </Configuration>
       </DataCollector>

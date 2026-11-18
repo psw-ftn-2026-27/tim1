@@ -1,0 +1,111 @@
+<form class="stack" (submit)="submit($event)" novalidate>
+  @let form = fields();
+  <div class="field">
+    <label for="quiz-name">Name</label>
+    <input id="quiz-name" type="text" [formField]="form.name" />
+    @if (form.name().touched()) {
+      @for (error of form.name().errors(); track error.kind) {
+        <p class="field-error">{{ error.message }}</p>
+      }
+    }
+  </div>
+  <div class="field">
+    <label for="quiz-instructions">Instructions</label>
+    <textarea id="quiz-instructions" rows="3" [formField]="form.instructions"></textarea>
+    @if (form.instructions().touched()) {
+      @for (error of form.instructions().errors(); track error.kind) {
+        <p class="field-error">{{ error.message }}</p>
+      }
+    }
+  </div>
+  <div class="field">
+    <label for="quiz-xp">XP</label>
+    <input id="quiz-xp" type="number" step="1" [formField]="form.experiencePoints" />
+    @if (form.experiencePoints().touched()) {
+      @for (error of form.experiencePoints().errors(); track error.kind) {
+        <p class="field-error">{{ error.message }}</p>
+      }
+    }
+  </div>
+
+  <section class="stack">
+    <h2>Questions</h2>
+    @for (question of form.questions; track $index; let questionIndex = $index) {
+      <fieldset class="stack">
+        <legend>Question {{ questionIndex + 1 }}</legend>
+        <div class="field">
+          <label [for]="'question-' + questionIndex">Question text</label>
+          <input [id]="'question-' + questionIndex" type="text" [formField]="question.text" />
+        </div>
+        @for (answer of question.answers; track $index; let answerIndex = $index) {
+          <div class="answer">
+            <div class="field">
+              <label [for]="'answer-' + questionIndex + '-' + answerIndex">
+                Answer {{ answerIndex + 1 }}
+              </label>
+              <input
+                [id]="'answer-' + questionIndex + '-' + answerIndex"
+                type="text"
+                [formField]="answer.text"
+              />
+            </div>
+            <button
+              type="button"
+              class="button button--small"
+              [disabled]="pending()"
+              (click)="removeAnswer(questionIndex, answerIndex)"
+            >
+              Remove answer
+            </button>
+          </div>
+        }
+        @if (question.answers().value().length > 0) {
+          <div class="field">
+            <label [for]="'correct-' + questionIndex">Correct answer</label>
+            <select [id]="'correct-' + questionIndex" [formField]="question.correctAnswer">
+              <option value="">Not selected</option>
+              @for (answer of question.answers; track $index) {
+                <option [value]="$index.toString()">Answer {{ $index + 1 }}</option>
+              }
+            </select>
+          </div>
+        }
+        <div class="actions">
+          <button
+            type="button"
+            class="button button--small"
+            [disabled]="pending()"
+            (click)="addAnswer(questionIndex)"
+          >
+            Add answer
+          </button>
+          <button
+            type="button"
+            class="button button--small"
+            [disabled]="pending()"
+            (click)="removeQuestion(questionIndex)"
+          >
+            Remove question
+          </button>
+        </div>
+      </fieldset>
+    }
+    <button type="button" class="button" [disabled]="pending()" (click)="addQuestion()">
+      Add question
+    </button>
+  </section>
+
+  @if (error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+  <div class="actions">
+    <button type="submit" class="button button--primary" [disabled]="pending() || !form().valid()">
+      {{ pending() ? 'Saving…' : saveLabel() }}
+    </button>
+    @if (showCancel()) {
+      <button type="button" class="button" [disabled]="pending()" (click)="cancelled.emit()">
+        Cancel
+      </button>
+    }
+  </div>
+</form>

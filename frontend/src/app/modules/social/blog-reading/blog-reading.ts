@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { CreateCommentDto, UpdateCommentDto } from '../api/social-api-types';
+import { CreateCommentDto, UpdateCommentDto, VoteDto } from '../api/social-api-types';
 
 const BASE_URL = '/api/social/blogs';
 
@@ -19,5 +19,9 @@ export class BlogReading {
 
   async deleteComment(id: string, commentId: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${id}/comments/${commentId}`));
+  }
+
+  async vote(id: string, dto: VoteDto): Promise<void> {
+    await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/votes`, dto));
   }
 }

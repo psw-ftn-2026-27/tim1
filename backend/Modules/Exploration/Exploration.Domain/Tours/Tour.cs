@@ -16,6 +16,8 @@ public sealed class Tour : AggregateRoot
     public List<string> Tags { get; private set; }
     public TourStatus Status { get; private set; }
     public DateTime? PublishedAt { get; private set; }
+    public DateTime? ArchivedAt { get; private set; }
+    public GroupSize GroupSize { get; private set; }
     public IReadOnlyList<TransportTime> TransportTimes => _transportTimes;
 
     private Tour()
@@ -23,9 +25,10 @@ public sealed class Tour : AggregateRoot
         Name = null!;
         Description = null!;
         Tags = null!;
+        GroupSize = null!;
     }
 
-    public Tour(Guid authorId, string name, string description, TourDifficulty difficulty, List<string> tags)
+    public Tour(Guid authorId, string name, string description, TourDifficulty difficulty, List<string> tags, GroupSize groupSize)
         : base(Guid.NewGuid())
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -46,11 +49,16 @@ public sealed class Tour : AggregateRoot
         Description = description;
         Difficulty = difficulty;
         Tags = tags;
+        GroupSize = groupSize;
         Status = TourStatus.Draft;
     }
 
     public void AddTransportTime(TransportMode transport, int minutes)
     {
+        if (Status == TourStatus.Archived)
+        {
+            throw new DomainException("An archived tour cannot get a transport time.");
+        }
         if (_transportTimes.Any(time => time.Transport == transport))
         {
             throw new DomainException($"The tour already has a time for {transport}.");
@@ -59,12 +67,17 @@ public sealed class Tour : AggregateRoot
         _transportTimes.Add(new TransportTime(transport, minutes));
     }
 
-    public void Publish()
+    public void Publish(decimal price)
     {
-        if (Status == TourStatus.Published)
+        if (Status != TourStatus.Draft)
         {
-            throw new DomainException("The tour is already published.");
+            throw new DomainException("Only a draft tour can be published.");
         }
+        if (price < 0)
+        {
+            throw new DomainException("A tour price cannot be negative.");
+        }
+        
         if (Description.Length < MinimumDescriptionLengthForPublishing)
         {
             throw new DomainException($"A tour can be published only with a description of at least {MinimumDescriptionLengthForPublishing} characters.");
@@ -76,5 +89,27 @@ public sealed class Tour : AggregateRoot
 
         Status = TourStatus.Published;
         PublishedAt = DateTime.UtcNow;
+    }
+
+    public void Archive()
+    {
+        if (Status != TourStatus.Published)
+        {
+            throw new DomainException("Only a published tour can be archived.");
+        }
+
+        Status = TourStatus.Archived;
+        ArchivedAt = DateTime.UtcNow;
+    }
+
+    public void Reactivate()
+    {
+        if (Status != TourStatus.Archived)
+        {
+            throw new DomainException("Only an archived tour can be reactivated.");
+        }
+
+        Status = TourStatus.Published;
+        ArchivedAt = null;
     }
 }

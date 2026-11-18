@@ -1,0 +1,73 @@
+<div class="stack">
+  <h1>Your cart</h1>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  @if (bought()) {
+    <p class="alert alert--success">{{ bought() }}</p>
+  }
+
+  @if (buyError()) {
+    <p class="alert alert--danger">
+      {{ buyError() }}
+      <a routerLink="/payment">Top up your wallet</a>
+    </p>
+  }
+
+  @if (cart.isLoading()) {
+    <p>Loading your cart...</p>
+  } @else if (cart.error()) {
+    <p class="alert alert--danger">Could not load your cart. Try again later.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Price</th>
+          <th scope="col">Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of cart.value()?.items ?? []; track item.type + item.entityId) {
+          <tr>
+            <td>{{ item.name }}</td>
+            <td class="amount">{{ item.price }} EC</td>
+            <td>
+              <button
+                class="button button--danger button--small"
+                type="button"
+                [disabled]="pending()"
+                (click)="removeItem(item)"
+              >
+                Remove
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3">Your cart is empty.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <p class="total">Total: <span class="amount">{{ cart.value()?.total ?? 0 }} EC</span></p>
+
+    @if (hasItems()) {
+      <div class="form-actions">
+        <button
+          class="button button--primary"
+          type="button"
+          [disabled]="pending()"
+          (click)="buyProducts()"
+        >
+          Buy products
+        </button>
+      </div>
+    }
+  }
+
+  <a routerLink="/payment/products">Back to the products</a>
+</div>

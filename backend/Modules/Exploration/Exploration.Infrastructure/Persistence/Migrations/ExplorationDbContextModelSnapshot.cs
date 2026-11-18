@@ -59,6 +59,9 @@ namespace Exploration.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid");
 
@@ -87,6 +90,17 @@ namespace Exploration.Infrastructure.Persistence.Migrations
                     b.PrimitiveCollection<List<string>>("Tags")
                         .IsRequired()
                         .HasColumnType("text[]");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "GroupSize", "Exploration.Domain.Tours.Tour.GroupSize#GroupSize", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<int>("Max")
+                                .HasColumnType("integer");
+
+                            b1.Property<int>("Min")
+                                .HasColumnType("integer");
+                        });
 
                     b.HasKey("Id");
 

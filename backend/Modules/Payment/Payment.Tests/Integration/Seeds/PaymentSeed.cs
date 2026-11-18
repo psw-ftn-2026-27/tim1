@@ -3,5 +3,8 @@ namespace Payment.Tests.Integration.Seeds;
 internal static class PaymentSeed
 {
     public static object[] All =>
-        [.. WalletSeed.All, .. TopUpRequestSeed.All, .. WithdrawalRequestSeed.All, .. GiftCardSeed.All];
+    [
+        .. WalletSeed.All, .. TopUpRequestSeed.All, .. WithdrawalRequestSeed.All,
+        .. ProductSeed.All, .. ShoppingCartSeed.All, .. PurchaseSeed.All, .. GiftCardSeed.All
+    ];
 }

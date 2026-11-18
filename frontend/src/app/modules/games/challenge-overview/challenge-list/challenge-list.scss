@@ -1,0 +1,18 @@
+.filters,
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.filters {
+  align-items: flex-end;
+}
+
+.pagination {
+  align-items: center;
+}
+
+.table-card {
+  overflow-x: auto;
+}

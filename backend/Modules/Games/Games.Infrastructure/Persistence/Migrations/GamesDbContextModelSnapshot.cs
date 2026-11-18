@@ -23,6 +23,56 @@ namespace Games.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Games.Domain.Quizzes.Quiz", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExperiencePoints")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Instructions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Quizzes", "games");
+                });
+
+            modelBuilder.Entity("Games.Domain.Quizzes.QuizQuestion", b =>
+                {
+                    b.Property<Guid>("QuizId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("QuizId", "Id");
+
+                    b.ToTable("QuizQuestions", "games");
+                });
+
             modelBuilder.Entity("Games.Domain.SocialChallenges.SocialChallenge", b =>
                 {
                     b.Property<Guid>("Id")
@@ -38,6 +88,9 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.Property<string>("CompletionMessage")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ExperiencePoints")
                         .HasColumnType("integer");
@@ -66,6 +119,48 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SocialChallenges", "games");
+                });
+
+            modelBuilder.Entity("Games.Domain.Quizzes.QuizQuestion", b =>
+                {
+                    b.HasOne("Games.Domain.Quizzes.Quiz", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("Games.Domain.Quizzes.QuizAnswer", "Answers", b1 =>
+                        {
+                            b1.Property<Guid>("QuizQuestionQuizId");
+
+                            b1.Property<Guid>("QuizQuestionId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<bool>("IsCorrect");
+
+                            b1.Property<string>("Text")
+                                .IsRequired();
+
+                            b1.HasKey("QuizQuestionQuizId", "QuizQuestionId", "__synthesizedOrdinal");
+
+                            b1.ToTable("QuizQuestions", "games");
+
+                            b1
+                                .ToJson("Answers")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("QuizQuestionQuizId", "QuizQuestionId");
+                        });
+
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Games.Domain.Quizzes.Quiz", b =>
+                {
+                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }

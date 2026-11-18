@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
 import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { BlogDto } from '../../api/social-api-types';
+import { BlogDetailDto, VoteType } from '../../api/social-api-types';
 import { BlogComments, CommentEdit } from '../blog-comments/blog-comments';
 import { BlogDescription } from '../blog-description/blog-description';
 import { BlogReading } from '../blog-reading';
@@ -21,7 +21,7 @@ export class BlogDetail {
 
   readonly id = input.required<string>();
 
-  protected readonly detail = httpResource<BlogDto>(() => `/api/social/blogs/${this.id()}`);
+  protected readonly detail = httpResource<BlogDetailDto>(() => `/api/social/blogs/${this.id()}`);
 
   protected readonly error = signal<string | null>(null);
 
@@ -52,6 +52,16 @@ export class BlogDetail {
       this.detail.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not delete the comment.'));
+    }
+  }
+
+  protected async vote(type: VoteType): Promise<void> {
+    this.error.set(null);
+    try {
+      await this.blogReading.vote(this.id(), { type });
+      this.detail.reload();
+    } catch (failure) {
+      this.error.set(serverMessage(failure, 'Could not save the vote.'));
     }
   }
 

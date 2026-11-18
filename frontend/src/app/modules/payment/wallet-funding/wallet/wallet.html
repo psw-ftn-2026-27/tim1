@@ -31,11 +31,11 @@
     <div class="card balances">
       <div>
         <p class="meta">Available</p>
-        <p class="balance">{{ wallet.value()?.availableBalance ?? 0 }} RSD</p>
+        <p class="balance">{{ wallet.value()?.availableBalance ?? 0 }} EC</p>
       </div>
       <div>
         <p class="meta">Reserved</p>
-        <p class="balance">{{ wallet.value()?.reservedBalance ?? 0 }} RSD</p>
+        <p class="balance">{{ wallet.value()?.reservedBalance ?? 0 }} EC</p>
       </div>
     </div>
 
@@ -46,6 +46,7 @@
         <tr>
           <th scope="col">Time</th>
           <th scope="col">Type</th>
+          <th scope="col">Product</th>
           <th scope="col">Amount</th>
           <th scope="col">Balance after</th>
         </tr>
@@ -55,12 +56,13 @@
           <tr>
             <td>{{ transaction.occurredAt }}</td>
             <td>{{ transaction.type }}</td>
+            <td>{{ transaction.productName }}</td>
             <td>{{ transaction.amount }}</td>
             <td>{{ transaction.balanceAfter }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">You have no transactions yet.</td>
+            <td colspan="5">You have no transactions yet.</td>
           </tr>
         }
       </tbody>
@@ -103,7 +105,7 @@
 
     <form class="card stack" (submit)="requestTopUp($event)">
       <div class="field">
-        <label for="top-up-amount">Amount in RSD</label>
+        <label for="top-up-amount">Amount in EC</label>
         <input id="top-up-amount" type="number" [formField]="topUpForm.amount" />
         @if (topUpForm.amount().touched()) {
           @for (message of topUpForm.amount().errors(); track $index) {
@@ -129,7 +131,7 @@
 
     <form class="card stack" (submit)="requestWithdrawal($event)">
       <div class="field">
-        <label for="withdrawal-amount">Amount in RSD</label>
+        <label for="withdrawal-amount">Amount in EC</label>
         <input id="withdrawal-amount" type="number" [formField]="withdrawalForm.amount" />
         @if (withdrawalForm.amount().touched()) {
           @for (message of withdrawalForm.amount().errors(); track $index) {
@@ -146,5 +148,9 @@
         Request withdrawal
       </button>
     </form>
+
+    <p>
+      <a class="button button--secondary" routerLink="/payment/products">Browse products</a>
+    </p>
   }
 </div>

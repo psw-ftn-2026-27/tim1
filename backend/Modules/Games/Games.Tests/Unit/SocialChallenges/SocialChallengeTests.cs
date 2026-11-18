@@ -39,6 +39,23 @@ public class SocialChallengeTests
         challenge.Status.Should().Be(SocialChallengeStatus.Draft);
     }
 
+    [Fact]
+    public void Editing_a_social_challenge_preserves_its_utc_creation_time()
+    {
+        var before = DateTime.UtcNow;
+        var challenge = CreateChallenge();
+        var createdAt = challenge.CreatedAt;
+
+        challenge.Update("New name", challenge.ActiveFrom, challenge.ActiveUntil, challenge.RequiredParticipants,
+            challenge.RadiusMeters, challenge.ExperiencePoints, challenge.CompletionMessage, challenge.Latitude,
+            challenge.Longitude);
+
+        createdAt.Should().NotBeNull();
+        createdAt!.Value.Kind.Should().Be(DateTimeKind.Utc);
+        createdAt.Value.Should().BeOnOrAfter(before).And.BeOnOrBefore(DateTime.UtcNow);
+        challenge.CreatedAt.Should().Be(createdAt);
+    }
+
     [Theory]
     [InlineData("", "Bravo, zajedno ste prošetali kej!")]
     [InlineData("   ", "Bravo, zajedno ste prošetali kej!")]

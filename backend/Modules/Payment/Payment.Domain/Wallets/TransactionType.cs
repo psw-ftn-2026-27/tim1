@@ -6,5 +6,7 @@ public enum TransactionType
     Reservation,
     Payout,
     ReservationReturn,
+    Purchase,
+    Sale,
     GiftCardPurchase
 }

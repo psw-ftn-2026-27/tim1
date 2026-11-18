@@ -1,7 +1,12 @@
 using Games.Application;
+using Games.Application.ChallengeOverview;
+using Games.Application.QuizManagement;
+using Games.Application.Quizzes;
 using Games.Application.SocialChallengeManagement;
 using Games.Application.SocialChallenges;
 using Games.Infrastructure.Persistence;
+using Games.Infrastructure.Persistence.ChallengeOverview;
+using Games.Infrastructure.Persistence.Quizzes;
 using Games.Infrastructure.Persistence.SocialChallenges;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +28,13 @@ public static class GamesModuleExtensions
 
         services.AddScoped<SocialChallengeManagementService>();
         services.AddScoped<SocialChallengeManagementQueries>();
+
+        services.AddScoped<IQuizRepository, QuizRepository>();
+        services.AddScoped<IQuizReadRepository, QuizReadRepository>();
+        services.AddScoped<QuizManagementService>();
+        services.AddScoped<QuizManagementQueries>();
+        services.AddScoped<IChallengeOverviewReadRepository, ChallengeOverviewReadRepository>();
+        services.AddScoped<ChallengeOverviewQueries>();
 
         return services;
     }
