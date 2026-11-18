@@ -30,4 +30,11 @@ public sealed class ClubRolesController : ControllerBase
         await _rolesService.TransferOwnershipAsync(id, User.GetUserId(), memberId);
         return NoContent();
     }
+
+    [HttpDelete("{id:guid}/members/{memberId:guid}")]
+    public async Task<ActionResult> RemoveMember(Guid id, Guid memberId)
+    {
+        await _rolesService.RemoveMemberAsync(id, User.GetUserId(), memberId);
+        return NoContent();
+    }
 }

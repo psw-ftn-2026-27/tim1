@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { ClubDto, ClubMemberDto, MyMembershipDto } from '../../api/social-api-types';
+import { ClubDto, ClubMemberDto, ClubRole, MyMembershipDto } from '../../api/social-api-types';
 import { ClubBrowsing } from '../club-browsing';
 
 @Component({
@@ -32,8 +32,20 @@ export class ClubDetail {
     const role = this.membership.value()?.role;
     return role === 'Owner' || role === 'Moderator';
   });
+  protected readonly isModerator = computed(() => this.membership.value()?.role === 'Moderator');
   protected readonly roleError = signal<string | null>(null);
   protected readonly transferringToUserId = signal<string | null>(null);
+  protected readonly removingUserId = signal<string | null>(null);
+
+  protected canRemove(memberRole: ClubRole): boolean {
+    if (this.isOwner()) {
+      return memberRole !== 'Owner';
+    }
+    if (this.isModerator()) {
+      return memberRole === 'Member';
+    }
+    return false;
+  }
 
   protected async join(): Promise<void> {
     this.pending.set(true);
@@ -65,6 +77,7 @@ export class ClubDetail {
     this.pending.set(true);
     this.roleError.set(null);
     this.transferringToUserId.set(null);
+    this.removingUserId.set(null);
     try {
       await this.clubBrowsing.promoteToModerator(this.id(), memberId);
       this.membership.reload();
@@ -78,6 +91,7 @@ export class ClubDetail {
 
   protected startTransfer(memberId: string): void {
     this.roleError.set(null);
+    this.removingUserId.set(null);
     this.transferringToUserId.set(memberId);
   }
 
@@ -96,6 +110,31 @@ export class ClubDetail {
     } catch (failure) {
       this.transferringToUserId.set(null);
       this.roleError.set(serverMessage(failure, 'Could not transfer the ownership.'));
+    } finally {
+      this.pending.set(false);
+    }
+  }
+
+  protected startRemove(memberId: string): void {
+    this.roleError.set(null);
+    this.transferringToUserId.set(null);
+    this.removingUserId.set(memberId);
+  }
+
+  protected cancelRemove(): void {
+    this.removingUserId.set(null);
+  }
+
+  protected async confirmRemove(memberId: string): Promise<void> {
+    this.pending.set(true);
+    this.roleError.set(null);
+    try {
+      await this.clubBrowsing.removeMember(this.id(), memberId);
+      this.removingUserId.set(null);
+      this.members.reload();
+    } catch (failure) {
+      this.removingUserId.set(null);
+      this.roleError.set(serverMessage(failure, 'Could not remove the member.'));
     } finally {
       this.pending.set(false);
     }
