@@ -48,27 +48,18 @@
   <div class="field">
     <span class="label">Location</span>
     <p class="meta hint">Click the map to choose the location.</p>
-    <div class="field">
-      <span class="label">Route preview</span>
-      <div class="options">
-        @for (mode of modes; track mode) {
-          <button
-            type="button"
-            class="option"
-            [class.option--active]="routeForm.mode().value() === mode"
-            (click)="routeForm.mode().value.set(mode)"
-          >
-            {{ mode }}
-          </button>
-        }
-      </div>
-    </div>
     <app-map
       [pins]="mapPins()"
       [routeRequest]="routeRequest()"
       [selectionEnabled]="!pending()"
       (locationSelected)="pickLocation($event)"
+      (routeLengthKm)="routeLengthKm.set($event)"
     />
+    @if (lengthKm(); as km) {
+      <p class="meta hint">Walking route length: {{ km.toFixed(2) }} km</p>
+    } @else if (lengthKm() === null) {
+      <p class="meta hint">Calculating the walking route length...</p>
+    }
     @if (fields().location().value(); as location) {
       <p class="meta hint">
         Chosen: {{ location.latitude.toFixed(5) }}, {{ location.longitude.toFixed(5) }}
@@ -81,7 +72,7 @@
   <button
     class="button button--primary"
     type="submit"
-    [disabled]="!fields()().valid() || imageError() !== null || imagesSending() || pending()"
+    [disabled]="!fields()().valid() || imageError() !== null || imagesSending() || lengthKm() === null || pending()"
   >
     {{ saveLabel() }}
   </button>

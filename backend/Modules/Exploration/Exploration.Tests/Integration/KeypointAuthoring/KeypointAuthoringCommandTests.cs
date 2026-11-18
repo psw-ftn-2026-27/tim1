@@ -21,10 +21,12 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
     public KeypointAuthoringCommandTests(ExplorationApiFactory factory) : base(factory) { }
 
     private static AddKeypointDto NewKeypoint(Guid imageId) =>
-        new("Nova tačka", "Opis nove tačke.", imageId, "Tajna", new CoordinateDto(45.3, 19.9));
+        new("Nova tačka", "Opis nove tačke.", imageId, "Tajna", new CoordinateDto(45.3, 19.9), 7.5);
 
     private static UpdateKeypointDto Update(Guid imageId) =>
-        new("Izmenjena tačka", "Izmenjen opis.", imageId, null, new CoordinateDto(45.4, 19.95));
+        new("Izmenjena tačka", "Izmenjen opis.", imageId, null, new CoordinateDto(45.4, 19.95), 6.5);
+
+    private static string LengthUrl(Guid tourId) => $"/api/exploration/tours/{tourId}/length";
 
     private const string ImageUploadUrl = "/api/exploration/tours/keypoint-images";
 
@@ -56,7 +58,7 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
         var stored = assertContext.Tours.Single(tour => tour.Id == DraftId);
         stored.Keypoints.Should().HaveCount(keypointCountBefore + 1);
         stored.Keypoints.Should().Contain(keypoint => keypoint.Name == request.Name && !keypoint.PubliclyVisible);
-        stored.Length.Should().BeGreaterThan(TourSeed.DraftWithKeypoints.Length);
+        stored.Length.Should().Be(request.LengthKm);
         assertContext.Images.Single(image => image.Id == UnattachedImageId).Status.Should().Be(ImageStatus.Attached);
     }
 
@@ -87,6 +89,40 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
         assertContext.Tours.Single(tour => tour.Id == DraftId).Keypoints.Should().NotContain(keypoint => keypoint.Id == DraftKeypointId);
+    }
+
+    [Fact]
+    public async Task Author_sets_the_length_of_a_draft_tour()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var response = await client.PutAsJsonAsync(LengthUrl(DraftId), new SetTourLengthDto(1.5));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        using var assertContext = Factory.CreateContext<ExplorationDbContext>();
+        assertContext.Tours.Single(tour => tour.Id == DraftId).Length.Should().Be(1.5);
+    }
+
+    [Fact]
+    public async Task Tour_length_is_not_set_to_a_negative_value()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
+
+        var response = await client.PutAsJsonAsync(LengthUrl(DraftId), new SetTourLengthDto(-1));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var assertContext = Factory.CreateContext<ExplorationDbContext>();
+        assertContext.Tours.Single(tour => tour.Id == DraftId).Length.Should().Be(TourSeed.DraftWithKeypoints.Length);
+    }
+
+    [Fact]
+    public async Task Explorer_cannot_set_the_length_of_another_authors_tour()
+    {
+        var client = Factory.CreateClientFor(WellKnownUsers.SecondExplorer, "explorer");
+
+        var response = await client.PutAsJsonAsync(LengthUrl(DraftId), new SetTourLengthDto(1.5));
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -325,15 +361,15 @@ public class KeypointAuthoringCommandTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Keypoint_visibility_is_not_changed_in_a_tour_that_is_not_a_draft()
+    public async Task Author_changes_the_visibility_of_a_keypoint_in_a_published_tour()
     {
         var client = Factory.CreateClientFor(WellKnownUsers.Explorer, "explorer");
 
         var response = await client.PutAsJsonAsync(VisibilityUrl(PublishedId, PublishedKeypointId), new SetKeypointVisibilityDto(false));
 
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
-        assertContext.Tours.Single(tour => tour.Id == PublishedId).Keypoints.Single(keypoint => keypoint.Id == PublishedKeypointId).PubliclyVisible.Should().BeTrue();
+        assertContext.Tours.Single(tour => tour.Id == PublishedId).Keypoints.Single(keypoint => keypoint.Id == PublishedKeypointId).PubliclyVisible.Should().BeFalse();
     }
 
     [Fact]

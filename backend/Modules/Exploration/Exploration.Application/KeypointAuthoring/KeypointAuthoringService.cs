@@ -59,6 +59,7 @@ public sealed class KeypointAuthoringService
 
         tour.AddKeypoint(dto.Name, dto.Description, dto.ImageId, dto.Secret, dto.PubliclyVisible,
             new Coordinate(dto.Location.Latitude, dto.Location.Longitude));
+        tour.SetLength(dto.LengthKm);
         image.AttachToKeypoint(authorId);
         await _unitOfWork.SaveChangesAsync();
     }
@@ -73,6 +74,7 @@ public sealed class KeypointAuthoringService
 
         tour.UpdateKeypoint(keypointId, dto.Name, dto.Description, dto.ImageId, dto.Secret,
             new Coordinate(dto.Location.Latitude, dto.Location.Longitude));
+        tour.SetLength(dto.LengthKm);
         newImage?.AttachToKeypoint(authorId);
         await _unitOfWork.SaveChangesAsync();
     }
@@ -82,6 +84,15 @@ public sealed class KeypointAuthoringService
         var tour = await GetOwnedTourAsync(tourId, authorId);
 
         tour.RemoveKeypoint(keypointId);
+        await _unitOfWork.SaveChangesAsync();
+    }
+
+    // Removing a keypoint sends no length, so the client measures the new route and sends it here.
+    public async Task SetTourLengthAsync(Guid tourId, Guid authorId, SetTourLengthDto dto)
+    {
+        var tour = await GetOwnedTourAsync(tourId, authorId);
+
+        tour.SetLength(dto.LengthKm);
         await _unitOfWork.SaveChangesAsync();
     }
 

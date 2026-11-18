@@ -1,7 +1,7 @@
 import { Component, WritableSignal, computed, input, output, signal } from '@angular/core';
 import { FormField, form, required, validate } from '@angular/forms/signals';
 import { ImageUpload } from '../../../../shared/ui/image-upload/image-upload';
-import { Map, type MapPin, type MapRouteMode } from '../../../../shared/ui/map/map';
+import { Map, type MapPin } from '../../../../shared/ui/map/map';
 
 export interface KeypointFormValue {
   name: string;
@@ -10,6 +10,8 @@ export interface KeypointFormValue {
   secret: string | null;
   publiclyVisible: boolean;
   location: MapPin;
+  // The walking route through all the tour's keypoints, including this one, measured by the map.
+  lengthKm: number;
 }
 
 // What the form edits. The page owns it, so the page decides what the form starts with.
@@ -58,9 +60,8 @@ export class KeypointForm {
 
   protected readonly imageIds = signal<string[]>([]);
   protected readonly imagesSending = signal(false);
-  protected readonly modes: MapRouteMode[] = ['Walking', 'Bicycle', 'Car'];
-
-  protected readonly routeForm = form(signal({ mode: 'Walking' as MapRouteMode }));
+  // What the map last measured; it is null while the route is being calculated or cannot be found.
+  protected readonly routeLengthKm = signal<number | null>(null);
 
   // The pins the map shows: the tour's keypoints with the chosen location in them. On add the
   // chosen location is the new last pin; on edit it takes the place of the edited keypoint's pin.
@@ -76,10 +77,16 @@ export class KeypointForm {
     return this.pins().map((pin, position) => (position === index ? location : pin));
   });
 
+  // The tour length is always the walking route.
   protected readonly routeRequest = computed(() => ({
     points: this.mapPins(),
-    mode: this.routeForm.mode().value(),
+    mode: 'Walking' as const,
   }));
+
+  // A single point has no route, so the tour is 0 km long; otherwise wait for the map.
+  protected readonly lengthKm = computed<number | null>(() =>
+    this.mapPins().length < 2 ? 0 : this.routeLengthKm(),
+  );
 
   // The one image the keypoint will have: the uploaded one, or else the current one.
   protected readonly imageId = computed<string | null>(() => {
@@ -106,7 +113,8 @@ export class KeypointForm {
     const state = this.fields()();
     const imageId = this.imageId();
     const { name, description, secret, publiclyVisible, location } = state.value();
-    if (this.pending() || !state.valid() || imageId === null || location === null) {
+    const lengthKm = this.lengthKm();
+    if (this.pending() || !state.valid() || imageId === null || location === null || lengthKm === null) {
       return;
     }
     this.save.emit({
@@ -116,6 +124,7 @@ export class KeypointForm {
       secret: secret.trim() === '' ? null : secret,
       publiclyVisible,
       location,
+      lengthKm,
     });
   }
 }

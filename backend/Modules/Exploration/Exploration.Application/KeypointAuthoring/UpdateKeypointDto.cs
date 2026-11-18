@@ -5,4 +5,5 @@ public sealed record UpdateKeypointDto(
     string Description,
     Guid ImageId,
     string? Secret,
-    CoordinateDto Location);
+    CoordinateDto Location,
+    double LengthKm);

@@ -52,6 +52,13 @@ public sealed class KeypointAuthoringController : ControllerBase
         return NoContent();
     }
 
+    [HttpPut("{id:guid}/length")]
+    public async Task<ActionResult> SetTourLength(Guid id, SetTourLengthDto dto)
+    {
+        await _keypointService.SetTourLengthAsync(id, User.GetUserId(), dto);
+        return NoContent();
+    }
+
     [HttpPut("{id:guid}/keypoints/{keypointId:guid}/visibility")]
     public async Task<ActionResult> SetKeypointVisibility(Guid id, Guid keypointId, SetKeypointVisibilityDto dto)
     {

@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { CreateTourDto, PublishTourDto, TransportTimeDto } from '../api/exploration-api-types';
+import {
+  CreateTourDto,
+  PublishTourDto,
+  SetTourLengthDto,
+  TransportTimeDto,
+} from '../api/exploration-api-types';
 
 const BASE_URL = '/api/exploration/tours';
 
@@ -31,6 +36,10 @@ export class TourAuthoring {
 
   async removeKeypoint(tourId: string, keypointId: string): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}`));
+  }
+
+  async setLength(tourId: string, dto: SetTourLengthDto): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${tourId}/length`, dto));
   }
 
   async setKeypointVisibility(

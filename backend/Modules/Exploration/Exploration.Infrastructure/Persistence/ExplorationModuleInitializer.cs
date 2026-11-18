@@ -54,6 +54,7 @@ internal sealed class ExplorationModuleInitializer : IHostedService
         fortress.AddTransportTime(TransportMode.Walking, 120);
         fortress.AddKeypoint("Početak", "Polazna tačka ture.", CreateAttachedImage(images), null, true, new Coordinate(45.2517, 19.8647));
         fortress.AddKeypoint("Kraj", "Završna tačka ture.", CreateAttachedImage(images), null, false, new Coordinate(45.2530, 19.8610));
+        fortress.SetLength(2.7);
         fortress.Publish(0);
 
         var fruskaGora = new Tour(FirstExplorer, "Biciklom preko Fruške gore",
@@ -62,6 +63,7 @@ internal sealed class ExplorationModuleInitializer : IHostedService
         fruskaGora.AddTransportTime(TransportMode.Bicycle, 240);
         fruskaGora.AddKeypoint("Početak", "Polazna tačka ture.", CreateAttachedImage(images), null, true, new Coordinate(45.2290, 19.8640));
         fruskaGora.AddKeypoint("Kraj", "Završna tačka ture.", CreateAttachedImage(images), null, false, new Coordinate(45.1560, 19.7220));
+        fruskaGora.SetLength(2.7);
         fruskaGora.Publish(0);
 
         var cityCenter = new Tour(FirstExplorer, "Obilazak centra grada",
@@ -74,6 +76,7 @@ internal sealed class ExplorationModuleInitializer : IHostedService
         vineyards.AddTransportTime(TransportMode.Car, 90);
         vineyards.AddKeypoint("Početak", "Polazna tačka ture.", CreateAttachedImage(images), null, true, new Coordinate(45.2000, 20.0960));
         vineyards.AddKeypoint("Kraj", "Završna tačka ture.", CreateAttachedImage(images), null, false, new Coordinate(45.2050, 20.1000));
+        vineyards.SetLength(2.7);
         vineyards.Publish(0);
         vineyards.Archive();
 

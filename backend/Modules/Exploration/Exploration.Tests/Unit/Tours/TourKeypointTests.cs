@@ -57,13 +57,13 @@ public class TourKeypointTests
     }
 
     [Fact]
-    public void Keypoint_visibility_cannot_be_changed_in_a_tour_that_is_not_a_draft()
+    public void Keypoint_visibility_can_be_changed_in_a_published_tour()
     {
         var tour = CreatePublishedTour();
 
-        var change = () => tour.SetKeypointVisibility(tour.Keypoints[0].Id, true);
+        tour.SetKeypointVisibility(tour.Keypoints[0].Id, true);
 
-        change.Should().Throw<DomainException>();
+        tour.Keypoints[0].PubliclyVisible.Should().BeTrue();
     }
 
     [Theory]
@@ -93,39 +93,35 @@ public class TourKeypointTests
     }
 
     [Fact]
-    public void Tour_length_is_the_sum_of_distances_between_consecutive_keypoints_after_adding_one()
+    public void Tour_length_is_set_in_kilometers()
     {
         var tour = CreateDraftTour();
-        tour.AddKeypoint("Prva tačka", "Opis prve tačke.", Guid.NewGuid(), null, false, Start);
-        tour.AddKeypoint("Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, false, Middle);
 
-        tour.AddKeypoint("Treća tačka", "Opis treće tačke.", Guid.NewGuid(), null, false, End);
+        tour.SetLength(12.5);
 
-        tour.Length.Should().BeApproximately(Start.DistanceTo(Middle) + Middle.DistanceTo(End), 0.0001);
+        tour.Length.Should().Be(12.5);
+    }
+
+    [Theory]
+    [InlineData(-0.1)]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    public void Tour_length_that_is_not_a_non_negative_number_is_rejected(double lengthKm)
+    {
+        var tour = CreateDraftTour();
+
+        var change = () => tour.SetLength(lengthKm);
+
+        change.Should().Throw<DomainException>();
     }
 
     [Fact]
-    public void Tour_length_is_recalculated_after_a_keypoint_location_changes()
+    public void Tour_length_cannot_be_set_in_a_tour_that_is_not_a_draft()
     {
-        var tour = CreateDraftTour();
-        tour.AddKeypoint("Prva tačka", "Opis prve tačke.", Guid.NewGuid(), null, false, Start);
-        tour.AddKeypoint("Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, false, Middle);
+        var tour = CreatePublishedTour();
 
-        tour.UpdateKeypoint(tour.Keypoints[1].Id, "Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, End);
+        var change = () => tour.SetLength(5);
 
-        tour.Length.Should().BeApproximately(Start.DistanceTo(End), 0.0001);
-    }
-
-    [Fact]
-    public void Tour_length_is_recalculated_after_a_keypoint_is_removed()
-    {
-        var tour = CreateDraftTour();
-        tour.AddKeypoint("Prva tačka", "Opis prve tačke.", Guid.NewGuid(), null, false, Start);
-        tour.AddKeypoint("Druga tačka", "Opis druge tačke.", Guid.NewGuid(), null, false, Middle);
-        tour.AddKeypoint("Treća tačka", "Opis treće tačke.", Guid.NewGuid(), null, false, End);
-
-        tour.RemoveKeypoint(tour.Keypoints[1].Id);
-
-        tour.Length.Should().BeApproximately(Start.DistanceTo(End), 0.0001);
+        change.Should().Throw<DomainException>();
     }
 }

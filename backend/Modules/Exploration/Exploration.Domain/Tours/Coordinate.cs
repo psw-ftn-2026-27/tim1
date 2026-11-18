@@ -4,8 +4,6 @@ namespace Exploration.Domain.Tours;
 
 public sealed record Coordinate
 {
-    private const double EarthRadiusKm = 6371.0;
-
     public double Latitude { get; private init; }
     public double Longitude { get; private init; }
 
@@ -25,17 +23,4 @@ public sealed record Coordinate
         Latitude = latitude;
         Longitude = longitude;
     }
-
-    public double DistanceTo(Coordinate other)
-    {
-        var latitudeDifference = ToRadians(other.Latitude - Latitude);
-        var longitudeDifference = ToRadians(other.Longitude - Longitude);
-        var a = Math.Sin(latitudeDifference / 2) * Math.Sin(latitudeDifference / 2)
-            + Math.Cos(ToRadians(Latitude)) * Math.Cos(ToRadians(other.Latitude))
-            * Math.Sin(longitudeDifference / 2) * Math.Sin(longitudeDifference / 2);
-
-        return EarthRadiusKm * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-    }
-
-    private static double ToRadians(double degrees) => degrees * Math.PI / 180;
 }

@@ -49,6 +49,7 @@ export class AddKeypoint {
         secret: value.secret,
         publiclyVisible: value.publiclyVisible,
         location: value.location,
+        lengthKm: value.lengthKm,
       });
       await this.router.navigate(['/exploration/tour', this.id(), 'edit']);
     } catch (failure) {

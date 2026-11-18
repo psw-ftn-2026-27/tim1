@@ -51,6 +51,11 @@ a.button--primary {
   gap: var(--space-2);
 }
 
+// "Make public" and "Make private" share one width, so the button does not jump when it toggles.
+.visibility-toggle {
+  min-width: 7.5rem;
+}
+
 // Route mode: one choice at a time, the chosen button is outlined in the accent colour.
 .options {
   display: flex;

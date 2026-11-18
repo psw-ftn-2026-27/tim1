@@ -81,10 +81,40 @@ export class EditTour {
     mode: this.routeForm.mode().value(),
   }));
 
+  // After a removal the page waits for the map to measure the remaining walking route; this is
+  // the number of keypoints that route has. Null means nothing is waiting.
+  private readonly pinCountAwaitingLength = signal<number | null>(null);
+
   protected async remove(keypoint: KeypointDto): Promise<void> {
+    const remaining = this.pins().length - 1;
+    await this.run(async () => {
+      await this.tourAuthoring.removeKeypoint(this.id(), keypoint.id);
+      if (remaining < 2) {
+        // Fewer than two keypoints have no route, so there is nothing to measure.
+        await this.tourAuthoring.setLength(this.id(), { lengthKm: 0 });
+      } else {
+        this.routeForm.mode().value.set('Walking');
+        this.pinCountAwaitingLength.set(remaining);
+      }
+    }, 'Could not remove the keypoint.');
+  }
+
+  // The map reports a length every time its route changes. Only the first walking length
+  // measured for the remaining keypoints after a removal is sent to the server.
+  protected async saveMeasuredLength(lengthKm: number | null): Promise<void> {
+    const waitingFor = this.pinCountAwaitingLength();
+    if (
+      lengthKm === null ||
+      waitingFor === null ||
+      this.pins().length !== waitingFor ||
+      this.routeForm.mode().value() !== 'Walking'
+    ) {
+      return;
+    }
+    this.pinCountAwaitingLength.set(null);
     await this.run(
-      () => this.tourAuthoring.removeKeypoint(this.id(), keypoint.id),
-      'Could not remove the keypoint.',
+      () => this.tourAuthoring.setLength(this.id(), { lengthKm }),
+      'Could not save the tour length.',
     );
   }
 

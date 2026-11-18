@@ -80,6 +80,7 @@ export class EditKeypoint {
         imageId: value.imageId,
         secret: value.secret,
         location: value.location,
+        lengthKm: value.lengthKm,
       });
       await this.router.navigate(['/exploration/tour', this.id(), 'edit']);
     } catch (failure) {

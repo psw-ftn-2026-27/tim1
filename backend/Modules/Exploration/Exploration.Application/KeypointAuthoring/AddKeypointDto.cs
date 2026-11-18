@@ -6,4 +6,5 @@ public sealed record AddKeypointDto(
     Guid ImageId,
     string? Secret,
     CoordinateDto Location,
+    double LengthKm,
     bool PubliclyVisible = false);

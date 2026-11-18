@@ -76,7 +76,6 @@ public sealed class Tour : AggregateRoot
         EnsureDraft();
 
         _keypoints.Add(new Keypoint(name, description, imageId, secret, publiclyVisible, location));
-        RecalculateLength();
     }
 
     public void UpdateKeypoint(Guid keypointId, string name, string description, Guid imageId, string? secret, Coordinate location)
@@ -84,7 +83,6 @@ public sealed class Tour : AggregateRoot
         EnsureDraft();
 
         FindKeypoint(keypointId).Update(name, description, imageId, secret, location);
-        RecalculateLength();
     }
 
     public void RemoveKeypoint(Guid keypointId)
@@ -92,13 +90,22 @@ public sealed class Tour : AggregateRoot
         EnsureDraft();
 
         _keypoints.Remove(FindKeypoint(keypointId));
-        RecalculateLength();
+    }
+
+    // The length is measured on the map by the client; the domain only checks that it is a sensible number.
+    public void SetLength(double lengthKm)
+    {
+        EnsureDraft();
+        if (double.IsNaN(lengthKm) || double.IsInfinity(lengthKm) || lengthKm < 0)
+        {
+            throw new DomainException("A tour length cannot be negative.");
+        }
+
+        Length = lengthKm;
     }
 
     public void SetKeypointVisibility(Guid keypointId, bool publiclyVisible)
     {
-        EnsureDraft();
-
         FindKeypoint(keypointId).SetPubliclyVisible(publiclyVisible);
     }
 
@@ -168,15 +175,5 @@ public sealed class Tour : AggregateRoot
             throw new NotFoundException($"Keypoint {keypointId} does not exist.");
         }
         return keypoint;
-    }
-
-    private void RecalculateLength()
-    {
-        var length = 0.0;
-        for (var index = 1; index < _keypoints.Count; index++)
-        {
-            length += _keypoints[index - 1].Location.DistanceTo(_keypoints[index].Location);
-        }
-        Length = length;
     }
 }

@@ -79,6 +79,7 @@ export interface AddKeypointDto {
   imageId: string;
   secret: string | null;
   location: CoordinateDto;
+  lengthKm: number;
   publiclyVisible: boolean;
 }
 
@@ -88,6 +89,11 @@ export interface UpdateKeypointDto {
   imageId: string;
   secret: string | null;
   location: CoordinateDto;
+  lengthKm: number;
+}
+
+export interface SetTourLengthDto {
+  lengthKm: number;
 }
 
 export interface SetKeypointVisibilityDto {

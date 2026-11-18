@@ -21,9 +21,11 @@
             Publish
           </button>
         }
-        <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
-          Add keypoint
-        </a>
+        @if (details.status === 'Draft') {
+          <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
+            Add keypoint
+          </a>
+        }
       </div>
     </header>
 
@@ -66,7 +68,7 @@
 
     <section class="card stack">
       <p class="description">{{ details.description }}</p>
-      <p class="meta">Length: {{ details.length.toFixed(2) }} km</p>
+      <p class="meta">Walking length: {{ details.length.toFixed(2) }} km</p>
 
       <div class="field">
         <span class="label">Route preview</span>
@@ -84,7 +86,11 @@
         </div>
       </div>
 
-      <app-map [pins]="pins()" [routeRequest]="routeRequest()" />
+      <app-map
+        [pins]="pins()"
+        [routeRequest]="routeRequest()"
+        (routeLengthKm)="saveMeasuredLength($event)"
+      />
     </section>
 
     <h2>Transport times</h2>
@@ -180,32 +186,36 @@
                 <td>{{ keypoint.name }}</td>
                 <td>
                   <span class="badge" [class.badge--success]="keypoint.publiclyVisible">
-                    {{ keypoint.publiclyVisible ? 'Public' : 'Hidden' }}
+                    {{ keypoint.publiclyVisible ? 'Public' : 'Private' }}
                   </span>
                 </td>
                 <td class="actions">
-                  <a
-                    class="button button--small"
-                    [routerLink]="['/exploration/tour', id(), 'keypoint', keypoint.id, 'edit']"
-                  >
-                    Edit
-                  </a>
+                  @if (details.status === 'Draft') {
+                    <a
+                      class="button button--small"
+                      [routerLink]="['/exploration/tour', id(), 'keypoint', keypoint.id, 'edit']"
+                    >
+                      Edit
+                    </a>
+                  }
                   <button
-                    class="button button--small"
+                    class="button button--small visibility-toggle"
                     type="button"
                     [disabled]="pending()"
                     (click)="setVisibility(keypoint)"
                   >
-                    {{ keypoint.publiclyVisible ? 'Hide' : 'Show' }}
+                    {{ keypoint.publiclyVisible ? 'Make private' : 'Make public' }}
                   </button>
-                  <button
-                    class="button button--small button--danger"
-                    type="button"
-                    [disabled]="pending()"
-                    (click)="remove(keypoint)"
-                  >
-                    Remove
-                  </button>
+                  @if (details.status === 'Draft') {
+                    <button
+                      class="button button--small button--danger"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="remove(keypoint)"
+                    >
+                      Remove
+                    </button>
+                  }
                 </td>
               </tr>
             } @empty {
