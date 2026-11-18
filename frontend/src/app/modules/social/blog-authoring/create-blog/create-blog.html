@@ -1,8 +1,18 @@
-<div class="card stack">
-  <h1>Create blog</h1>
+<div class="page-narrow">
+  <a class="back" routerLink="/social/mine">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>My blogs</span>
+  </a>
 
-  <form class="stack" (submit)="submit($event)">
-    <div class="field">
+  <div class="page-header">
+    <div>
+      <h1>Create blog</h1>
+      <p>The blog is saved as a draft. You can publish it from My blogs.</p>
+    </div>
+  </div>
+
+  <form class="card stack" (submit)="submit($event)">
+    <div class="field" [class.field--error]="form.title().touched() && form.title().invalid()">
       <label for="title">Title</label>
       <input id="title" type="text" [formField]="form.title" />
       @if (form.title().touched()) {
@@ -12,9 +22,20 @@
       }
     </div>
 
-    <div class="field">
+    <div
+      class="field"
+      [class.field--error]="form.description().touched() && form.description().invalid()"
+    >
       <label for="description">Description</label>
-      <textarea id="description" rows="6" [formField]="form.description"></textarea>
+      <textarea
+        id="description"
+        class="markdown"
+        aria-describedby="description-hint"
+        [formField]="form.description"
+      ></textarea>
+      <p id="description-hint" class="meta">
+        Markdown is supported: **bold**, *italic*, lists with “-” and headings with “#”.
+      </p>
       @if (form.description().touched()) {
         @for (message of form.description().errors(); track $index) {
           <p class="error">{{ message.message }}</p>
@@ -23,7 +44,8 @@
     </div>
 
     <div class="field">
-      <span class="label">Slike</span>
+      <!-- A <label> needs one control, and the images have several, so this is a plain heading. -->
+      <span class="label">Images (optional)</span>
       <app-image-upload
         [upload]="uploadImage"
         (imageIds)="imageIds.set($event)"
@@ -32,11 +54,18 @@
     </div>
 
     @if (error()) {
-      <p class="error">{{ error() }}</p>
+      <p class="alert alert--danger" role="alert">{{ error() }}</p>
     }
 
-    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending() || imagesSending()">
-      Create
-    </button>
+    <div class="form-actions end">
+      <a class="button" routerLink="/social/mine">Cancel</a>
+      <button
+        class="button button--primary"
+        type="submit"
+        [disabled]="!form().valid() || pending() || imagesSending()"
+      >
+        {{ pending() ? 'Creating…' : 'Create' }}
+      </button>
+    </div>
   </form>
 </div>

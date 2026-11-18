@@ -315,7 +315,8 @@ Otvorena je najviše jedna potvrda na stranici.
 <app-protected-image class="thumb thumb--sm" [src]="…" />
 ```
 
-Kvadrat 56px (`--sm`: 44px), slika ispunjava kvadrat (`object-fit: cover`).
+Kvadrat 56px (`--sm`: 44px), slika ispunjava kvadrat (`object-fit: cover`). `--wide` je slika
+pune širine u odnosu 16:9 (naslovna slika kartice, velika slika galerije).
 
 ### Obaveštenje `.notice`
 

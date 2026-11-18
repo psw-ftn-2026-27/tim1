@@ -18,6 +18,8 @@ export class BlogComments {
   readonly currentUserId = input<string | null>(null);
   // An archived blog shows its comments without the form for a new comment.
   readonly archived = input(false);
+  // True while the page runs a command; the buttons wait for it.
+  readonly disabled = input(false);
 
   readonly addComment = output<string>();
   readonly editComment = output<CommentEdit>();
@@ -52,6 +54,11 @@ export class BlogComments {
 
   // The server sends dates as ISO text; this shows them in the reader's local time.
   protected formatDate(value: string): string {
-    return new Date(value).toLocaleString('sr-Latn');
+    return new Date(value).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  }
+
+  // First letter of the author's name for the avatar; "?" when the server has no name.
+  protected initial(name: string | null): string {
+    return name ? name.charAt(0) : '?';
   }
 }

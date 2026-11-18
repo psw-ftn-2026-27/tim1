@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ImageUpload } from '../../../../shared/ui/image-upload/image-upload';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { BlogAuthoring } from '../blog-authoring';
 
 @Component({
-  imports: [FormField, ImageUpload],
+  imports: [FormField, ImageUpload, RouterLink],
   selector: 'app-create-blog',
   styleUrl: './create-blog.scss',
   templateUrl: './create-blog.html',
