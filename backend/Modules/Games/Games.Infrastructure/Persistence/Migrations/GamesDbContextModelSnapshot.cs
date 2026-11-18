@@ -24,6 +24,37 @@ namespace Games.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Games.Domain.ChallengeCompletions.ChallengeCompletion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ChallengeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChallengeType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ExperiencePointsAwarded")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PlayerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId", "ChallengeId")
+                        .IsUnique();
+
+                    b.ToTable("ChallengeCompletions", "games");
+                });
+
             modelBuilder.Entity("Games.Domain.Images.Image", b =>
                 {
                     b.Property<Guid>("Id")
@@ -112,37 +143,6 @@ namespace Games.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LocationChallenges", "games");
-                });
-
-            modelBuilder.Entity("Games.Domain.ChallengeCompletions.ChallengeCompletion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ChallengeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ChallengeType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<DateTime>("CompletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("ExperiencePointsAwarded")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("PlayerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PlayerId", "ChallengeId")
-                        .IsUnique();
-
-                    b.ToTable("ChallengeCompletions", "games");
                 });
 
             modelBuilder.Entity("Games.Domain.QuizAttempts.QuizAttempt", b =>
@@ -311,7 +311,7 @@ namespace Games.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("QuizAttemptId");
                         });
-                    b.Navigation("Answers");
+
                     b.Navigation("Answers");
                 });
 
