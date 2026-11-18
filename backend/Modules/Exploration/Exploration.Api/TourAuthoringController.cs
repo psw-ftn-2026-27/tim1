@@ -36,9 +36,9 @@ public sealed class TourAuthoringController : ControllerBase
     }
 
     [HttpPost("{id:guid}/publish")]
-    public async Task<ActionResult> Publish(Guid id)
+    public async Task<ActionResult> Publish(Guid id, PublishTourDto dto)
     {
-        await _authoringService.PublishAsync(id, User.GetUserId());
+        await _authoringService.PublishAsync(id, User.GetUserId(), dto);
         return NoContent();
     }
 

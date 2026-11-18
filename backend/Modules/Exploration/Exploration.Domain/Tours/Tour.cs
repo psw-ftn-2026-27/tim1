@@ -17,6 +17,7 @@ public sealed class Tour : AggregateRoot
     public TourStatus Status { get; private set; }
     public DateTime? PublishedAt { get; private set; }
     public DateTime? ArchivedAt { get; private set; }
+    public GroupSize GroupSize { get; private set; }
     public IReadOnlyList<TransportTime> TransportTimes => _transportTimes;
 
     private Tour()
@@ -24,9 +25,10 @@ public sealed class Tour : AggregateRoot
         Name = null!;
         Description = null!;
         Tags = null!;
+        GroupSize = null!;
     }
 
-    public Tour(Guid authorId, string name, string description, TourDifficulty difficulty, List<string> tags)
+    public Tour(Guid authorId, string name, string description, TourDifficulty difficulty, List<string> tags, GroupSize groupSize)
         : base(Guid.NewGuid())
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -47,6 +49,7 @@ public sealed class Tour : AggregateRoot
         Description = description;
         Difficulty = difficulty;
         Tags = tags;
+        GroupSize = groupSize;
         Status = TourStatus.Draft;
     }
 
@@ -64,12 +67,17 @@ public sealed class Tour : AggregateRoot
         _transportTimes.Add(new TransportTime(transport, minutes));
     }
 
-    public void Publish()
+    public void Publish(decimal price)
     {
         if (Status != TourStatus.Draft)
         {
             throw new DomainException("Only a draft tour can be published.");
         }
+        if (price < 0)
+        {
+            throw new DomainException("A tour price cannot be negative.");
+        }
+        
         if (Description.Length < MinimumDescriptionLengthForPublishing)
         {
             throw new DomainException($"A tour can be published only with a description of at least {MinimumDescriptionLengthForPublishing} characters.");
