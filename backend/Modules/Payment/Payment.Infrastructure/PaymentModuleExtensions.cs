@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Payment.Application;
 using Payment.Application.Checkout;
 using Payment.Application.GiftCards;
+using Payment.Application.Coupons;
 using Payment.Application.ProductCatalog;
 using Payment.Application.PurchaseVerification;
 using Payment.Application.Products;
@@ -14,9 +15,11 @@ using Payment.Application.WalletRequestReview;
 using Payment.Application.Wallets;
 using Payment.Application.WithdrawalRequests;
 using Payment.Contracts;
+using Payment.Domain.Coupons;
 using Payment.Domain.Purchases;
 using Payment.Infrastructure.Persistence;
 using Payment.Infrastructure.Persistence.GiftCards;
+using Payment.Infrastructure.Persistence.Coupons;
 using Payment.Infrastructure.Persistence.Products;
 using Payment.Infrastructure.Persistence.Purchases;
 using Payment.Infrastructure.Persistence.ShoppingCarts;
@@ -59,12 +62,15 @@ public static class PaymentModuleExtensions
         services.AddScoped<IPurchaseReadRepository, PurchaseReadRepository>();
         services.AddScoped<IGiftCardRepository, GiftCardRepository>();
         services.AddScoped<IGiftCardReadRepository, GiftCardReadRepository>();
+        services.AddScoped<ICouponRepository, CouponRepository>();
+        services.AddScoped<ICouponReadRepository, CouponReadRepository>();
     }
 
     private static void AddDomainServices(IServiceCollection services)
     {
         services.AddScoped<CartAddition>();
         services.AddScoped<CartCheckout>();
+        services.AddScoped<CouponIssuance>();
     }
 
     private static void AddUseCases(IServiceCollection services)
@@ -81,5 +87,7 @@ public static class PaymentModuleExtensions
         services.AddScoped<ShoppingCartQueries>();
         services.AddScoped<CheckoutService>();
         services.AddScoped<PurchaseVerificationQueries>();
+        services.AddScoped<CouponsService>();
+        services.AddScoped<CouponsQueries>();
     }
 }

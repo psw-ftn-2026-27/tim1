@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.back {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+// A link that looks like a button: no underline, and the button's text colour on hover.
+.create {
+  text-decoration: none;
+}
+
+.create:hover {
+  color: var(--color-accent-text);
+}

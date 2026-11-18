@@ -117,3 +117,23 @@ export interface RecipientDto {
   id: string;
   displayName: string;
 }
+
+export interface CouponDto {
+  id: string;
+  code: string;
+  percent: number;
+  expiresAt: string;
+  productName: string | null;
+  used: boolean;
+}
+
+export interface OwnedProductDto {
+  id: string;
+  name: string;
+}
+
+export interface CreateCouponDto {
+  productId: string | null;
+  percent: number;
+  expiresAt: string;
+}

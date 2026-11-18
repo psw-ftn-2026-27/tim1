@@ -1,0 +1,49 @@
+<div class="stack">
+  <div class="header">
+    <a class="back" routerLink="/payment/products" aria-label="Back to the products">←</a>
+    <h1>My coupons</h1>
+  </div>
+
+  @if (coupons.isLoading()) {
+    <p>Loading coupons...</p>
+  } @else if (coupons.error()) {
+    <p class="alert alert--danger">Could not load the coupons. Try again later.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">Discount</th>
+          <th scope="col">Valid until</th>
+          <th scope="col">Product</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (coupon of coupons.value() ?? []; track coupon.id) {
+          <tr>
+            <td>{{ coupon.code }}</td>
+            <td>{{ coupon.percent }}%</td>
+            <td>{{ coupon.expiresAt }}</td>
+            <td>{{ coupon.productName ?? 'Any product' }}</td>
+            <td>
+              @if (coupon.used) {
+                <span class="badge badge--info">Used</span>
+              } @else {
+                <span class="badge badge--success">Unused</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5">You have not created any coupons yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <div class="actions">
+    <a class="button button--primary create" routerLink="/payment/coupons/create">Create coupon</a>
+  </div>
+</div>
