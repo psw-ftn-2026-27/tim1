@@ -1,6 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Analytics } from '../../../../core/analytics/analytics';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { ProductDto } from '../../api/payment-api-types';
 import { ProductCatalog } from '../product-catalog';
@@ -13,6 +14,7 @@ import { ProductCatalog } from '../product-catalog';
 })
 export class Products {
   private readonly productCatalog = inject(ProductCatalog);
+  private readonly analytics = inject(Analytics);
 
   protected readonly products = httpResource<ProductDto[]>(() => '/api/payment/products');
   protected readonly itemCount = httpResource<number>(() => '/api/payment/cart/item-count');
@@ -27,6 +29,11 @@ export class Products {
     this.added.set(null);
     try {
       await this.productCatalog.addToCart({ type: product.type, entityId: product.entityId });
+      this.analytics.track('add_to_cart', {
+        product_type: product.type,
+        product_id: product.entityId,
+        price: product.price,
+      });
       this.added.set(`${product.name} is in your cart.`);
       this.products.reload();
       this.itemCount.reload();
