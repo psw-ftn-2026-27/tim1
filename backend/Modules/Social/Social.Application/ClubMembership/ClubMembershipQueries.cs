@@ -1,3 +1,4 @@
+using Identity.Contracts;
 using Shared.Domain.Exceptions;
 using Social.Application.Clubs;
 
@@ -6,10 +7,12 @@ namespace Social.Application.ClubMembership;
 public sealed class ClubMembershipQueries
 {
     private readonly IClubReadRepository _clubReadRepository;
+    private readonly IIdentityApi _identityApi;
 
-    public ClubMembershipQueries(IClubReadRepository clubReadRepository)
+    public ClubMembershipQueries(IClubReadRepository clubReadRepository, IIdentityApi identityApi)
     {
         _clubReadRepository = clubReadRepository;
+        _identityApi = identityApi;
     }
 
     public async Task<List<ClubMemberDto>> GetMembersAsync(Guid clubId)
@@ -20,7 +23,13 @@ public sealed class ClubMembershipQueries
             throw new NotFoundException($"Club {clubId} does not exist.");
         }
 
-        return members;
+        var memberIds = members.Select(member => member.UserId).ToList();
+        var users = await _identityApi.GetUsersAsync(memberIds);
+        var displayNames = users.ToDictionary(user => user.Id, user => user.DisplayName);
+
+        return members
+            .Select(member => member with { DisplayName = displayNames.GetValueOrDefault(member.UserId, "") })
+            .ToList();
     }
 
     public async Task<MyMembershipDto> GetMyMembershipAsync(Guid clubId, Guid userId)

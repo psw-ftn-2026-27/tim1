@@ -126,6 +126,7 @@ export type ClubRole = 'Owner' | 'Moderator' | 'Member';
 
 export interface ClubMemberDto {
   userId: string;
+  displayName: string;
   role: ClubRole;
 }
 
@@ -133,6 +134,7 @@ export type MembershipStatus = 'NotMember' | 'PendingRequest' | 'Member';
 
 export interface MyMembershipDto {
   status: MembershipStatus;
+  role: ClubRole | null;
 }
 
 export interface MembershipRequestDto {

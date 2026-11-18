@@ -43,7 +43,7 @@ internal sealed class ClubReadRepository : IClubReadRepository
         return _dbContext.Clubs
             .Where(club => club.Id == clubId)
             .Select(club => club.Members
-                .Select(member => new ClubMemberDto(member.UserId, member.Role))
+                .Select(member => new ClubMemberDto(member.UserId, "", member.Role))
                 .ToList())
             .FirstOrDefaultAsync();
     }
@@ -57,7 +57,11 @@ internal sealed class ClubReadRepository : IClubReadRepository
                     ? MembershipStatus.Member
                     : club.MembershipRequests.Any(request => request.UserId == userId)
                         ? MembershipStatus.PendingRequest
-                        : MembershipStatus.NotMember))
+                        : MembershipStatus.NotMember,
+                club.Members
+                    .Where(member => member.UserId == userId)
+                    .Select(member => (ClubRole?)member.Role)
+                    .FirstOrDefault()))
             .FirstOrDefaultAsync();
     }
 
