@@ -33,18 +33,38 @@ public static class PaymentModuleExtensions
         services.AddHostedService<PaymentModuleInitializer>();
         services.AddAutoMapper(mapper => mapper.AddProfile<PaymentMapperProfile>());
 
+        AddRepositories(services);
+        AddDomainServices(services);
+        AddUseCases(services);
+
+        services.AddScoped<IPaymentApi, PaymentApi>();
+
+        return services;
+    }
+
+    private static void AddRepositories(IServiceCollection services)
+    {
+        services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<PaymentDbContext>());
         services.AddScoped<IWalletRepository, WalletRepository>();
+        services.AddScoped<IWalletReadRepository, WalletReadRepository>();
         services.AddScoped<ITopUpRequestRepository, TopUpRequestRepository>();
         services.AddScoped<IWithdrawalRequestRepository, WithdrawalRequestRepository>();
-        services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<PaymentDbContext>());
-        services.AddScoped<IWalletReadRepository, WalletReadRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IProductReadRepository, ProductReadRepository>();
         services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
         services.AddScoped<IShoppingCartReadRepository, ShoppingCartReadRepository>();
         services.AddScoped<IPurchaseRepository, PurchaseRepository>();
         services.AddScoped<IPurchaseReadRepository, PurchaseReadRepository>();
+    }
 
+    private static void AddDomainServices(IServiceCollection services)
+    {
+        services.AddScoped<CartAddition>();
+        services.AddScoped<CartCheckout>();
+    }
+
+    private static void AddUseCases(IServiceCollection services)
+    {
         services.AddScoped<WalletFundingService>();
         services.AddScoped<WalletFundingQueries>();
         services.AddScoped<WalletRequestReviewService>();
@@ -53,14 +73,7 @@ public static class PaymentModuleExtensions
         services.AddScoped<ProductCatalogQueries>();
         services.AddScoped<ShoppingCartService>();
         services.AddScoped<ShoppingCartQueries>();
-        services.AddScoped<CartAddition>();
-        services.AddScoped<CartCheckout>();
         services.AddScoped<CheckoutService>();
-
         services.AddScoped<PurchaseVerificationQueries>();
-
-        services.AddScoped<IPaymentApi, PaymentApi>();
-
-        return services;
     }
 }
