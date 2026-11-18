@@ -1,4 +1,5 @@
 using Games.Application.ChallengeOverview;
+using Games.Domain.LocationChallenges;
 using Games.Domain.Quizzes;
 using Games.Domain.SocialChallenges;
 using Microsoft.EntityFrameworkCore;
@@ -33,8 +34,16 @@ internal sealed class ChallengeOverviewReadRepository : IChallengeOverviewReadRe
             Status = challenge.Status.ToString(),
             challenge.CreatedAt
         });
+        var locationChallenges = _dbContext.LocationChallenges.Select(challenge => new
+        {
+            challenge.Id,
+            challenge.Name,
+            Type = nameof(LocationChallenge),
+            Status = challenge.Status.ToString(),
+            CreatedAt = (DateTime?)challenge.CreatedAt
+        });
 
-        var challenges = quizzes.Concat(socialChallenges);
+        var challenges = quizzes.Concat(socialChallenges).Concat(locationChallenges);
         var hasChallenges = await challenges.AnyAsync();
 
         if (!string.IsNullOrEmpty(name))
