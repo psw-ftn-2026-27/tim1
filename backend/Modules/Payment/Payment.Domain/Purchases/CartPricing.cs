@@ -30,7 +30,7 @@ public sealed class CartPricing
 
             var discountedItem = FindDiscountedItem(cart, products, coupon);
             couponReference = discountedItem.Reference;
-            couponDiscount = Math.Round(discountedItem.Price * coupon.Percent / 100m, 2);
+            couponDiscount = Math.Round(discountedItem.Price * coupon.Percent / 100m, 2, MidpointRounding.AwayFromZero);
         }
 
         var afterCoupon = total - couponDiscount;

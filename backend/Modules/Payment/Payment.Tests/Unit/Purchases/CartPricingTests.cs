@@ -139,4 +139,40 @@ public class CartPricingTests
 
         pricing.Should().Throw<DomainException>();
     }
+
+    [Fact]
+    public void Coupon_discount_is_rounded_to_cents_away_from_zero()
+    {
+        var cheapTour = new Product(CityWalk, "Walk through the old town", 12.50m, Seller);
+        var cart = new ShoppingCart(Buyer);
+        cart.AddItem(CityWalk, cheapTour.Name, cheapTour.Price);
+        var coupon = CreateCoupon(cheapTour.Id, 25);
+
+        var price = new CartPricing().Calculate(cart, [cheapTour], coupon, null, DateTime.UtcNow);
+
+        price.CouponDiscount.Should().Be(3.13m);
+    }
+
+    [Fact]
+    public void Coupon_of_a_hundred_percent_makes_its_item_free()
+    {
+        var cart = CreateCartWithTheRideAlone();
+        var coupon = CreateCoupon(Ride.Id, 100);
+
+        var price = new CartPricing().Calculate(cart, CreateProducts(), coupon, null, DateTime.UtcNow);
+
+        price.FinalPrice.Should().Be(0);
+    }
+
+    [Fact]
+    public void Gift_card_equal_to_the_price_of_the_cart_makes_it_free_and_loses_nothing()
+    {
+        var cart = CreateCartWithTheRideAlone();
+        var giftCard = CreateGiftCard(900m);
+
+        var price = new CartPricing().Calculate(cart, CreateProducts(), null, giftCard, DateTime.UtcNow);
+
+        price.FinalPrice.Should().Be(0);
+        price.CardLost.Should().Be(0);
+    }
 }
