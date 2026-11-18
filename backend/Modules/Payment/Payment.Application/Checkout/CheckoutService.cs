@@ -15,6 +15,7 @@ public sealed class CheckoutService
     private readonly IProductRepository _productRepository;
     private readonly IWalletRepository _walletRepository;
     private readonly IPurchaseRepository _purchaseRepository;
+    private readonly CheckoutDiscounts _discounts;
     private readonly CartCheckout _cartCheckout;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -23,6 +24,7 @@ public sealed class CheckoutService
         IProductRepository productRepository,
         IWalletRepository walletRepository,
         IPurchaseRepository purchaseRepository,
+        CheckoutDiscounts discounts,
         CartCheckout cartCheckout,
         IUnitOfWork unitOfWork)
     {
@@ -30,6 +32,7 @@ public sealed class CheckoutService
         _productRepository = productRepository;
         _walletRepository = walletRepository;
         _purchaseRepository = purchaseRepository;
+        _discounts = discounts;
         _cartCheckout = cartCheckout;
         _unitOfWork = unitOfWork;
     }
@@ -37,9 +40,11 @@ public sealed class CheckoutService
     /// <summary>
     /// Pays for everything the customer has in their cart. The wallets, the purchases and the
     /// emptied cart are written by the single save at the end, so a checkout the domain refuses
-    /// leaves the database untouched.
+    /// leaves the database untouched. The coupon and the gift card, when given, are looked up
+    /// here and spent by the domain, which prices the cart itself instead of trusting a price
+    /// from the client.
     /// </summary>
-    public async Task CheckoutAsync(Guid customerId)
+    public async Task CheckoutAsync(Guid customerId, string? couponCode, Guid? giftCardId)
     {
         var cart = await _cartRepository.GetByOwnerAsync(customerId);
         if (cart is null)
@@ -53,7 +58,11 @@ public sealed class CheckoutService
         var sellerWallets = await SellerWalletsOfAsync(products);
         var ownedPurchases = await _purchaseRepository.GetOfBuyerAsync(customerId, references);
 
-        var purchases = _cartCheckout.Checkout(cart, products, buyerWallet, sellerWallets, ownedPurchases);
+        var coupon = await _discounts.FindCouponAsync(couponCode);
+        var giftCard = await _discounts.FindGiftCardAsync(giftCardId);
+
+        var purchases = _cartCheckout.Checkout(
+            cart, products, buyerWallet, sellerWallets, ownedPurchases, coupon, giftCard);
         foreach (var purchase in purchases)
         {
             _purchaseRepository.Add(purchase);

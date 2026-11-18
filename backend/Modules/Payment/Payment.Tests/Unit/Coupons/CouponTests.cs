@@ -37,6 +37,28 @@ public class CouponTests
     }
 
     [Fact]
+    public void Used_coupon_cannot_be_used_again()
+    {
+        var coupon = new Coupon(WellKnownUsers.Explorer, null, 20, DateTime.UtcNow.AddDays(7));
+        coupon.Use(DateTime.UtcNow);
+
+        var usage = () => coupon.Use(DateTime.UtcNow);
+
+        usage.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void Expired_coupon_cannot_be_used()
+    {
+        var coupon = new Coupon(WellKnownUsers.Explorer, null, 20, DateTime.UtcNow.AddDays(7));
+
+        var usage = () => coupon.Use(DateTime.UtcNow.AddDays(8));
+
+        usage.Should().Throw<DomainException>();
+        coupon.UsedAt.Should().BeNull();
+    }
+
+    [Fact]
     public void New_coupon_gets_a_code_of_eight_characters()
     {
         var coupon = new Coupon(WellKnownUsers.Explorer, null, 20, DateTime.UtcNow.AddDays(7));

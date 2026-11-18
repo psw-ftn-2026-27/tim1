@@ -25,5 +25,19 @@ internal static class CouponSeed
         50,
         DateTime.UtcNow.AddDays(30));
 
-    public static Coupon[] All => [DemoExplorersTourCoupon, DemoExplorersAnyProductCoupon, ForgottenOwnersCoupon];
+    /// <summary>A coupon of the forgotten owner that has already been spent.</summary>
+    public static readonly Coupon ForgottenOwnersUsedCoupon;
+
+    static CouponSeed()
+    {
+        ForgottenOwnersUsedCoupon = new Coupon(
+            ProductSeed.TourOfAForgottenOwner.OwnerId,
+            ProductSeed.TourOfAForgottenOwner.Id,
+            20,
+            DateTime.UtcNow.AddDays(30));
+        ForgottenOwnersUsedCoupon.Use(DateTime.UtcNow);
+    }
+
+    public static Coupon[] All =>
+        [DemoExplorersTourCoupon, DemoExplorersAnyProductCoupon, ForgottenOwnersCoupon, ForgottenOwnersUsedCoupon];
 }

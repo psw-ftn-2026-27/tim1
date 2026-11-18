@@ -130,6 +130,12 @@ namespace Payment.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("BuyerId")
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("CouponDiscount")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid?>("CouponId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
