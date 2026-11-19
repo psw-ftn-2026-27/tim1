@@ -1,27 +1,31 @@
-<section class="stack">
-  <h2>{{ state().quizName }}</h2>
-  <p>XP: {{ state().experiencePoints }}</p>
+<section class="card stack" aria-label="Start the quiz">
   @if (quizPin().length > 0) {
-    <p>Click the map to choose your position. You must be close to the quiz location.</p>
-    <app-map
-      [pins]="quizPin()"
-      [selectionEnabled]="!pending()"
-      (locationSelected)="position.set($event)"
-    />
+    <p class="group-label">
+      Where are you? <span class="hint">· click the map to set your position</span>
+    </p>
+    <app-map [pins]="quizPin()" [selectionEnabled]="!pending()" (locationSelected)="position.set($event)" />
     @if (position(); as chosen) {
-      <p>Chosen position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+      <p class="meta">Your position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+    } @else {
+      <p class="meta">No position set yet.</p>
     }
   } @else {
-    <p>This quiz has no location. You can start it right away.</p>
+    <p class="meta">This quiz has no location, so you can start it right away.</p>
   }
-  <div class="actions">
+
+  @if (error(); as message) {
+    <p class="alert alert--danger" role="alert">{{ message }}</p>
+  }
+
+  <div class="card-footer">
+    <p class="meta">Once started, you can leave and continue later from the list.</p>
     <button
       type="button"
       class="button button--primary"
       [disabled]="pending() || (quizPin().length > 0 && !position())"
       (click)="activate()"
     >
-      Activate
+      {{ pending() ? 'Activating…' : 'Activate' }}
     </button>
   </div>
 </section>

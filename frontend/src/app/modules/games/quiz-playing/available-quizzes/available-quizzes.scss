@@ -1,11 +1,6 @@
-.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.table-card {
-  overflow-x: auto;
+// Kartice kvizova: najmanje 320px po kartici
+.quiz-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
 }

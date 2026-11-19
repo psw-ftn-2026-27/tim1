@@ -1,5 +1,10 @@
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+.group-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-normal);
 }

@@ -1,62 +1,73 @@
 <div class="stack">
-  <p><a routerLink="/games">← Games</a></p>
-  <h1>Quizzes</h1>
+  <a class="back" routerLink="/games">← Games</a>
+
+  <div class="page-header">
+    <div>
+      <h1>Quizzes</h1>
+      <p>Quizzes you haven't solved yet. The more answers you get right, the more XP you earn.</p>
+    </div>
+  </div>
 
   @if (quizzes.isLoading()) {
-    <p role="status">Loading quizzes…</p>
+    <p class="empty empty--boxed" role="status">Loading quizzes…</p>
+  } @else if (quizzes.error()) {
+    <p class="alert alert--danger" role="alert">Couldn't load quizzes. Check your connection and try again.</p>
+    <div>
+      <button type="button" class="button" (click)="quizzes.reload()">Try again</button>
+    </div>
   } @else if (quizzes.hasValue()) {
     @let result = quizzes.value();
     @if (result.items.length > 0) {
-      <div class="card table-card">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">XP</th>
-              <th scope="col">Marks</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (quiz of result.items; track quiz.id) {
-              <tr>
-                <td>
-                  <a [routerLink]="['/games/play/quizzes', quiz.id]">{{ quiz.name }}</a>
-                </td>
-                <td>{{ quiz.experiencePoints }}</td>
-                <td>
-                  @if (quiz.hasLocation) {
-                    <span class="badge">Location</span>
-                  }
-                  @if (quiz.inProgress) {
-                    <span class="badge">In progress</span>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="quiz-grid">
+        @for (quiz of result.items; track quiz.id) {
+          <a class="quiz-card" [routerLink]="['/games/play/quizzes', quiz.id]">
+            <div class="quiz-card__tags">
+              @if (quiz.hasLocation) {
+                <span class="badge">
+                  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+                  At a place
+                </span>
+              } @else {
+                <span class="badge">
+                  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" /></svg>
+                  Anywhere
+                </span>
+              }
+              @if (quiz.inProgress) {
+                <span class="badge badge--accent">In progress</span>
+              }
+            </div>
+            <h2 class="quiz-card__name">{{ quiz.name }}</h2>
+            <div class="quiz-card__footer">
+              <span class="xp">up to {{ quiz.experiencePoints }} XP</span>
+              <span class="tile-cta">{{ quiz.inProgress ? 'Continue →' : 'Open →' }}</span>
+            </div>
+          </a>
+        }
       </div>
     } @else {
-      <p>No quizzes on this page.</p>
+      <div class="empty empty--boxed">
+        <span class="empty-icon">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14" /><path d="M12 17h.01" /></svg>
+        </span>
+        <p>No quizzes to solve right now.</p>
+      </div>
     }
     @if (result.totalCount > pageSize || page() > 1) {
-      <nav class="heading" aria-label="Quiz pages">
-        <button type="button" class="button" [disabled]="page() === 1" (click)="page.set(page() - 1)">
-          Previous
+      <nav class="pager" aria-label="Quiz pages">
+        <button type="button" class="button button--small" [disabled]="page() === 1" (click)="page.set(page() - 1)">
+          ← Previous
         </button>
-        <span>Page {{ page() }}</span>
+        <span class="meta">Page {{ page() }} of {{ totalPages(result.totalCount) }}</span>
         <button
           type="button"
-          class="button"
+          class="button button--small"
           [disabled]="page() * pageSize >= result.totalCount"
           (click)="page.set(page() + 1)"
         >
-          Next
+          Next →
         </button>
       </nav>
     }
-  } @else {
-    <p class="alert alert--danger" role="alert">Could not load quizzes.</p>
-    <button type="button" class="button" (click)="quizzes.reload()">Try again</button>
   }
 </div>
