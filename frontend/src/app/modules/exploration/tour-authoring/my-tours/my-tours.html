@@ -1,102 +1,238 @@
-<div class="stack">
-  <header class="heading">
-    <h1>Tours</h1>
+<div class="exploration">
+  <div class="page-header">
+    <div class="title-block">
+      <h1>Tours</h1>
+      <nav class="tabs" aria-label="Tours">
+        <a routerLink="/exploration">All tours</a>
+        <a routerLink="/exploration/mine" class="active" aria-current="page">My tours</a>
+      </nav>
+    </div>
+    <a class="button button--primary" routerLink="/exploration/create">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+      Create tour
+    </a>
+  </div>
 
-    <nav class="tabs" aria-label="Tours">
-      <a class="tab" routerLink="/exploration">All tours</a>
-      <a class="tab tab--active" routerLink="/exploration/mine" aria-current="page">My tours</a>
-    </nav>
-
-    <nav class="header-actions">
-      <a class="button button--primary" routerLink="/exploration/create">Create tour</a>
-    </nav>
-  </header>
-
-  @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
+  @if (error(); as message) {
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>{{ message }}</p>
+      <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+    </div>
   }
 
-  @if (tours.isLoading()) {
-    <p class="meta">Loading your tours...</p>
+  @if (tours.isLoading() && !tours.hasValue()) {
+    <p class="empty empty--boxed" role="status">Loading your tours…</p>
   } @else if (tours.error()) {
-    <p class="alert alert--danger">Could not load your tours. Log in and try again.</p>
-  } @else if ((tours.value() ?? []).length === 0) {
-    <p class="empty">You have no tours yet.</p>
-  } @else {
-    <div class="grid">
-      @for (tour of tours.value(); track tour.id) {
-        <article class="card tour">
-          <div class="top">
-            <span
-              class="badge"
-              [class.badge--success]="tour.difficulty === 'Easy'"
-              [class.badge--warning]="tour.difficulty === 'Moderate'"
-              [class.badge--danger]="tour.difficulty === 'Hard'"
-            >
-              {{ tour.difficulty }}
-            </span>
-            <span
-              class="badge"
-              [class.badge--warning]="tour.status === 'Draft'"
-              [class.badge--success]="tour.status === 'Published'"
-            >
-              {{ tour.status }}
-            </span>
-          </div>
-
-          <h3>{{ tour.name }}</h3>
-
-          <p class="description">{{ tour.description }}</p>
-
-          @if (tour.transportTimes.length > 0) {
-            <ul class="times">
-              @for (time of tour.transportTimes; track time.transport) {
-                <li class="time">{{ time.transport }} · {{ time.minutes }} min</li>
-              }
-            </ul>
-          } @else {
-            <p class="meta">No transport times yet.</p>
-          }
-
-          @if (tour.tags.length > 0) {
-            <ul class="tags">
-              @for (tag of tour.tags; track tag) {
-                <li>#{{ tag }}</li>
-              }
-            </ul>
-          }
-
-          <div class="actions">
-            @if (tour.status !== 'Archived') {
-              <a
-                class="button button--small"
-                [routerLink]="['/exploration/tour', tour.id, 'edit']"
-              >
-                Manage tour
-              </a>
-            }
-            @if (tour.status === 'Published') {
-              <button
-                class="button button--small button--danger"
-                type="button"
-                [disabled]="pending()"
-                (click)="archive(tour.id)"
-              >
-                Archive
-              </button>
-            } @else if (tour.status === 'Archived') {
-              <button
-                class="button button--small"
-                type="button"
-                [disabled]="pending()"
-                (click)="reactivate(tour.id)"
-              >
-                Reactivate
-              </button>
-            }
-          </div>
-        </article>
-      }
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load your tours. Log in and try again.</p>
     </div>
+  } @else if (tours.hasValue()) {
+    @let list = tours.value();
+    @if (list.length === 0) {
+      <div class="empty empty--boxed">
+        <span class="empty-icon">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12" /></svg>
+        </span>
+        <h2>You haven’t created any tours yet</h2>
+        <a class="button button--primary" routerLink="/exploration/create">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+          Create tour
+        </a>
+      </div>
+    } @else {
+      <section class="table-card">
+        <div class="table-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="num">Length</th>
+                <th scope="col">Transport</th>
+                <th scope="col" class="end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tour of list; track tour.id) {
+                <tr>
+                  <td class="name"><strong>{{ tour.name }}</strong></td>
+                  <td>
+                    <span [class]="'badge badge--' + tour.status.toLowerCase()">{{ tour.status }}</span>
+                  </td>
+                  <td class="num">
+                    @if (tour.length > 0) {
+                      {{ formatLength(tour.length) }} km
+                    } @else {
+                      <span class="meta" aria-label="No length yet">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (tour.transportTimes.length > 0) {
+                      <ul class="chips">
+                        @for (time of tour.transportTimes; track time.transport) {
+                          <li class="chip">
+                            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                            {{ time.transport }} · {{ time.minutes }} min
+                          </li>
+                        }
+                      </ul>
+                    } @else {
+                      <span class="meta">No times yet</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      @if (tour.status === 'Draft') {
+                        <a class="button button--small" [routerLink]="['/exploration/tour', tour.id, 'edit']">
+                          Manage tour
+                        </a>
+                      }
+                      @if (tour.status !== 'Archived' && transportsWithoutTime(tour).length > 0) {
+                        <button
+                          class="button button--small"
+                          type="button"
+                          [disabled]="pending()"
+                          [attr.aria-expanded]="isOpen(tour.id, 'time')"
+                          (click)="openTime(tour)"
+                        >
+                          Add time
+                        </button>
+                      }
+                      @if (tour.status === 'Draft') {
+                        <button
+                          class="button button--small button--primary"
+                          type="button"
+                          [disabled]="pending()"
+                          [attr.aria-expanded]="isOpen(tour.id, 'publish')"
+                          (click)="openPublish(tour.id)"
+                        >
+                          Publish
+                        </button>
+                      } @else if (tour.status === 'Published') {
+                        <button class="button button--small" type="button" [disabled]="pending()" (click)="archive(tour.id)">
+                          Archive
+                        </button>
+                      } @else {
+                        <button class="button button--small" type="button" [disabled]="pending()" (click)="reactivate(tour.id)">
+                          Reactivate
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+
+                @if (isOpen(tour.id, 'publish')) {
+                  <tr class="sub-row">
+                    <td colspan="5">
+                      <form class="inline-panel" (submit)="publish($event, tour)" novalidate>
+                        <h3>Publish “{{ tour.name }}”</h3>
+
+                        @if (panelError(); as message) {
+                          <div class="alert alert--danger" role="alert">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+                            <p>{{ message }}</p>
+                          </div>
+                        }
+
+                        <div class="radio-row" role="radiogroup" aria-label="Price">
+                          <label><input type="radio" value="Free" [formField]="publishForm.charge" /> Free tour</label>
+                          <label><input type="radio" value="Paid" [formField]="publishForm.charge" /> Paid tour</label>
+                        </div>
+
+                        @if (publishForm.charge().value() === 'Paid') {
+                          @let showError = publishForm.price().touched() && publishForm.price().invalid();
+                          <div class="field price-field" [class.field--error]="showError">
+                            <label for="price-{{ tour.id }}">Price (RSD)</label>
+                            <input
+                              id="price-{{ tour.id }}"
+                              type="number"
+                              [attr.aria-describedby]="showError ? 'price-error-' + tour.id : null"
+                              [formField]="publishForm.price"
+                            />
+                            @if (showError) {
+                              @for (problem of publishForm.price().errors(); track problem.kind) {
+                                <p class="error" id="price-error-{{ tour.id }}">
+                                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+                                  {{ problem.message }}
+                                </p>
+                              }
+                            }
+                          </div>
+                        }
+
+                        <div class="form-actions">
+                          <button class="button button--primary" type="submit" [disabled]="pending()">
+                            Publish tour
+                          </button>
+                          <button class="button" type="button" (click)="closePanel()">Cancel</button>
+                        </div>
+                      </form>
+                    </td>
+                  </tr>
+                }
+
+                @if (isOpen(tour.id, 'time')) {
+                  <tr class="sub-row">
+                    <td colspan="5">
+                      <form class="inline-panel" (submit)="addTime($event, tour.id)" novalidate>
+                        <h3>Add travel time</h3>
+
+                        @if (panelError(); as message) {
+                          <div class="alert alert--danger" role="alert">
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+                            <p>{{ message }}</p>
+                          </div>
+                        }
+
+                        <div class="cols-2 time-fields">
+                          <div class="field">
+                            <label for="transport-{{ tour.id }}">Transport</label>
+                            <select id="transport-{{ tour.id }}" [formField]="timeForm.transport">
+                              @for (transport of freeTransports(); track transport) {
+                                <option [value]="transport">{{ transport }}</option>
+                              }
+                            </select>
+                          </div>
+                          @let minutesError = timeForm.minutes().touched() && timeForm.minutes().invalid();
+                          <div class="field" [class.field--error]="minutesError">
+                            <label for="minutes-{{ tour.id }}">Minutes</label>
+                            <input
+                              id="minutes-{{ tour.id }}"
+                              type="number"
+                              [attr.aria-describedby]="minutesError ? 'minutes-error-' + tour.id : null"
+                              [formField]="timeForm.minutes"
+                            />
+                            @if (minutesError) {
+                              @for (problem of timeForm.minutes().errors(); track problem.kind) {
+                                <p class="error" id="minutes-error-{{ tour.id }}">{{ problem.message }}</p>
+                              }
+                            }
+                          </div>
+                        </div>
+
+                        <div class="form-actions">
+                          <button class="button button--primary" type="submit" [disabled]="!timeForm().valid() || pending()">
+                            Add time
+                          </button>
+                          <button class="button" type="button" (click)="closePanel()">Cancel</button>
+                        </div>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-card-footer">
+          <span>{{ list.length }} {{ list.length === 1 ? 'tour' : 'tours' }}</span>
+        </div>
+      </section>
+    }
   }
 </div>

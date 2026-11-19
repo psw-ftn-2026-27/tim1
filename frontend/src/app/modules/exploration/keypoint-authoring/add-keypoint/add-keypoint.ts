@@ -3,7 +3,7 @@ import { Component, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { type MapPin } from '../../../../shared/ui/map/map';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { KeypointDto } from '../../api/exploration-api-types';
+import { KeypointDto, TourDto } from '../../api/exploration-api-types';
 import { KeypointAuthoring } from '../keypoint-authoring';
 import {
   KeypointForm,
@@ -23,6 +23,9 @@ export class AddKeypoint {
   private readonly router = inject(Router);
 
   readonly id = input.required<string>();
+
+  // Only for the tour's name in the back link.
+  protected readonly tour = httpResource<TourDto>(() => `/api/exploration/tours/mine/${this.id()}`);
 
   protected readonly keypoints = httpResource<KeypointDto[]>(
     () => `/api/exploration/tours/${this.id()}/keypoints`,

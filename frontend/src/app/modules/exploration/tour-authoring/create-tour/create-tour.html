@@ -1,96 +1,152 @@
-<div class="card stack">
-  <a class="back" routerLink="/exploration">&larr; Back to tours</a>
+<div class="exploration exploration--narrow">
+  <a class="back" routerLink="/exploration/mine">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    My tours
+  </a>
 
-  <h1>Create tour</h1>
-
-  <form class="stack" (submit)="submit($event)">
-    <div class="field">
-      <label for="name">Name</label>
-      <input id="name" type="text" [formField]="form.name" />
-      @if (form.name().touched()) {
-        @for (message of form.name().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
+  <div class="page-header">
+    <div>
+      <h1>Create tour</h1>
+      <p>Start with the basics. Keypoints, travel times and the price come later, from My tours.</p>
     </div>
+  </div>
 
-    <div class="field">
-      <label for="description">Description</label>
-      <textarea id="description" rows="4" [formField]="form.description"></textarea>
-      @if (form.description().touched()) {
-        @for (message of form.description().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
-    </div>
-
-    <div class="field">
-      <span class="label">Difficulty</span>
-      <div class="options">
-        @for (difficulty of difficulties; track difficulty) {
-          <button
-            type="button"
-            class="option"
-            [class.option--active]="form.difficulty().value() === difficulty"
-            (click)="form.difficulty().value.set(difficulty)"
-          >
-            {{ difficulty }}
+  <form class="card card--flush" (submit)="submit($event)" novalidate>
+    <div class="card-body">
+      @if (error(); as message) {
+        <div class="alert alert--danger" role="alert">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+          <p>{{ message }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
-        }
-      </div>
-    </div>
+        </div>
+      }
 
-    <div class="field">
-      <label for="tag-input">Tags (press Enter to add)</label>
-      <div class="tag-box">
-        @for (tag of tags(); track tag) {
-          <span class="pill">
-            {{ tag }}
-            <button
-              type="button"
-              class="pill-remove"
-              [attr.aria-label]="'Remove tag ' + tag"
-              (click)="removeTag(tag)"
-            >
-              &#10005;
-            </button>
-          </span>
-        }
+      @let nameError = form.name().touched() && form.name().invalid();
+      <div class="field" [class.field--error]="nameError">
+        <label for="name">Name</label>
         <input
-          id="tag-input"
+          id="name"
           type="text"
-          [formField]="form.tagInput"
-          (keydown.enter)="addTag($event)"
+          placeholder="e.g. Večernja šetnja Limanom"
+          [attr.aria-describedby]="nameError ? 'name-error' : null"
+          [formField]="form.name"
         />
+        @if (nameError) {
+          @for (problem of form.name().errors(); track problem.kind) {
+            <p class="error" id="name-error">{{ problem.message }}</p>
+          }
+        }
+      </div>
+
+      @let descriptionError = form.description().touched() && form.description().invalid();
+      <div class="field" [class.field--error]="descriptionError">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          rows="5"
+          placeholder="What will people see and learn on this tour?"
+          [attr.aria-describedby]="descriptionError ? 'description-error description-counter' : 'description-counter'"
+          [formField]="form.description"
+        ></textarea>
+        @if (descriptionError) {
+          @for (problem of form.description().errors(); track problem.kind) {
+            <p class="error" id="description-error">{{ problem.message }}</p>
+          }
+        }
+        <p class="help counter" id="description-counter">
+          @if (descriptionLength() < descriptionNeeded) {
+            {{ descriptionLength() }} / {{ descriptionNeeded }} characters needed to publish
+          } @else {
+            {{ descriptionLength() }} characters, long enough to publish
+          }
+        </p>
+      </div>
+
+      <div class="field" role="radiogroup" aria-labelledby="difficulty-label">
+        <span id="difficulty-label" class="label">Difficulty</span>
+        <div class="segmented segmented--wide">
+          @for (difficulty of difficulties; track difficulty.value) {
+            <label>
+              <input type="radio" [value]="difficulty.value" [formField]="form.difficulty" />
+              {{ difficulty.label }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="tag-input">Tags</label>
+        <div class="tag-input">
+          @for (tag of tags(); track tag) {
+            <span class="chip">
+              #{{ tag }}
+              <button type="button" [attr.aria-label]="'Remove tag ' + tag" (click)="removeTag(tag)">
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </span>
+          }
+          <input
+            id="tag-input"
+            type="text"
+            placeholder="Type a tag and press Enter"
+            [formField]="form.tagInput"
+            (keydown.enter)="addTag($event)"
+          />
+        </div>
+      </div>
+
+      <div class="field" role="group" aria-labelledby="group-size-label">
+        <span id="group-size-label" class="label">Recommended group size</span>
+        <div class="group-size">
+          @let minError = form.groupSizeMin().touched() && form.groupSizeMin().invalid();
+          <div class="field" [class.field--error]="minError">
+            <label class="label-hint" for="group-size-min">From</label>
+            <input
+              id="group-size-min"
+              type="number"
+              [attr.aria-describedby]="minError ? 'group-size-min-error' : null"
+              [formField]="form.groupSizeMin"
+            />
+            @if (minError) {
+              @for (problem of form.groupSizeMin().errors(); track problem.kind) {
+                <p class="error" id="group-size-min-error">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+                  {{ problem.message }}
+                </p>
+              }
+            }
+          </div>
+
+          @let maxError = form.groupSizeMax().touched() && form.groupSizeMax().invalid();
+          <div class="field" [class.field--error]="maxError">
+            <label class="label-hint" for="group-size-max">To</label>
+            <input
+              id="group-size-max"
+              type="number"
+              [attr.aria-describedby]="maxError ? 'group-size-max-error' : null"
+              [formField]="form.groupSizeMax"
+            />
+            @if (maxError) {
+              @for (problem of form.groupSizeMax().errors(); track problem.kind) {
+                <p class="error" id="group-size-max-error">
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+                  {{ problem.message }}
+                </p>
+              }
+            }
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="field">
-      <label for="group-size-min">Recommended group size, from</label>
-      <input id="group-size-min" type="number" [formField]="form.groupSizeMin" />
-      @if (form.groupSizeMin().touched()) {
-        @for (message of form.groupSizeMin().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
+    <div class="card-footer">
+      <span class="meta">New tours start as drafts.</span>
+      <div class="form-actions">
+        <a class="button" routerLink="/exploration/mine">Cancel</a>
+        <button class="button button--primary" type="submit" [disabled]="pending()">Create tour</button>
+      </div>
     </div>
-
-    <div class="field">
-      <label for="group-size-max">Recommended group size, to</label>
-      <input id="group-size-max" type="number" [formField]="form.groupSizeMax" />
-      @if (form.groupSizeMax().touched()) {
-        @for (message of form.groupSizeMax().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
-    </div>
-
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-
-    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
-      Create
-    </button>
   </form>
 </div>

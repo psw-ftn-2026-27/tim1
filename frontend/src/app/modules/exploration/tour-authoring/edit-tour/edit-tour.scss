@@ -4,82 +4,58 @@
   padding-bottom: var(--space-7);
 }
 
-.heading {
-  align-items: center;
+.overview {
+  padding: var(--space-5);
+}
+
+.summary {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-4);
-  justify-content: space-between;
-
-  h1 {
-    margin: 0;
-  }
-}
-
-.back {
-  font-size: var(--font-size-sm);
-  text-decoration: none;
-}
-
-// A link that looks like a button must not look like a link: no underline, the button's own colour.
-a.button {
-  color: var(--color-text);
-  text-decoration: none;
-}
-
-a.button--primary {
-  color: var(--color-accent-text);
 }
 
 .description {
-  color: var(--color-text-muted);
   margin: 0;
 }
 
-.publish {
-  max-width: 24rem;
-}
-
-.label {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
-.actions {
+// Tour length and keypoint count: a small label over a big number
+.stat-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-6);
 }
 
-// "Make public" and "Make private" share one width, so the button does not jump when it toggles.
-.visibility-toggle {
-  min-width: 7.5rem;
-}
-
-// Route mode: one choice at a time, the chosen button is outlined in the accent colour.
-.options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.option {
-  background: var(--color-bg);
-  border: 1px solid var(--color-surface-hover);
-  border-radius: var(--radius);
+.stat-label {
   color: var(--color-text-muted);
-  cursor: pointer;
-  font: inherit;
+  display: block;
+  font-size: var(--font-size-caption);
+}
+
+.stat-row b {
+  color: var(--color-text-strong);
+  font-family: var(--font-family-heading);
+  font-size: 1.625rem;
+  font-weight: var(--font-weight-display);
+}
+
+.stat-row small {
+  color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
-  padding: var(--space-2) var(--space-3);
-
-  &:hover {
-    border-color: var(--color-accent);
-  }
+  margin-left: var(--space-1);
 }
 
-.option--active {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+.route {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.route-head {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
 }

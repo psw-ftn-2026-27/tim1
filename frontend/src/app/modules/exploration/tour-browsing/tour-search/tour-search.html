@@ -1,68 +1,60 @@
-<div class="search">
-  <div class="field">
-    <label for="title-search">Search by title (press Enter)</label>
-    <input
-      id="title-search"
-      type="search"
-      [formField]="form.title"
-      (keydown.enter)="applyTitle()"
-    />
+<section class="card filters" aria-labelledby="filters-title">
+  <div class="filters-head">
+    <h2 id="filters-title" class="filters-title">Filters</h2>
+    <button type="button" class="link-button" (click)="clearFilters()">Reset all</button>
   </div>
 
   <div class="field">
-    <label for="tag-input">Tags (press Enter to add)</label>
-    <div class="tag-box">
-      @for (tag of criteria().tags; track tag) {
-        <span class="pill">
-          {{ tag }}
-          <button
-            type="button"
-            class="pill-remove"
-            [attr.aria-label]="'Remove tag ' + tag"
-            (click)="removeTag(tag)"
-          >
-            &#10005;
-          </button>
-        </span>
-      }
-      <input id="tag-input" type="text" [formField]="form.tagInput" (keydown.enter)="addTag()" />
+    <label for="title-search">Name</label>
+    <div class="with-icon">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+      <input
+        id="title-search"
+        type="search"
+        placeholder="Search by name"
+        aria-describedby="title-search-hint"
+        [formField]="form.title"
+        (keydown.enter)="applyTitle()"
+      />
     </div>
+    <span id="title-search-hint" class="visually-hidden">Press Enter to search.</span>
   </div>
 
   <div class="field">
-    <label for="sort">Sort</label>
-    <select id="sort" (change)="changeSort($event)">
-      <option value="Newest" [selected]="criteria().sort === 'Newest'">Newest first</option>
-      @if (criteria().difficulties.length !== 1) {
-        <option value="DifficultyAscending" [selected]="criteria().sort === 'DifficultyAscending'">
-          Difficulty: easy to hard
-        </option>
-        <option
-          value="DifficultyDescending"
-          [selected]="criteria().sort === 'DifficultyDescending'"
-        >
-          Difficulty: hard to easy
-        </option>
-      }
-    </select>
+    <label for="tag-input">Tags</label>
+    <div class="with-icon">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z" /><circle cx="7.5" cy="7.5" r="1.5" /></svg>
+      <input
+        id="tag-input"
+        type="text"
+        placeholder="Search tags, e.g. istorija"
+        [formField]="form.tagInput"
+        (keydown.enter)="addTag()"
+      />
+    </div>
+    @if (criteria().tags.length > 0) {
+      <ul class="chips" aria-label="Chosen tags">
+        @for (tag of criteria().tags; track tag) {
+          <li class="chip chip--outline">
+            {{ tag }}
+            <button type="button" [attr.aria-label]="'Remove tag ' + tag" (click)="removeTag(tag)">
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+            </button>
+          </li>
+        }
+      </ul>
+    }
   </div>
 
-  <div class="field">
-    <span class="label">Transport</span>
-    <div class="options">
-      <button
-        type="button"
-        class="option"
-        [class.option--active]="criteria().transports.length === 0"
-        (click)="clearTransports()"
-      >
-        All
-      </button>
+  <div class="field" role="group" aria-labelledby="transport-label">
+    <span id="transport-label" class="label">Transport</span>
+    <div class="options options--3">
       @for (transport of transports; track transport) {
         <button
           type="button"
-          class="option"
-          [class.option--active]="criteria().transports.includes(transport)"
+          class="button"
+          [class.is-selected]="criteria().transports.includes(transport)"
+          [attr.aria-pressed]="criteria().transports.includes(transport)"
           (click)="toggleTransport(transport)"
         >
           {{ transport }}
@@ -71,29 +63,29 @@
     </div>
   </div>
 
-  <div class="field">
-    <span class="label">Difficulty</span>
-    <div class="options">
+  <div class="field" role="group" aria-labelledby="difficulty-label">
+    <span id="difficulty-label" class="label">Difficulty</span>
+    <div class="options options--4">
       <button
         type="button"
-        class="option"
-        [class.option--active]="criteria().difficulties.length === 0"
+        class="button"
+        [class.is-selected]="criteria().difficulties.length === 0"
+        [attr.aria-pressed]="criteria().difficulties.length === 0"
         (click)="clearDifficulties()"
       >
         All
       </button>
-      @for (difficulty of difficulties; track difficulty) {
+      @for (difficulty of difficulties; track difficulty.value) {
         <button
           type="button"
-          class="option"
-          [class.option--active]="criteria().difficulties.includes(difficulty)"
-          (click)="toggleDifficulty(difficulty)"
+          class="button"
+          [class.is-selected]="criteria().difficulties.includes(difficulty.value)"
+          [attr.aria-pressed]="criteria().difficulties.includes(difficulty.value)"
+          (click)="toggleDifficulty(difficulty.value)"
         >
-          {{ difficulty }}
+          {{ difficulty.label }}
         </button>
       }
     </div>
   </div>
-
-  <button type="button" class="button" (click)="clearFilters()">Clear filters</button>
-</div>
+</section>

@@ -4,155 +4,23 @@
   padding-bottom: var(--space-7);
 }
 
-.heading {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-  justify-content: space-between;
-}
-
-.header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-// A link that looks like a button must not look like a link: no underline, the button's own colour.
-a.button {
-  text-decoration: none;
-}
-
-a.button {
-  color: var(--color-text);
-  text-align: center;
-}
-
-a.button--secondary {
-  color: var(--color-secondary-text);
-}
-
-a.button--primary {
-  color: var(--color-accent-text);
-}
-
-.grid {
-  gap: var(--space-5);
-  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
-}
-
-// Cards in one grid row stretch to the same height; the long texts are cut so no card grows past the others.
-.tour {
+// The title, and the tabs under it
+.title-block {
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-5);
 }
 
-.top {
-  display: flex;
-  justify-content: space-between;
+.name strong {
+  color: var(--color-text-strong);
 }
 
-h3 {
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  display: -webkit-box;
-  font-size: var(--font-size-lg);
-  margin: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
+// The price field is not wider than about 320px
+.price-field {
+  max-width: 20rem;
 }
 
-.description {
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  color: var(--color-text-muted);
-  display: -webkit-box;
-  font-size: var(--font-size-sm);
-  margin: 0;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-}
-
-.tags,
-.times {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.time {
-  background: var(--color-bg);
-  border: 1px solid var(--color-surface);
-  border-radius: var(--radius);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-1) var(--space-2);
-}
-
-.tags li {
-  background: var(--color-surface-hover);
-  border-radius: var(--radius-pill);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  padding: var(--space-1) var(--space-2);
-}
-
-// The actions stay at the bottom of the card, separated from the content by a line.
-.actions {
-  align-items: center;
-  border-top: 1px solid var(--color-surface-hover);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: auto;
-  padding-top: var(--space-4);
-
-  // Every action is the same quiet button and they share the row equally, whatever their number.
-  .button {
-    flex: 1 1 0;
-    white-space: nowrap;
-    text-align: center;
-  }
-}
-
-// The same tabs as on the other page: two links that look like one switch. The page marks its own tab.
-.tabs {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  display: flex;
-  gap: var(--space-1);
-  padding: var(--space-1);
-}
-
-.tab {
-  border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-2) var(--space-4);
-  text-decoration: none;
-
-  &:hover {
-    color: var(--color-text);
-  }
-}
-
-.tab--active {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
-}
-
-.heading h1 {
-  flex-basis: 100%;
-  margin: 0;
-}
-
-.heading .tabs {
-  margin-right: auto;
+.time-fields {
+  max-width: 35rem;
 }

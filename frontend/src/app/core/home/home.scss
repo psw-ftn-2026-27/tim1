@@ -7,6 +7,11 @@
   --alt: #273d37;
   --color-text-muted: color-mix(in srgb, var(--color-text) 78%, var(--color-bg));
   --color-border: color-mix(in srgb, var(--color-text) 22%, var(--color-bg));
+  // The global button now draws its border with --color-border-field and links use --color-link;
+  // Home keeps the border and link colours it was designed with.
+  --color-border-field: var(--color-border);
+  --color-link: var(--color-accent);
+  --color-link-hover: var(--color-accent-hover);
   display: block;
   color: var(--color-text);
   background: var(--color-bg);
@@ -24,6 +29,11 @@
 .home {
   overflow-wrap: anywhere;
 }
+// The global .card lost its shadow and got more padding; Home keeps the card it was designed with.
+.card {
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+}
 .hero,
 .slide,
 .media {
@@ -34,7 +44,7 @@
 }
 .bg,
 .slide img,
-.thumb {
+.photo {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -69,7 +79,7 @@ h1 {
   color: var(--color-accent);
 }
 .eyebrow,
-.notice {
+.note {
   font-size: var(--font-size-sm);
 }
 .eyebrow {
@@ -88,9 +98,12 @@ p,
   gap: var(--space-3);
   align-items: center;
 }
+// The global .button now sets a 14px bold label; Home's buttons keep the inherited text.
 .button {
   display: inline-flex;
   align-items: center;
+  font-size: inherit;
+  font-weight: inherit;
   gap: var(--space-5);
   min-height: 3rem;
   text-decoration: none;
@@ -121,7 +134,7 @@ h2 {
 .tiles {
   grid-template-columns: repeat(4, 1fr);
 }
-.tile {
+.capability {
   display: grid;
   grid: auto 1fr / auto;
   padding: 0;
@@ -132,7 +145,7 @@ h2 {
   text-align: left;
   cursor: pointer;
 }
-.tile-title {
+.capability-title {
   margin-bottom: var(--space-3);
   font: var(--font-weight-heading) 1.625rem/1.2 var(--font-family-heading);
   letter-spacing: var(--letter-spacing-heading);
@@ -203,7 +216,7 @@ h3 {
   flex: 1 30em;
 }
 .linked,
-.thumb,
+.photo,
 .button {
   transition:
     transform 180ms,
@@ -274,7 +287,7 @@ footer.meta {
 }
 @media (prefers-reduced-motion: reduce) {
   .linked,
-  .thumb,
+  .photo,
   .button,
   .slide {
     transition: none;

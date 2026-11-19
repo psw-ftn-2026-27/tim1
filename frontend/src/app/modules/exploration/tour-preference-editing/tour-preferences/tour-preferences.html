@@ -1,95 +1,174 @@
-<div class="stack">
-  <h1>My preferences</h1>
+<div class="exploration exploration--narrow">
+  <a class="back" routerLink="/exploration">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Back to tours
+  </a>
+
+  <div class="page-header">
+    <div>
+      <h1>My preferences</h1>
+      <p>
+        Save the difficulty, transport and topics that suit you, so you don't have to set the same
+        filters every time you search.
+      </p>
+    </div>
+  </div>
 
   @if (saved()) {
-    <p>Preferences saved</p>
+    <div class="alert alert--success" role="status">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+      <p>Preferences saved.</p>
+      <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="saved.set(false)">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+    </div>
   }
 
-  <div class="card stack">
-    @if (preferences.isLoading()) {
-      <p>Loading your preferences...</p>
-    } @else if (preferences.error()) {
-      <p class="error">Could not load your preferences. Log in and try again.</p>
-    } @else if (editing()) {
-      <form class="stack" (submit)="save($event)">
-        <fieldset>
-          <legend>Difficulty</legend>
-          <label><input type="checkbox" [formField]="form.easy" /> Easy</label>
-          <label><input type="checkbox" [formField]="form.moderate" /> Moderate</label>
-          <label><input type="checkbox" [formField]="form.hard" /> Hard</label>
-        </fieldset>
+  @if (error(); as message) {
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>{{ message }}</p>
+      <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+    </div>
+  }
 
-        <fieldset>
-          <legend>Transport</legend>
-          <label><input type="radio" value="" [formField]="form.transport" /> No preference</label>
-          <label><input type="radio" value="Walking" [formField]="form.transport" /> Walking</label>
-          <label><input type="radio" value="Bicycle" [formField]="form.transport" /> Bicycle</label>
-          <label><input type="radio" value="Car" [formField]="form.transport" /> Car</label>
-        </fieldset>
+  @if (preferences.isLoading()) {
+    <p class="empty empty--boxed" role="status">Loading your preferences…</p>
+  } @else if (preferences.error()) {
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load your preferences. Log in and try again.</p>
+    </div>
+  } @else if (editing()) {
+    <form class="card card--flush" (submit)="save($event)" novalidate>
+      <div class="card-head">
+        <h2 class="card-title">Edit preferences</h2>
+      </div>
 
-        <fieldset>
-          <legend>Tags</legend>
-          @for (tag of offeredTags(); track tag) {
-            <button
-              class="button"
-              type="button"
-              [class.button--primary]="isSelected(tag)"
-              [attr.aria-pressed]="isSelected(tag)"
-              (click)="toggleTag(tag)"
-            >
-              {{ tag }}
-            </button>
-          } @empty {
-            <p class="meta">No tags on published tours yet.</p>
-          }
-        </fieldset>
-
-        <label>
-          <input type="checkbox" [formField]="form.opensSearch" />
-          Open tour search with my preferences applied
-        </label>
-
-        @if (error()) {
-          <p class="error">{{ error() }}</p>
-        }
-
-        <div class="actions">
-          <button class="button button--primary" type="submit" [disabled]="isEmpty() || pending()">
-            Save
-          </button>
-          <button class="button" type="button" (click)="cancelEdit()">Cancel</button>
+      <div class="card-body">
+        <div class="field" role="group" aria-labelledby="difficulty-label">
+          <span id="difficulty-label" class="label">Difficulty</span>
+          <div class="segmented">
+            <label><input type="checkbox" [formField]="form.easy" /> Easy</label>
+            <label><input type="checkbox" [formField]="form.moderate" /> Medium</label>
+            <label><input type="checkbox" [formField]="form.hard" /> Hard</label>
+          </div>
         </div>
-      </form>
-    } @else if (preferences.value(); as current) {
-      <dl>
-        <dt>Difficulty</dt>
-        <dd>{{ current.difficulties.length > 0 ? current.difficulties.join(', ') : 'Any' }}</dd>
-        <dt>Transport</dt>
-        <dd>{{ current.transport ?? 'No preference' }}</dd>
-        <dt>Tags</dt>
-        <dd>{{ current.tags.length > 0 ? current.tags.join(', ') : 'None' }}</dd>
-        <dt>Open tour search with my preferences applied</dt>
-        <dd>{{ current.opensSearch ? 'Yes' : 'No' }}</dd>
+
+        <div class="field" role="radiogroup" aria-labelledby="transport-label">
+          <span id="transport-label" class="label">Transport</span>
+          <div class="segmented">
+            <label><input type="radio" value="" [formField]="form.transport" /> No preference</label>
+            <label><input type="radio" value="Walking" [formField]="form.transport" /> Walking</label>
+            <label><input type="radio" value="Bicycle" [formField]="form.transport" /> Bicycle</label>
+            <label><input type="radio" value="Car" [formField]="form.transport" /> Car</label>
+          </div>
+        </div>
+
+        <div class="field" role="group" aria-labelledby="tags-label">
+          <span id="tags-label" class="label">Tags</span>
+          <div class="tag-options">
+            @for (tag of offeredTags(); track tag) {
+              <button
+                class="button"
+                type="button"
+                [class.is-selected]="isSelected(tag)"
+                [attr.aria-pressed]="isSelected(tag)"
+                (click)="toggleTag(tag)"
+              >
+                #{{ tag }}
+              </button>
+            } @empty {
+              <p class="help">No tags on published tours yet.</p>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" [formField]="form.opensSearch" />
+            <span>
+              Open tour search with my preferences applied
+              <span class="help">Otherwise the search opens without filters.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="meta">Choose at least one difficulty, transport or tag.</span>
+        <div class="form-actions">
+          <button class="button" type="button" (click)="cancelEdit()">Cancel</button>
+          <button class="button button--primary" type="submit" [disabled]="isEmpty() || pending()">
+            Save preferences
+          </button>
+        </div>
+      </div>
+    </form>
+  } @else if (preferences.value(); as current) {
+    <section class="card card--flush" aria-labelledby="saved-title">
+      <div class="card-head">
+        <h2 id="saved-title" class="card-title">Saved preferences</h2>
+        <div class="form-actions">
+          <button class="button button--danger" type="button" [disabled]="pending()" (click)="delete()">
+            Delete preferences
+          </button>
+          <button class="button button--primary" type="button" [disabled]="pending()" (click)="startEdit()">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
+            Edit
+          </button>
+        </div>
+      </div>
+
+      <dl class="rows">
+        <div class="row">
+          <dt>Difficulty</dt>
+          <dd>{{ current.difficulties.length > 0 ? difficultyLabels(current.difficulties) : 'Any' }}</dd>
+        </div>
+        <div class="row">
+          <dt>Transport</dt>
+          <dd>{{ current.transport ?? 'No preference' }}</dd>
+        </div>
+        <div class="row">
+          <dt>Tags</dt>
+          <dd>
+            @if (current.tags.length > 0) {
+              <ul class="chips">
+                @for (tag of current.tags; track tag) {
+                  @if (isOnSomeTour(tag)) {
+                    <li class="chip">#{{ tag }}</li>
+                  } @else {
+                    <li class="chip chip--outline unused">#{{ tag }} · not on any tour now</li>
+                  }
+                }
+              </ul>
+            } @else {
+              None
+            }
+          </dd>
+        </div>
+        <div class="row">
+          <dt>Tour search</dt>
+          <dd class="search-setting">
+            @if (current.opensSearch) {
+              <span class="badge badge--published">On</span> Opens with my preferences applied
+            } @else {
+              <span class="badge">Off</span> Opens without filters
+            }
+          </dd>
+        </div>
       </dl>
-
-      @if (error()) {
-        <p class="error">{{ error() }}</p>
-      }
-
-      <div class="actions">
-        <button class="button button--primary" type="button" (click)="startEdit()">Edit</button>
-        <button class="button" type="button" [disabled]="pending()" (click)="delete()">
-          Delete preferences
-        </button>
-      </div>
-    } @else {
-      <p>You have no preferences yet</p>
-
-      <div class="actions">
-        <button class="button button--primary" type="button" (click)="startEdit()">
-          Set preferences
-        </button>
-      </div>
-    }
-  </div>
+    </section>
+  } @else {
+    <div class="empty empty--boxed">
+      <span class="empty-icon">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
+      </span>
+      <h2>You have no preferences yet</h2>
+      <p>Save the filters you use most, and the tour search can open with them.</p>
+      <button class="button button--primary" type="button" (click)="startEdit()">Set preferences</button>
+    </div>
+  }
 </div>

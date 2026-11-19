@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, linkedSignal, output } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { TourDifficulty, TransportMode } from '../../api/exploration-api-types';
 
@@ -24,11 +24,17 @@ export class TourSearch {
   readonly criteriaChange = output<TourCriteria>();
 
   // Only the text being typed lives here. The title is only sent once Enter is pressed.
-  private readonly model = signal({ title: '', tagInput: '' });
+  // When the applied criteria change (for example "Reset all"), the field shows the applied title again.
+  private readonly model = linkedSignal(() => ({ title: this.criteria().title, tagInput: '' }));
 
   protected readonly form = form(this.model);
 
-  protected readonly difficulties: TourDifficulty[] = ['Easy', 'Moderate', 'Hard'];
+  // The server calls the middle difficulty "Moderate"; the screen shows "Medium".
+  protected readonly difficulties: { value: TourDifficulty; label: string }[] = [
+    { value: 'Easy', label: 'Easy' },
+    { value: 'Moderate', label: 'Medium' },
+    { value: 'Hard', label: 'Hard' },
+  ];
   protected readonly transports: TransportMode[] = ['Walking', 'Bicycle', 'Car'];
 
   protected applyTitle(): void {
@@ -64,12 +70,7 @@ export class TourSearch {
     this.criteriaChange.emit({ ...this.criteria(), difficulties: [] });
   }
 
-  protected clearTransports(): void {
-    this.criteriaChange.emit({ ...this.criteria(), transports: [] });
-  }
-
   protected clearFilters(): void {
-    this.model.set({ title: '', tagInput: '' });
     this.criteriaChange.emit({
       title: '',
       difficulties: [],
@@ -77,11 +78,6 @@ export class TourSearch {
       tags: [],
       sort: 'Newest',
     });
-  }
-
-  protected changeSort(event: Event): void {
-    const sort = (event.target as HTMLSelectElement).value as TourSortOrder;
-    this.criteriaChange.emit({ ...this.criteria(), sort });
   }
 
   private toggled<T>(values: T[], value: T): T[] {

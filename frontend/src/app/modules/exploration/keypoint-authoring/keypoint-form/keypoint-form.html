@@ -1,79 +1,163 @@
-<form class="stack" (submit)="submit($event)">
-  <div class="field">
-    <label for="keypoint-name">Name</label>
-    <input id="keypoint-name" type="text" [formField]="fields().name" />
-    @if (fields().name().touched()) {
-      @for (message of fields().name().errors(); track $index) {
-        <p class="error">{{ message.message }}</p>
+@let form = fields();
+<div class="split columns">
+  <form class="card card--flush" (submit)="submit($event)" novalidate>
+    <div class="card-body">
+      @let nameError = form.name().touched() && form.name().invalid();
+      <div class="field" [class.field--error]="nameError">
+        <label for="keypoint-name">Name</label>
+        <input
+          id="keypoint-name"
+          type="text"
+          placeholder="e.g. Sahat kula"
+          [attr.aria-describedby]="nameError ? 'keypoint-name-error' : null"
+          [formField]="form.name"
+        />
+        @if (nameError) {
+          @for (problem of form.name().errors(); track problem.kind) {
+            <p class="error" id="keypoint-name-error">{{ problem.message }}</p>
+          }
+        }
+      </div>
+
+      @let descriptionError = form.description().touched() && form.description().invalid();
+      <div class="field" [class.field--error]="descriptionError">
+        <label for="keypoint-description">Description</label>
+        <textarea
+          id="keypoint-description"
+          rows="3"
+          placeholder="What will people see here?"
+          [attr.aria-describedby]="descriptionError ? 'keypoint-description-error' : null"
+          [formField]="form.description"
+        ></textarea>
+        @if (descriptionError) {
+          @for (problem of form.description().errors(); track problem.kind) {
+            <p class="error" id="keypoint-description-error">{{ problem.message }}</p>
+          }
+        }
+      </div>
+
+      @let showImageError = imageError() !== null && (submitted() || imageIds().length > 1);
+      <div class="field" role="group" aria-labelledby="keypoint-image-label">
+        <span id="keypoint-image-label" class="label">Image</span>
+        <div
+          class="dropzone"
+          [class.dropzone--error]="showImageError"
+          [attr.aria-describedby]="showImageError ? 'keypoint-image-error' : null"
+        >
+          @if (currentImageUrl() && imageIds().length === 0) {
+            <app-protected-image class="thumb image-preview" [src]="currentImageUrl()!" />
+            <div class="image-text">
+              <strong>Current image</strong>
+              <span class="help">One image per keypoint. Choose a new one to replace it.</span>
+            </div>
+          } @else if (imageIds().length === 0) {
+            <span class="empty-icon image-icon">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
+            </span>
+            <div class="image-text">
+              <strong>Choose an image</strong>
+              <span class="help">One image, required.</span>
+            </div>
+          }
+          <app-image-upload
+            class="image-upload"
+            [upload]="upload()"
+            (imageIds)="imageIds.set($event)"
+            (sending)="imagesSending.set($event)"
+          />
+        </div>
+        @if (showImageError) {
+          <p class="error" id="keypoint-image-error">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+            {{ imageError() }}
+          </p>
+        }
+      </div>
+
+      <div class="field">
+        <label for="keypoint-secret" class="secret-label">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+          Secret <span class="label-hint">· optional</span>
+        </label>
+        <textarea
+          id="keypoint-secret"
+          rows="3"
+          placeholder="Something only buyers will discover on the spot."
+          aria-describedby="keypoint-secret-hint"
+          [formField]="form.secret"
+        ></textarea>
+        <p class="help" id="keypoint-secret-hint">Only you can see it for now.</p>
+      </div>
+
+      @if (showVisibility()) {
+        <div class="field">
+          <label class="checkbox" for="keypoint-visible">
+            <input id="keypoint-visible" type="checkbox" [formField]="form.publiclyVisible" />
+            <span>
+              Keypoint is publicly visible
+              <span class="help">People who haven’t bought the tour can see it. Off by default.</span>
+            </span>
+          </label>
+        </div>
       }
-    }
-  </div>
-
-  <div class="field">
-    <label for="keypoint-description">Description</label>
-    <textarea id="keypoint-description" rows="4" [formField]="fields().description"></textarea>
-    @if (fields().description().touched()) {
-      @for (message of fields().description().errors(); track $index) {
-        <p class="error">{{ message.message }}</p>
-      }
-    }
-  </div>
-
-  <div class="field">
-    <label for="keypoint-secret">Secret (optional)</label>
-    <textarea id="keypoint-secret" rows="3" [formField]="fields().secret"></textarea>
-  </div>
-
-  <div class="field">
-    <span class="label">Image</span>
-    <app-image-upload
-      [upload]="upload()"
-      (imageIds)="imageIds.set($event)"
-      (sending)="imagesSending.set($event)"
-    />
-    @if (imageError(); as message) {
-      <p class="error">{{ message }}</p>
-    }
-  </div>
-
-  @if (showVisibility()) {
-    <div class="field">
-      <label for="keypoint-visible">
-        <input id="keypoint-visible" type="checkbox" [formField]="fields().publiclyVisible" />
-        Ključna tačka je javno vidljiva
-      </label>
     </div>
-  }
 
-  <div class="field">
-    <span class="label">Location</span>
-    <p class="meta hint">Click the map to choose the location.</p>
+    <div class="card-footer">
+      <span class="meta location" role="status">
+        @if (form.location().value(); as location) {
+          Location: <b>{{ location.latitude.toFixed(5) }}, {{ location.longitude.toFixed(5) }}</b>
+        } @else if (form.location().touched()) {
+          <span class="error">Click the map to place the pin.</span>
+        } @else {
+          Location: not chosen yet
+        }
+      </span>
+      <div class="form-actions">
+        <a class="button" [routerLink]="cancelLink()">Cancel</a>
+        <button
+          class="button button--primary"
+          type="submit"
+          [disabled]="pending() || imagesSending() || lengthKm() === null"
+        >
+          {{ saveLabel() }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <section class="card map-card" aria-labelledby="keypoint-location-label">
+    <p class="map-label" id="keypoint-location-label">
+      <b>Location</b> <span class="label-hint">· click the map to place the pin</span>
+    </p>
+    <div class="segmented" role="radiogroup" aria-label="Route mode">
+      @for (mode of modes; track mode) {
+        <label>
+          <input type="radio" [value]="mode" [formField]="routeForm.mode" />
+          @switch (mode) {
+            @case ('Walking') {
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2" /><path d="M10 21l2-6 3 3v3M9 12l2-4 4 2 2 3M11 8l-3 2-1 3" /></svg>
+            }
+            @case ('Bicycle') {
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="18.5" cy="17.5" r="3.5" /><path d="M15 6h2l3 11.5M5.5 17.5 9 9h7l-4 8.5M9 9 8 6H6" /></svg>
+            }
+            @case ('Car') {
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5zM5 12h14M7 17v2M17 17v2" /><circle cx="8" cy="14.5" r=".5" /><circle cx="16" cy="14.5" r=".5" /></svg>
+            }
+          }
+          {{ mode }}
+        </label>
+      }
+    </div>
     <app-map
       [pins]="mapPins()"
       [routeRequest]="routeRequest()"
       [selectionEnabled]="!pending()"
+      [showSelectionPin]="false"
       (locationSelected)="pickLocation($event)"
-      (routeLengthKm)="routeLengthKm.set($event)"
+      (routeLengthKm)="measured($event)"
     />
-    @if (lengthKm(); as km) {
-      <p class="meta hint">Walking route length: {{ km.toFixed(2) }} km</p>
-    } @else if (lengthKm() === null) {
-      <p class="meta hint">Calculating the walking route length...</p>
+    @if (lengthKm() === null) {
+      <p class="help" role="status">Measuring the walking route…</p>
     }
-    @if (fields().location().value(); as location) {
-      <p class="meta hint">
-        Chosen: {{ location.latitude.toFixed(5) }}, {{ location.longitude.toFixed(5) }}
-      </p>
-    } @else {
-      <p class="error">Choose a location on the map.</p>
-    }
-  </div>
-
-  <button
-    class="button button--primary"
-    type="submit"
-    [disabled]="!fields()().valid() || imageError() !== null || imagesSending() || lengthKm() === null || pending()"
-  >
-    {{ saveLabel() }}
-  </button>
-</form>
+  </section>
+</div>

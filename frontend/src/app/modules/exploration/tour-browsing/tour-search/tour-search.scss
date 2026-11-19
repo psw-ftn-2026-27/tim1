@@ -2,112 +2,86 @@
   display: block;
 }
 
-:host > * + * {
-  margin-top: var(--space-4);
-}
-
-.search {
+.filters {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-4-5);
+  padding: var(--space-5);
 }
 
-// Inside the sidebar the filters are not a second card, only a group of fieldsets.
-.filter-section {
+.filters-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters-title {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-title-sm);
+  margin: 0;
+}
+
+// "Reset all": a button that looks like a link, still 44px tall
+.link-button {
   background: none;
   border: 0;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+  color: var(--color-accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  min-height: var(--control-height);
   padding: 0;
 }
 
-fieldset {
-  border: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
+.link-button:hover {
+  color: var(--color-accent-hover);
 }
 
-.tag-box {
-  align-items: center;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  padding: var(--space-1);
+// A search field with an icon inside, on the left
+.with-icon {
+  position: relative;
+
+  svg {
+    color: var(--color-text-muted);
+    left: var(--space-3-5);
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
 
   input {
-    border: 0;
-    flex: 1;
-    min-width: 8rem;
+    padding-left: 2.5rem;
+    width: 100%;
   }
 }
 
-.pill {
-  align-items: center;
-  background: var(--color-border);
-  border-radius: var(--radius);
-  display: inline-flex;
-  gap: var(--space-1);
-  padding: 0 var(--space-2);
-}
-
-.pill-remove {
-  background: none;
-  border: 0;
-  color: inherit;
-  cursor: pointer;
-  font: inherit;
-  padding: 0;
-}
-
-// A fixed width, so the dropdown does not resize when the sort-by-difficulty options appear or disappear.
-select {
-  cursor: pointer;
-  max-width: 100%;
-  transition: border-color 0.15s;
-  width: 100%;
-
-  &:hover {
-    border-color: var(--color-accent);
-  }
-}
-
-.label {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
+// The filter buttons share the row in equal parts
 .options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  display: grid;
+  gap: var(--space-1-5);
 }
 
-// A filter button: the active one is outlined in the accent colour.
-.option {
-  background: var(--color-bg);
-  border: 1px solid var(--color-surface-hover);
-  border-radius: var(--radius);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-2) var(--space-3);
-
-  &:hover {
-    border-color: var(--color-accent);
-  }
+.options--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.option--active {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+.options--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.options .button {
+  font-size: var(--font-size-caption);
+  padding: 0 var(--space-1);
+}
+
+// Read by a screen reader, not shown
+.visually-hidden {
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

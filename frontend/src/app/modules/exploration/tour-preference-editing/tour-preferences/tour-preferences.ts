@@ -1,12 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { TourDifficulty, TourPreferenceDto, TransportMode } from '../../api/exploration-api-types';
 import { TourPreferenceEditing } from '../tour-preference-editing';
 
 @Component({
-  imports: [FormField],
+  imports: [FormField, RouterLink],
   selector: 'app-tour-preferences',
   styleUrl: './tour-preferences.scss',
   templateUrl: './tour-preferences.html',
@@ -77,6 +78,16 @@ export class TourPreferences {
   protected cancelEdit(): void {
     this.error.set(null);
     this.editing.set(false);
+  }
+
+  // The server calls the middle difficulty "Moderate"; the screen shows "Medium".
+  protected difficultyLabels(difficulties: TourDifficulty[]): string {
+    return difficulties.map((d) => (d === 'Moderate' ? 'Medium' : d)).join(', ');
+  }
+
+  // A saved tag that no published tour has any more; the page marks it.
+  protected isOnSomeTour(tag: string): boolean {
+    return this.contains(this.availableTags.value() ?? [], tag);
   }
 
   protected isSelected(tag: string): boolean {

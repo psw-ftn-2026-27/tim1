@@ -1,26 +1,29 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { FormField, form, min, required, validate } from '@angular/forms/signals';
+import { FormField, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
-import { Analytics } from '../../../../core/analytics/analytics';
 import { Map, type MapPin, type MapRouteMode } from '../../../../shared/ui/map/map';
+import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
+import { formatLength } from '../../../../shared/util/format-length';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { KeypointDto, TourDto, TransportMode } from '../../api/exploration-api-types';
+import { KeypointDto, TourDto } from '../../api/exploration-api-types';
 import { TourAuthoring } from '../tour-authoring';
 
-type Charge = 'Free' | 'Paid';
+// A tour needs at least this many keypoints to be published (the server checks it on Publish).
+const KEYPOINTS_TO_PUBLISH = 2;
 
 @Component({
-  imports: [FormField, Map, RouterLink],
+  imports: [FormField, Map, ProtectedImage, RouterLink],
   selector: 'app-edit-tour',
   styleUrl: './edit-tour.scss',
   templateUrl: './edit-tour.html',
 })
 export class EditTour {
   protected readonly modes: MapRouteMode[] = ['Walking', 'Bicycle', 'Car'];
+  protected readonly keypointsToPublish = KEYPOINTS_TO_PUBLISH;
+  protected readonly formatLength = formatLength;
 
   private readonly tourAuthoring = inject(TourAuthoring);
-  private readonly analytics = inject(Analytics);
 
   readonly id = input.required<string>();
 
@@ -30,46 +33,10 @@ export class EditTour {
     () => `/api/exploration/tours/${this.id()}/keypoints`,
   );
 
-  protected readonly transports: TransportMode[] = ['Walking', 'Bicycle', 'Car'];
-
-  private readonly timeModel = signal({ transport: 'Walking' as TransportMode, minutes: 30 });
-
-  protected readonly timeForm = form(this.timeModel, (path) => {
-    required(path.minutes, { message: 'Minutes are required.' });
-    min(path.minutes, 1, { message: 'Minutes must be at least 1.' });
-  });
-
-  protected readonly availableTransports = computed(() => {
-    if (!this.tour.hasValue()) {
-      return [];
-    }
-    const taken = this.tour.value().transportTimes.map((time) => time.transport);
-    return this.transports.filter((transport) => !taken.includes(transport));
-  });
-
-  protected readonly selectedTransport = computed(() => {
-    const available = this.availableTransports();
-    const chosen = this.timeForm.transport().value();
-    return available.includes(chosen) ? chosen : available[0];
-  });
-
-  protected readonly timeAdded = signal<string | null>(null);
-
-  protected readonly publishing = signal(false);
-
-  private readonly publishModel = signal({ charge: 'Free' as Charge, price: 0 });
-
-  protected readonly publishForm = form(this.publishModel, (path) => {
-    validate(path.price, ({ value, valueOf }) =>
-      valueOf(path.charge) === 'Paid' && !(value() > 0)
-        ? { kind: 'price', message: 'Price must be greater than 0.' }
-        : null,
-    );
-  });
-
   protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);
 
+  // The route mode only changes the line on the map; the saved length is always the walking one.
   protected readonly routeForm = form(signal({ mode: 'Walking' as MapRouteMode }));
 
   protected readonly pins = computed<MapPin[]>(() =>
@@ -80,6 +47,10 @@ export class EditTour {
     points: this.pins(),
     mode: this.routeForm.mode().value(),
   }));
+
+  protected imageUrl(keypoint: KeypointDto): string {
+    return `/api/exploration/tours/${this.id()}/keypoints/${keypoint.id}/image`;
+  }
 
   // After a removal the page waits for the map to measure the remaining walking route; this is
   // the number of keypoints that route has. Null means nothing is waiting.
@@ -126,39 +97,9 @@ export class EditTour {
     );
   }
 
-  protected async addTransportTime(event: Event): Promise<void> {
-    event.preventDefault();
-    const transport = this.selectedTransport();
-    const minutes = this.timeForm.minutes().value();
-    await this.run(async () => {
-      await this.tourAuthoring.addTransportTime(this.id(), { transport, minutes });
-      this.timeAdded.set(`${transport} · ${minutes} min`);
-    }, 'Could not add the transport time.');
-  }
-
-  protected openPublishing(): void {
-    this.publishForm().reset({ charge: 'Free', price: 0 });
-    this.publishing.set(true);
-  }
-
-  protected async publish(event: Event): Promise<void> {
-    event.preventDefault();
-    const paid = this.publishForm.charge().value() === 'Paid';
-    const price = paid ? this.publishForm.price().value() : 0;
-    await this.run(async () => {
-      await this.tourAuthoring.publish(this.id(), { price });
-      this.analytics.track('tour_published', {
-        tour_id: this.id(),
-        difficulty: this.tour.hasValue() ? this.tour.value().difficulty : 'unknown',
-      });
-      this.publishing.set(false);
-    }, 'Could not publish the tour.');
-  }
-
   private async run(command: () => Promise<void>, fallback: string): Promise<void> {
     this.pending.set(true);
     this.error.set(null);
-    this.timeAdded.set(null);
     try {
       await command();
     } catch (failure) {

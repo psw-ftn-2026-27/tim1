@@ -4,96 +4,83 @@
   padding-bottom: var(--space-7);
 }
 
-.heading {
-  align-items: center;
+// The title, and the tabs under it
+.title-block {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-4);
-  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.actions {
+.header-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
-// A link that looks like a button must not look like a link: no underline, the button's own colour.
-.actions a {
-  text-decoration: none;
-}
-
-.actions .button--secondary {
-  color: var(--color-secondary-text);
-}
-
-.actions .button--primary {
-  color: var(--color-accent-text);
-}
-
+// Filters on the left (280px), results on the right; one column on a phone
 .layout {
   align-items: start;
   display: grid;
-  gap: var(--space-5);
-  grid-template-columns: 17.5rem 1fr;
+  gap: var(--space-5-5);
+  grid-template-columns: 17.5rem minmax(0, 1fr);
+  margin-top: var(--space-2);
 }
 
-.filters {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4-5);
 }
 
-.grid {
-  gap: var(--space-5);
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+.results-head {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
 }
 
-// More room between the last row of cards and the pagination.
-.results > app-tour-pagination {
-  display: block;
+.sort {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2-5);
+
+  label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  select {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-field);
+    border-radius: var(--radius-control);
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+    font-weight: var(--font-weight-bold);
+    min-height: var(--control-height);
+    min-width: 11.5rem;
+    padding: 0 var(--space-3-5);
+  }
+}
+
+.tour-grid {
+  display: grid;
+  gap: var(--space-4-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
   margin-top: var(--space-6);
 }
 
-@media (max-width: 48rem) {
-  .layout {
+@media (max-width: 60rem) {
+  .layout,
+  .tour-grid {
     grid-template-columns: 1fr;
   }
-}
-
-// The same tabs as on the other page: two links that look like one switch. The page marks its own tab.
-.tabs {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  display: flex;
-  gap: var(--space-1);
-  padding: var(--space-1);
-}
-
-.tab {
-  border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-bold);
-  padding: var(--space-2) var(--space-4);
-  text-decoration: none;
-
-  &:hover {
-    color: var(--color-text);
-  }
-}
-
-.tab--active {
-  background: var(--color-surface-hover);
-  color: var(--color-text);
-}
-
-.heading h1 {
-  flex-basis: 100%;
-  margin: 0;
-}
-
-.heading .tabs {
-  margin-right: auto;
 }

@@ -1,10 +1,10 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { type MapPin } from '../../../../shared/ui/map/map';
+import { Map, type MapPin } from '../../../../shared/ui/map/map';
 import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { KeypointDto } from '../../api/exploration-api-types';
+import { KeypointDto, TourDto } from '../../api/exploration-api-types';
 import { KeypointAuthoring } from '../keypoint-authoring';
 import {
   KeypointForm,
@@ -15,7 +15,7 @@ import {
 } from '../keypoint-form/keypoint-form';
 
 @Component({
-  imports: [KeypointForm, ProtectedImage, RouterLink],
+  imports: [KeypointForm, Map, ProtectedImage, RouterLink],
   selector: 'app-edit-keypoint',
   styleUrl: './edit-keypoint.scss',
   templateUrl: './edit-keypoint.html',
@@ -26,6 +26,9 @@ export class EditKeypoint {
 
   readonly id = input.required<string>();
   readonly keypointId = input.required<string>();
+
+  // Only for the tour's name in the back link.
+  protected readonly tour = httpResource<TourDto>(() => `/api/exploration/tours/mine/${this.id()}`);
 
   protected readonly keypoint = httpResource<KeypointDto>(
     () => `/api/exploration/tours/${this.id()}/keypoints/${this.keypointId()}`,
@@ -44,6 +47,12 @@ export class EditKeypoint {
       ? this.keypoints.value().findIndex((k) => k.id === this.keypointId())
       : -1,
   );
+
+  // The page first shows the keypoint; Edit fills the form with its values.
+  protected readonly editing = signal(false);
+
+  // The walking route through the tour, shown next to the keypoint before editing.
+  protected readonly routeRequest = computed(() => ({ points: this.pins(), mode: 'Walking' as const }));
 
   protected readonly imageUrl = computed(
     () => `/api/exploration/tours/${this.id()}/keypoints/${this.keypointId()}/image`,

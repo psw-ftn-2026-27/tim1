@@ -1,33 +1,36 @@
-<article class="card">
+<article class="card tour-card">
   <div class="top">
-    <span
-      class="badge"
-      [class.badge--success]="tour().difficulty === 'Easy'"
-      [class.badge--warning]="tour().difficulty === 'Moderate'"
-      [class.badge--danger]="tour().difficulty === 'Hard'"
-    >
-      {{ tour().difficulty }}
-    </span>
+    <span [class]="'badge badge--' + difficulty().toLowerCase()">{{ difficulty() }}</span>
+    @if (tour().length > 0) {
+      <span class="length">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2" /><circle cx="18" cy="5" r="2" /><path d="M12 19h4.5a3.5 3.5 0 0 0 0-7h-8a3.5 3.5 0 0 1 0-7H12" /></svg>
+        {{ formatLength(tour().length) }} km
+      </span>
+    }
   </div>
 
-  <h3>{{ tour().name }}</h3>
+  <h3 class="title">{{ tour().name }}</h3>
 
   <p class="description">{{ tour().description }}</p>
 
   @if (tour().transportTimes.length > 0) {
-    <ul class="times">
+    <ul class="chips" aria-label="Travel times">
       @for (time of tour().transportTimes; track time.transport) {
-        <li class="time">{{ time.transport }} · {{ time.minutes }} min</li>
+        <li class="chip chip--outline">
+          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+          {{ time.transport }} · {{ time.minutes }} min
+        </li>
       }
     </ul>
-  } @else {
-    <p class="meta">No transport times yet.</p>
   }
 
   @if (tour().tags.length > 0) {
-    <ul class="tags">
-      @for (tag of tour().tags; track tag) {
-        <li>#{{ tag }}</li>
+    <ul class="chips" aria-label="Tags">
+      @for (tag of shownTags(); track tag) {
+        <li class="chip">#{{ tag }}</li>
+      }
+      @if (hiddenTagCount() > 0) {
+        <li class="chip chip--outline more">+{{ hiddenTagCount() }} more</li>
       }
     </ul>
   }
