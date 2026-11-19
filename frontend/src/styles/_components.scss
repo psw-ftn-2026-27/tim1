@@ -76,6 +76,19 @@
   padding: 0 var(--space-3);
 }
 
+// Puno crveno dugme: konačno brisanje u potvrdi („Delete" posle pitanja „Are you sure…?")
+.button--danger-solid {
+  background: var(--color-danger-solid);
+  border-color: var(--color-danger-solid);
+  color: var(--color-danger-solid-text);
+}
+
+.button--danger-solid:hover {
+  background: var(--color-danger-solid-hover);
+  border-color: var(--color-danger-solid-hover);
+  color: var(--color-danger-solid-text);
+}
+
 // Neaktivno dugme zadržava boje, samo izbledi
 .button:disabled {
   cursor: not-allowed;
@@ -88,6 +101,10 @@
 
 .button--primary:disabled:hover {
   background: var(--color-accent);
+}
+
+.button--danger-solid:disabled:hover {
+  background: var(--color-danger-solid);
 }
 
 .button--secondary:disabled:hover,
@@ -444,7 +461,7 @@
   color: var(--color-link);
 }
 
-// Dugme sa samo ikonicom, 40×40; obavezno aria-label. Varijante --success i --danger.
+// Dugme sa samo ikonicom, 44×44 (površina za dodir); obavezno aria-label. Varijante --success i --danger.
 // Važi i za link: <a class="icon-btn" routerLink="…" aria-label="…">.
 .icon-btn {
   align-items: center;
@@ -455,11 +472,11 @@
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
-  height: 2.5rem;
+  height: var(--control-height);
   justify-content: center;
   padding: 0;
   position: relative;
-  width: 2.5rem;
+  width: var(--control-height);
 }
 
 .icon-btn:hover {
@@ -638,4 +655,903 @@
   font-weight: var(--font-weight-bold);
   gap: var(--space-2);
   text-decoration: none;
+}
+
+// ============================================================================================
+// Games (reference: frontend/docs/design/games)
+//
+// Koren svake Games stranice ima klasu .games. Pravila „.games .x" daju globalnim klasama
+// izgled iz reference samo unutar Games-a; drugi moduli zadržavaju svoj izgled. Klase bez
+// prefiksa .games ispod (bedževi stanja, .xp, .tile, .quiz-card…) su nove i koristi ih Games.
+// ============================================================================================
+
+// Koren stranice: kolona sa razmakom 20px, tekst 15px. --narrow je uža kolona (900px) za formu
+// i detalje; lista koristi punu širinu kontejnera.
+.games {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-size-ui);
+  gap: var(--space-4-5);
+  padding-top: var(--space-2);
+}
+
+.games--narrow {
+  margin-inline: auto;
+  max-width: 56.25rem;
+  width: 100%;
+}
+
+.games h2,
+.games h3 {
+  line-height: 1.5;
+}
+
+// Na telefonu je bočni razmak 24px, kao u referenci (kontejner daje 16px)
+@media (max-width: 40rem) {
+  .games {
+    padding-inline: var(--space-2);
+  }
+}
+
+.games h1 {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-title);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.games .page-header {
+  margin-bottom: var(--space-1);
+}
+
+.games .page-header p {
+  font-size: var(--font-size-md);
+  margin-top: var(--space-1-5);
+}
+
+// Naslov stranice i bedž stanja u istom redu
+.games .title-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3-5);
+}
+
+.games .back {
+  color: var(--color-accent);
+  gap: var(--space-1-5);
+}
+
+.games .back:hover {
+  color: var(--color-accent-hover);
+}
+
+// Dugmad: tamnija podloga, 10px zaobljenje, tekst 15px (malo dugme 13px, 8px)
+.games .button {
+  background: var(--color-bg);
+  border-radius: var(--radius-control);
+  font-size: var(--font-size-ui);
+}
+
+.games .button:hover {
+  background: var(--color-bg);
+  border-color: var(--color-text-subtle);
+  color: var(--color-text-strong);
+}
+
+.games .button--primary,
+.games .button--primary:hover {
+  color: var(--color-accent-text);
+}
+
+.games .button--primary {
+  background: var(--color-accent);
+}
+
+.games .button--primary:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+.games .button--danger {
+  background: transparent;
+  border-color: var(--color-error-border);
+  color: var(--color-error-strong);
+}
+
+.games .button--danger:hover {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error-strong);
+}
+
+.games .button--danger-solid,
+.games .button--danger-solid:hover {
+  background: var(--color-danger-solid);
+  border-color: var(--color-danger-solid);
+  color: var(--color-danger-solid-text);
+}
+
+.games .button--small {
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-caption);
+}
+
+.games .button:disabled:hover {
+  background: var(--color-bg);
+}
+
+.games .button--primary:disabled:hover {
+  background: var(--color-accent);
+}
+
+// Kartica: 14px zaobljenje. --flush nema unutrašnji razmak i deli se na .card-head,
+// .card-body i .card-footer.
+.games .card {
+  border-radius: var(--radius-card);
+}
+
+.card--flush {
+  overflow: hidden;
+  padding: 0;
+}
+
+.card-head {
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+}
+
+.card-title {
+  align-items: center;
+  color: var(--color-text-strong);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-heading);
+  gap: var(--space-2-5);
+  margin: 0;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4-5);
+  padding: var(--space-5);
+}
+
+// Podnožje kartice: levo napomena (.meta), desno dugmad
+.card-footer {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+}
+
+// Polja: oznaka svetla i podebljana, polje 46px, 10px zaobljenje
+.games .field {
+  gap: var(--space-1-5);
+}
+
+.games .field label,
+.games .label {
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+// Sporedni deo oznake („· optional", „· every day…") i oznaka manjeg polja („Starts at")
+.games .label-hint,
+.games .field label.label-hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-normal);
+}
+
+.games .field input,
+.games .field select,
+.games .field textarea {
+  border-radius: var(--radius-control);
+  font-size: var(--font-size-ui);
+  min-height: var(--control-height-field);
+  padding: var(--space-2-5) var(--space-3-5);
+}
+
+.games .field input::placeholder,
+.games .field textarea::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.games .help {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  margin: 0;
+}
+
+// Odeljak forme odvojen gornjom linijom („Quiz location", „Questions")
+.form-section {
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  padding-top: var(--space-4-5);
+}
+
+.form-section h2 {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-title-sm);
+  margin: 0 0 var(--space-1);
+}
+
+// Okvir oko <app-map> sa natpisom na sredini dok lokacija nije postavljena.
+// Natpis ne hvata klik, pa klik prolazi do mape.
+.map-frame {
+  position: relative;
+}
+
+.map-hint {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-strong);
+  font-weight: var(--font-weight-bold);
+  left: 50%;
+  padding: var(--space-1-5) var(--space-6-5);
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  z-index: 500;
+}
+
+// Dve kolone jednake širine (forma, lista podataka i mapa); na uskom ekranu jedna ispod druge
+.split {
+  align-items: start;
+  display: grid;
+  gap: var(--space-5-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+
+.cols-2,
+.cols-3 {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+}
+
+// Tabela: tekst 15px, zaglavlje prigušeno i podebljano, ime je beli podebljan link
+.games .table {
+  font-size: var(--font-size-ui);
+}
+
+.games .table th {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  padding: var(--space-3-5) var(--space-4-5);
+  white-space: nowrap;
+}
+
+.games .table td {
+  padding: calc(var(--space-3) + 0.0625rem) var(--space-4-5);
+  vertical-align: middle;
+}
+
+.games .table-card {
+  border-radius: var(--radius-card);
+}
+
+.games .table-card .table tr:last-child td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.games .table td.name a {
+  color: var(--color-text-strong);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.games .table td.name a:hover {
+  color: var(--color-accent);
+}
+
+.games .table .num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.games .table .end {
+  text-align: right;
+}
+
+// Podnožje tabele: levo „1–10 of 19 challenges", desno straničenje
+.table-card-footer {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-3-5) var(--space-4-5);
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+}
+
+// Red tabele sa otvorenom potvrdom brisanja dobija blago crvenu podlogu
+.table tr.row--danger td,
+.table tbody tr.row--danger:hover td {
+  background: var(--color-row-danger-bg);
+}
+
+// Red-poruka odmah ispod reda tabele: greška akcije pokrenute iz tog reda.
+// Red iznad nje gubi donju liniju, pa poruka izgleda kao deo tog reda.
+.table tr.row-message td {
+  padding-top: 0;
+}
+
+.table tbody tr.row-message:hover {
+  background: none;
+}
+
+.table tr:has(+ .row-message) td {
+  border-bottom: 0;
+}
+
+// Akcije u redu tabele i potvrda: desno poravnate
+.row-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.games .confirm {
+  justify-content: flex-end;
+}
+
+.games .confirm__text {
+  color: var(--color-confirm);
+  font-size: var(--font-size-sm);
+}
+
+// Poruke: 10px zaobljenje; greška, uspeh i info u bojama reference. Tekst je u <p>, a
+// .alert__dismiss je dugme × na kraju poruke (površina za dodir 44px, ikonica 16px).
+.games .alert {
+  align-items: flex-start;
+  border-radius: var(--radius-control);
+}
+
+.games .alert p {
+  flex: 1;
+  margin: 0;
+}
+
+.games .alert--danger {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error);
+}
+
+.games .alert--success {
+  color: var(--color-alert-success);
+}
+
+.games .alert--info {
+  background: var(--color-alert-info-bg);
+  border-color: var(--color-alert-info-border);
+}
+
+.alert__dismiss {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 auto;
+  height: var(--control-height);
+  justify-content: center;
+  margin: calc(var(--space-3) * -1) calc(var(--space-3) * -1) calc(var(--space-3) * -1) 0;
+  opacity: 0.8;
+  padding: 0;
+  width: var(--control-height);
+}
+
+.alert__dismiss:hover {
+  opacity: 1;
+}
+
+// Bedž: neutralni je svetlije siv; „Quiz" plavi, --accent puna narandžasto-smeđa podloga
+.games .badge {
+  color: var(--color-text-soft);
+  min-height: 1.375rem;
+  padding: 0 var(--space-2);
+}
+
+.games .badge--accent {
+  background: var(--color-accent-soft);
+  color: var(--color-link);
+}
+
+.games .badge--quiz,
+.badge--quiz {
+  background: var(--color-type-quiz-bg);
+  color: var(--color-type-quiz);
+}
+
+// Bedževi stanja izazova, isti na svim ekranima:
+// <span [class]="'badge badge--' + status.toLowerCase()">{{ status }}</span>
+.games .badge--draft,
+.badge--draft {
+  background: var(--color-state-draft-bg);
+  color: var(--color-state-draft);
+}
+
+.games .badge--published,
+.badge--published {
+  background: var(--color-state-published-bg);
+  color: var(--color-state-published);
+}
+
+.games .badge--retired,
+.badge--retired {
+  background: var(--color-state-retired-bg);
+  color: var(--color-state-retired);
+}
+
+.games .badge--archived,
+.badge--archived {
+  background: var(--color-state-archived-bg);
+  color: var(--color-state-archived);
+}
+
+// XP (iskustveni poeni): žuta boja i podebljano, na svakom mestu
+.xp {
+  color: var(--color-xp);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// Prazno stanje: ikonica u sivom krugu, beli naslov, 14px zaobljen isprekidan okvir
+.games .empty {
+  gap: var(--space-2-5);
+  padding: var(--space-6-5) var(--space-5);
+}
+
+.games .empty--boxed {
+  border-color: var(--color-border-field);
+  border-radius: var(--radius-card);
+}
+
+.games .empty h2 {
+  color: var(--color-text-strong);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+}
+
+.games .empty p {
+  max-width: 26.25rem;
+}
+
+.games .empty-icon {
+  background: var(--color-border);
+  color: var(--color-text-soft);
+  height: 3rem;
+  width: 3rem;
+}
+
+// Lista podataka: dve kolone, oznaka prigušena, vrednost bela i podebljana.
+// <dl class="data-list"><div><dt>XP</dt><dd class="xp">40</dd></div>
+//   <div class="data-list__wide"><dt>Instructions</dt><dd class="data-list__text">…</dd></div></dl>
+.data-list {
+  display: grid;
+  gap: var(--space-4) var(--space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.data-list dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+.data-list dd {
+  color: var(--color-text-strong);
+  font-weight: 700;
+  margin: 0;
+  margin-top: 0.125rem;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.data-list dd.xp {
+  color: var(--color-xp);
+}
+
+.data-list .data-list__text {
+  font-weight: var(--font-weight-normal);
+}
+
+.data-list__wide {
+  grid-column: 1 / -1;
+}
+
+// Prigušena vrednost koja nedostaje („Unknown")
+.unknown {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+// Naslov odeljka huba („ADMINISTRATION", „PLAY")
+.section-title {
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: var(--space-3) 0 var(--space-3-5);
+  text-transform: uppercase;
+}
+
+// Kartica-link u mreži (hub): ikonica, naslov, rečenica opisa i CTA sa strelicom.
+// Cela kartica je <a>; na hover ivica postaje narandžasta.
+.tile-grid {
+  display: grid;
+  gap: var(--space-4-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.75rem), 1fr));
+}
+
+.tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 12.5rem;
+  padding: var(--space-5);
+  text-decoration: none;
+}
+
+.tile:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.tile-icon {
+  align-items: center;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius);
+  color: var(--color-accent);
+  display: flex;
+  height: 2.75rem;
+  justify-content: center;
+  width: 2.75rem;
+}
+
+.tile-title {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-heading);
+  margin: 0;
+}
+
+.tile-text {
+  color: var(--color-text-muted);
+  flex: 1;
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+// Poziv na akciju sa strelicom (kartica huba, kartica kviza)
+.tile-cta {
+  align-items: center;
+  color: var(--color-accent);
+  display: flex;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-1-5);
+}
+
+// ---- Games: forma kviza ----
+
+// Pitanje u formi: kartica unutar kartice
+.question-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4-5);
+}
+
+// Dugme sa samo ikonicom u formi (ukloni pitanje, ukloni odgovor): 44×44, prigušeno
+.games .icon-btn {
+  background: transparent;
+  border-color: var(--color-border-field);
+  border-radius: var(--radius-control);
+  color: var(--color-text-muted);
+}
+
+.games .icon-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+// Dugme-link („+ Add answer"): narandžast tekst bez okvira
+.add-link {
+  align-items: center;
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  color: var(--color-accent);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-1-5);
+  min-height: var(--control-height);
+  padding: 0;
+}
+
+.add-link:hover {
+  color: var(--color-accent-hover);
+}
+
+// Podsetnik (ne blokira): žuti tekst sa ikonicom
+.warn-text {
+  align-items: center;
+  color: var(--color-state-draft);
+  display: flex;
+  font-size: var(--font-size-caption);
+  gap: var(--space-1-5);
+  margin: 0;
+}
+
+// ---- Games: rešavanje kviza ----
+
+// Kartica kviza u mreži za igrača (najmanje 320px); cela kartica je link
+.quiz-grid {
+  display: grid;
+  gap: var(--space-4-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+
+.quiz-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  min-height: 11.875rem;
+  padding: var(--space-5);
+  text-decoration: none;
+}
+
+.quiz-card:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.quiz-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.quiz-card__name {
+  color: var(--color-text-strong);
+  flex: 1;
+  font-size: var(--font-size-title-sm);
+  font-weight: var(--font-weight-heading);
+  margin: 0;
+}
+
+.quiz-card__footer {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--space-3-5);
+}
+
+// Iznad pitanja: naziv kviza, „Question 2 of 5" i poeni, pa traka napretka
+.play-meta {
+  align-items: center;
+  color: var(--color-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.play-meta b {
+  color: var(--color-text-strong);
+}
+
+.points {
+  align-items: center;
+  color: var(--color-xp);
+  display: inline-flex;
+  font-weight: 700;
+  gap: var(--space-1-5);
+}
+
+// Traka napretka sa narandžastim punjenjem; ide uz role="progressbar" i aria-valuenow/min/max
+.progress {
+  background: var(--color-border);
+  border-radius: var(--radius-pill);
+  height: 0.5rem;
+  overflow: hidden;
+}
+
+.progress__fill {
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  height: 100%;
+}
+
+.games .question-text {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-heading);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+// Odgovor kao dugme pune širine (najmanje 60px): slovo u kvadratiću i tekst
+.option {
+  align-items: center;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-3-5);
+  min-height: 3.75rem;
+  padding: var(--space-3-5) var(--space-4-5);
+  text-align: left;
+  width: 100%;
+}
+
+.option:hover {
+  background: var(--color-option-hover-bg);
+  border-color: var(--color-accent);
+  color: var(--color-text-strong);
+}
+
+.option:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.option-key {
+  align-items: center;
+  background: var(--color-border);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-soft);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+// Ishod odgovora ili kviza, centriran: krug sa ikonicom, naslov, tekst
+.outcome {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  padding: var(--space-6-5) var(--space-5);
+  text-align: center;
+}
+
+.outcome h2 {
+  color: var(--color-text-strong);
+  font-size: var(--font-size-stat);
+  font-weight: var(--font-weight-display);
+  margin: 0;
+}
+
+.outcome p {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.outcome__icon {
+  align-items: center;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-pill);
+  color: var(--color-accent);
+  display: flex;
+  height: 4.5rem;
+  justify-content: center;
+  width: 4.5rem;
+}
+
+.outcome__icon--success {
+  background: var(--color-state-published-bg);
+  color: var(--color-state-published);
+}
+
+.outcome__icon--danger {
+  background: var(--color-error-strong-bg);
+  color: var(--color-error-strong);
+}
+
+// Statistike u karticama: velika vrednost i oznaka ispod
+.stats {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: var(--space-3) 0;
+  max-width: 38.75rem;
+  width: 100%;
+}
+
+.stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.stat__value {
+  color: var(--color-text-strong);
+  display: block;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-stat);
+  font-weight: var(--font-weight-display);
+  line-height: 1.2;
+}
+
+.stat__value.xp {
+  color: var(--color-xp);
+}
+
+.stat__label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+}
+
+@media (max-width: 40rem) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
 }

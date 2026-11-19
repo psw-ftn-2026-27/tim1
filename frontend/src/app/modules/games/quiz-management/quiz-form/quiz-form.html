@@ -1,136 +1,180 @@
-<form class="stack" (submit)="submit($event)" novalidate>
+<form class="card card--flush" (submit)="submit($event)" novalidate>
   @let form = fields();
-  <div class="field">
-    <label for="quiz-name">Name</label>
-    <input id="quiz-name" type="text" [formField]="form.name" />
-    @if (form.name().touched()) {
-      @for (error of form.name().errors(); track error.kind) {
-        <p class="field-error">{{ error.message }}</p>
-      }
-    }
-  </div>
-  <div class="field">
-    <label for="quiz-instructions">Instructions</label>
-    <textarea id="quiz-instructions" rows="3" [formField]="form.instructions"></textarea>
-    @if (form.instructions().touched()) {
-      @for (error of form.instructions().errors(); track error.kind) {
-        <p class="field-error">{{ error.message }}</p>
-      }
-    }
-  </div>
-  <div class="field">
-    <label for="quiz-xp">XP</label>
-    <input id="quiz-xp" type="number" step="1" [formField]="form.experiencePoints" />
-    @if (form.experiencePoints().touched()) {
-      @for (error of form.experiencePoints().errors(); track error.kind) {
-        <p class="field-error">{{ error.message }}</p>
-      }
-    }
-  </div>
 
-  <section class="stack">
-    <h2>Questions</h2>
-    @for (question of form.questions; track $index; let questionIndex = $index) {
-      <fieldset class="stack">
-        <legend>Question {{ questionIndex + 1 }}</legend>
-        <div class="field">
-          <label [for]="'question-' + questionIndex">Question text</label>
-          <input [id]="'question-' + questionIndex" type="text" [formField]="question.text" />
-        </div>
-        @for (answer of question.answers; track $index; let answerIndex = $index) {
-          <div class="answer">
-            <div class="field">
-              <label [for]="'answer-' + questionIndex + '-' + answerIndex">
-                Answer {{ answerIndex + 1 }}
-              </label>
-              <input
-                [id]="'answer-' + questionIndex + '-' + answerIndex"
-                type="text"
-                [formField]="answer.text"
-              />
-            </div>
-            <button
-              type="button"
-              class="button button--small"
-              [disabled]="pending()"
-              (click)="removeAnswer(questionIndex, answerIndex)"
-            >
-              Remove answer
-            </button>
-          </div>
-        }
-        @if (question.answers().value().length > 0) {
-          <div class="field">
-            <label [for]="'correct-' + questionIndex">Correct answer</label>
-            <select [id]="'correct-' + questionIndex" [formField]="question.correctAnswer">
-              <option value="">Not selected</option>
-              @for (answer of question.answers; track $index) {
-                <option [value]="$index.toString()">Answer {{ $index + 1 }}</option>
-              }
-            </select>
-          </div>
-        }
-        <div class="actions">
-          <button
-            type="button"
-            class="button button--small"
-            [disabled]="pending()"
-            (click)="addAnswer(questionIndex)"
-          >
-            Add answer
-          </button>
-          <button
-            type="button"
-            class="button button--small"
-            [disabled]="pending()"
-            (click)="removeQuestion(questionIndex)"
-          >
-            Remove question
-          </button>
-        </div>
-      </fieldset>
+  <div class="card-body">
+    @if (error(); as message) {
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+        <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="dismissed.emit()">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
     }
-    <button type="button" class="button" [disabled]="pending()" (click)="addQuestion()">
-      Add question
-    </button>
-  </section>
 
-  <section class="stack">
-    <h2>Quiz location</h2>
-    <p>Click the map to choose an optional location.</p>
-    <!-- A new instance clears the internal selection marker when the form's pin changes. -->
-    @for (location of [form.location().value()]; track location) {
-      <app-map
-        [pins]="location ? [location] : []"
-        [selectionEnabled]="!pending()"
-        (locationSelected)="form.location().value.set($event)"
-      />
-      @if (location) {
-        <div class="actions">
+    <div class="field" [class.field--error]="form.name().touched() && form.name().invalid()">
+      <label for="quiz-name">Name</label>
+      <input id="quiz-name" type="text" placeholder="e.g. Mostovi Novog Sada" [formField]="form.name" />
+      @if (form.name().touched()) {
+        @for (error of form.name().errors(); track error.kind) {
+          <p class="error">{{ error.message }}</p>
+        }
+      }
+    </div>
+
+    <div class="field" [class.field--error]="form.instructions().touched() && form.instructions().invalid()">
+      <label for="quiz-instructions">Instructions</label>
+      <textarea
+        id="quiz-instructions"
+        rows="3"
+        placeholder="Tell players where to go and what to look for."
+        [formField]="form.instructions"
+      ></textarea>
+      @if (form.instructions().touched()) {
+        @for (error of form.instructions().errors(); track error.kind) {
+          <p class="error">{{ error.message }}</p>
+        }
+      }
+    </div>
+
+    <div class="field xp-field" [class.field--error]="form.experiencePoints().touched() && form.experiencePoints().invalid()">
+      <label for="quiz-xp">XP</label>
+      <input id="quiz-xp" type="number" step="1" placeholder="0" aria-describedby="quiz-xp-hint" [formField]="form.experiencePoints" />
+      <p id="quiz-xp-hint" class="help">Whole number, 0 or more.</p>
+      @if (form.experiencePoints().touched()) {
+        @for (error of form.experiencePoints().errors(); track error.kind) {
+          <p class="error">{{ error.message }}</p>
+        }
+      }
+    </div>
+
+    <section class="form-section" aria-labelledby="quiz-location-title">
+      <div>
+        <h2 id="quiz-location-title">Quiz location <span class="label-hint">· optional</span></h2>
+        <p class="help">
+          Click the map to place the pin. Players must be within 50 m of it to start the quiz. Without a location it can
+          be played anywhere.
+        </p>
+      </div>
+      <div class="map-frame">
+        <app-map
+          [pins]="locationPins()"
+          [selectionEnabled]="!pending()"
+          [showSelectionPin]="false"
+          (locationSelected)="form.location().value.set($event)"
+        />
+        @if (!form.location().value()) {
+          <span class="map-hint">Click to set the location</span>
+        }
+      </div>
+      @if (form.location().value(); as location) {
+        <div class="location-row">
+          <span><span class="meta">Selected: </span><b>{{ location.latitude.toFixed(5) }}, {{ location.longitude.toFixed(5) }}</b></span>
           <button
             type="button"
-            class="button button--small"
+            class="button button--danger button--small"
             [disabled]="pending()"
             (click)="form.location().value.set(null)"
           >
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
             Remove location
           </button>
         </div>
       }
-    }
-  </section>
+    </section>
 
-  @if (error(); as message) {
-    <p class="alert alert--danger" role="alert">{{ message }}</p>
-  }
-  <div class="actions">
-    <button type="submit" class="button button--primary" [disabled]="pending() || !form().valid()">
-      {{ pending() ? 'Saving…' : saveLabel() }}
-    </button>
-    @if (showCancel()) {
-      <button type="button" class="button" [disabled]="pending()" (click)="cancelled.emit()">
-        Cancel
+    <section class="form-section questions" aria-labelledby="quiz-questions-title">
+      <div>
+        <h2 id="quiz-questions-title">Questions</h2>
+        <p class="help">
+          A draft can be saved with unfinished questions. Publishing needs at least one question, each with two or more
+          answers and exactly one correct.
+        </p>
+      </div>
+
+      @for (question of form.questions; track $index; let questionIndex = $index) {
+        <div class="question-card">
+          <div class="question-head">
+            <div class="field">
+              <label [for]="'question-' + questionIndex">Question {{ questionIndex + 1 }}</label>
+              <input [id]="'question-' + questionIndex" type="text" placeholder="Write the question" [formField]="question.text" />
+            </div>
+            <button
+              type="button"
+              class="icon-btn"
+              [attr.aria-label]="'Remove question ' + (questionIndex + 1)"
+              [disabled]="pending()"
+              (click)="removeQuestion(questionIndex)"
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" /></svg>
+            </button>
+          </div>
+
+          <div class="answers">
+            <span class="label-hint">Answers · mark the correct one</span>
+            @for (answer of question.answers; track $index; let answerIndex = $index) {
+              <div class="answer-row field">
+                <label class="correct-toggle" [for]="'correct-' + questionIndex + '-' + answerIndex">
+                  <input
+                    [id]="'correct-' + questionIndex + '-' + answerIndex"
+                    type="radio"
+                    [value]="'' + answerIndex"
+                    [formField]="question.correctAnswer"
+                  />
+                  Correct
+                </label>
+                <input
+                  type="text"
+                  [placeholder]="'Answer ' + (answerIndex + 1)"
+                  [attr.aria-label]="'Question ' + (questionIndex + 1) + ', answer ' + (answerIndex + 1)"
+                  [formField]="answer.text"
+                />
+                <button
+                  type="button"
+                  class="icon-btn"
+                  [attr.aria-label]="'Remove answer ' + (answerIndex + 1) + ' of question ' + (questionIndex + 1)"
+                  [disabled]="pending()"
+                  (click)="removeAnswer(questionIndex, answerIndex)"
+                >
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                </button>
+              </div>
+            }
+            <button type="button" class="add-link" [disabled]="pending()" (click)="addAnswer(questionIndex)">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+              Add answer
+            </button>
+          </div>
+
+          @if (needsReminder(question().value())) {
+            <p class="warn-text">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+              Mark one correct answer and add at least two answers before publishing.
+            </p>
+          }
+        </div>
+      }
+
+      <div>
+        <button type="button" class="button" [disabled]="pending()" (click)="addQuestion()">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+          Add question
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div class="card-footer">
+    <span class="meta">{{ note() }}</span>
+    <div class="form-actions">
+      @if (cancelLink(); as link) {
+        <a class="button" [routerLink]="link">Cancel</a>
+      } @else {
+        <button type="button" class="button" [disabled]="pending()" (click)="cancelled.emit()">Cancel</button>
+      }
+      <button type="submit" class="button button--primary" [disabled]="pending() || !form().valid()">
+        {{ pending() ? 'Saving…' : saveLabel() }}
       </button>
-    }
+    </div>
   </div>
 </form>

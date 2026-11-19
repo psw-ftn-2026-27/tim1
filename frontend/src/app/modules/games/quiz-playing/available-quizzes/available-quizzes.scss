@@ -1,11 +1,4 @@
-.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.table-card {
-  overflow-x: auto;
+// Podnožje liste kartica: bez okvira i bočnog razmaka
+.list-footer {
+  padding: 0;
 }

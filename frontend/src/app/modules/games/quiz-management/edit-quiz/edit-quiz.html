@@ -1,92 +1,165 @@
-<div class="stack">
-  <p><a routerLink="/games/quizzes">← Quizzes</a></p>
+<div class="games games--narrow">
+  <a class="back" routerLink="/games/quizzes">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Quizzes
+  </a>
 
-  @if (!editing() && error(); as message) {
-    <p class="alert alert--danger" role="alert">{{ message }}</p>
-  }
+  @if (quiz.isLoading() && !quiz.hasValue()) {
+    <p class="empty empty--boxed" role="status">Loading quiz…</p>
+  } @else if (quiz.hasValue()) {
+    @let details = quiz.value();
 
-  @if (editing()) {
-    <h1>Edit quiz</h1>
-    <section class="card">
+    <div class="page-header">
+      <div>
+        <h1 class="title-row">
+          {{ details.name }}
+          <span [class]="'badge badge--' + details.status.toLowerCase()">{{ details.status }}</span>
+        </h1>
+        @if (editing()) {
+          <p>Editing the draft. Nothing changes until you save.</p>
+        } @else {
+          <p>Created {{ formatDate(details.createdAt) }}</p>
+        }
+      </div>
+      @if (!editing()) {
+        <app-quiz-actions
+          [status]="details.status"
+          [pending]="pending()"
+          [withEdit]="true"
+          [confirming]="confirmingDelete()"
+          (confirmingChange)="confirmingDelete.set($event)"
+          (edit)="startEdit(details)"
+          (requested)="changeLifecycle($event)"
+        />
+      }
+    </div>
+
+    @if (editing()) {
       <app-quiz-form
         [fields]="fields"
         [pending]="pending()"
         [error]="error()"
-        [showCancel]="true"
         saveLabel="Save changes"
+        note="Cancel discards unsaved changes, including the location."
         (save)="update($event)"
-        (cancelled)="editing.set(false)"
+        (cancelled)="cancelEdit()"
+        (dismissed)="error.set(null)"
       />
-    </section>
-  } @else if (quiz.isLoading()) {
-    <p role="status">Loading quiz…</p>
-  } @else if (quiz.hasValue()) {
-    @let details = quiz.value();
-    <h1>{{ details.name }}</h1>
-    @if (saved()) {
-      <p class="alert alert--success" role="status">Changes saved.</p>
-    }
-    @if (statusUpdated()) {
-      <p class="alert alert--success" role="status">Quiz status updated.</p>
-    }
-    <section class="card stack">
-      <p>
-        <strong>Status:</strong> <span class="badge">{{ details.status }}</span>
-      </p>
-      <p><strong>XP:</strong> {{ details.experiencePoints }}</p>
-      <div>
-        <h2>Instructions</h2>
-        <p class="saved-text">{{ details.instructions }}</p>
-      </div>
-      <section class="stack">
-        <h2>Quiz location</h2>
-        @if (locationPins().length) {
-          <app-map [pins]="locationPins()" />
-        } @else {
-          <p>No location assigned.</p>
-        }
-      </section>
-      <div class="stack">
-        <h2>Questions</h2>
-        @for (question of details.questions; track question.id) {
-          <div>
-            <h3>{{ question.text || 'Untitled question' }}</h3>
-            @if (question.answers.length > 0) {
-              <ul>
-                @for (answer of question.answers; track $index) {
-                  <li>
-                    {{ answer.text || 'Untitled answer' }}
-                    @if (answer.isCorrect) {
-                      <span class="badge badge--success">Correct</span>
-                    }
-                  </li>
-                }
-              </ul>
-            } @else {
-              <p>No answers yet.</p>
-            }
-          </div>
-        } @empty {
-          <p>No questions yet.</p>
-        }
-      </div>
-      <div class="quiz-commands">
-        @if (details.status === 'Draft') {
-          <button type="button" class="button button--primary" [disabled]="pending()" (click)="startEdit(details)">
-            Edit
+    } @else {
+      @if (success(); as message) {
+        <div class="alert alert--success" role="status">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+          <p>{{ message }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="success.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
-        }
-        <app-quiz-actions
-          [status]="details.status"
-          [pending]="pending()"
-          (requested)="changeLifecycle($event)"
-        />
-      </div>
-    </section>
+        </div>
+      }
+      @if (error(); as message) {
+        <div class="alert alert--danger" role="alert">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+          <p>{{ message }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+      }
+
+      <section class="card card--flush" aria-labelledby="details-title">
+        <div class="card-head"><h2 id="details-title" class="card-title">Details</h2></div>
+        <div class="card-body split">
+          <dl class="data-list">
+            <div>
+              <dt>XP</dt>
+              <dd class="xp">{{ details.experiencePoints }}</dd>
+            </div>
+            <div>
+              <dt>Questions</dt>
+              <dd>{{ details.questions.length }}</dd>
+            </div>
+            <div class="data-list__wide">
+              <dt>Instructions</dt>
+              <dd class="data-list__text">{{ details.instructions }}</dd>
+            </div>
+            <div class="data-list__wide">
+              <dt>Location</dt>
+              <dd>
+                @if (locationPins()[0]; as pin) {
+                  {{ pin.latitude.toFixed(5) }}, {{ pin.longitude.toFixed(5) }}
+                } @else {
+                  <span class="unknown">Not assigned</span>
+                }
+              </dd>
+            </div>
+          </dl>
+          @if (locationPins().length > 0) {
+            <app-map [pins]="locationPins()" />
+          } @else {
+            <div class="empty empty--boxed">
+              <span class="empty-icon">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              </span>
+              <p>Location not assigned</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="card card--flush" aria-labelledby="questions-title">
+        <div class="card-head"><h2 id="questions-title" class="card-title">Questions</h2></div>
+        <div class="card-body">
+          @if (details.questions.length > 0) {
+            <ol class="q-list">
+              @for (question of details.questions; track question.id; let number = $index) {
+                <li class="q-item">
+                  <h3>
+                    <span class="q-num">{{ number + 1 }}.</span>
+                    {{ question.text || 'Untitled question' }}
+                    @if (!hasCorrectAnswer(question)) {
+                      <span class="badge badge--draft">No correct answer</span>
+                    }
+                  </h3>
+                  @if (question.answers.length > 0) {
+                    <ul class="a-list">
+                      @for (answer of question.answers; track $index) {
+                        <li [class.is-correct]="answer.isCorrect">
+                          {{ answer.text || 'Untitled answer' }}
+                          @if (answer.isCorrect) {
+                            <span class="badge badge--published">Correct</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="help">No answers yet.</p>
+                  }
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="help">No questions yet.</p>
+          }
+        </div>
+      </section>
+    }
   } @else if (missing()) {
-    <p class="alert alert--danger" role="alert">This quiz is no longer available.</p>
+    <div class="empty empty--boxed">
+      <span class="empty-icon">
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      </span>
+      <h2>Quiz is no longer available</h2>
+      <a class="button" routerLink="/games/quizzes">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+        Back to quizzes
+      </a>
+    </div>
   } @else {
-    <p class="alert alert--danger" role="alert">Could not load the quiz.</p>
-    <button type="button" class="button" (click)="quiz.reload()">Try again</button>
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load the quiz. Check your connection and try again.</p>
+    </div>
+    <div>
+      <button type="button" class="button" (click)="quiz.reload()">Try again</button>
+    </div>
   }
 </div>

@@ -11,6 +11,8 @@ import { QuizPlayStateDto } from '../../api/games-api-types';
 export class QuizActivation {
   readonly state = input.required<QuizPlayStateDto>();
   readonly pending = input(false);
+  // The server's message when activation was refused (too far away, invalid position).
+  readonly error = input<string | null>(null);
   readonly activated = output<MapPin>();
 
   protected readonly position = signal<MapPin | null>(null);

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty, error and unavailable states</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../games-reference.css">
+</head>
+<body>
+<div class="app">
+<header class="app-header"><div class="app-header__inner">
+<a class="brand" href="Main.html"><span class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19L10 7l4 7 2-3 5 8z"></path></svg></span><span>Explorer</span></a>
+<nav class="nav" aria-label="Main"><a href="#">Home</a><a href="#">Exploration</a><a class="active" href="Main.html" aria-current="page">Games</a><a href="#">Social</a><a href="#">Payment</a></nav>
+<div class="user"><span class="avatar" aria-hidden="true">A</span><span>admin@example.com</span><span class="badge badge--info">ADMIN</span><a class="button button--sm" href="#">Logout</a></div>
+</div></header>
+<main class="page">
+
+<div class="page-header"><div><h1>States</h1><p class="lead">Empty, error and “no longer available” states for the admin pages and the quiz player.</p></div></div>
+<div class="state-grid">
+<section><p class="state-caption">All challenges · nothing saved yet</p>
+<div class="empty empty--boxed"><span class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg></span><h3>No saved challenges</h3><p>Create a quiz or a social challenge and it will show up here.</p></div></section>
+<section><p class="state-caption">All challenges · no match</p>
+<div class="toolbar"><div class="field search"><label class="label" for="smost">Name</label><div style="position:relative"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg><input class="input" id="smost" type="search" value="most" placeholder="Search by name"></div></div>
+<div class="field select-field"><label class="label" for="tmost">Type</label><select class="input" id="tmost"><option>Quiz</option></select></div>
+<div class="field select-field"><label class="label" for="stmost">State</label><select class="input" id="stmost"><option>Archived</option></select></div></div>
+<div class="empty empty--boxed"><span class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg></span><h3>No challenges match the criteria</h3><button class="button" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>Clear criteria</button></div></section>
+<section><p class="state-caption">All challenges · loading failed</p>
+<div class="alert alert--error " role="alert"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg><p>Couldn’t load challenges. Check your connection and try again.</p></div>
+<button class="button" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 4v6h-6M20.5 15a9 9 0 1 1-2.1-9.4L23 10"></path></svg>Try again</button></section>
+<section><p class="state-caption">Quizzes list · no quizzes yet</p>
+<div class="empty empty--boxed"><span class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"></path></svg></span><h3>No quizzes yet</h3><a class="button button--primary" href="QuizNew.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Create quiz</a></div></section>
+<section><p class="state-caption">Quiz details · deleted meanwhile</p>
+<div class="empty empty--boxed"><span class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg></span><h3>Quiz is no longer available</h3><a class="button" href="Quizzes.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>Back to quizzes</a></div></section>
+<section><p class="state-caption">Explorer · quiz retired or deleted mid-attempt</p>
+<div class="empty empty--boxed"><span class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg></span><h3>This quiz is no longer available</h3><p>Your saved answers stay, but no XP is awarded for it.</p><a class="button" href="PlayQuizzes.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>Back to quizzes</a></div></section>
+</div>
+
+</main>
+</div>
+</body>
+</html>

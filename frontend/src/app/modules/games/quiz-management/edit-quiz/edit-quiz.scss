@@ -1,10 +1,61 @@
-.saved-text {
-  white-space: pre-wrap;
+// Numerisana lista pitanja: svako pitanje u svom okviru, odgovori ispod
+.q-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.quiz-commands {
+.q-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  padding: var(--space-4) var(--space-4-5);
+}
+
+.q-item h3 {
+  align-items: baseline;
+  color: var(--color-text-strong);
   display: flex;
   flex-wrap: wrap;
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  gap: var(--space-2-5);
+  margin: 0 0 var(--space-2-5);
+}
+
+.q-num {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+}
+
+.a-list {
+  display: grid;
+  gap: var(--space-1-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.a-list li {
   align-items: center;
-  gap: var(--space-2);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-xs);
+  display: flex;
+  font-size: var(--font-size-sm);
+  gap: var(--space-2-5);
+  padding: var(--space-2) var(--space-3);
+}
+
+// Tačan odgovor ima zelenkastu podlogu, a bedž „Correct" stoji desno
+.a-list li.is-correct {
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+
+.a-list .badge {
+  margin-left: auto;
 }

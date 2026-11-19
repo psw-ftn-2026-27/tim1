@@ -45,10 +45,13 @@ export class SocialChallenges {
   );
 
   protected readonly pending = signal(false);
-  protected readonly error = signal<string | null>(null);
   protected readonly deletingId = signal<string | null>(null);
+  // The last refused action: which challenge, what was tried, and the server's message.
+  protected readonly failure = signal<{ name: string; verb: string; message: string } | null>(
+    null,
+  );
 
-  // The server sends "HH:mm:ss"; the page shows only hours and minutes.
+  // The server sends "HH:mm:ss"; the page shows only hours and minutes (24-hour time).
   protected hoursAndMinutes(time: string): string {
     return time.slice(0, 5);
   }
@@ -58,47 +61,25 @@ export class SocialChallenges {
     this.page.set(page);
   }
 
-  protected async publish(id: string): Promise<void> {
-    this.pending.set(true);
-    this.error.set(null);
-    try {
-      await this.socialChallengeManagement.publish(id);
-    } catch (failure) {
-      this.error.set(serverMessage(failure, 'Could not publish the challenge.'));
-    } finally {
-      this.challenges.reload();
-      this.pending.set(false);
-    }
+  protected publish(challenge: SocialChallengeDto): Promise<void> {
+    return this.run(challenge, 'published', () =>
+      this.socialChallengeManagement.publish(challenge.id),
+    );
   }
 
-  protected async retire(id: string): Promise<void> {
-    this.pending.set(true);
-    this.error.set(null);
-    try {
-      await this.socialChallengeManagement.retire(id);
-    } catch (failure) {
-      this.error.set(serverMessage(failure, 'Could not retire the challenge.'));
-    } finally {
-      this.challenges.reload();
-      this.pending.set(false);
-    }
+  protected retire(challenge: SocialChallengeDto): Promise<void> {
+    return this.run(challenge, 'retired', () =>
+      this.socialChallengeManagement.retire(challenge.id),
+    );
   }
 
-  protected async archive(id: string): Promise<void> {
-    this.pending.set(true);
-    this.error.set(null);
-    try {
-      await this.socialChallengeManagement.archive(id);
-    } catch (failure) {
-      this.error.set(serverMessage(failure, 'Could not archive the challenge.'));
-    } finally {
-      this.challenges.reload();
-      this.pending.set(false);
-    }
+  protected archive(challenge: SocialChallengeDto): Promise<void> {
+    return this.run(challenge, 'archived', () =>
+      this.socialChallengeManagement.archive(challenge.id),
+    );
   }
 
   protected startDelete(id: string): void {
-    this.error.set(null);
     this.deletingId.set(id);
   }
 
@@ -106,13 +87,31 @@ export class SocialChallenges {
     this.deletingId.set(null);
   }
 
-  protected async confirmDelete(id: string): Promise<void> {
+  protected confirmDelete(challenge: SocialChallengeDto): Promise<void> {
+    return this.run(challenge, 'deleted', () =>
+      this.socialChallengeManagement.delete(challenge.id),
+    );
+  }
+
+  // Runs one command; a refusal shows the server's message above the table. Either way the
+  // list is loaded again, so the actions match the challenge's current state.
+  private async run(
+    challenge: SocialChallengeDto,
+    verb: string,
+    command: () => Promise<void>,
+  ): Promise<void> {
     this.pending.set(true);
-    this.error.set(null);
+    this.failure.set(null);
     try {
-      await this.socialChallengeManagement.delete(id);
-    } catch (failure) {
-      this.error.set(serverMessage(failure, 'Could not delete the challenge.'));
+      await command();
+    } catch (error) {
+      // The message continues the sentence "… couldn’t be archived: ", so it starts lowercase.
+      const message = serverMessage(error, 'the server refused the change.');
+      this.failure.set({
+        name: challenge.name,
+        verb,
+        message: message.charAt(0).toLowerCase() + message.slice(1),
+      });
     } finally {
       this.deletingId.set(null);
       this.challenges.reload();

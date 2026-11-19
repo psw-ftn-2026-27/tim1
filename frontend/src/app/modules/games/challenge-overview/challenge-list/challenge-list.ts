@@ -1,10 +1,12 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { FormField, form } from '@angular/forms/signals';
+import { FormField, debounce, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
+import { formatDate } from '../../../../shared/util/format-date';
 import { ChallengeOverviewDto } from '../../api/games-api-types';
 
+const PAGE_SIZE = 10;
 const emptyFilters = { name: '', type: '', status: '' };
 
 @Component({
@@ -18,24 +20,20 @@ export class ChallengeList {
   protected readonly isAdministrator = computed(
     () => this.auth.user()?.roles.includes('administrator') ?? false,
   );
-  // For each challenge type the server sends: its name on the page, and the route section
-  // that holds its edit page.
-  protected readonly typeLabels: Record<string, string> = {
-    Quiz: 'Quiz',
-    SocialChallenge: 'Social challenge',
-    LocationChallenge: 'Location challenge',
-  };
+  protected readonly formatDate = formatDate;
+
+  // For each challenge type the server sends, the route section that holds its edit page.
   protected readonly typePaths: Record<string, string> = {
     Quiz: 'quizzes',
     SocialChallenge: 'social-challenges',
     LocationChallenge: 'location-challenges',
   };
-  protected readonly pageSize = 20;
   protected readonly page = signal(1);
-  protected readonly filters = form(signal({ ...emptyFilters }));
-  protected readonly hasFilters = computed(() => {
-    const { name, type, status } = this.filters().value();
-    return name !== '' || type !== '' || status !== '';
+
+  // The list refreshes while the user types the name, but only after a short pause (300 ms),
+  // so the server does not get a request for every key.
+  protected readonly filters = form(signal({ ...emptyFilters }), (path) => {
+    debounce(path.name, 300);
   });
 
   protected readonly challenges = httpResource<ChallengeOverviewDto>(() => {
@@ -46,7 +44,7 @@ export class ChallengeList {
     const { name, type, status } = this.filters().value();
     const params = new URLSearchParams({
       page: String(this.page()),
-      pageSize: String(this.pageSize),
+      pageSize: String(PAGE_SIZE),
     });
     if (name.trim() !== '') {
       params.set('name', name.trim());
@@ -59,6 +57,26 @@ export class ChallengeList {
     }
     return `/api/games/challenges?${params.toString()}`;
   });
+
+  // For "11–20 of 34 challenges": the positions of the first and the last row on this page.
+  protected readonly firstShown = computed(() => (this.page() - 1) * PAGE_SIZE + 1);
+
+  protected lastShown(rowsOnPage: number): number {
+    return (this.page() - 1) * PAGE_SIZE + rowsOnPage;
+  }
+
+  protected totalPages(totalCount: number): number {
+    return Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  }
+
+  // The numbers on the page buttons in the table footer: 1, 2, ... totalPages.
+  protected pageNumbers(totalCount: number): number[] {
+    const numbers: number[] = [];
+    for (let number = 1; number <= this.totalPages(totalCount); number++) {
+      numbers.push(number);
+    }
+    return numbers;
+  }
 
   protected clearFilters(): void {
     this.filters().reset({ ...emptyFilters });

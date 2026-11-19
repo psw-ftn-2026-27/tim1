@@ -1,5 +1,6 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { FormField, form, min, required, validate } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { Map, type MapPin } from '../../../../shared/ui/map/map';
 import { SaveQuizDto } from '../../api/games-api-types';
 
@@ -10,13 +11,18 @@ interface QuizQuestionForm {
   correctAnswer: string;
 }
 
+function emptyQuestion(): QuizQuestionForm {
+  return { id: null, text: '', answers: [{ text: '' }, { text: '' }], correctAnswer: '' };
+}
+
 export function createQuizForm() {
   return form(
     signal({
       name: '',
       instructions: '',
       experiencePoints: null as number | null,
-      questions: [] as QuizQuestionForm[],
+      // A new quiz starts with one empty question and two empty answers.
+      questions: [emptyQuestion()] as QuizQuestionForm[],
       location: null as MapPin | null,
     }),
     (path) => {
@@ -45,7 +51,7 @@ export function createQuizForm() {
 
 @Component({
   selector: 'app-quiz-form',
-  imports: [FormField, Map],
+  imports: [FormField, Map, RouterLink],
   templateUrl: './quiz-form.html',
   styleUrl: './quiz-form.scss',
 })
@@ -54,17 +60,32 @@ export class QuizForm {
   readonly pending = input(false);
   readonly error = input<string | null>(null);
   readonly saveLabel = input.required<string>();
-  readonly showCancel = input(false);
+  // The text on the left of the form's footer, e.g. "New quizzes start as drafts."
+  readonly note = input.required<string>();
+  // Where Cancel leads; without it, Cancel raises the cancelled output instead.
+  readonly cancelLink = input<string | null>(null);
   readonly save = output<SaveQuizDto>();
   readonly cancelled = output<void>();
+  // The × on the server error at the top of the form.
+  readonly dismissed = output<void>();
+
+  // The map shows the picked location as its only pin.
+  protected readonly locationPins = computed<MapPin[]>(() => {
+    const location = this.fields().location().value();
+    return location === null ? [] : [location];
+  });
+
+  // The yellow reminder shows once a question has content but cannot be published yet:
+  // no answer is marked correct, or it has fewer than two answers.
+  protected needsReminder(question: QuizQuestionForm): boolean {
+    const started = question.text.trim() !== '' || question.answers.some((answer) => answer.text.trim() !== '');
+    return started && (question.correctAnswer === '' || question.answers.length < 2);
+  }
 
   protected addQuestion(): void {
     this.fields()
       .questions()
-      .value.update((questions) => [
-        ...questions,
-        { id: null, text: '', answers: [], correctAnswer: '' },
-      ]);
+      .value.update((questions) => [...questions, emptyQuestion()]);
   }
 
   protected removeQuestion(index: number): void {

@@ -1,27 +1,36 @@
-<section class="stack">
-  <h2>{{ state().quizName }}</h2>
-  <p>XP: {{ state().experiencePoints }}</p>
-  @if (quizPin().length > 0) {
-    <p>Click the map to choose your position. You must be close to the quiz location.</p>
-    <app-map
-      [pins]="quizPin()"
-      [selectionEnabled]="!pending()"
-      (locationSelected)="position.set($event)"
-    />
-    @if (position(); as chosen) {
-      <p>Chosen position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+<section class="card card--flush" aria-label="Start the quiz">
+  <div class="card-body activation">
+    @if (quizPin().length > 0) {
+      <div class="field">
+        <span class="label">Where are you? <span class="label-hint">· click the map to set your position</span></span>
+        <app-map [pins]="quizPin()" [selectionEnabled]="!pending()" (locationSelected)="position.set($event)" />
+      </div>
+      @if (position(); as chosen) {
+        <p class="help">Your position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+      }
+    } @else {
+      <p class="help">This quiz has no location, so you can start it right away.</p>
     }
-  } @else {
-    <p>This quiz has no location. You can start it right away.</p>
-  }
-  <div class="actions">
-    <button
-      type="button"
-      class="button button--primary"
-      [disabled]="pending() || (quizPin().length > 0 && !position())"
-      (click)="activate()"
-    >
-      Activate
-    </button>
+
+    @if (error(); as message) {
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+      </div>
+    }
+  </div>
+
+  <div class="card-footer">
+    <span class="meta">Once started, you can leave and continue later from the list.</span>
+    <div class="form-actions">
+      <button
+        type="button"
+        class="button button--primary"
+        [disabled]="pending() || (quizPin().length > 0 && !position())"
+        (click)="activate()"
+      >
+        {{ pending() ? 'Activating…' : 'Activate' }}
+      </button>
+    </div>
   </div>
 </section>

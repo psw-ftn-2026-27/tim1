@@ -1,3 +1,12 @@
-.result {
-  margin: 0;
+.quiz-name {
+  font-weight: var(--font-weight-bold);
+}
+
+// „correct" zeleno, „incorrect" crveno, kao ikonice ishoda
+.answer--correct {
+  color: var(--color-state-published);
+}
+
+.answer--incorrect {
+  color: var(--color-error-strong);
 }

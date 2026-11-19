@@ -1,6 +1,10 @@
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
+// Akcije stoje desno, i u redu tabele i u zaglavlju stranice; u redu se ne prelamaju
+:host {
+  display: block;
+}
+
+.row-actions,
+.confirm {
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }

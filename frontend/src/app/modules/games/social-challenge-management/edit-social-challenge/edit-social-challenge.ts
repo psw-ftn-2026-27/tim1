@@ -78,7 +78,7 @@ export class EditSocialChallenge {
   protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  // The server sends "HH:mm:ss"; the page shows and edits only hours and minutes.
+  // The server sends "HH:mm:ss"; the page shows and edits only hours and minutes (24-hour time).
   protected hoursAndMinutes(time: string): string {
     return time.slice(0, 5);
   }
@@ -102,10 +102,6 @@ export class EditSocialChallenge {
   protected pickLocation(pin: MapPin): void {
     this.form.latitude().value.set(pin.latitude);
     this.form.longitude().value.set(pin.longitude);
-  }
-
-  protected coordinates(pin: MapPin): string {
-    return `${pin.latitude.toFixed(5)}, ${pin.longitude.toFixed(5)}`;
   }
 
   protected cancelEdit(): void {

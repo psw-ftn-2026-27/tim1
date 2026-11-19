@@ -1,11 +1,23 @@
-<section class="stack">
-  <p>Question {{ questionNumber() }} of {{ questionCount() }} · Points: {{ points() }}</p>
-  <h2>{{ question().text }}</h2>
-  <div class="answers">
-    @for (answer of question().answers; track $index) {
-      <button type="button" class="button" [disabled]="pending()" (click)="answered.emit($index)">
-        {{ answer }}
-      </button>
+<section class="card card--flush" aria-labelledby="question-text">
+  <div class="card-body">
+    <h1 id="question-text" class="question-text">{{ question().text }}</h1>
+
+    @if (error(); as message) {
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+      </div>
     }
+
+    <div class="options" role="group" aria-label="Answers">
+      @for (answer of question().answers; track $index) {
+        <button type="button" class="option" [disabled]="pending()" (click)="answered.emit($index)">
+          <span class="option-key" aria-hidden="true">{{ letters[$index] ?? $index + 1 }}</span>
+          {{ answer }}
+        </button>
+      }
+    </div>
+
+    <p class="help">Your answer is saved as soon as you pick it and can’t be changed.</p>
   </div>
 </section>
