@@ -11,6 +11,7 @@ body {
   font-family: var(--font-family);
   font-size: var(--font-size-md);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
@@ -25,17 +26,32 @@ h3 {
 }
 
 h1 {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-display);
+  line-height: 1.05;
 }
 
 h2 {
   font-size: var(--font-size-lg);
 }
 
+// Na telefonu je naslov stranice manji
+@media (max-width: 40rem) {
+  h1 {
+    font-size: var(--font-size-xl);
+  }
+}
+
 a {
-  color: var(--color-accent);
+  color: var(--color-link);
 }
 
 a:hover {
-  color: var(--color-accent-hover);
+  color: var(--color-link-hover);
+}
+
+// Fokus tastaturom je uvek vidljiv: narandžasti okvir oko elementa
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

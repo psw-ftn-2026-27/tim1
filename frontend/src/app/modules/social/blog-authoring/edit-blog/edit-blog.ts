@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ImageUpload } from '../../../../shared/ui/image-upload/image-upload';
 import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
@@ -9,7 +9,7 @@ import { BlogDto } from '../../api/social-api-types';
 import { BlogAuthoring } from '../blog-authoring';
 
 @Component({
-  imports: [FormField, ImageUpload, ProtectedImage],
+  imports: [FormField, ImageUpload, ProtectedImage, RouterLink],
   selector: 'app-edit-blog',
   styleUrl: './edit-blog.scss',
   templateUrl: './edit-blog.html',
@@ -45,6 +45,11 @@ export class EditBlog {
     this.form().reset({ title: blog.title, description: blog.description });
     this.keptImageIds.set([...blog.images]);
     this.editing.set(true);
+  }
+
+  // The server sends dates as ISO text; this shows the date in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('en-US', { dateStyle: 'medium' });
   }
 
   protected removeImage(imageId: string): void {

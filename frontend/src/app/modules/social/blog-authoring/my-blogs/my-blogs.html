@@ -1,97 +1,153 @@
 <div class="stack">
-  <h1>My blogs</h1>
+  <nav class="tabs" aria-label="Social">
+    <a routerLink="/social" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">All blogs</a>
+    <a routerLink="/social/mine" routerLinkActive="active" ariaCurrentWhenActive="page">My blogs</a>
+    <a routerLink="/social/clubs" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Clubs</a>
+    <a routerLink="/social/clubs/mine" routerLinkActive="active" ariaCurrentWhenActive="page">My clubs</a>
+  </nav>
 
-  <p><a routerLink="/social/create">Create blog</a></p>
+  <div class="page-header">
+    <div>
+      <h1>My blogs</h1>
+      <p>Drafts, published and archived blogs you wrote.</p>
+    </div>
+    <a class="button button--primary" routerLink="/social/create">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+      <span>Create blog</span>
+    </a>
+  </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (blogs.isLoading()) {
-    <p>Loading your blogs...</p>
+    <p class="empty empty--boxed">Loading your blogs…</p>
   } @else if (blogs.error()) {
-    <p class="error">Could not load your blogs. Log in and try again.</p>
+    <p class="alert alert--danger">Could not load your blogs. Log in and try again.</p>
+  } @else if ((blogs.value() ?? []).length === 0) {
+    <div class="empty empty--boxed">
+      <span class="empty-icon">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z" /><path d="M8 12h8M8 16h5" /></svg>
+      </span>
+      <p>You haven’t written any blogs yet.</p>
+    </div>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Title</th>
-          <th scope="col">Status</th>
-          <th scope="col">Created</th>
-          <th scope="col">Last modified</th>
-          <th scope="col">Comments</th>
-          <th scope="col">Slike</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (blog of blogs.value() ?? []; track blog.id) {
-          <tr>
-            <td>
-              @if (blog.status === 'Published') {
-                <a [routerLink]="['/social', blog.id]">{{ blog.title }}</a>
-              } @else {
-                {{ blog.title }}
-              }
-            </td>
-            <td>{{ blog.status }}</td>
-            <td>{{ formatDate(blog.createdAt) }}</td>
-            <td>{{ formatDate(blog.lastModifiedAt) }}</td>
-            <td>{{ blog.comments.length }}</td>
-            <td>
-              <div class="thumbnails">
-                @for (imageId of blog.images; track imageId) {
-                  <app-protected-image [src]="'/api/social/blogs/mine/' + blog.id + '/images/' + imageId" />
-                }
-              </div>
-            </td>
-            <td>
-              <div class="actions">
-                @if (blog.status !== 'Archived') {
-                  <a class="button" [routerLink]="['/social/mine', blog.id, 'edit']">Edit</a>
-                }
-                @if (blog.status === 'Published' && confirmingArchiveId() !== blog.id) {
-                  <button class="button" type="button" (click)="confirmingArchiveId.set(blog.id)">
-                    Archive
-                  </button>
-                }
-                @if (blog.status === 'Draft') {
-                  <button
-                    class="button button--primary"
-                    type="button"
-                    [disabled]="pending()"
-                    (click)="publish(blog.id)"
-                  >
-                    Publish
-                  </button>
-                }
-              </div>
-              @if (confirmingArchiveId() === blog.id) {
-                <section class="stack">
-                  <p>Archive this blog? It cannot be edited afterwards.</p>
-                  <div class="actions">
-                    <button
-                      class="button button--primary"
-                      type="button"
-                      [disabled]="pending()"
-                      (click)="archive(blog.id)"
-                    >
-                      Confirm
-                    </button>
-                    <button class="button" type="button" (click)="confirmingArchiveId.set(null)">
-                      Cancel
-                    </button>
+    <section class="table-card">
+      <div class="table-scroll">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Blog</th>
+              <th scope="col">Status</th>
+              <th scope="col">Comments</th>
+              <th scope="col">Images</th>
+              <th scope="col" class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (blog of blogs.value() ?? []; track blog.id) {
+              <tr>
+                <td>
+                  <div class="blog-cell">
+                    @if (blog.images.length > 0) {
+                      <app-protected-image
+                        class="thumb"
+                        [src]="'/api/social/blogs/mine/' + blog.id + '/images/' + blog.images[0]"
+                      />
+                    } @else {
+                      <span class="thumb no-image">
+                        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.8" /><path d="M21 16l-5-5-8 8" /></svg>
+                      </span>
+                    }
+                    <div class="blog-name">
+                      @if (blog.status === 'Draft') {
+                        <strong>{{ blog.title }}</strong>
+                      } @else {
+                        <strong><a [routerLink]="['/social', blog.id]">{{ blog.title }}</a></strong>
+                      }
+                      <span class="meta">Updated {{ formatDate(blog.lastModifiedAt) }}</span>
+                    </div>
                   </div>
-                </section>
-              }
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="5">You have no blogs yet.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+                </td>
+                <td>
+                  @switch (blog.status) {
+                    @case ('Draft') {
+                      <span class="badge badge--warning">Draft</span>
+                    }
+                    @case ('Published') {
+                      <span class="badge badge--success">Published</span>
+                    }
+                    @case ('Archived') {
+                      <span class="badge">Archived</span>
+                    }
+                  }
+                </td>
+                <td>{{ blog.comments.length }}</td>
+                <td>
+                  <div class="thumb-row">
+                    @for (imageId of blog.images.slice(0, 3); track imageId) {
+                      <app-protected-image
+                        class="thumb thumb--sm"
+                        [src]="'/api/social/blogs/mine/' + blog.id + '/images/' + imageId"
+                      />
+                    } @empty {
+                      <span class="meta">No images</span>
+                    }
+                  </div>
+                </td>
+                <td class="actions-col">
+                  @if (confirmingArchiveId() === blog.id) {
+                    <div class="confirm">
+                      <span class="confirm__text">Archive this blog? It can’t be edited afterwards.</span>
+                      <button
+                        class="button button--small button--primary"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="archive(blog.id)"
+                      >
+                        Confirm
+                      </button>
+                      <button class="button button--small" type="button" (click)="confirmingArchiveId.set(null)">
+                        Cancel
+                      </button>
+                    </div>
+                  } @else if (blog.status === 'Archived') {
+                    <span class="meta">—</span>
+                  } @else {
+                    <div class="form-actions end">
+                      <a class="button button--small" [routerLink]="['/social/mine', blog.id, 'edit']">
+                        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z" /></svg>
+                        <span>Edit</span>
+                      </a>
+                      @if (blog.status === 'Draft') {
+                        <button
+                          class="button button--small button--primary"
+                          type="button"
+                          [disabled]="pending()"
+                          (click)="publish(blog.id)"
+                        >
+                          Publish
+                        </button>
+                      } @else {
+                        <button
+                          class="button button--small"
+                          type="button"
+                          [disabled]="pending()"
+                          (click)="startArchive(blog.id)"
+                        >
+                          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1" /><path d="M5 9v10h14V9M10 13h4" /></svg>
+                          <span>Archive</span>
+                        </button>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
   }
 </div>

@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { MembershipRequestDto } from '../../api/social-api-types';
+import { ClubDto, MembershipRequestDto } from '../../api/social-api-types';
 import { ClubMembership } from '../club-membership';
 
 @Component({
@@ -15,6 +15,9 @@ export class MembershipRequests {
   private readonly clubMembership = inject(ClubMembership);
 
   readonly id = input.required<string>();
+
+  // The club is read only for its name in the back link and the header.
+  protected readonly club = httpResource<ClubDto>(() => `/api/social/clubs/${this.id()}`);
 
   protected readonly requests = httpResource<MembershipRequestDto[]>(
     () => `/api/social/clubs/${this.id()}/membership-requests`,
@@ -47,5 +50,10 @@ export class MembershipRequests {
       this.pending.set(false);
       this.requests.reload();
     }
+  }
+
+  // The server sends dates as ISO text; this shows the date in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('en-US', { dateStyle: 'medium' });
   }
 }

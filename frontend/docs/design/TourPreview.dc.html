@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tour detail – preview before purchase</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.badge{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:999px;font:700 12px Inter,sans-serif}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:10px;border:1px solid #2b3b36;font-size:13px;color:#d6dedb}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="#">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 28px 24px 72px">
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #a9b6b1; margin-bottom: 20px">
+<a href="Main.dc.html" style="text-decoration: none">Tours</a><span aria-hidden="true">/</span><span style="color: #eef2ef">Otkrijte Petrovaradinsku tvrđavu</span>
+</nav>
+
+<div style="position: relative; border-radius: 22px; overflow: hidden; margin-bottom: 28px">
+<svg aria-hidden="true" width="100%" height="300" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid slice" style="display: block"><rect width="1200" height="300" fill="#2b4a55"></rect><circle cx="900" cy="96" r="46" fill="#f0a877"></circle><path d="M0 230 L220 120 L420 210 L560 70 L760 190 L940 130 L1200 220 L1200 300 L0 300Z" fill="#20403f"></path><path d="M0 268 Q360 222 640 256 T1200 246 L1200 300 L0 300Z" fill="#1a3533"></path></svg>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 32px; background: linear-gradient(180deg, rgba(19,28,26,0) 0%, rgba(19,28,26,.92) 100%); display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<span class="badge" style="background: rgba(20,40,30,.85); color: #8fe0b4">Easy</span>
+<span class="badge" style="background: rgba(12,18,16,.75); color: #eef2ef">Published 12 Oct 2026</span>
+</div>
+<h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 900; font-size: 42px; line-height: 1.1">Otkrijte Petrovaradinsku tvrđavu</h1>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px">
+<div style="flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 32px">
+
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+<div style="background: #182320; border: 1px solid #24332e; border-radius: 14px; padding: 14px 16px"><dt style="font-size: 12px; color: #a9b6b1; margin-bottom: 4px">Length</dt><dd style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 900">3,2 km</dd></div>
+<div style="background: #182320; border: 1px solid #24332e; border-radius: 14px; padding: 14px 16px"><dt style="font-size: 12px; color: #a9b6b1; margin-bottom: 4px">Keypoints</dt><dd style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 900">3</dd></div>
+<div style="background: #182320; border: 1px solid #24332e; border-radius: 14px; padding: 14px 16px"><dt style="font-size: 12px; color: #a9b6b1; margin-bottom: 4px">Group size</dt><dd style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 900">2–12 people</dd></div>
+<div style="background: #182320; border: 1px solid #24332e; border-radius: 14px; padding: 14px 16px"><dt style="font-size: 12px; color: #a9b6b1; margin-bottom: 4px">Difficulty</dt><dd style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 900">Easy</dd></div>
+</dl>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 800">About this tour</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #cfd8d4">Uživajte u laganoj šetnji Petrovaradinskom tvrđavom, jednom od najpoznatijih simbola Novog Sada. Tokom obilaska videćete Sahat kulu sa obrnutim kazaljkama, bastione iz 18. veka i najlepši pogled na Dunav i grad. Tura je pogodna za porodice i ne zahteva posebnu kondiciju.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#Petrovaradin</span>
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#istorija</span>
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#šetnja</span>
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#tvrđava</span>
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#Dunav</span>
+<span style="height: 28px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 999px; background: #22302c; font-size: 13px; color: #cfd8d4">#Novi Sad</span>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 800">Travel times</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<span class="chip"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Walking · 60 min</span>
+<span class="chip"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Bicycle · 25 min</span>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px">
+<h2 style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 800">Map</h2>
+<span style="font-size: 13px; color: #a9b6b1">{{mapNote}}</span>
+</div>
+<div style="border-radius: 18px; overflow: hidden; border: 1px solid #24332e">
+<sc-if value="{{isTourist}}" hint-placeholder-val="{{ true }}">
+<svg role="img" aria-label="Map with 2 public keypoints, route hidden" width="100%" height="340" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice" style="display: block"><rect width="800" height="340" fill="#1a2724"></rect><path d="M-20 250 C 150 210, 260 300, 420 250 S 700 170, 830 220 L830 340 L-20 340Z" fill="#20404a"></path><path d="M0 90 H800 M0 170 H800 M140 0 V340 M330 0 V340 M560 0 V340" stroke="#22332f" stroke-width="8"></path><path d="M380 60 L520 70 L540 160 L400 170Z" fill="#1f3329" stroke="#2c4a3c" stroke-width="2"></path><circle cx="440" cy="110" r="16" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle><text x="440" y="115" text-anchor="middle" font-family="Inter" font-weight="700" font-size="14" fill="#1e1206">1</text><circle cx="610" cy="200" r="16" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle><text x="610" y="205" text-anchor="middle" font-family="Inter" font-weight="700" font-size="14" fill="#1e1206">3</text></svg>
+</sc-if>
+<sc-if value="{{fullMap}}" hint-placeholder-val="{{ false }}">
+<svg role="img" aria-label="Map with all 3 keypoints and walking route" width="100%" height="340" viewBox="0 0 800 340" preserveAspectRatio="xMidYMid slice" style="display: block"><rect width="800" height="340" fill="#1a2724"></rect><path d="M-20 250 C 150 210, 260 300, 420 250 S 700 170, 830 220 L830 340 L-20 340Z" fill="#20404a"></path><path d="M0 90 H800 M0 170 H800 M140 0 V340 M330 0 V340 M560 0 V340" stroke="#22332f" stroke-width="8"></path><path d="M380 60 L520 70 L540 160 L400 170Z" fill="#1f3329" stroke="#2c4a3c" stroke-width="2"></path><path d="M440 110 L440 140 L500 140 L500 90 L560 90 L560 200 L610 200" fill="none" stroke="#F5A262" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 10"></path><circle cx="440" cy="110" r="16" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle><text x="440" y="115" text-anchor="middle" font-family="Inter" font-weight="700" font-size="14" fill="#1e1206">1</text><circle cx="500" cy="90" r="16" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle><text x="500" y="95" text-anchor="middle" font-family="Inter" font-weight="700" font-size="14" fill="#1e1206">2</text><circle cx="610" cy="200" r="16" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle><text x="610" y="205" text-anchor="middle" font-family="Inter" font-weight="700" font-size="14" fill="#1e1206">3</text></svg>
+</sc-if>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-family: Nunito, sans-serif; font-size: 22px; font-weight: 800">Keypoints</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{kps}}" as="k" hint-placeholder-count="2">
+<li style="display: flex; flex-wrap: wrap; gap: 16px; background: #182320; border: 1px solid #24332e; border-radius: 16px; padding: 14px">
+<svg aria-hidden="true" width="132" height="96" viewBox="0 0 132 96" style="flex: 0 0 auto; border-radius: 12px"><rect width="132" height="96" fill="{{k.sky}}"></rect><circle cx="100" cy="30" r="12" fill="#f0c58f"></circle><path d="M0 76 L36 44 L64 70 L92 36 L132 72 L132 96 L0 96Z" fill="{{k.mtn}}"></path></svg>
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<span style="width: 28px; height: 28px; border-radius: 999px; background: #F08A3C; color: #1e1206; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center">{{k.n}}</span>
+<h3 style="margin: 0; font-size: 17px; font-weight: 800">{{k.name}}</h3>
+<sc-if value="{{k.showVis}}" hint-placeholder-val="{{ false }}"><span class="badge" style="height: 24px; background: #22302c; color: #cfd8d4">{{k.visLabel}}</span></sc-if>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #a9b6b1">{{k.desc}}</p>
+<sc-if value="{{k.showSecret}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(240,138,60,.1); border: 1px solid rgba(240,138,60,.35); font-size: 13px; line-height: 1.5; color: #f6c9a3"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0"></path></svg><span><strong>Secret:</strong> {{k.secret}}</span></div></sc-if>
+<sc-if value="{{k.lockedSecret}}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: #a9b6b1"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0"></path></svg>A secret unlocks when you reach this point</span></sc-if>
+</div>
+</li>
+</sc-for>
+</ol>
+<sc-if value="{{isTourist}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 16px; border: 1px dashed #3a4c46; background: #161f1d">
+<span style="width: 44px; height: 44px; border-radius: 999px; background: #22302c; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0"></path></svg></span>
+<div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 4px">
+<strong style="font-size: 15px">More keypoints unlock after purchase</strong>
+<span style="font-size: 13px; color: #a9b6b1">You’ll get every keypoint, the full route on the map and secrets you unlock on location.</span>
+</div>
+</div>
+</sc-if>
+</section>
+</div>
+
+<aside aria-label="Purchase" style="flex: 1 1 320px; max-width: 100%; position: sticky; top: 24px; background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 18px">
+<sc-if value="{{isTourist}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div><span style="font-family: Nunito, sans-serif; font-size: 36px; font-weight: 900">800</span> <span style="font-size: 14px; font-weight: 600; color: #a9b6b1">RSD</span></div>
+<button class="btn btn-primary" type="button" style="width: 100%; min-height: 50px; font-size: 15px">Buy tour</button>
+<ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: #cfd8d4">
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8fe0b4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>All 3 keypoints with photos</li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8fe0b4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>Full route on the map</li>
+<li style="display: flex; gap: 10px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8fe0b4" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>Secrets revealed on location</li>
+</ul>
+</div>
+</sc-if>
+<sc-if value="{{isBuyer}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="badge" style="align-self: flex-start; background: rgba(74,190,130,.16); color: #8fe0b4">You own this tour</span>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfd8d4">Every keypoint and the full route are unlocked. Secrets appear when you reach each point.</p>
+<button class="btn btn-primary" type="button" style="width: 100%; min-height: 50px; font-size: 15px">Start tour</button>
+</div>
+</sc-if>
+<sc-if value="{{isAuthor}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span class="badge" style="align-self: flex-start; background: rgba(240,138,60,.14); color: #F5A262">You are the author</span>
+<p style="margin: 0; font-size: 14px; line-height: 1.6; color: #cfd8d4">You see every keypoint with its secret. Tourists who haven’t bought the tour only see public keypoints, without the route.</p>
+<a class="btn" href="ManageTour.dc.html" style="width: 100%">Manage tour</a>
+<a class="btn" href="MyTours.dc.html" style="width: 100%">Back to my tours</a>
+</div>
+</sc-if>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"viewer":{"editor":"enum","options":["tourist","buyer","author"],"default":"tourist","section":"Who is viewing"},"$preview":{"width":1440,"height":1900}}'>
+var KPS = [
+  { n: 1, name: 'Sahat kula', desc: 'Simbol tvrđave sa obrnutim kazaljkama. Odavde se pruža pogled na Stari grad i Dunav.', pub: true, secret: 'Mala kazaljka pokazuje minute, a velika sate, da bi ih ribari videli sa reke.', sky: '#2b4a55', mtn: '#20403f' },
+  { n: 2, name: 'Podzemne vojne galerije', desc: 'Lavirint hodnika na četiri nivoa, ukupne dužine oko 16 km. Ulaz je kod Leopoldovih vrata.', pub: false, secret: 'Potraži godinu 1764 urezanu iznad trećeg ulaza.', sky: '#3a3550', mtn: '#2a2540' },
+  { n: 3, name: 'Vidikovac nad Dunavom', desc: 'Kraj ture na zidinama iznad reke, sa pogledom na Most slobode i Ribarac.', pub: true, secret: '', sky: '#5a4334', mtn: '#3d2d22' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    var v = this.props.viewer ?? 'tourist';
+    var tourist = v === 'tourist', buyer = v === 'buyer', author = v === 'author';
+    var kps = KPS.filter(function (k) { return !tourist || k.pub; }).map(function (k) {
+      return Object.assign({}, k, {
+        showVis: author, visLabel: k.pub ? 'Public' : 'Hidden until purchase',
+        showSecret: author && !!k.secret,
+        lockedSecret: buyer && !!k.secret
+      });
+    });
+    return {
+      isTourist: tourist, isBuyer: buyer, isAuthor: author, fullMap: !tourist,
+      mapNote: tourist ? 'Public keypoints only · route shown after purchase' : 'All keypoints · walking route',
+      kps: kps
+    };
+  }
+}
+</script>
+</body>
+</html>

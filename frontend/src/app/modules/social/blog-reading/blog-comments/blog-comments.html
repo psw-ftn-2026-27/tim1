@@ -1,41 +1,98 @@
-<ul class="comments">
-  @for (comment of comments(); track comment.id) {
-    <li class="stack">
-      <p>{{ comment.text }}</p>
-      <p class="meta">{{ comment.authorName ?? 'Unknown user' }}</p>
-      <p class="meta">Created: {{ formatDate(comment.createdAt) }}</p>
-      <p class="meta">Last modified: {{ formatDate(comment.lastModifiedAt) }}</p>
+<section class="comments-section" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comments ({{ comments().length }})</h2>
 
-      <!-- The server decides whether the edit window is still open; the client only reads the flag. -->
-      @if (comment.canEditOrDelete) {
-        @if (editingCommentId() === comment.id) {
-          <form class="comment-actions" (submit)="saveEdit($event, comment.id)">
-            <input type="text" aria-label="Edit comment" [formField]="editForm.text" />
-            <button class="button" type="submit" [disabled]="!editForm().valid()">Save</button>
-            <button class="button" type="button" (click)="editingCommentId.set(null)">
-              Cancel
-            </button>
-          </form>
-        } @else {
-          <div class="comment-actions">
-            <button class="button" type="button" (click)="startEdit(comment)">Edit</button>
-            <button class="button" type="button" (click)="deleteComment.emit(comment.id)">
-              Delete
-            </button>
+  <ul class="comments">
+    @for (comment of comments(); track comment.id) {
+      <li class="comment" [class.is-editing]="editingCommentId() === comment.id">
+        <span class="list-card__avatar" aria-hidden="true">{{ initial(comment.authorName) }}</span>
+
+        <div class="comment-main">
+          <div class="comment-head">
+            <div>
+              @if (comment.authorName) {
+                <strong>{{ comment.authorName }}</strong>
+              } @else {
+                <strong><em>Unknown user</em></strong>
+              }
+              <p class="meta">
+                Created {{ formatDate(comment.createdAt) }} · Last edited
+                {{ formatDate(comment.lastModifiedAt) }}
+              </p>
+            </div>
+
+            <!-- The server decides whether the edit window is still open; the client only reads the flag. -->
+            @if (comment.canEditOrDelete && !archived() && editingCommentId() !== comment.id) {
+              <div class="form-actions">
+                <button
+                  class="button button--ghost button--small"
+                  type="button"
+                  [disabled]="disabled()"
+                  (click)="startEdit(comment)"
+                >
+                  Edit
+                </button>
+                <button
+                  class="button button--danger button--small"
+                  type="button"
+                  [disabled]="disabled()"
+                  (click)="deleteComment.emit(comment.id)"
+                >
+                  Delete
+                </button>
+              </div>
+            }
           </div>
-        }
-      }
-    </li>
-  } @empty {
-    <li class="meta">No comments yet.</li>
-  }
-</ul>
 
-@if (!archived() && currentUserId()) {
-  <form class="comment-form" (submit)="submitComment($event)">
-    <input type="text" aria-label="New comment" [formField]="form.text" />
-    <button class="button button--primary" type="submit" [disabled]="!form().valid()">
-      Comment
-    </button>
-  </form>
-}
+          @if (editingCommentId() === comment.id) {
+            <form class="stack" (submit)="saveEdit($event, comment.id)">
+              <div class="field">
+                <label [for]="'edit-' + comment.id">Edit comment</label>
+                <textarea [id]="'edit-' + comment.id" rows="3" [formField]="editForm.text"></textarea>
+              </div>
+              <div class="form-actions end">
+                <button class="button button--small" type="button" (click)="editingCommentId.set(null)">
+                  Cancel
+                </button>
+                <button
+                  class="button button--primary button--small"
+                  type="submit"
+                  [disabled]="!editForm().valid() || disabled()"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          } @else {
+            <p class="comment-text">{{ comment.text }}</p>
+          }
+        </div>
+      </li>
+    } @empty {
+      <li class="empty empty--boxed">
+        <span class="empty-icon">
+          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z" /></svg>
+        </span>
+        <p>No comments yet.</p>
+      </li>
+    }
+  </ul>
+
+  <!-- Samo jedna forma u isto vreme: dok se komentar menja, forme za nov komentar nema. -->
+  @if (!archived() && currentUserId() && editingCommentId() === null) {
+    <form class="card stack" (submit)="submitComment($event)">
+      <div class="field">
+        <label for="new-comment">Add a comment</label>
+        <textarea id="new-comment" rows="3" [formField]="form.text"></textarea>
+      </div>
+      <div class="form-actions end">
+        <button
+          class="button button--primary"
+          type="submit"
+          [disabled]="!form().valid() || disabled()"
+        >
+          Post comment
+        </button>
+      </div>
+    </form>
+  }
+</section>

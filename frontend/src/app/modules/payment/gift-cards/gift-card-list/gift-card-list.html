@@ -1,47 +1,79 @@
-<div class="stack">
-  <div class="header">
-    <a class="back" routerLink="/payment" aria-label="Back to the wallet">←</a>
-    <h1>Gift cards</h1>
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Gift cards</h1>
+      <p>Cards you bought for others and cards you received.</p>
+    </div>
+
+    <nav class="tabs" aria-label="Payment">
+      <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Wallet</a>
+      <a routerLink="/payment/products" routerLinkActive="active" ariaCurrentWhenActive="page">Products</a>
+      <a routerLink="/payment/cart" routerLinkActive="active" ariaCurrentWhenActive="page">Cart</a>
+      <a routerLink="/payment/gift-cards" routerLinkActive="active" ariaCurrentWhenActive="page">Gift cards</a>
+      <a routerLink="/payment/coupons" routerLinkActive="active" ariaCurrentWhenActive="page">My coupons</a>
+    </nav>
   </div>
 
+  <a class="button button--primary buy" routerLink="/payment/gift-cards/buy">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="3" y="8" width="18" height="13" rx="2" />
+      <path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1.5S9 8 12 8c3 0 6-1 6-1.5S14 4 12 8z" />
+    </svg>
+    Buy a gift card
+  </a>
+
   <div class="columns">
-    <section class="stack">
-      <h2>Created cards</h2>
+    <section class="section" aria-labelledby="created-title">
+      <div class="section-title">
+        <h2 id="created-title">Bought for others</h2>
+        @if (created.value(); as result) {
+          <span class="meta">{{ result.totalCount }}</span>
+        }
+      </div>
 
       @if (created.error()) {
-        <p class="error">The gift cards could not be loaded. Sign in and try again.</p>
+        <p class="alert alert--danger" role="alert">The gift cards could not be loaded. Sign in and try again.</p>
       } @else if (created.value(); as result) {
-        @for (card of result.items; track card.id) {
-          <article class="card">
-            <h3>{{ card.amount }} EC for {{ card.recipientDisplayName }}</h3>
-            <p>{{ card.message }}</p>
-            <p class="meta expiry">
-              Expires: {{ formatDate(card.expiresAt) }}
-              <span
-                class="badge"
-                [class.badge--success]="card.status === 'Valid'"
-                [class.badge--danger]="card.status !== 'Valid'"
-                >{{ statusLabel(card.status) }}</span
-              >
-            </p>
-          </article>
-        } @empty {
-          <p>You have not created any gift cards.</p>
-        }
+        <ul class="cards">
+          @for (card of result.items; track card.id) {
+            <li class="gift gift--sent" [class.gift--faded]="card.status !== 'Valid'">
+              <app-gift-card-art />
+              <div class="gift-top">
+                <span class="gift-label">Explorer gift card</span>
+                <span class="badge" [class]="statusBadge(card.status)">{{ statusLabel(card.status) }}</span>
+              </div>
+              <span class="gift-amount">{{ formatAmount(card.amount) }} <span class="gift-currency">EC</span></span>
+              @if (card.message) {
+                <p class="gift-message">“{{ card.message }}”</p>
+              }
+              <div class="gift-bottom">
+                <span>For <strong>{{ card.recipientDisplayName }}</strong></span>
+                <span class="gift-muted">{{ dateLabel(card) }}</span>
+              </div>
+            </li>
+          } @empty {
+            <li class="empty empty--boxed">
+              <h3>You have not bought any gift cards</h3>
+              <p>Surprise a friend with EC for their next tour.</p>
+              <a class="button button--primary" routerLink="/payment/gift-cards/buy">Buy a gift card</a>
+            </li>
+          }
+        </ul>
+
         @if (result.totalCount > pageSize || createdPage() > 1) {
-          <nav class="header" aria-label="Created gift card pages">
+          <nav class="pages" aria-label="Created gift card pages">
             <button
               type="button"
-              class="button"
+              class="button button--small"
               [disabled]="createdPage() === 1"
               (click)="createdPage.set(createdPage() - 1)"
             >
               Previous
             </button>
-            <span>Page {{ createdPage() }}</span>
+            <span class="meta">Page {{ createdPage() }}</span>
             <button
               type="button"
-              class="button"
+              class="button button--small"
               [disabled]="createdPage() * pageSize >= result.totalCount"
               (click)="createdPage.set(createdPage() + 1)"
             >
@@ -50,47 +82,60 @@
           </nav>
         }
       } @else {
-        <p>Loading gift cards...</p>
+        <p class="empty empty--boxed" role="status">Loading gift cards...</p>
       }
     </section>
 
-    <section class="stack">
-      <h2>Received cards</h2>
+    <section class="section" aria-labelledby="received-title">
+      <div class="section-title">
+        <h2 id="received-title">Received</h2>
+        @if (received.value(); as result) {
+          <span class="meta">{{ result.totalCount }}</span>
+        }
+      </div>
 
       @if (received.error()) {
-        <p class="error">The gift cards could not be loaded. Sign in and try again.</p>
+        <p class="alert alert--danger" role="alert">The gift cards could not be loaded. Sign in and try again.</p>
       } @else if (received.value(); as result) {
-        @for (card of result.items; track card.id) {
-          <article class="card">
-            <h3>{{ card.amount }} EC from {{ card.creatorDisplayName }}</h3>
-            <p>{{ card.message }}</p>
-            <p class="meta expiry">
-              Expires: {{ formatDate(card.expiresAt) }}
-              <span
-                class="badge"
-                [class.badge--success]="card.status === 'Valid'"
-                [class.badge--danger]="card.status !== 'Valid'"
-                >{{ statusLabel(card.status) }}</span
-              >
-            </p>
-          </article>
-        } @empty {
-          <p>You have not received any gift cards.</p>
-        }
+        <ul class="cards">
+          @for (card of result.items; track card.id) {
+            <li class="gift" [class.gift--live]="card.status === 'Valid'" [class.gift--faded]="card.status !== 'Valid'">
+              <app-gift-card-art [onAccent]="card.status === 'Valid'" />
+              <div class="gift-top">
+                <span class="gift-label">Explorer gift card</span>
+                <span class="badge" [class]="statusBadge(card.status)">{{ statusLabel(card.status) }}</span>
+              </div>
+              <span class="gift-amount">{{ formatAmount(card.amount) }} <span class="gift-currency">EC</span></span>
+              @if (card.message) {
+                <p class="gift-message">“{{ card.message }}”</p>
+              }
+              <div class="gift-bottom">
+                <span>From <strong>{{ card.creatorDisplayName }}</strong></span>
+                <span class="gift-muted">{{ dateLabel(card) }}</span>
+              </div>
+            </li>
+          } @empty {
+            <li class="empty empty--boxed">
+              <h3>No gift cards yet</h3>
+              <p>Cards that someone buys for you will show up here. Use them in your cart.</p>
+            </li>
+          }
+        </ul>
+
         @if (result.totalCount > pageSize || receivedPage() > 1) {
-          <nav class="header" aria-label="Received gift card pages">
+          <nav class="pages" aria-label="Received gift card pages">
             <button
               type="button"
-              class="button"
+              class="button button--small"
               [disabled]="receivedPage() === 1"
               (click)="receivedPage.set(receivedPage() - 1)"
             >
               Previous
             </button>
-            <span>Page {{ receivedPage() }}</span>
+            <span class="meta">Page {{ receivedPage() }}</span>
             <button
               type="button"
-              class="button"
+              class="button button--small"
               [disabled]="receivedPage() * pageSize >= result.totalCount"
               (click)="receivedPage.set(receivedPage() + 1)"
             >
@@ -99,10 +144,8 @@
           </nav>
         }
       } @else {
-        <p>Loading gift cards...</p>
+        <p class="empty empty--boxed" role="status">Loading gift cards...</p>
       }
     </section>
   </div>
-
-  <a class="button button--primary buy" routerLink="/payment/gift-cards/buy">Buy a gift card</a>
 </div>

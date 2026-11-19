@@ -1,17 +1,24 @@
-<div class="stack">
-  <div class="header">
-    <a class="back" routerLink="/social" aria-label="Back">←</a>
-    <h1>Received requests</h1>
+<div class="page-narrow">
+  <a class="back" routerLink="/social">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>Blogs</span>
+  </a>
+
+  <div class="page-header">
+    <div>
+      <h1>Received requests</h1>
+      <p>People who want to follow you.</p>
+    </div>
   </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (requests.isLoading()) {
-    <p>Loading requests...</p>
+    <p class="empty empty--boxed">Loading requests…</p>
   } @else if (requests.error()) {
-    <p class="error">Requests could not be loaded. Log in and try again.</p>
+    <p class="alert alert--danger">Requests could not be loaded. Log in and try again.</p>
   } @else {
     <div class="stack">
       @for (request of requests.value()?.items ?? []; track request.id) {
@@ -22,8 +29,25 @@
           (rejectClicked)="reject($event)"
         />
       } @empty {
-        <p>No received requests.</p>
+        <div class="empty empty--boxed">
+          <span class="empty-icon">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
+          </span>
+          <p>You haven’t received any follow requests yet.</p>
+        </div>
       }
     </div>
+
+    @if (pageCount() > 1) {
+      <nav class="pager" aria-label="Pages">
+        <button class="button button--small" type="button" [disabled]="page() === 1" (click)="page.set(page() - 1)">
+          Previous
+        </button>
+        <span class="meta">Page {{ page() }} of {{ pageCount() }}</span>
+        <button class="button button--small" type="button" [disabled]="page() >= pageCount()" (click)="page.set(page() + 1)">
+          Next
+        </button>
+      </nav>
+    }
   }
 </div>

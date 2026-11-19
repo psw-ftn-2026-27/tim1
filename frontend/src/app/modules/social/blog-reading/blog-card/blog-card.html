@@ -1,25 +1,41 @@
-<article class="card stack">
-  <h3>{{ blog().title }}</h3>
-
-  <app-blog-description [markdown]="blog().description" />
-
+<article class="card blog-card">
   @if (blog().images.length > 0) {
-    <div class="images">
-      @for (imageId of blog().images; track imageId) {
-        <app-protected-image [src]="'/api/social/blogs/' + blog().id + '/images/' + imageId" />
+    <div class="cover">
+      <app-protected-image
+        class="thumb thumb--wide"
+        [src]="'/api/social/blogs/' + blog().id + '/images/' + blog().images[0]"
+      />
+      @if (blog().images.length > 1) {
+        <span class="badge cover-count">{{ blog().images.length }} images</span>
       }
     </div>
   }
 
-  <p class="meta">Status: {{ blog().status }}</p>
+  <div class="body">
+    @if (blog().status === 'Archived') {
+      <span><span class="badge">Archived</span></span>
+    }
+    <h2>{{ blog().title }}</h2>
+    <!-- Čeka backend: BlogDto ima samo authorId, pa ime autora za sada ne može da se prikaže. -->
+    <p class="meta">{{ formatDate(blog().createdAt) }}</p>
+    <div class="clamp">
+      <app-blog-description [markdown]="blog().description" />
+    </div>
+  </div>
 
-  <p class="meta">Created: {{ formatDate(blog().createdAt) }}</p>
-
-  <p class="meta">Last modified: {{ formatDate(blog().lastModifiedAt) }}</p>
-
-  <p class="meta">Comments: {{ blog().comments.length }}</p>
-
-  <p class="meta">Score: {{ blog().score }}</p>
-
-  <a [routerLink]="['/social', blog().id]">Read more</a>
+  <div class="foot">
+    <a class="read-more" [routerLink]="['/social', blog().id]">
+      <span>Read more</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    </a>
+    <span
+      class="score"
+      [class.score--positive]="blog().score > 0"
+      [class.score--negative]="blog().score < 0"
+      [attr.aria-label]="'Score ' + formatScore(blog().score)"
+    >
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l7 8h-4.5v6h-5v-6H5z" /></svg>
+      <span>{{ formatScore(blog().score) }}</span>
+    </span>
+  </div>
 </article>

@@ -1,10 +1,11 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
+import { formatAmount } from '../../../../shared/util/format-amount';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { WalletOverviewDto, WalletRequestStatus } from '../../api/payment-api-types';
+import { TransactionType, WalletOverviewDto, WalletRequestStatus } from '../../api/payment-api-types';
 import { WalletFunding } from '../wallet-funding';
 
 const STATUS_LABELS: Record<WalletRequestStatus, string> = {
@@ -13,8 +14,26 @@ const STATUS_LABELS: Record<WalletRequestStatus, string> = {
   Rejected: 'odbijen',
 };
 
+const STATUS_BADGES: Record<WalletRequestStatus, string> = {
+  Pending: 'badge--warning',
+  Approved: 'badge--success',
+  Rejected: 'badge--danger',
+};
+
+// Server šalje iznos bez predznaka; smer novca u odnosu na raspoloživo stanje zavisi od vrste.
+// Isplata (Payout) ide iz rezervisanog, pa raspoloživo stanje ne menja.
+const TRANSACTION_DIRECTIONS: Record<TransactionType, 'in' | 'out' | 'reserved'> = {
+  TopUp: 'in',
+  Sale: 'in',
+  ReservationReturn: 'in',
+  Reservation: 'out',
+  Purchase: 'out',
+  GiftCardPurchase: 'out',
+  Payout: 'reserved',
+};
+
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, RouterLink, RouterLinkActive],
   selector: 'app-wallet',
   styleUrl: './wallet.scss',
   templateUrl: './wallet.html',
@@ -50,8 +69,18 @@ export class Wallet {
     required(path.amount, { message: 'Amount is required.' });
   });
 
+  protected readonly formatAmount = formatAmount;
+
   protected statusLabel(status: WalletRequestStatus): string {
     return STATUS_LABELS[status];
+  }
+
+  protected statusBadge(status: WalletRequestStatus): string {
+    return STATUS_BADGES[status];
+  }
+
+  protected direction(type: TransactionType): 'in' | 'out' | 'reserved' {
+    return TRANSACTION_DIRECTIONS[type];
   }
 
   protected async requestTopUp(event: Event): Promise<void> {

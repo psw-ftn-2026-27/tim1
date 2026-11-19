@@ -1,13 +1,50 @@
-.reject {
-  display: flex;
-  gap: var(--space-2);
+// Tabela se ne sabija ispod ove širine; na telefonu se pomera vodoravno
+.table {
+  min-width: 52rem;
 }
 
-.reject input {
-  flex: 1;
+td {
+  font-size: var(--font-size-sm);
+}
+
+.number {
+  text-align: right;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+// Identifikator korisnika
+.mono {
+  color: var(--color-text-muted);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
 }
 
 .row-actions {
   display: flex;
   gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+// Forma za razlog odbijanja se otvara ispod reda, na ugnežđenoj površini
+.reject-row:hover {
+  background: transparent;
+}
+
+.reject {
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: var(--space-4);
+}
+
+.reject .field {
+  flex: 1 1 20rem;
 }

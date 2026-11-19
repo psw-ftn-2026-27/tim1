@@ -2,39 +2,49 @@
   // Tamna tema: browser i sistemske kontrole (scrollbar, padajuća lista) prate tamnu paletu
   color-scheme: dark;
 
-  // Pozadine i površine (iste kao na naslovnoj stranici)
-  --color-bg: #101d1b; // tamna šumsko-zelena
-  --color-surface: #1c302c; // kartice, forme, polja za unos
-  --color-surface-hover: #273d37; // hover na dugmetu i redu tabele
-  --color-border: #424c4a;
+  // Pozadine i površine
+  --color-bg: #131c1a; // pozadina stranice, ujedno i pozadina polja za unos
+  --color-surface: #182320; // kartice, paneli, dugme
+  --color-surface-raised: #1d2a26; // površina unutar kartice (npr. forma za razlog odbijanja)
+  --color-surface-hover: #21302b; // hover na dugmetu i redu tabele
+  --color-surface-gift: #1d3a35; // tamnozelena površina (poklon kartica kupljena za drugog)
+  --color-border: #24332e; // ivice kartica i linije
+  --color-border-field: #2f413b; // ivica polja za unos i dugmeta
 
   // Tekst
-  --color-text: #f5f5ef; // topla bela
-  --color-text-muted: #c3c5c0; // opisi i oznake
-  --color-text-disabled: #7d8a86; // neaktivni elementi
+  --color-text: #eef2ef;
+  --color-text-muted: #a9b6b1; // opisi i oznake
+  --color-text-subtle: #8d9b96; // najslabiji: zaglavlja tabela, napomene
+  --color-text-disabled: #8d9b96; // neaktivni elementi
 
-  // Primarna boja: narandžasta (primarna dugmad, linkovi, istaknute reči, fokus)
-  --color-accent: #f28b43;
-  --color-accent-hover: #f5a066;
-  --color-accent-text: #101d1b; // tamni tekst na narandžastoj
+  // Primarna boja: narandžasta (primarna dugmad, aktivna stavka, fokus)
+  --color-accent: #f08a3c;
+  --color-accent-hover: #f59b55;
+  --color-accent-text: #1e1206; // tekst na narandžastoj: tamni, ne beli (kontrast)
+  --color-accent-bg: rgb(240 138 60 / 0.14); // blaga narandžasta podloga (aktivni meni, bedž)
+  --color-link: #f5a262; // narandžasta kao tekst ili link
+  --color-link-hover: #ffc08e;
 
-  // Sekundarna boja: obrubljeno dugme bez pozadine („Pogledaj blogove", „Registruj se")
+  // Sekundarna boja: obrubljeno narandžasto dugme bez pozadine
   --color-secondary: transparent;
-  --color-secondary-hover: #273d37;
-  --color-secondary-text: #f5f5ef;
+  --color-secondary-hover: rgb(240 138 60 / 0.1);
+  --color-secondary-text: #f5a262;
 
   // Ukrasna boja
-  --color-gold: #e3a72f; // senf: bedževi, titule, pečati; uvek sa tamnim tekstom
+  --color-gold: #e3a72f; // senf: titule, pečati; uvek sa tamnim tekstom
 
-  // Stanja: svetla boja teksta i tamna pozadina za poruke
-  --color-success: #7dd3a0;
-  --color-success-bg: #18392c;
-  --color-warning: #e3a72f; // senf
-  --color-warning-bg: #3a3018;
-  --color-danger: #ff8a7a;
-  --color-danger-bg: #3d1f1c;
-  --color-info: #7cc4e8;
-  --color-info-bg: #16323f;
+  // Stanja: svetla boja teksta, providna pozadina i ivica iste boje
+  --color-success: #8fe0b4;
+  --color-success-bg: rgb(74 190 130 / 0.16);
+  --color-success-border: rgb(74 190 130 / 0.4);
+  --color-warning: #f0cf78;
+  --color-warning-bg: rgb(232 190 90 / 0.14);
+  --color-danger: #f4b3b3;
+  --color-danger-bg: rgb(235 100 100 / 0.1);
+  --color-danger-border: rgb(235 110 110 / 0.4);
+  --color-info: #c4dbf8;
+  --color-info-bg: rgb(110 170 240 / 0.1);
+  --color-notification: #e5484d; // crveni krug na ikonici: ima nešto novo
 
   // Razmaci
   --space-1: 0.25rem;
@@ -47,26 +57,32 @@
 
   // Zaobljenja
   --radius-sm: 0.25rem;
-  --radius: 0.5rem;
-  --radius-lg: 1rem; // kartice, kao pločice na naslovnoj
-  --radius-pill: 999px;
+  --radius: 0.75rem; // dugme, polje, poruka (12px)
+  --radius-lg: 1.25rem; // kartica, panel (20px)
+  --radius-pill: 999px; // bedž, pill
 
   // Senke: na tamnoj pozadini moraju biti jače da bi se videle
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-md: 0 6px 16px rgb(0 0 0 / 0.4);
 
-  // Tipografija: naslovi istim fontom kao tekst, ali vrlo podebljani
-  --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-family-heading: var(--font-family);
-  --letter-spacing-heading: -0.01em;
+  // Tipografija: Inter za tekst, Nunito za naslove (Google Fonts, učitani u index.html)
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Nunito', var(--font-family);
+  --font-family-mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --letter-spacing-heading: 0;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.75rem;
+  --font-size-2xl: 2.75rem; // naslov stranice (h1)
   --font-weight-normal: 400;
   --font-weight-bold: 600;
   --font-weight-heading: 800;
+  --font-weight-display: 900; // h1, veliki iznosi
 
-  --container-width: 60rem;
+  // Dugme i polje su visoki najmanje 44px (dovoljno za prst na telefonu)
+  --control-height: 2.75rem;
+
+  --container-width: 77.5rem; // 1240px
 }

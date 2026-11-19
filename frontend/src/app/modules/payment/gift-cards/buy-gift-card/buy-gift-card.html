@@ -1,48 +1,131 @@
-<div class="stack">
-  <div class="header">
-    <a class="back" routerLink="/payment/gift-cards/buy" aria-label="Back to choosing a recipient">←</a>
-    <h1>Buy a gift card</h1>
+<div class="page">
+  <a class="back" routerLink="/payment/gift-cards/buy">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+    Choose someone else
+  </a>
+
+  <div class="intro">
+    <span class="eyebrow">Step 2 of 2</span>
+    <h1>Gift card for {{ recipient.value()?.displayName ?? '…' }}</h1>
   </div>
 
   @if (recipient.error()) {
-    <p class="error">The user could not be loaded. Go back and choose them again.</p>
+    <p class="alert alert--danger" role="alert">
+      <span>
+        The user could not be loaded.
+        <a routerLink="/payment/gift-cards/buy">Choose another recipient</a>
+      </span>
+    </p>
   } @else if (recipient.value() === undefined) {
-    <p>Loading the user...</p>
+    <p class="empty empty--boxed" role="status">Loading the user...</p>
   } @else {
-    <h2>Gift card for: {{ recipient.value()?.displayName }}</h2>
-
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-
-    <form class="card stack" (submit)="purchase($event)">
-      <div class="field">
-        <label for="gift-card-amount">Amount in EC</label>
-        <input id="gift-card-amount" type="number" step="1" [formField]="purchaseForm.amount" />
-        @if (purchaseForm.amount().touched()) {
-          @for (message of purchaseForm.amount().errors(); track $index) {
-            <p class="error">{{ message.message }}</p>
-          }
+    <div class="columns">
+      <form class="card purchase" (submit)="purchase($event)">
+        @if (error()) {
+          <p class="alert alert--danger" role="alert">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v6M12 16.5v.5" />
+            </svg>
+            <span>{{ error() }}</span>
+          </p>
         }
-      </div>
 
-      <div class="field">
-        <label for="gift-card-message">Message</label>
-        <textarea id="gift-card-message" [formField]="purchaseForm.message"></textarea>
-        @if (purchaseForm.message().touched()) {
-          @for (message of purchaseForm.message().errors(); track $index) {
-            <p class="error">{{ message.message }}</p>
+        <div class="field" [class.field--error]="purchaseForm.amount().touched() && purchaseForm.amount().invalid()">
+          <label for="gift-card-amount">Amount</label>
+          <div class="quick" role="group" aria-label="Quick amounts">
+            @for (amount of quickAmounts; track amount) {
+              <button
+                class="chip"
+                type="button"
+                [attr.aria-pressed]="purchaseForm.amount().value() === amount"
+                (click)="pickAmount(amount)"
+              >
+                {{ amount }} EC
+              </button>
+            }
+          </div>
+          <div class="amount-input">
+            <input id="gift-card-amount" type="number" step="1" aria-describedby="amount-hint" [formField]="purchaseForm.amount" />
+            <span class="suffix" aria-hidden="true">EC</span>
+          </div>
+          <span id="amount-hint" class="hint">A whole number from 10 to 1000 EC.</span>
+          @if (purchaseForm.amount().touched()) {
+            @for (message of purchaseForm.amount().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
           }
-        }
-      </div>
+        </div>
 
-      <button
-        class="button button--primary"
-        type="submit"
-        [disabled]="!purchaseForm().valid() || pending()"
-      >
-        Buy
-      </button>
-    </form>
+        <div class="field" [class.field--error]="purchaseForm.message().touched() && purchaseForm.message().invalid()">
+          <label for="gift-card-message">Message</label>
+          <textarea
+            id="gift-card-message"
+            rows="4"
+            placeholder="Write something personal"
+            aria-describedby="message-count"
+            [formField]="purchaseForm.message"
+          ></textarea>
+          <span id="message-count" class="hint count">{{ purchaseForm.message().value().length }} / 200</span>
+          @if (purchaseForm.message().touched()) {
+            @for (message of purchaseForm.message().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
+          }
+        </div>
+
+        <div class="footer">
+          <span class="hint">
+            @if (purchaseForm.amount().valid()) {
+              {{ formatAmount(purchaseForm.amount().value()) }} EC
+            } @else {
+              The amount
+            }
+            will be taken from your wallet right away. The purchase cannot be undone.
+          </span>
+          <div class="form-actions actions">
+            <a class="button" routerLink="/payment/gift-cards">Cancel</a>
+            <button
+              class="button button--primary"
+              type="submit"
+              [disabled]="!purchaseForm().valid() || pending()"
+            >
+              @if (purchaseForm.amount().valid()) {
+                Buy · {{ formatAmount(purchaseForm.amount().value()) }} EC
+              } @else {
+                Buy
+              }
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <aside class="preview" aria-label="Preview">
+        <span class="hint preview-label">Preview</span>
+        <div class="gift">
+          <app-gift-card-art [onAccent]="true" />
+          <div class="gift-top">
+            <span class="gift-label">Explorer gift card</span>
+            <span class="badge">Valid</span>
+          </div>
+          <span class="gift-amount">
+            @if (purchaseForm.amount().valid()) {
+              {{ formatAmount(purchaseForm.amount().value()) }}
+            } @else {
+              —
+            }
+            <span class="gift-currency">EC</span>
+          </span>
+          @if (purchaseForm.message().value()) {
+            <p class="gift-message">“{{ purchaseForm.message().value() }}”</p>
+          }
+          <div class="gift-bottom">
+            <span>For <strong>{{ recipient.value()?.displayName }}</strong></span>
+          </div>
+        </div>
+      </aside>
+    </div>
   }
 </div>

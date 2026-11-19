@@ -1,41 +1,36 @@
 <header>
-  <nav class="container">
+  <div class="container header-bar">
     <a class="logo" routerLink="/" aria-label="Explorer, početna stranica">
-      <svg width="120" height="32" viewBox="0 0 180 48" aria-hidden="true">
-        <circle cx="23" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="1.5" />
-        <path d="M29 10 35 33 23 28 11 37 17 15 23 20Z" fill="var(--color-accent)" />
-        <text
-          x="53"
-          y="33"
-          fill="currentColor"
-          font-family="inherit"
-          font-size="28"
-          font-weight="800"
-          letter-spacing="-1"
-        >
-          Explorer
-        </text>
-      </svg>
+      <span class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 19 10 7l4 6 2-3 5 9z" />
+        </svg>
+      </span>
+      <span class="logo-text">Explorer</span>
     </a>
-    <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-    <a routerLink="/exploration" routerLinkActive="active" ariaCurrentWhenActive="page">Exploration</a>
-    <a routerLink="/games" routerLinkActive="active" ariaCurrentWhenActive="page">Games</a>
-    <a routerLink="/social" routerLinkActive="active" ariaCurrentWhenActive="page">Social</a>
-    <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page">Payment</a>
 
-    <span class="nav-user">
+    <nav aria-label="Glavni meni">
+      <a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/exploration" routerLinkActive="active" ariaCurrentWhenActive="page">Exploration</a>
+      <a routerLink="/games" routerLinkActive="active" ariaCurrentWhenActive="page">Games</a>
+      <a routerLink="/social" routerLinkActive="active" ariaCurrentWhenActive="page">Social</a>
+      <a routerLink="/payment" routerLinkActive="active" ariaCurrentWhenActive="page">Payment</a>
+    </nav>
+
+    <div class="nav-user">
       <button class="button button--ghost button--small" type="button" (click)="consent.openBanner()">
         Kolačići
       </button>
       @if (auth.user(); as user) {
-        <span>{{ user.email }}</span>
-        <button class="button" type="button" (click)="auth.logout()">Logout</button>
+        <span class="avatar" aria-hidden="true">{{ user.email.charAt(0) }}</span>
+        <span class="email">{{ user.email }}</span>
+        <button class="button button--small" type="button" (click)="auth.logout()">Logout</button>
       } @else {
         <a routerLink="/login">Login</a>
         <a routerLink="/register">Register</a>
       }
-    </span>
-  </nav>
+    </div>
+  </div>
 </header>
 
 <main class="container stack">

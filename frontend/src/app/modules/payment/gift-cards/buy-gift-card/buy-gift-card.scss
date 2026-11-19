@@ -1,15 +1,207 @@
-.header {
+.page {
   display: flex;
-  align-items: center;
-  gap: var(--space-4);
+  flex-direction: column;
+  gap: var(--space-5);
 }
 
 .back {
-  font-size: var(--font-size-lg);
-  line-height: 1;
+  align-items: center;
+  align-self: flex-start;
+  display: inline-flex;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2);
   text-decoration: none;
 }
 
-form {
-  max-width: 20rem;
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.intro h1 {
+  font-size: 2.5rem;
+  line-height: 1.1;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+// Korak u toku („Step 2 of 2")
+.eyebrow {
+  color: var(--color-link);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+// Forma levo, pregled desno; na uskom ekranu jedno ispod drugog
+.columns {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.purchase {
+  display: flex;
+  flex: 3 1 28rem;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+// Brzi izbor iznosa
+.quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  min-height: 2.5rem;
+  padding: 0 var(--space-3);
+}
+
+.chip:hover {
+  border-color: var(--color-text-subtle);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--color-accent-bg);
+  border-color: var(--color-accent);
+  color: var(--color-link);
+}
+
+// Polje za iznos sa oznakom valute unutar polja
+.amount-input {
+  max-width: 16.25rem;
+  position: relative;
+}
+
+.amount-input input {
+  font-weight: var(--font-weight-bold);
+  padding-right: 3.25rem;
+  width: 100%;
+}
+
+.suffix {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  position: absolute;
+  right: var(--space-4);
+  top: 0.75rem;
+}
+
+.field textarea {
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.hint {
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-xs);
+  line-height: 1.5;
+}
+
+.count {
+  align-self: flex-end;
+}
+
+.footer {
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+}
+
+.actions {
+  justify-content: flex-end;
+}
+
+.preview {
+  display: flex;
+  flex: 2 1 20rem;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.preview-label {
+  font-weight: var(--font-weight-bold);
+}
+
+// Pregled poklon kartice: isti izgled kao primljena važeća kartica
+.gift {
+  background: var(--color-accent);
+  border-radius: var(--radius-lg);
+  color: var(--color-accent-text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 13.75rem;
+  overflow: hidden;
+  padding: var(--space-5);
+  position: relative;
+}
+
+// Tekst kartice ostaje iznad dekorativnog poklona
+.gift > * {
+  position: relative;
+}
+
+.gift-top {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gift-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.gift .badge {
+  background: color-mix(in srgb, var(--color-accent-text) 18%, transparent);
+  color: var(--color-accent-text);
+}
+
+.gift-amount {
+  font-family: var(--font-family-heading);
+  font-size: 3rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-display);
+  line-height: 1;
+}
+
+.gift-currency {
+  font-size: 1.375rem;
+}
+
+.gift-message {
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 78%;
+  overflow-wrap: anywhere;
+}
+
+.gift-bottom {
+  font-size: var(--font-size-sm);
+  margin-top: auto;
 }

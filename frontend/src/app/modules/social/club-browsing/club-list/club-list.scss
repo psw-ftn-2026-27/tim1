@@ -1,0 +1,10 @@
+.club-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+// Prazno stanje zauzima ceo red mreže
+.club-grid > .empty {
+  grid-column: 1 / -1;
+}

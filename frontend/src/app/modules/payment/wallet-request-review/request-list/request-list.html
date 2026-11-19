@@ -1,12 +1,12 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Submitted</th>
       <th scope="col">Kind</th>
       <th scope="col">Submitter</th>
-      <th scope="col">Amount</th>
+      <th scope="col" class="number">Amount</th>
+      <th scope="col">Submitted</th>
       @if (decidable()) {
-        <th scope="col">Actions</th>
+        <th scope="col" class="number">Actions</th>
       } @else {
         <th scope="col">Outcome</th>
         <th scope="col">Reason</th>
@@ -16,15 +16,19 @@
   <tbody>
     @for (request of requests(); track request.id) {
       <tr>
-        <td>{{ request.createdAt }}</td>
-        <td>{{ request.type }}</td>
-        <td>{{ request.submitterId }}</td>
-        <td>{{ request.amount }}</td>
+        <td>
+          <span class="badge" [class.badge--accent]="request.type === 'Withdrawal'">
+            {{ request.type }}
+          </span>
+        </td>
+        <td class="mono">{{ request.submitterId }}</td>
+        <td class="number amount">{{ formatAmount(request.amount) }} EC</td>
+        <td class="muted">{{ request.createdAt }}</td>
         @if (decidable()) {
           <td>
             <div class="row-actions">
               <button
-                class="button button--primary"
+                class="button button--primary button--small"
                 type="button"
                 [disabled]="pending()"
                 (click)="approveRequest.emit(request)"
@@ -32,9 +36,10 @@
                 Odobri
               </button>
               <button
-                class="button"
+                class="button button--danger button--small"
                 type="button"
                 [disabled]="pending()"
+                [attr.aria-expanded]="rejectingId() === request.id"
                 (click)="startReject(request)"
               >
                 Odbij
@@ -42,24 +47,40 @@
             </div>
           </td>
         } @else {
-          <td>{{ statusLabel(request.status) }}</td>
-          <td>{{ request.rejectionReason }}</td>
+          <td>
+            <span class="badge" [class]="statusBadge(request.status)">
+              {{ statusLabel(request.status) }}
+            </span>
+          </td>
+          <td [class.muted]="!request.rejectionReason">{{ request.rejectionReason ?? '—' }}</td>
         }
       </tr>
 
       @if (rejectingId() === request.id) {
-        <tr>
+        <tr class="reject-row">
           <td colspan="5">
             <form class="reject" (submit)="submitReject($event, request)">
-              <input type="text" aria-label="Rejection reason" [formField]="rejectForm.reason" />
-              <button
-                class="button button--primary"
-                type="submit"
-                [disabled]="!rejectForm().valid() || pending()"
-              >
-                Pošalji odbijanje
-              </button>
-              <button class="button" type="button" (click)="rejectingId.set(null)">Odustani</button>
+              <div class="field">
+                <label [for]="'reason-' + request.id">Reason for rejection</label>
+                <input
+                  type="text"
+                  [id]="'reason-' + request.id"
+                  placeholder="The user will see this in their wallet"
+                  [formField]="rejectForm.reason"
+                />
+              </div>
+              <div class="form-actions">
+                <button class="button button--small" type="button" (click)="rejectingId.set(null)">
+                  Odustani
+                </button>
+                <button
+                  class="button button--danger button--small"
+                  type="submit"
+                  [disabled]="!rejectForm().valid() || pending()"
+                >
+                  Pošalji odbijanje
+                </button>
+              </div>
             </form>
           </td>
         </tr>
@@ -67,9 +88,9 @@
     } @empty {
       <tr>
         @if (decidable()) {
-          <td colspan="5">There are no pending requests.</td>
+          <td colspan="5"><p class="empty">There are no pending requests.</p></td>
         } @else {
-          <td colspan="6">No request has been decided yet.</td>
+          <td colspan="6"><p class="empty">No request has been decided yet.</p></td>
         }
       </tr>
     }

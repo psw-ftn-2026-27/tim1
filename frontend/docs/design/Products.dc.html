@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Products</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;color:#a9b6b1;text-decoration:none;font-weight:600;font-size:14px}
+.tab:hover{color:#fff}
+.tab[aria-current="page"]{background:#24332e;color:#fff}
+.count{min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#F08A3C;color:#1e1206;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:700 12px Inter,sans-serif;white-space:nowrap}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.alert-err{background:rgba(235,100,100,.1);border:1px solid rgba(235,110,110,.4);color:#f4b3b3}
+.alert-ok{background:rgba(74,190,130,.1);border:1px solid rgba(74,190,130,.4);color:#a8e8c4}
+.card{transition:border-color .15s}
+.card:hover{border-color:#3d5650}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="#">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="Wallet.dc.html" aria-current="page">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 40px 24px 72px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 900; font-size: 44px; line-height: 1.05">Products</h1>
+<p style="margin: 0; font-size: 15px; color: #a9b6b1">Everything you can buy on Explorer. Add products to your cart and pay for them together.</p>
+</div>
+<nav aria-label="Payment" style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: #182320; border: 1px solid #24332e">
+<a class="tab" href="Wallet.dc.html">Wallet</a>
+<a class="tab" href="Products.dc.html" aria-current="page">Products</a>
+<a class="tab" href="Cart.dc.html" aria-label="Cart, {{cartCount}} items">Cart<span class="count">{{cartCount}}</span></a>
+<a class="tab" href="GiftCards.dc.html">Gift cards</a>
+<a class="tab" href="Coupons.dc.html">My coupons</a>
+</nav>
+</div>
+
+<div aria-live="polite" style="display: flex; flex-direction: column; gap: 8px">
+<sc-if value="{{hasOk}}" hint-placeholder-val="{{ false }}"><div class="alert alert-ok"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="m5 12 5 5 9-10"></path></svg><span>{{okMsg}} <a href="Cart.dc.html">View cart</a></span></div></sc-if>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}"><div class="alert alert-err" role="alert"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg><span>{{errMsg}}</span></div></sc-if>
+</div>
+
+<sc-if value="{{isError}}" hint-placeholder-val="{{ false }}">
+<div class="alert alert-err" role="alert">We couldn’t load the products. Refresh the page or try again later.</div>
+</sc-if>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="border: 1px dashed #33463f; border-radius: 20px; padding: 56px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<span style="width: 60px; height: 60px; border-radius: 999px; background: #1f2c28; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.5 12h-13z"></path><path d="M9 7a3 3 0 0 1 6 0"></path></svg></span>
+<h2 style="margin: 0; font-size: 20px; font-weight: 800">No products yet</h2>
+<p style="margin: 0; font-size: 14px; color: #a9b6b1">Products appear here when authors publish their tours.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
+<ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px">
+<sc-for list="{{products}}" as="p" hint-placeholder-count="6">
+<li class="card" style="background: #182320; border: 1px solid #24332e; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<span class="badge" style="background: #24332e; color: #d6dedb"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg>{{p.kind}}</span>
+<sc-if value="{{p.purchased}}" hint-placeholder-val="{{ false }}"><span class="badge" style="background: rgba(74,190,130,.16); color: #8fe0b4"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg>Purchased</span></sc-if>
+<sc-if value="{{p.inCart}}" hint-placeholder-val="{{ false }}"><span class="badge" style="background: rgba(240,138,60,.14); color: #F5A262">In cart</span></sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto">
+<h2 style="margin: 0; font-size: 18px; font-weight: 800; line-height: 1.3">{{p.name}}</h2>
+<span style="font-size: 13px; color: #a9b6b1">by {{p.owner}}</span>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid #24332e">
+<sc-if value="{{p.free}}" hint-placeholder-val="{{ false }}"><span style="display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; background: rgba(74,190,130,.16); color: #8fe0b4; font-weight: 800; font-size: 15px">Free</span></sc-if>
+<sc-if value="{{p.paid}}" hint-placeholder-val="{{ true }}"><span><span style="font-family: Nunito, sans-serif; font-size: 24px; font-weight: 900">{{p.priceLabel}}</span> <span style="font-size: 13px; font-weight: 600; color: #a9b6b1">EC</span></span></sc-if>
+<sc-if value="{{p.purchased}}" hint-placeholder-val="{{ false }}"><button class="btn" type="button" disabled="disabled">Already yours</button></sc-if>
+<sc-if value="{{p.canAdd}}" hint-placeholder-val="{{ true }}"><button class="btn btn-primary" type="button" onClick="{{p.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add to cart</button></sc-if>
+</div>
+</li>
+</sc-for>
+</ul>
+</sc-if>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"loadState":{"editor":"enum","options":["loaded","empty","error"],"default":"loaded","section":"States"},"$preview":{"width":1440,"height":1300}}'>
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+var PRODUCTS = [
+  { id: 1, name: 'Otkrijte Petrovaradinsku tvrđavu', price: 800, owner: 'Milica Petrović', purchased: true },
+  { id: 2, name: 'Biciklom preko Fruške gore', price: 2500, owner: 'Nikola Jović', purchased: true },
+  { id: 3, name: 'Šetnja Petrovaradinskom tvrđavom', price: 600, owner: 'Milica Petrović' },
+  { id: 4, name: 'Manastiri Fruške gore', price: 3200, owner: 'Nikola Jović' },
+  { id: 5, name: 'Sremski Karlovci i vinarije', price: 2800, owner: 'Ana Kovač' },
+  { id: 6, name: 'Novosadski mostovi', price: 0, owner: 'Milica Petrović' },
+  { id: 7, name: 'Fruškogorski vidikovci', price: 1200, owner: 'Unknown owner' }
+];
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { cart: [3, 6], ok: '', err: '' };
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    var ls = this.props.loadState ?? 'loaded';
+    return {
+      cartCount: s.cart.length,
+      hasOk: !!s.ok, okMsg: s.ok, hasErr: !!s.err, errMsg: s.err,
+      isError: ls === 'error', isEmpty: ls === 'empty', isLoaded: ls === 'loaded',
+      products: PRODUCTS.map(function (p) {
+        var inCart = s.cart.indexOf(p.id) >= 0;
+        return Object.assign({}, p, {
+          kind: 'Tour', inCart: inCart && !p.purchased, purchased: !!p.purchased, canAdd: !p.purchased,
+          free: p.price === 0, paid: p.price > 0, priceLabel: fmt(p.price),
+          add: function () {
+            if (inCart) { self.setState({ err: '“' + p.name + '” is already in your cart.', ok: '' }); return; }
+            self.setState({ cart: s.cart.concat([p.id]), ok: '“' + p.name + '” was added to your cart.', err: '' });
+          }
+        });
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>
