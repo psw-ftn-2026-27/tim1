@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, min, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
@@ -15,7 +15,15 @@ export class CreateTour {
   private readonly tourAuthoring = inject(TourAuthoring);
   private readonly router = inject(Router);
 
-  protected readonly difficulties: TourDifficulty[] = ['Easy', 'Moderate', 'Hard'];
+  // The server calls the middle difficulty "Moderate"; the screen shows "Medium".
+  protected readonly difficulties: { value: TourDifficulty; label: string }[] = [
+    { value: 'Easy', label: 'Easy' },
+    { value: 'Moderate', label: 'Medium' },
+    { value: 'Hard', label: 'Hard' },
+  ];
+
+  // A tour can be published only with a description this long (the server checks it on Publish).
+  protected readonly descriptionNeeded = 100;
 
   protected readonly form = form(
     signal({
@@ -33,10 +41,12 @@ export class CreateTour {
       min(path.groupSizeMin, 1, { message: 'Minimum group size must be at least 1.' });
       required(path.groupSizeMax, { message: 'Maximum group size is required.' });
       min(path.groupSizeMax, ({ valueOf }) => valueOf(path.groupSizeMin), {
-        message: 'Maximum group size must not be less than the minimum.',
+        message: 'Must be at least the “From” value.',
       });
     },
   );
+
+  protected readonly descriptionLength = computed(() => this.form.description().value().length);
 
   // The tags already added; the text still being typed lives in the form.
   protected readonly tags = signal<string[]>([]);
@@ -60,6 +70,14 @@ export class CreateTour {
 
   protected async submit(event: Event): Promise<void> {
     event.preventDefault();
+    // The button stays active, so a mistake shows its message instead of being sent.
+    if (!this.form().valid()) {
+      this.form.name().markAsTouched();
+      this.form.description().markAsTouched();
+      this.form.groupSizeMin().markAsTouched();
+      this.form.groupSizeMax().markAsTouched();
+      return;
+    }
     this.pending.set(true);
     this.error.set(null);
     try {
