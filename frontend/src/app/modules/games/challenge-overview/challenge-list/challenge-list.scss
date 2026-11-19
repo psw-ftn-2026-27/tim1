@@ -1,18 +1,42 @@
-.filters,
-.pagination {
+// Tri polja u jednom redu; na užem ekranu prelaze u novi red
+.toolbar {
+  align-items: flex-end;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
-.filters {
-  align-items: flex-end;
+.toolbar .field {
+  flex: 1 1 10rem;
 }
 
-.pagination {
-  align-items: center;
+.toolbar .toolbar__name {
+  flex: 3 1 16rem;
 }
 
-.table-card {
-  overflow-x: auto;
+// Lupa stoji u polju za pretragu, levo od teksta
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  color: var(--color-text-subtle);
+  left: var(--space-3);
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-box input {
+  padding-left: 2.5rem;
+  width: 100%;
+}
+
+.name {
+  font-weight: var(--font-weight-bold);
+}
+
+.date {
+  white-space: nowrap;
 }
