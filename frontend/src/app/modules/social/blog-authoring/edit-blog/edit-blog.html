@@ -1,27 +1,54 @@
-<div class="card stack">
-  <h1>Edit blog</h1>
+<div class="page-narrow">
+  <a class="back" routerLink="/social/mine">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>My blogs</span>
+  </a>
 
   @if (blog.isLoading()) {
-    <p>Loading…</p>
+    <p class="empty empty--boxed">Loading blog…</p>
   } @else if (blog.error()) {
-    <p class="error">Could not load the blog.</p>
+    <div class="empty empty--boxed">
+      <span class="empty-icon">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z" /><path d="M10 11l4 4M14 11l-4 4" /></svg>
+      </span>
+      <p>This blog could not be loaded. It may not exist, or it may not be yours.</p>
+      <a class="button" routerLink="/social/mine">Back to My blogs</a>
+    </div>
   } @else if (blog.hasValue()) {
-    @if (!editing()) {
-      <h2>{{ blog.value().title }}</h2>
-      <p class="description">{{ blog.value().description }}</p>
-      <div class="thumbnails">
-        @for (imageId of blog.value().images; track imageId) {
-          <app-protected-image [src]="'/api/social/blogs/mine/' + id() + '/images/' + imageId" />
-        }
-      </div>
+    <div class="page-header">
       <div>
-        <button class="button button--primary" type="button" (click)="startEdit(blog.value())">
-          Edit
-        </button>
+        <h1>Edit blog</h1>
+        <p>
+          Created {{ formatDate(blog.value().createdAt) }} · Last updated
+          {{ formatDate(blog.value().lastModifiedAt) }}
+        </p>
       </div>
+    </div>
+
+    @if (!editing()) {
+      <!-- The form is filled from the loaded blog when the author chooses to edit it. -->
+      <section class="card stack">
+        <h2>{{ blog.value().title }}</h2>
+        <p class="preview">{{ blog.value().description }}</p>
+        @if (blog.value().images.length > 0) {
+          <div class="tiles">
+            @for (imageId of blog.value().images; track imageId) {
+              <app-protected-image
+                class="thumb tile"
+                [src]="'/api/social/blogs/mine/' + id() + '/images/' + imageId"
+              />
+            }
+          </div>
+        }
+        <div class="form-actions end">
+          <button class="button button--primary" type="button" (click)="startEdit(blog.value())">
+            Edit
+          </button>
+        </div>
+      </section>
     } @else {
-      <form class="stack" (submit)="submit($event)">
-        <div class="field">
+      <form class="card stack" (submit)="submit($event)">
+        <div class="field" [class.field--error]="form.title().touched() && form.title().invalid()">
           <label for="title">Title</label>
           <input id="title" type="text" [formField]="form.title" />
           @if (form.title().touched()) {
@@ -31,9 +58,20 @@
           }
         </div>
 
-        <div class="field">
+        <div
+          class="field"
+          [class.field--error]="form.description().touched() && form.description().invalid()"
+        >
           <label for="description">Description</label>
-          <textarea id="description" rows="6" [formField]="form.description"></textarea>
+          <textarea
+            id="description"
+            class="markdown"
+            aria-describedby="description-hint"
+            [formField]="form.description"
+          ></textarea>
+          <p id="description-hint" class="meta">
+            Markdown is supported: **bold**, *italic*, lists with “-” and headings with “#”.
+          </p>
           @if (form.description().touched()) {
             @for (message of form.description().errors(); track $index) {
               <p class="error">{{ message.message }}</p>
@@ -43,18 +81,33 @@
 
         <div class="field">
           <span class="label">Existing images</span>
-          @for (imageId of keptImageIds(); track imageId) {
-            <div class="image-row">
-              <app-protected-image [src]="'/api/social/blogs/mine/' + id() + '/images/' + imageId" />
-              <button class="button" type="button" (click)="removeImage(imageId)">Remove</button>
+          <!-- Removing is local; the server gets the new list only with "Save". -->
+          @if (keptImageIds().length > 0) {
+            <div class="tiles">
+              @for (imageId of keptImageIds(); track imageId; let index = $index) {
+                <div class="tile-item">
+                  <app-protected-image
+                    class="thumb tile"
+                    [src]="'/api/social/blogs/mine/' + id() + '/images/' + imageId"
+                  />
+                  <button
+                    class="button button--danger button--small"
+                    type="button"
+                    [attr.aria-label]="'Remove image ' + (index + 1)"
+                    (click)="removeImage(imageId)"
+                  >
+                    Remove
+                  </button>
+                </div>
+              }
             </div>
-          } @empty {
-            <p>No existing images.</p>
+          } @else {
+            <p class="meta">No existing images.</p>
           }
         </div>
 
         <div class="field">
-          <span class="label">Nove slike</span>
+          <span class="label">Add new images</span>
           <app-image-upload
             [upload]="uploadImage"
             (imageIds)="newImageIds.set($event)"
@@ -63,16 +116,19 @@
         </div>
 
         @if (error()) {
-          <p class="error">{{ error() }}</p>
+          <p class="alert alert--danger" role="alert">{{ error() }}</p>
         }
 
-        <button
-          class="button button--primary"
-          type="submit"
-          [disabled]="!form().valid() || pending() || imagesSending()"
-        >
-          Save
-        </button>
+        <div class="form-actions end">
+          <a class="button" routerLink="/social/mine">Cancel</a>
+          <button
+            class="button button--primary"
+            type="submit"
+            [disabled]="!form().valid() || pending() || imagesSending()"
+          >
+            {{ pending() ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
       </form>
     }
   }

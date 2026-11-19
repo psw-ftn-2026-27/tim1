@@ -1,18 +1,27 @@
-.card {
-  margin-inline: auto;
-  max-width: 32rem;
-}
-
+// Looks like the other field labels; a <label> needs one control, and the URLs have several.
 .label {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
-.image-row {
+.url-row {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.image-row input {
-  flex: 1;
+.url-label {
+  flex-basis: 100%;
+  font-weight: var(--font-weight-normal);
+}
+
+.url-row input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.end {
+  justify-content: flex-end;
 }

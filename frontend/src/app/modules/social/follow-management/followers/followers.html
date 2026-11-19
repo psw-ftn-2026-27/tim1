@@ -1,17 +1,27 @@
-<div class="stack">
-  <div class="header">
-    <a class="back" routerLink="/social" aria-label="Back">←</a>
-    <h1>Followers</h1>
+<div class="page-narrow">
+  <a class="back" routerLink="/social">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>Blogs</span>
+  </a>
+
+  <div class="page-header">
+    <div>
+      <h1>Followers</h1>
+      <p>{{ counts.value()?.followerCount ?? 0 }} people follow you.</p>
+    </div>
+    <a class="button" routerLink="/social/following">
+      Following ({{ counts.value()?.followingCount ?? 0 }})
+    </a>
   </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (followers.isLoading()) {
-    <p>Loading followers...</p>
+    <p class="empty empty--boxed">Loading followers…</p>
   } @else if (followers.error()) {
-    <p class="error">Followers could not be loaded. Log in and try again.</p>
+    <p class="alert alert--danger">Followers could not be loaded. Log in and try again.</p>
   } @else {
     <div class="stack">
       @for (follower of followers.value()?.items ?? []; track follower.id) {
@@ -22,8 +32,25 @@
           (sendClicked)="send($event)"
         />
       } @empty {
-        <p>No followers yet.</p>
+        <div class="empty empty--boxed">
+          <span class="empty-icon">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /></svg>
+          </span>
+          <p>Nobody follows you yet.</p>
+        </div>
       }
     </div>
+
+    @if (pageCount() > 1) {
+      <nav class="pager" aria-label="Pages">
+        <button class="button button--small" type="button" [disabled]="page() === 1" (click)="page.set(page() - 1)">
+          Previous
+        </button>
+        <span class="meta">Page {{ page() }} of {{ pageCount() }}</span>
+        <button class="button button--small" type="button" [disabled]="page() >= pageCount()" (click)="page.set(page() + 1)">
+          Next
+        </button>
+      </nav>
+    }
   }
 </div>

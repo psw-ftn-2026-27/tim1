@@ -10,4 +10,6 @@ import { ClubDto } from '../../api/social-api-types';
 })
 export class ClubCard {
   readonly club = input.required<ClubDto>();
+  // True when the signed-in user owns the club; the page compares the club's ownerId.
+  readonly mine = input(false);
 }

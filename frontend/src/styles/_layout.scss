@@ -47,6 +47,34 @@
   margin: 0;
 }
 
+// Uska kolona (do 820px) za stranice sa listom ili formom
+.page-narrow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin-inline: auto;
+  max-width: 51.25rem;
+}
+
+// Dve kolone: __aside (oko 260px) i __main (ostatak). Kolona koja je prva u kodu stoji levo.
+// Kad nema mesta za obe, slažu se jedna ispod druge.
+.layout-side {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+}
+
+.layout-side__aside {
+  flex: 1 1 16.25rem;
+  min-width: 0;
+}
+
+.layout-side__main {
+  flex: 999 1 0;
+  min-width: min(100%, 30rem);
+}
+
 // Prelaz između stranica: router ubacuje novu stranicu kao dete <main>, a ona se blago
 // pojavi. Samo CSS, bez Angular koda. Ko je uključio „smanji animacije" u sistemu, ne vidi je.
 main > :not(router-outlet) {

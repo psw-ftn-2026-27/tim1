@@ -1,13 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { BlogDto } from '../../api/social-api-types';
 import { BlogAuthoring } from '../blog-authoring';
 
 @Component({
-  imports: [ProtectedImage, RouterLink],
+  imports: [ProtectedImage, RouterLink, RouterLinkActive],
   selector: 'app-my-blogs',
   styleUrl: './my-blogs.scss',
   templateUrl: './my-blogs.html',
@@ -36,6 +36,11 @@ export class MyBlogs {
   // The blog whose row shows the archive confirmation, or null when none does.
   protected readonly confirmingArchiveId = signal<string | null>(null);
 
+  protected startArchive(blogId: string): void {
+    this.error.set(null);
+    this.confirmingArchiveId.set(blogId);
+  }
+
   protected async archive(blogId: string): Promise<void> {
     this.pending.set(true);
     this.error.set(null);
@@ -44,14 +49,15 @@ export class MyBlogs {
       this.confirmingArchiveId.set(null);
       this.blogs.reload();
     } catch (failure) {
+      this.confirmingArchiveId.set(null);
       this.error.set(serverMessage(failure, 'Could not archive the blog.'));
     } finally {
       this.pending.set(false);
     }
   }
 
-  // The server sends dates as ISO text; this shows them in the reader's local time.
+  // The server sends dates as ISO text; this shows the date in the reader's local time.
   protected formatDate(value: string): string {
-    return new Date(value).toLocaleString('sr-Latn');
+    return new Date(value).toLocaleDateString('en-US', { dateStyle: 'medium' });
   }
 }

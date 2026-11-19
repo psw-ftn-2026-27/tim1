@@ -1,0 +1,22 @@
+h2 {
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+// Lupa stoji unutar polja za pretragu
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  color: var(--color-text-subtle);
+  left: var(--space-3);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-box input {
+  padding-left: 2.5rem;
+  width: 100%;
+}

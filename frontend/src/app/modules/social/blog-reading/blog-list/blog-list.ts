@@ -1,13 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../../../core/auth/auth';
 import { PageResult } from '../../../../shared/api/page-result';
 import { BlogDto, FollowCountsDto } from '../../api/social-api-types';
 import { BlogCard } from '../blog-card/blog-card';
 
 @Component({
-  imports: [BlogCard, RouterLink],
+  imports: [BlogCard, RouterLink, RouterLinkActive],
   selector: 'app-blog-list',
   styleUrl: './blog-list.scss',
   templateUrl: './blog-list.html',
