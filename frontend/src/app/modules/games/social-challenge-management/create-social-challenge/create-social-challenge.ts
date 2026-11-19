@@ -67,10 +67,6 @@ export class CreateSocialChallenge {
     this.form.longitude().value.set(pin.longitude);
   }
 
-  protected coordinates(pin: MapPin): string {
-    return `${pin.latitude.toFixed(5)}, ${pin.longitude.toFixed(5)}`;
-  }
-
   protected async submit(event: Event): Promise<void> {
     event.preventDefault();
     this.pending.set(true);

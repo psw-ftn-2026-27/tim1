@@ -1,26 +1,21 @@
-<div class="stack page">
-  <p><a class="back" routerLink="/games/social-challenges">← Social challenges</a></p>
+<div class="page-narrow">
+  <a class="back" routerLink="/games/social-challenges">← Social challenges</a>
 
-  <div>
-    <h1>New challenge</h1>
-    <p class="subtitle">
-      People earn XP when enough of them are within range of each other during the active period.
-    </p>
+  <div class="page-header">
+    <div>
+      <h1>New challenge</h1>
+      <p>People earn XP when enough of them are within range of each other during the active period.</p>
+    </div>
   </div>
 
-  @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
-  }
-
   <form class="card stack" (submit)="submit($event)">
+    @if (error()) {
+      <p class="alert alert--danger" role="alert">{{ error() }}</p>
+    }
+
     <div class="field">
       <label for="name">Name</label>
-      <input
-        id="name"
-        type="text"
-        placeholder="e.g. Sunset at Petrovaradin"
-        [formField]="form.name"
-      />
+      <input id="name" type="text" placeholder="e.g. Sunset at Petrovaradin" [formField]="form.name" />
       @if (form.name().touched()) {
         @for (message of form.name().errors(); track $index) {
           <p class="error">{{ message.message }}</p>
@@ -28,25 +23,29 @@
       }
     </div>
 
-    <div>
+    <div class="stack-sm">
       <p class="group-label">
-        Location <span class="hint">· click the map to place the meeting point</span>
+        Location
+        @if (!location()) {
+          <span class="hint">· Click to set the location</span>
+        }
       </p>
-      <app-map
-        [pins]="pins()"
-        [selectionEnabled]="true"
-        (locationSelected)="pickLocation($event)"
-      />
-      @if (location(); as picked) {
-        <p class="meta coordinates">{{ coordinates(picked) }}</p>
-      } @else {
-        <p class="meta coordinates">No location selected yet.</p>
-      }
+      <app-map [pins]="pins()" [selectionEnabled]="true" [showSelectionPin]="false" (locationSelected)="pickLocation($event)" />
+      <div class="columns">
+        <div class="field">
+          <label for="latitude">Latitude</label>
+          <input id="latitude" type="text" readonly [value]="location()?.latitude?.toFixed(5) ?? ''" />
+        </div>
+        <div class="field">
+          <label for="longitude">Longitude</label>
+          <input id="longitude" type="text" readonly [value]="location()?.longitude?.toFixed(5) ?? ''" />
+        </div>
+      </div>
     </div>
 
     <div>
       <p class="group-label">
-        Active period <span class="hint">· every day, within the same day</span>
+        Active period <span class="hint">· every day, 24-hour time, within the same day</span>
       </p>
       <div class="columns">
         <div class="field">
@@ -74,12 +73,7 @@
     <div class="columns">
       <div class="field">
         <label for="required-participants">People needed</label>
-        <input
-          id="required-participants"
-          type="number"
-          step="1"
-          [formField]="form.requiredParticipants"
-        />
+        <input id="required-participants" type="number" step="1" [formField]="form.requiredParticipants" />
         @if (form.requiredParticipants().touched()) {
           @for (message of form.requiredParticipants().errors(); track $index) {
             <p class="error">{{ message.message }}</p>
@@ -114,9 +108,10 @@
         id="completion-message"
         rows="3"
         placeholder="e.g. Great job – thanks for coming out together!"
+        aria-describedby="completion-message-hint"
         [formField]="form.completionMessage"
       ></textarea>
-      <p class="meta">Shown to participants when they complete the challenge.</p>
+      <p id="completion-message-hint" class="meta">Shown to participants when they complete the challenge.</p>
       @if (form.completionMessage().touched()) {
         @for (message of form.completionMessage().errors(); track $index) {
           <p class="error">{{ message.message }}</p>
@@ -125,17 +120,11 @@
     </div>
 
     <div class="card-footer">
-      <p class="meta footer-note">New challenges start as drafts.</p>
-      <div class="form-actions">
-        <a class="button cancel" routerLink="/games/social-challenges">Cancel</a>
-        <button
-          class="button button--primary"
-          type="submit"
-          [disabled]="!form().valid() || pending()"
-        >
-          {{ pending() ? 'Creating…' : 'Create draft' }}
-        </button>
-      </div>
+      <p class="meta">New challenges start as drafts.</p>
+      <a class="button" routerLink="/games/social-challenges">Cancel</a>
+      <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+        {{ pending() ? 'Creating…' : 'Create draft' }}
+      </button>
     </div>
   </form>
 </div>

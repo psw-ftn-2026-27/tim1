@@ -1,17 +1,17 @@
-.page {
-  margin-inline: auto;
-  max-width: 52rem;
+// Naziv, bedž stanja i dugme „Edit" u jednom redu
+.card-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
-.back {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  text-decoration: none;
-}
-
-.subtitle {
-  color: var(--color-text-muted);
+.card-title h2 {
   margin: 0;
+}
+
+.edit-button {
+  margin-left: auto;
 }
 
 .group-label {
@@ -25,8 +25,10 @@
   font-weight: var(--font-weight-normal);
 }
 
-.coordinates {
-  margin-top: var(--space-2);
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 // Fields side by side; on a narrow screen they wrap one under another.
@@ -36,33 +38,7 @@
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
 }
 
-// The read-only view: a label like the form's, with the current value under it.
-.label {
+// Read-only coordinates: the map sets them, the user does not type them.
+input[readonly] {
   color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
-.value {
-  margin: 0;
-  padding-block: var(--space-2);
-  white-space: pre-line;
-}
-
-.card-footer {
-  align-items: center;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  justify-content: flex-end;
-  padding-top: var(--space-4);
-}
-
-// A link that looks like a button: no underline, and the button's text colour on hover.
-.cancel {
-  text-decoration: none;
-}
-
-.cancel:hover {
-  color: var(--color-text);
 }
