@@ -45,16 +45,40 @@
   --color-info: #c4dbf8;
   --color-info-bg: rgb(110 170 240 / 0.1);
   --color-notification: #e5484d; // crveni krug na ikonici: ima nešto novo
-  --color-danger-solid: #d4393e; // puno crveno dugme za konačno brisanje (beli tekst, kontrast 4.7:1)
-  --color-danger-solid-hover: #c02e33;
+  --color-danger-solid: #d0504f; // puno crveno dugme za konačno brisanje (beli tekst)
+  --color-danger-solid-hover: #bd4140;
   --color-danger-solid-text: #ffffff;
 
-  // Stanja izazova (Games): Draft žuto-smeđi, Published zeleni, Retired narandžasto-smeđi,
-  // Archived sivo-plavi. Draft i Published koriste --color-warning i --color-success.
-  --color-retired: #e8a878;
-  --color-retired-bg: rgb(196 112 52 / 0.18);
-  --color-archived: #aebccb;
-  --color-archived-bg: rgb(140 160 185 / 0.16);
+  // Games (frontend/docs/design/games): boje iz reference za koje nijedan token nije dovoljno
+  // blizu (ΔE veće od oko 4). Tabela je u styles/README.md, odeljak „Games".
+  --color-text-strong: #ffffff; // naslovi, ime u tabeli, velike vrednosti
+  --color-text-soft: #c9d2cf; // neutralni bedž, slovo odgovora, ikonica praznog stanja
+  --color-text-placeholder: #7d8986;
+  --color-xp: #f2c14e; // iskustveni poeni
+  --color-accent-soft: #3a2a1e; // puna narandžasto-smeđa podloga: ikonica kartice, bedž --accent
+  --color-state-draft: #ecc95f; // žuto-smeđi: Draft, upozorenje
+  --color-state-draft-bg: #3a3420;
+  --color-state-published: #74d6a0; // zeleni: Published
+  --color-state-published-bg: #1f3a2c;
+  --color-state-retired: #f3a96b; // narandžasto-smeđi: Retired
+  --color-state-retired-bg: #3f2c20;
+  --color-state-archived: #bac6d2; // sivo-plavi: Archived
+  --color-state-archived-bg: #2b3540;
+  --color-type-quiz: #9cc0f0; // plavi bedž „Quiz"
+  --color-type-quiz-bg: #22344a;
+  --color-error: #f6c4c4; // poruka o grešci
+  --color-error-bg: #2e1c1c;
+  --color-error-border: #5c3434; // i ivica obrubljenog crvenog dugmeta
+  --color-error-strong: #f39a9a; // tekst obrubljenog crvenog dugmeta, ikonica pogrešnog odgovora
+  --color-error-strong-bg: #3a2020; // krug oko ikonice pogrešnog odgovora
+  --color-alert-success: #a9e8c3;
+  --color-alert-info-bg: #1c2836;
+  --color-alert-info-border: #2e4560;
+  --color-confirm: #f6cfcf; // pitanje u potvrdi brisanja
+  --color-row-danger-bg: #251d1a; // red tabele sa otvorenom potvrdom brisanja
+  --color-correct: #bfeccf; // tačan odgovor u listi pitanja
+  --color-correct-bg: #1d3328;
+  --color-option-hover-bg: #1d1a16; // odgovor na koji je pokazivač
 
   // Razmaci
   --space-1: 0.25rem;
@@ -64,12 +88,23 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
   --space-7: 3rem;
+  // Međukoraci iz Games reference (6, 10, 14, 20, 28 i 40px)
+  --space-1-5: 0.375rem;
+  --space-2-5: 0.625rem;
+  --space-3-5: 0.875rem;
+  --space-4-5: 1.25rem;
+  --space-5-5: 1.75rem;
+  --space-6-5: 2.5rem;
 
   // Zaobljenja
   --radius-sm: 0.25rem;
   --radius: 0.75rem; // dugme, polje, poruka (12px)
   --radius-lg: 1.25rem; // kartica, panel (20px)
   --radius-pill: 999px; // bedž, pill
+  // Games reference: malo dugme (8px), dugme i polje (10px), kartica (14px)
+  --radius-xs: 0.5rem;
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
 
   // Senke: na tamnoj pozadini moraju biti jače da bi se videle
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
@@ -86,6 +121,13 @@
   --font-size-lg: 1.25rem;
   --font-size-xl: 1.75rem;
   --font-size-2xl: 2.75rem; // naslov stranice (h1)
+  // Games reference: napomena (13px), tekst (15px), naslov odeljka (18px), velika vrednost (30px),
+  // naslov stranice (40px)
+  --font-size-caption: 0.8125rem;
+  --font-size-ui: 0.9375rem;
+  --font-size-title-sm: 1.125rem;
+  --font-size-stat: 1.875rem;
+  --font-size-title: 2.5rem;
   --font-weight-normal: 400;
   --font-weight-bold: 600;
   --font-weight-heading: 800;
@@ -93,6 +135,7 @@
 
   // Dugme i polje su visoki najmanje 44px (dovoljno za prst na telefonu)
   --control-height: 2.75rem;
+  --control-height-field: 2.875rem; // polje za unos u Games referenci (46px)
 
   --container-width: 77.5rem; // 1240px
 }
