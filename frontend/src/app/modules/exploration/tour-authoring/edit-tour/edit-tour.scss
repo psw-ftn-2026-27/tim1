@@ -1,0 +1,85 @@
+// Room under the last element, so the content does not stick to the bottom of the window.
+:host {
+  display: block;
+  padding-bottom: var(--space-7);
+}
+
+.heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  justify-content: space-between;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.back {
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+// A link that looks like a button must not look like a link: no underline, the button's own colour.
+a.button {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.button--primary {
+  color: var(--color-accent-text);
+}
+
+.description {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.publish {
+  max-width: 24rem;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+// "Make public" and "Make private" share one width, so the button does not jump when it toggles.
+.visibility-toggle {
+  min-width: 7.5rem;
+}
+
+// Route mode: one choice at a time, the chosen button is outlined in the accent colour.
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.option {
+  background: var(--color-bg);
+  border: 1px solid var(--color-surface-hover);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-2) var(--space-3);
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+.option--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}

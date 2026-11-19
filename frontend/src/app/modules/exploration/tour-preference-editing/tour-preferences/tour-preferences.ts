@@ -2,11 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { serverMessage } from '../../../../shared/util/server-message';
-import {
-  TourDifficulty,
-  TourPreferenceDto,
-  TransportMode,
-} from '../../api/exploration-api-types';
+import { TourDifficulty, TourPreferenceDto, TransportMode } from '../../api/exploration-api-types';
 import { TourPreferenceEditing } from '../tour-preference-editing';
 
 @Component({

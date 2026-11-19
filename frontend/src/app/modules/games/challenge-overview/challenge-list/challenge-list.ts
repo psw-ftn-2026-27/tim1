@@ -18,6 +18,18 @@ export class ChallengeList {
   protected readonly isAdministrator = computed(
     () => this.auth.user()?.roles.includes('administrator') ?? false,
   );
+  // For each challenge type the server sends: its name on the page, and the route section
+  // that holds its edit page.
+  protected readonly typeLabels: Record<string, string> = {
+    Quiz: 'Quiz',
+    SocialChallenge: 'Social challenge',
+    LocationChallenge: 'Location challenge',
+  };
+  protected readonly typePaths: Record<string, string> = {
+    Quiz: 'quizzes',
+    SocialChallenge: 'social-challenges',
+    LocationChallenge: 'location-challenges',
+  };
   protected readonly pageSize = 20;
   protected readonly page = signal(1);
   protected readonly filters = form(signal({ ...emptyFilters }));

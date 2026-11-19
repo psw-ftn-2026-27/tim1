@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   CreateTourDto,
   PublishTourDto,
-  TourDto,
+  SetTourLengthDto,
   TransportTimeDto,
 } from '../api/exploration-api-types';
 
@@ -14,8 +14,8 @@ const BASE_URL = '/api/exploration/tours';
 export class TourAuthoring {
   private readonly http = inject(HttpClient);
 
-  async create(dto: CreateTourDto): Promise<TourDto> {
-    return firstValueFrom(this.http.post<TourDto>(BASE_URL, dto));
+  async create(dto: CreateTourDto): Promise<void> {
+    await firstValueFrom(this.http.post<void>(BASE_URL, dto));
   }
 
   async publish(id: string, dto: PublishTourDto): Promise<void> {
@@ -32,5 +32,25 @@ export class TourAuthoring {
 
   async addTransportTime(id: string, dto: TransportTimeDto): Promise<void> {
     await firstValueFrom(this.http.post<void>(`${BASE_URL}/${id}/transport-times`, dto));
+  }
+
+  async removeKeypoint(tourId: string, keypointId: string): Promise<void> {
+    await firstValueFrom(this.http.delete<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}`));
+  }
+
+  async setLength(tourId: string, dto: SetTourLengthDto): Promise<void> {
+    await firstValueFrom(this.http.put<void>(`${BASE_URL}/${tourId}/length`, dto));
+  }
+
+  async setKeypointVisibility(
+    tourId: string,
+    keypointId: string,
+    publiclyVisible: boolean,
+  ): Promise<void> {
+    await firstValueFrom(
+      this.http.put<void>(`${BASE_URL}/${tourId}/keypoints/${keypointId}/visibility`, {
+        publiclyVisible,
+      }),
+    );
   }
 }

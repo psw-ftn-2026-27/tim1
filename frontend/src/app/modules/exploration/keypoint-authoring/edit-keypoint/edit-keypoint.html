@@ -1,0 +1,34 @@
+<div class="card stack">
+  <a class="back" [routerLink]="['/exploration/tour', id(), 'edit']">&larr; Back to tour</a>
+  <h1>Edit keypoint</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (keypoint.hasValue()) {
+    @let details = keypoint.value();
+    <app-protected-image [src]="imageUrl()" />
+
+    @if (keypoints.hasValue()) {
+      <app-keypoint-form
+        [fields]="fields"
+        [pins]="pins()"
+        [editedPinIndex]="editedPinIndex()"
+        [upload]="uploadImage"
+        [currentImageId]="details.imageId"
+        [pending]="pending()"
+        saveLabel="Save"
+        (save)="update($event)"
+      />
+    } @else if (keypoints.isLoading()) {
+      <p class="meta">Loading the keypoints...</p>
+    } @else {
+      <p class="error">Could not load the keypoints.</p>
+    }
+  } @else if (keypoint.isLoading()) {
+    <p>Loading the keypoint...</p>
+  } @else {
+    <p class="error">Could not load the keypoint.</p>
+  }
+</div>

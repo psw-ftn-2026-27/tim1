@@ -1,0 +1,239 @@
+<div class="stack">
+  <a class="back" routerLink="/exploration/mine">&larr; Back to my tours</a>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  @if (tour.hasValue()) {
+    @let details = tour.value();
+
+    <header class="heading">
+      <h1>{{ details.name }}</h1>
+      <div class="actions">
+        @if (details.status === 'Draft') {
+          <button
+            class="button"
+            type="button"
+            [disabled]="pending()"
+            (click)="openPublishing()"
+          >
+            Publish
+          </button>
+        }
+        @if (details.status === 'Draft') {
+          <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
+            Add keypoint
+          </a>
+        }
+      </div>
+    </header>
+
+    @if (publishing() && details.status === 'Draft') {
+      <form class="card stack publish" (submit)="publish($event)">
+        <h2>Publish tour</h2>
+
+        <div class="field">
+          <label for="charge">Pricing</label>
+          <select id="charge" [formField]="publishForm.charge">
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+          </select>
+        </div>
+
+        @if (publishForm.charge().value() === 'Paid') {
+          <div class="field">
+            <label for="price">Price</label>
+            <input id="price" type="number" step="0.01" [formField]="publishForm.price" />
+            @if (publishForm.price().touched()) {
+              @for (message of publishForm.price().errors(); track $index) {
+                <p class="error">{{ message.message }}</p>
+              }
+            }
+          </div>
+        }
+
+        <div class="form-actions">
+          <button
+            class="button button--primary"
+            type="submit"
+            [disabled]="!publishForm().valid() || pending()"
+          >
+            Publish
+          </button>
+          <button class="button" type="button" (click)="publishing.set(false)">Cancel</button>
+        </div>
+      </form>
+    }
+
+    <section class="card stack">
+      <p class="description">{{ details.description }}</p>
+      <p class="meta">Walking length: {{ details.length.toFixed(2) }} km</p>
+
+      <div class="field">
+        <span class="label">Route preview</span>
+        <div class="options">
+          @for (mode of modes; track mode) {
+            <button
+              type="button"
+              class="option"
+              [class.option--active]="routeForm.mode().value() === mode"
+              (click)="routeForm.mode().value.set(mode)"
+            >
+              {{ mode }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <app-map
+        [pins]="pins()"
+        [routeRequest]="routeRequest()"
+        (routeLengthKm)="saveMeasuredLength($event)"
+      />
+    </section>
+
+    <h2>Transport times</h2>
+
+    <section class="card stack">
+      @if (timeAdded(); as added) {
+        <p class="alert alert--success">Added: {{ added }}</p>
+      }
+
+      @if (details.transportTimes.length > 0) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Transport</th>
+              <th scope="col">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (time of details.transportTimes; track time.transport) {
+              <tr>
+                <td>{{ time.transport }}</td>
+                <td>{{ time.minutes }} min</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="meta">No transport times added yet.</p>
+      }
+
+      @if (details.status === 'Archived') {
+        <p class="meta">An archived tour cannot get a transport time.</p>
+      } @else if (availableTransports().length === 0) {
+        <p class="meta">Every transport mode already has a time.</p>
+      } @else {
+        <form class="stack" (submit)="addTransportTime($event)">
+          <div class="field">
+            <span class="label">Transport</span>
+            <div class="options">
+              @for (transport of availableTransports(); track transport) {
+                <button
+                  type="button"
+                  class="option"
+                  [class.option--active]="selectedTransport() === transport"
+                  (click)="timeForm.transport().value.set(transport)"
+                >
+                  {{ transport }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="minutes">Minutes</label>
+            <input id="minutes" type="number" [formField]="timeForm.minutes" />
+            @if (timeForm.minutes().touched()) {
+              @for (message of timeForm.minutes().errors(); track $index) {
+                <p class="error">{{ message.message }}</p>
+              }
+            }
+          </div>
+
+          <div class="form-actions">
+            <button
+              class="button button--primary"
+              type="submit"
+              [disabled]="!timeForm().valid() || pending()"
+            >
+              Add time
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+
+    <h2>Keypoints</h2>
+
+    @if (keypoints.hasValue()) {
+      <section class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Visibility</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (keypoint of keypoints.value(); track keypoint.id; let position = $index) {
+              <tr>
+                <td>{{ position + 1 }}</td>
+                <td>{{ keypoint.name }}</td>
+                <td>
+                  <span class="badge" [class.badge--success]="keypoint.publiclyVisible">
+                    {{ keypoint.publiclyVisible ? 'Public' : 'Private' }}
+                  </span>
+                </td>
+                <td class="actions">
+                  @if (details.status === 'Draft') {
+                    <a
+                      class="button button--small"
+                      [routerLink]="['/exploration/tour', id(), 'keypoint', keypoint.id, 'edit']"
+                    >
+                      Edit
+                    </a>
+                  }
+                  <button
+                    class="button button--small visibility-toggle"
+                    type="button"
+                    [disabled]="pending()"
+                    (click)="setVisibility(keypoint)"
+                  >
+                    {{ keypoint.publiclyVisible ? 'Make private' : 'Make public' }}
+                  </button>
+                  @if (details.status === 'Draft') {
+                    <button
+                      class="button button--small button--danger"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="remove(keypoint)"
+                    >
+                      Remove
+                    </button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td class="empty" colspan="4">This tour has no keypoints yet.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    } @else if (keypoints.isLoading()) {
+      <p class="meta">Loading the keypoints...</p>
+    } @else {
+      <p class="alert alert--danger">Could not load the keypoints.</p>
+    }
+  } @else if (tour.isLoading()) {
+    <p class="meta">Loading the tour...</p>
+  } @else {
+    <p class="alert alert--danger">Could not load the tour.</p>
+  }
+</div>

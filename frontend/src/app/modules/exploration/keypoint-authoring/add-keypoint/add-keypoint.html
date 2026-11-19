@@ -1,0 +1,24 @@
+<div class="card stack">
+  <a class="back" [routerLink]="['/exploration/tour', id(), 'edit']">&larr; Back to tour</a>
+  <h1>Add keypoint</h1>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (keypoints.hasValue()) {
+    <app-keypoint-form
+      [fields]="fields"
+      [pins]="pins()"
+      [upload]="uploadImage"
+      [showVisibility]="true"
+      [pending]="pending()"
+      saveLabel="Save"
+      (save)="add($event)"
+    />
+  } @else if (keypoints.isLoading()) {
+    <p>Loading the keypoints...</p>
+  } @else {
+    <p class="error">Could not load the keypoints.</p>
+  }
+</div>

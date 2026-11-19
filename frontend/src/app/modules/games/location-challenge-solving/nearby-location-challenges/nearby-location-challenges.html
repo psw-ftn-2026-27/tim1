@@ -1,0 +1,78 @@
+<div class="stack page">
+  <p><a class="back" routerLink="/games">← Games</a></p>
+
+  <div>
+    <h1>Location challenges</h1>
+    <p class="subtitle">
+      Come within 50 m of a challenge's start to activate it, then find where its photos were taken.
+    </p>
+  </div>
+
+  @if (error()) {
+    <p class="alert alert--danger">{{ error() }}</p>
+  }
+
+  @if (nearby.isLoading()) {
+    <p>Loading challenges…</p>
+  } @else if (nearby.error()) {
+    <p class="alert alert--danger">
+      Could not load the challenges. Log in as an explorer and try again.
+    </p>
+  } @else if (nearby.hasValue()) {
+    @if (nearby.value().position; as position) {
+      <div class="position">
+        <p class="meta">Your position: {{ coordinates(position) }}</p>
+        <a routerLink="/exploration/position-test">Set my position</a>
+      </div>
+
+      <div class="card table-card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col" class="number">Distance</th>
+              <th scope="col" class="number">XP</th>
+              <th scope="col" class="actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (challenge of nearby.value().challenges; track challenge.id) {
+              <tr>
+                <td>{{ challenge.name }}</td>
+                <td class="number">{{ distance(challenge.distanceMeters) }}</td>
+                <td class="number">{{ challenge.experiencePoints }}</td>
+                <td class="actions">
+                  @if (challenge.isStarted) {
+                    <a
+                      class="button button--primary button--small"
+                      [routerLink]="['/games/location-challenges', challenge.id, 'attempt']"
+                    >
+                      Continue
+                    </a>
+                  } @else if (challenge.canActivate) {
+                    <button
+                      class="button button--primary button--small"
+                      type="button"
+                      [disabled]="activatingId() !== null"
+                      (click)="activate(challenge.id)"
+                    >
+                      {{ activatingId() === challenge.id ? 'Activating…' : 'Activate' }}
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        @if (nearby.value().challenges.length === 0) {
+          <p class="empty">No location challenges to solve right now.</p>
+        }
+      </div>
+    } @else {
+      <div class="alert alert--info stack">
+        <p>Set your position first, so you can see how far the challenges are.</p>
+        <p><a routerLink="/exploration/position-test">Set my position</a></p>
+      </div>
+    }
+  }
+</div>

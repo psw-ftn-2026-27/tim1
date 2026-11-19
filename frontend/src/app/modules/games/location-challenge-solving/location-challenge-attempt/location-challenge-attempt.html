@@ -1,0 +1,63 @@
+<div class="stack page">
+  <p><a class="back" routerLink="/games/location-challenges/nearby">← Location challenges</a></p>
+
+  @if (attempt.hasValue()) {
+    <div>
+      <h1>{{ attempt.value().challengeName }}</h1>
+      <p class="subtitle">Find the places where these photos were taken.</p>
+    </div>
+
+    <section class="card stack">
+      <h2>Search area</h2>
+      @if (attempt.value().isSolved) {
+        <p class="alert alert--success">
+          You solved this challenge and earned {{ attempt.value().awardedExperiencePoints }} XP.
+        </p>
+      } @else {
+        @if (error()) {
+          <p class="alert alert--danger">{{ error() }}</p>
+        }
+        <div class="check">
+          <button
+            class="button button--primary"
+            type="button"
+            [disabled]="checking()"
+            (click)="checkLocation()"
+          >
+            {{ checking() ? 'Checking…' : 'Check' }}
+          </button>
+          <p class="meta">
+            Go where a photo was taken (<a routerLink="/exploration/position-test">set my position</a>),
+            come back with Continue, then check.
+          </p>
+        </div>
+      }
+      <app-map [pins]="centerPins()" />
+      <p class="meta">
+        The hidden places are in a circle {{ diameter(attempt.value().circle.diameterMeters) }}
+        across, centered on the pin.
+      </p>
+    </section>
+
+    <section class="card stack">
+      <h2>Photos</h2>
+      <p class="meta">{{ attempt.value().remainingPointCount }} of {{ attempt.value().photos.length }} places left to find.</p>
+      <div class="photos">
+        @for (photo of attempt.value().photos; track photo.pointId) {
+          <figure class="photo" [class.photo--discovered]="photo.isDiscovered">
+            <app-protected-image class="photo-image" [src]="imageUrl(photo.imageId)" />
+            @if (photo.isDiscovered) {
+              <figcaption class="photo-caption">Discovered</figcaption>
+            }
+          </figure>
+        }
+      </div>
+    </section>
+  } @else if (attempt.error()) {
+    <p class="alert alert--danger">
+      Could not load the challenge. Activate it from the list of location challenges first.
+    </p>
+  } @else {
+    <p>Loading the challenge…</p>
+  }
+</div>

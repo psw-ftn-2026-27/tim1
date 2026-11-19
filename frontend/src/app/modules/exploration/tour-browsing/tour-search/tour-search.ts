@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
 import { TourDifficulty, TransportMode } from '../../api/exploration-api-types';
 
@@ -28,16 +28,8 @@ export class TourSearch {
 
   protected readonly form = form(this.model);
 
-  // Until the user opens or closes the filters, they are open when the criteria use them.
-  private readonly filtersToggled = signal<boolean | null>(null);
-  protected readonly filtersOpen = computed(() => {
-    const c = this.criteria();
-    return this.filtersToggled() ?? (c.difficulties.length > 0 || c.transports.length > 0);
-  });
-
-  protected toggleFilters(): void {
-    this.filtersToggled.set(!this.filtersOpen());
-  }
+  protected readonly difficulties: TourDifficulty[] = ['Easy', 'Moderate', 'Hard'];
+  protected readonly transports: TransportMode[] = ['Walking', 'Bicycle', 'Car'];
 
   protected applyTitle(): void {
     this.criteriaChange.emit({ ...this.criteria(), title: this.model().title.trim() });
@@ -65,6 +57,26 @@ export class TourSearch {
   protected toggleTransport(transport: TransportMode): void {
     const transports = this.toggled(this.criteria().transports, transport);
     this.criteriaChange.emit({ ...this.criteria(), transports });
+  }
+
+  // "All" is not a value, it only removes the filter.
+  protected clearDifficulties(): void {
+    this.criteriaChange.emit({ ...this.criteria(), difficulties: [] });
+  }
+
+  protected clearTransports(): void {
+    this.criteriaChange.emit({ ...this.criteria(), transports: [] });
+  }
+
+  protected clearFilters(): void {
+    this.model.set({ title: '', tagInput: '' });
+    this.criteriaChange.emit({
+      title: '',
+      difficulties: [],
+      transports: [],
+      tags: [],
+      sort: 'Newest',
+    });
   }
 
   protected changeSort(event: Event): void {

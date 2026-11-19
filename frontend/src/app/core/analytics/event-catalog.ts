@@ -10,7 +10,8 @@ export interface EventParams {
   tour_published: { tour_id: string; difficulty: string };
   view_item: never;
   add_to_cart: { product_type: string; product_id: string; price: number };
-  purchase: { product_types: string; item_count: number; value: number };
+  // GA4 broji `value` kao prihod samo uz `currency` (ISO 4217 kod od 3 slova).
+  purchase: { product_types: string; item_count: number; value: number; currency: string };
   tour_started: never;
   tour_completed: never;
   challenge_solved: never;

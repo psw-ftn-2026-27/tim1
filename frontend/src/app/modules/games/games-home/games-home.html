@@ -4,6 +4,23 @@
     <p class="subtitle">Challenges that get people outside together.</p>
   </div>
 
+  @if (isExplorer()) {
+    <section class="stack">
+      <h2 class="section-label">Play</h2>
+
+      <div class="grid">
+        <a class="card card--interactive tile" routerLink="/games/location-challenges/nearby">
+          <span>
+            <span class="tile-title">Location challenges</span>
+            <span class="tile-description">
+              Find the places where the photos were taken, starting near you.
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  }
+
   @if (isAdministrator()) {
     <section class="stack">
       <h2 class="section-label">Administration</h2>
@@ -41,6 +58,27 @@
           <span>
             <span class="tile-title">Quizzes</span>
             <span class="tile-description">Create and edit quiz drafts.</span>
+          </span>
+        </a>
+        <a class="card card--interactive tile" routerLink="/games/location-challenges">
+          <span>
+            <span class="tile-title">Location challenges</span>
+            <span class="tile-description">
+              Create, publish and retire challenges where people find hidden places from photos.
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  }
+
+  @if (isExplorer()) {
+    <section class="stack">
+      <div class="grid">
+        <a class="card card--interactive tile" routerLink="/games/play/quizzes">
+          <span>
+            <span class="tile-title">Quizzes</span>
+            <span class="tile-description">Test your knowledge of the places around you.</span>
           </span>
         </a>
       </div>

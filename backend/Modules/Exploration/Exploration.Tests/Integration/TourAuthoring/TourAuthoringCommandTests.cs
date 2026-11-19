@@ -27,13 +27,11 @@ public class TourAuthoringCommandTests : BaseIntegrationTest
 
         var response = await client.PostAsJsonAsync("/api/exploration/tours", request);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var created = await response.Content.ReadFromJsonAsync<TourDto>(JsonOptions);
-        created!.AuthorId.Should().Be(WellKnownUsers.Explorer);
-        created.GroupSize.Should().Be(new GroupSizeDto(2, 10));
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         using var assertContext = Factory.CreateContext<ExplorationDbContext>();
         assertContext.Tours.Count().Should().Be(tourCountBefore + 1);
-        var stored = assertContext.Tours.Single(tour => tour.Id == created.Id);
+        var stored = assertContext.Tours.Single(tour => tour.Name == request.Name);
+        stored.AuthorId.Should().Be(WellKnownUsers.Explorer);
         stored.Status.Should().Be(TourStatus.Draft);
         stored.TransportTimes.Should().BeEmpty();
         stored.GroupSize.Min.Should().Be(2);
