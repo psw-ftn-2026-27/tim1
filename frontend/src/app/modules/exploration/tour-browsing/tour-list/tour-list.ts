@@ -6,7 +6,7 @@ import { PageResult } from '../../../../shared/api/page-result';
 import { TourDto, TourPreferenceDto } from '../../api/exploration-api-types';
 import { TourCard } from '../tour-card/tour-card';
 import { TourPagination } from '../tour-pagination/tour-pagination';
-import { TourCriteria, TourSearch } from '../tour-search/tour-search';
+import { TourCriteria, TourSearch, TourSortOrder } from '../tour-search/tour-search';
 
 const PAGE_SIZE = 20;
 
@@ -93,6 +93,15 @@ export class TourList {
   protected applyCriteria(criteria: TourCriteria): void {
     this.userCriteria.set(criteria);
     this.page.set(1);
+  }
+
+  protected resetCriteria(): void {
+    this.applyCriteria(EMPTY_CRITERIA);
+  }
+
+  protected changeSort(event: Event): void {
+    const sort = (event.target as HTMLSelectElement).value as TourSortOrder;
+    this.applyCriteria({ ...this.criteria(), sort });
   }
 
   protected goToPage(page: number): void {

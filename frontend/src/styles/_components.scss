@@ -1659,6 +1659,14 @@
   flex: none;
 }
 
+// Izabrano dugme u grupi filtera (.button.is-selected) zadržava izgled i unutar .exploration
+.exploration .button.is-selected,
+.exploration .button.is-selected:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 // Dugmad u redu tabele ostaju u jednom redu
 .exploration .row-actions {
   flex-wrap: nowrap;
@@ -1765,6 +1773,7 @@
 //   <label><input type="radio" name="mode" value="Walking" [formField]="…" /> Walking</label>
 // </div>
 .segmented {
+  align-self: flex-start;
   background: var(--color-bg);
   border: 1px solid var(--color-border-field);
   border-radius: var(--radius-control);

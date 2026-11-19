@@ -1,9 +1,20 @@
-@if (totalCount() > 0) {
-  <nav class="pagination" aria-label="Pages">
+@if (totalPages() > 1) {
+  <nav class="pages" aria-label="Pages">
     <button type="button" class="button" [disabled]="page() <= 1" (click)="goTo(page() - 1)">
       &larr; Previous
     </button>
-    <span class="meta">Page {{ page() }} of {{ totalPages() }}</span>
+    @for (number of pages(); track number) {
+      <button
+        type="button"
+        class="button number"
+        [class.button--primary]="number === page()"
+        [attr.aria-current]="number === page() ? 'page' : null"
+        [attr.aria-label]="'Page ' + number"
+        (click)="goTo(number)"
+      >
+        {{ number }}
+      </button>
+    }
     <button
       type="button"
       class="button"
