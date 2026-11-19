@@ -80,7 +80,6 @@ export class SocialChallenges {
   }
 
   protected startDelete(id: string): void {
-    this.failure.set(null);
     this.deletingId.set(id);
   }
 
@@ -106,10 +105,12 @@ export class SocialChallenges {
     try {
       await command();
     } catch (error) {
+      // The message continues the sentence "… couldn’t be archived: ", so it starts lowercase.
+      const message = serverMessage(error, 'the server refused the change.');
       this.failure.set({
         name: challenge.name,
         verb,
-        message: serverMessage(error, 'the server refused the change.'),
+        message: message.charAt(0).toLowerCase() + message.slice(1),
       });
     } finally {
       this.deletingId.set(null);

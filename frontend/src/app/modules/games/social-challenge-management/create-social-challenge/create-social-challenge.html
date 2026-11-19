@@ -1,37 +1,49 @@
-<div class="page-narrow">
-  <a class="back" routerLink="/games/social-challenges">← Social challenges</a>
+<div class="games games--narrow">
+  <a class="back" routerLink="/games/social-challenges">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Social challenges
+  </a>
 
   <div class="page-header">
     <div>
       <h1>New challenge</h1>
-      <p>People earn XP when enough of them are within range of each other during the active period.</p>
+      <p>People earn XP when enough of them meet within range of the location during the active period.</p>
     </div>
   </div>
 
-  <form class="card stack" (submit)="submit($event)">
-    @if (error()) {
-      <p class="alert alert--danger" role="alert">{{ error() }}</p>
-    }
-
-    <div class="field">
-      <label for="name">Name</label>
-      <input id="name" type="text" placeholder="e.g. Sunset at Petrovaradin" [formField]="form.name" />
-      @if (form.name().touched()) {
-        @for (message of form.name().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
+  <form class="card card--flush" (submit)="submit($event)">
+    <div class="card-body">
+      @if (error()) {
+        <div class="alert alert--danger" role="alert">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+          <p>{{ error() }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
       }
-    </div>
 
-    <div class="stack-sm">
-      <p class="group-label">
-        Location
-        @if (!location()) {
-          <span class="hint">· Click to set the location</span>
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" type="text" placeholder="e.g. Sunset at Petrovaradin" [formField]="form.name" />
+        @if (form.name().touched()) {
+          @for (message of form.name().errors(); track $index) {
+            <p class="error">{{ message.message }}</p>
+          }
         }
-      </p>
-      <app-map [pins]="pins()" [selectionEnabled]="true" [showSelectionPin]="false" (locationSelected)="pickLocation($event)" />
-      <div class="columns">
+      </div>
+
+      <div class="field">
+        <span class="label">Location <span class="label-hint">· click the map to place the pin; the range is measured from it</span></span>
+        <div class="map-frame">
+          <app-map [pins]="pins()" [selectionEnabled]="true" [showSelectionPin]="false" (locationSelected)="pickLocation($event)" />
+          @if (!location()) {
+            <span class="map-hint">Click to set the location</span>
+          }
+        </div>
+      </div>
+
+      <div class="cols-2">
         <div class="field">
           <label for="latitude">Latitude</label>
           <input id="latitude" type="text" readonly [value]="location()?.latitude?.toFixed(5) ?? ''" />
@@ -41,90 +53,87 @@
           <input id="longitude" type="text" readonly [value]="location()?.longitude?.toFixed(5) ?? ''" />
         </div>
       </div>
-    </div>
 
-    <div>
-      <p class="group-label">
-        Active period <span class="hint">· every day, 24-hour time, within the same day</span>
-      </p>
-      <div class="columns">
+      <div class="field">
+        <span class="label">Active period <span class="label-hint">· every day, 24-hour time, within the same day</span></span>
+        <div class="cols-2">
+          <div class="field">
+            <label class="label-hint" for="active-from">Starts at</label>
+            <input id="active-from" type="time" [formField]="form.activeFrom" />
+            @if (form.activeFrom().touched()) {
+              @for (message of form.activeFrom().errors(); track $index) {
+                <p class="error">{{ message.message }}</p>
+              }
+            }
+          </div>
+          <div class="field">
+            <label class="label-hint" for="active-until">Ends at</label>
+            <input id="active-until" type="time" [formField]="form.activeUntil" />
+            @if (form.activeUntil().touched()) {
+              @for (message of form.activeUntil().errors(); track $index) {
+                <p class="error">{{ message.message }}</p>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="cols-3">
         <div class="field">
-          <label for="active-from">Starts at</label>
-          <input id="active-from" type="time" [formField]="form.activeFrom" />
-          @if (form.activeFrom().touched()) {
-            @for (message of form.activeFrom().errors(); track $index) {
+          <label for="required-participants">People needed</label>
+          <input id="required-participants" type="number" step="1" [formField]="form.requiredParticipants" />
+          @if (form.requiredParticipants().touched()) {
+            @for (message of form.requiredParticipants().errors(); track $index) {
               <p class="error">{{ message.message }}</p>
             }
           }
         </div>
-
         <div class="field">
-          <label for="active-until">Ends at</label>
-          <input id="active-until" type="time" [formField]="form.activeUntil" />
-          @if (form.activeUntil().touched()) {
-            @for (message of form.activeUntil().errors(); track $index) {
+          <label for="radius-meters">Range (meters)</label>
+          <input id="radius-meters" type="number" step="1" [formField]="form.radiusMeters" />
+          @if (form.radiusMeters().touched()) {
+            @for (message of form.radiusMeters().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
+          }
+        </div>
+        <div class="field">
+          <label for="experience-points">XP</label>
+          <input id="experience-points" type="number" step="1" [formField]="form.experiencePoints" />
+          @if (form.experiencePoints().touched()) {
+            @for (message of form.experiencePoints().errors(); track $index) {
               <p class="error">{{ message.message }}</p>
             }
           }
         </div>
       </div>
-    </div>
 
-    <div class="columns">
       <div class="field">
-        <label for="required-participants">People needed</label>
-        <input id="required-participants" type="number" step="1" [formField]="form.requiredParticipants" />
-        @if (form.requiredParticipants().touched()) {
-          @for (message of form.requiredParticipants().errors(); track $index) {
+        <label for="completion-message">Exit message</label>
+        <textarea
+          id="completion-message"
+          rows="3"
+          placeholder="e.g. Great job – thanks for coming out together!"
+          aria-describedby="completion-message-hint"
+          [formField]="form.completionMessage"
+        ></textarea>
+        <p id="completion-message-hint" class="help">Shown to participants when they complete the challenge.</p>
+        @if (form.completionMessage().touched()) {
+          @for (message of form.completionMessage().errors(); track $index) {
             <p class="error">{{ message.message }}</p>
           }
         }
       </div>
-
-      <div class="field">
-        <label for="radius-meters">Range (meters)</label>
-        <input id="radius-meters" type="number" step="1" [formField]="form.radiusMeters" />
-        @if (form.radiusMeters().touched()) {
-          @for (message of form.radiusMeters().errors(); track $index) {
-            <p class="error">{{ message.message }}</p>
-          }
-        }
-      </div>
-
-      <div class="field">
-        <label for="experience-points">XP</label>
-        <input id="experience-points" type="number" step="1" [formField]="form.experiencePoints" />
-        @if (form.experiencePoints().touched()) {
-          @for (message of form.experiencePoints().errors(); track $index) {
-            <p class="error">{{ message.message }}</p>
-          }
-        }
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="completion-message">Exit message</label>
-      <textarea
-        id="completion-message"
-        rows="3"
-        placeholder="e.g. Great job – thanks for coming out together!"
-        aria-describedby="completion-message-hint"
-        [formField]="form.completionMessage"
-      ></textarea>
-      <p id="completion-message-hint" class="meta">Shown to participants when they complete the challenge.</p>
-      @if (form.completionMessage().touched()) {
-        @for (message of form.completionMessage().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
     </div>
 
     <div class="card-footer">
-      <p class="meta">New challenges start as drafts.</p>
-      <a class="button" routerLink="/games/social-challenges">Cancel</a>
-      <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
-        {{ pending() ? 'Creating…' : 'Create draft' }}
-      </button>
+      <span class="meta">New challenges start as drafts.</span>
+      <div class="form-actions">
+        <a class="button" routerLink="/games/social-challenges">Cancel</a>
+        <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+          {{ pending() ? 'Creating…' : 'Create draft' }}
+        </button>
+      </div>
     </div>
   </form>
 </div>

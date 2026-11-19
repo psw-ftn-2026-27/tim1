@@ -1,28 +1,4 @@
-.group-label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  margin: 0 0 var(--space-2);
-}
-
-.hint {
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-normal);
-}
-
-.stack-sm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-// Fields side by side; on a narrow screen they wrap one under another.
-.columns {
-  display: grid;
-  gap: var(--space-3);
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-}
-
-// Read-only coordinates: the map sets them, the user does not type them.
+// Koordinate postavlja mapa, korisnik ih ne kuca
 input[readonly] {
-  color: var(--color-text-muted);
+  cursor: default;
 }
