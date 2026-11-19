@@ -45,6 +45,16 @@
   --color-info: #c4dbf8;
   --color-info-bg: rgb(110 170 240 / 0.1);
   --color-notification: #e5484d; // crveni krug na ikonici: ima nešto novo
+  --color-danger-solid: #d4393e; // puno crveno dugme za konačno brisanje (beli tekst, kontrast 4.7:1)
+  --color-danger-solid-hover: #c02e33;
+  --color-danger-solid-text: #ffffff;
+
+  // Stanja izazova (Games): Draft žuto-smeđi, Published zeleni, Retired narandžasto-smeđi,
+  // Archived sivo-plavi. Draft i Published koriste --color-warning i --color-success.
+  --color-retired: #e8a878;
+  --color-retired-bg: rgb(196 112 52 / 0.18);
+  --color-archived: #aebccb;
+  --color-archived-bg: rgb(140 160 185 / 0.16);
 
   // Razmaci
   --space-1: 0.25rem;
