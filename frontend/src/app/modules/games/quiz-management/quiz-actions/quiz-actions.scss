@@ -1,6 +1,9 @@
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
+// Akcije stoje desno, i u redu tabele i u zaglavlju stranice
+:host {
+  display: block;
+}
+
+.form-actions,
+.confirm {
+  justify-content: flex-end;
 }

@@ -1,13 +1,20 @@
-<div class="stack">
-  <p><a routerLink="/games/quizzes">← Quizzes</a></p>
-  <h1>New quiz</h1>
-  <section class="card">
-    <app-quiz-form
-      [fields]="fields"
-      [pending]="pending()"
-      [error]="error()"
-      saveLabel="Save draft"
-      (save)="create($event)"
-    />
-  </section>
+<div class="page-narrow">
+  <a class="back" routerLink="/games/quizzes">← Quizzes</a>
+
+  <div class="page-header">
+    <div>
+      <h1>Create quiz</h1>
+      <p>Save it as a draft now and finish the questions later.</p>
+    </div>
+  </div>
+
+  <app-quiz-form
+    [fields]="fields"
+    [pending]="pending()"
+    [error]="error()"
+    saveLabel="Save draft"
+    note="New quizzes start as drafts."
+    cancelLink="/games/quizzes"
+    (save)="create($event)"
+  />
 </div>

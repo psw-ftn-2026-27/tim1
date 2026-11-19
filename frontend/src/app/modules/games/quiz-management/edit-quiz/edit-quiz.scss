@@ -1,10 +1,57 @@
-.saved-text {
-  white-space: pre-wrap;
-}
-
-.quiz-commands {
+// Naziv kviza i bedž stanja u istom redu
+.title-row {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.title-row h1 {
+  margin: 0;
+}
+
+.card h2 {
+  margin: 0;
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.question-text {
   align-items: center;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.answer {
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+}
+
+// Tačan odgovor ima zelenkastu podlogu
+.answer--correct {
+  background: var(--color-success-bg);
+  border-color: var(--color-success-border);
 }

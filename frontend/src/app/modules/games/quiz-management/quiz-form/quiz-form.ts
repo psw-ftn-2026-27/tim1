@@ -1,5 +1,6 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { FormField, form, min, required, validate } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { Map, type MapPin } from '../../../../shared/ui/map/map';
 import { SaveQuizDto } from '../../api/games-api-types';
 
@@ -45,7 +46,7 @@ export function createQuizForm() {
 
 @Component({
   selector: 'app-quiz-form',
-  imports: [FormField, Map],
+  imports: [FormField, Map, RouterLink],
   templateUrl: './quiz-form.html',
   styleUrl: './quiz-form.scss',
 })
@@ -54,9 +55,18 @@ export class QuizForm {
   readonly pending = input(false);
   readonly error = input<string | null>(null);
   readonly saveLabel = input.required<string>();
-  readonly showCancel = input(false);
+  // The text on the left of the form's footer, e.g. "New quizzes start as drafts."
+  readonly note = input.required<string>();
+  // Where Cancel leads; without it, Cancel raises the cancelled output instead.
+  readonly cancelLink = input<string | null>(null);
   readonly save = output<SaveQuizDto>();
   readonly cancelled = output<void>();
+
+  // The map shows the picked location as its only pin.
+  protected readonly locationPins = computed<MapPin[]>(() => {
+    const location = this.fields().location().value();
+    return location === null ? [] : [location];
+  });
 
   protected addQuestion(): void {
     this.fields()

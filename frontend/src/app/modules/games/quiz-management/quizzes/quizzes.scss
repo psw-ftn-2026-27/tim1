@@ -1,11 +1,15 @@
-.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+.table td {
+  vertical-align: middle;
 }
 
-.table-card {
-  overflow-x: auto;
+.name {
+  font-weight: var(--font-weight-bold);
+}
+
+.actions {
+  text-align: right;
+}
+
+.table-card-footer nav {
+  align-items: center;
 }
