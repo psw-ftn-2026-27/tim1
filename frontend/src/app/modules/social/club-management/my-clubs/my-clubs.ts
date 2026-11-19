@@ -1,13 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormField, form, required, validate } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { ClubDto } from '../../api/social-api-types';
 import { ClubManagement } from '../club-management';
 
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, RouterLink, RouterLinkActive],
   selector: 'app-my-clubs',
   styleUrl: './my-clubs.scss',
   templateUrl: './my-clubs.html',

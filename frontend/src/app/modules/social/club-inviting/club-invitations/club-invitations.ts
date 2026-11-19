@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
-import { FormField, form } from '@angular/forms/signals';
+import { FormField, debounce, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { PageResult } from '../../../../shared/api/page-result';
 import { serverMessage } from '../../../../shared/util/server-message';
@@ -20,7 +20,11 @@ export class ClubInvitations {
 
   protected readonly club = httpResource<ClubDto>(() => `/api/social/clubs/${this.id()}`);
 
-  protected readonly form = form(signal({ text: '' }));
+  // The list refreshes while the user types, but only after a short pause (300 ms),
+  // so the server does not get a request for every key.
+  protected readonly form = form(signal({ text: '' }), (path) => {
+    debounce(path.text, 300);
+  });
 
   protected readonly users = httpResource<PageResult<UserToInviteDto>>(
     () =>
@@ -45,5 +49,10 @@ export class ClubInvitations {
     } finally {
       this.pending.set(false);
     }
+  }
+
+  // The server sends dates as ISO text; this shows the date in the reader's local time.
+  protected formatDate(value: string): string {
+    return new Date(value).toLocaleDateString('en-US', { dateStyle: 'medium' });
   }
 }

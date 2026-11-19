@@ -383,9 +383,8 @@ modulu:
 
 | Modul | Lokalno | Globalna zamena |
 |---|---|---|
-| Exploration (`my-tours`), Social (`my-clubs`, grana `social/vodjenje-klubova`) | `.actions` | `.form-actions` |
+| Exploration (`my-tours`) | `.actions` | `.form-actions` |
 | Exploration (`tour-card`) | `.tags li` | `.badge` |
-| Social (`blog-comments`) | stil `input` u komentarima | `.field` |
 
 ## Otvorena pitanja
 

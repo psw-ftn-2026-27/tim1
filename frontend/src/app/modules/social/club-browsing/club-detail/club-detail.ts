@@ -1,8 +1,15 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Auth } from '../../../../core/auth/auth';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { ClubDto, ClubMemberDto, ClubRole, MyMembershipDto } from '../../api/social-api-types';
+import {
+  ClubDto,
+  ClubMemberDto,
+  ClubRole,
+  MembershipRequestDto,
+  MyMembershipDto,
+} from '../../api/social-api-types';
 import { ClubBrowsing } from '../club-browsing';
 
 @Component({
@@ -13,6 +20,7 @@ import { ClubBrowsing } from '../club-browsing';
 })
 export class ClubDetail {
   private readonly clubBrowsing = inject(ClubBrowsing);
+  protected readonly auth = inject(Auth);
 
   readonly id = input.required<string>();
 
@@ -33,6 +41,14 @@ export class ClubDetail {
     return role === 'Owner' || role === 'Moderator';
   });
   protected readonly isModerator = computed(() => this.membership.value()?.role === 'Moderator');
+
+  // Only the owner and moderators may read the pending requests; the others never ask.
+  protected readonly requests = httpResource<MembershipRequestDto[]>(() =>
+    this.canSeeRequests() ? `/api/social/clubs/${this.id()}/membership-requests` : undefined,
+  );
+
+  // Index of the image shown large in the gallery.
+  protected readonly activeImage = signal(0);
   protected readonly roleError = signal<string | null>(null);
   protected readonly transferringToUserId = signal<string | null>(null);
   protected readonly removingUserId = signal<string | null>(null);
