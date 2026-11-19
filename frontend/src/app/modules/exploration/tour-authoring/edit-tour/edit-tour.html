@@ -1,239 +1,220 @@
-<div class="stack">
-  <a class="back" routerLink="/exploration/mine">&larr; Back to my tours</a>
-
-  @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
-  }
+<div class="exploration">
+  <a class="back" routerLink="/exploration/mine">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    My tours
+  </a>
 
   @if (tour.hasValue()) {
     @let details = tour.value();
+    @let draft = details.status === 'Draft';
 
-    <header class="heading">
-      <h1>{{ details.name }}</h1>
-      <div class="actions">
-        @if (details.status === 'Draft') {
-          <button
-            class="button"
-            type="button"
-            [disabled]="pending()"
-            (click)="openPublishing()"
-          >
-            Publish
-          </button>
-        }
-        @if (details.status === 'Draft') {
-          <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
-            Add keypoint
-          </a>
-        }
-      </div>
-    </header>
-
-    @if (publishing() && details.status === 'Draft') {
-      <form class="card stack publish" (submit)="publish($event)">
-        <h2>Publish tour</h2>
-
-        <div class="field">
-          <label for="charge">Pricing</label>
-          <select id="charge" [formField]="publishForm.charge">
-            <option value="Free">Free</option>
-            <option value="Paid">Paid</option>
-          </select>
+    <div class="page-header">
+      <div>
+        <div class="title-row">
+          <h1>{{ details.name }}</h1>
+          <span [class]="'badge badge--' + details.status.toLowerCase()">{{ details.status }}</span>
         </div>
-
-        @if (publishForm.charge().value() === 'Paid') {
-          <div class="field">
-            <label for="price">Price</label>
-            <input id="price" type="number" step="0.01" [formField]="publishForm.price" />
-            @if (publishForm.price().touched()) {
-              @for (message of publishForm.price().errors(); track $index) {
-                <p class="error">{{ message.message }}</p>
-              }
+        <p>
+          @switch (details.status) {
+            @case ('Draft') {
+              Keypoints can be added, changed and removed while the tour is a draft.
             }
-          </div>
-        }
+            @case ('Published') {
+              Only the visibility of keypoints can be changed while the tour is published.
+            }
+            @default {
+              The keypoints of an archived tour can't be changed.
+            }
+          }
+        </p>
+      </div>
+      @if (draft) {
+        <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+          Add keypoint
+        </a>
+      }
+    </div>
 
-        <div class="form-actions">
-          <button
-            class="button button--primary"
-            type="submit"
-            [disabled]="!publishForm().valid() || pending()"
-          >
-            Publish
-          </button>
-          <button class="button" type="button" (click)="publishing.set(false)">Cancel</button>
-        </div>
-      </form>
+    @if (details.status === 'Archived') {
+      <div class="alert alert--info" role="status">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+        <p>This tour is archived, so its keypoints can’t be changed. Reactivate it from My tours.</p>
+      </div>
     }
 
-    <section class="card stack">
-      <p class="description">{{ details.description }}</p>
-      <p class="meta">Walking length: {{ details.length.toFixed(2) }} km</p>
-
-      <div class="field">
-        <span class="label">Route preview</span>
-        <div class="options">
-          @for (mode of modes; track mode) {
-            <button
-              type="button"
-              class="option"
-              [class.option--active]="routeForm.mode().value() === mode"
-              (click)="routeForm.mode().value.set(mode)"
-            >
-              {{ mode }}
-            </button>
-          }
+    <section class="card overview" aria-label="Tour">
+      <div class="split">
+        <div class="summary">
+          <p class="description">{{ details.description }}</p>
+          <div class="stat-row">
+            <div>
+              <span class="stat-label">Tour length</span>
+              <b>{{ formatLength(details.length) }}</b><small>km</small>
+            </div>
+            <div>
+              <span class="stat-label">Keypoints</span>
+              <b>{{ pins().length }}</b>
+            </div>
+          </div>
+          <p class="help">Length is measured on foot through the keypoints, in the order they were added.</p>
         </div>
-      </div>
 
-      <app-map
-        [pins]="pins()"
-        [routeRequest]="routeRequest()"
-        (routeLengthKm)="saveMeasuredLength($event)"
-      />
-    </section>
-
-    <h2>Transport times</h2>
-
-    <section class="card stack">
-      @if (timeAdded(); as added) {
-        <p class="alert alert--success">Added: {{ added }}</p>
-      }
-
-      @if (details.transportTimes.length > 0) {
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Transport</th>
-              <th scope="col">Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (time of details.transportTimes; track time.transport) {
-              <tr>
-                <td>{{ time.transport }}</td>
-                <td>{{ time.minutes }} min</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      } @else {
-        <p class="meta">No transport times added yet.</p>
-      }
-
-      @if (details.status === 'Archived') {
-        <p class="meta">An archived tour cannot get a transport time.</p>
-      } @else if (availableTransports().length === 0) {
-        <p class="meta">Every transport mode already has a time.</p>
-      } @else {
-        <form class="stack" (submit)="addTransportTime($event)">
-          <div class="field">
-            <span class="label">Transport</span>
-            <div class="options">
-              @for (transport of availableTransports(); track transport) {
-                <button
-                  type="button"
-                  class="option"
-                  [class.option--active]="selectedTransport() === transport"
-                  (click)="timeForm.transport().value.set(transport)"
-                >
-                  {{ transport }}
-                </button>
+        <div class="route">
+          <div class="route-head">
+            <span class="label" id="route-label">Route preview</span>
+            <div class="segmented" role="radiogroup" aria-labelledby="route-label">
+              @for (mode of modes; track mode) {
+                <label>
+                  <input type="radio" [value]="mode" [formField]="routeForm.mode" />
+                  @switch (mode) {
+                    @case ('Walking') {
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2" /><path d="M10 21l2-6 3 3v3M9 12l2-4 4 2 2 3M11 8l-3 2-1 3" /></svg>
+                    }
+                    @case ('Bicycle') {
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5" /><circle cx="18.5" cy="17.5" r="3.5" /><path d="M15 6h2l3 11.5M5.5 17.5 9 9h7l-4 8.5M9 9 8 6H6" /></svg>
+                    }
+                    @case ('Car') {
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5zM5 12h14M7 17v2M17 17v2" /><circle cx="8" cy="14.5" r=".5" /><circle cx="16" cy="14.5" r=".5" /></svg>
+                    }
+                  }
+                  {{ mode }}
+                </label>
               }
             </div>
           </div>
-
-          <div class="field">
-            <label for="minutes">Minutes</label>
-            <input id="minutes" type="number" [formField]="timeForm.minutes" />
-            @if (timeForm.minutes().touched()) {
-              @for (message of timeForm.minutes().errors(); track $index) {
-                <p class="error">{{ message.message }}</p>
-              }
-            }
-          </div>
-
-          <div class="form-actions">
-            <button
-              class="button button--primary"
-              type="submit"
-              [disabled]="!timeForm().valid() || pending()"
-            >
-              Add time
-            </button>
-          </div>
-        </form>
-      }
+          <app-map
+            [pins]="pins()"
+            [routeRequest]="routeRequest()"
+            (routeLengthKm)="saveMeasuredLength($event)"
+          />
+        </div>
+      </div>
     </section>
 
-    <h2>Keypoints</h2>
+    @if (error(); as message) {
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+        <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
+    }
 
     @if (keypoints.hasValue()) {
-      <section class="card">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Visibility</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (keypoint of keypoints.value(); track keypoint.id; let position = $index) {
-              <tr>
-                <td>{{ position + 1 }}</td>
-                <td>{{ keypoint.name }}</td>
-                <td>
-                  <span class="badge" [class.badge--success]="keypoint.publiclyVisible">
-                    {{ keypoint.publiclyVisible ? 'Public' : 'Private' }}
-                  </span>
-                </td>
-                <td class="actions">
-                  @if (details.status === 'Draft') {
-                    <a
-                      class="button button--small"
-                      [routerLink]="['/exploration/tour', id(), 'keypoint', keypoint.id, 'edit']"
-                    >
-                      Edit
-                    </a>
+      @let list = keypoints.value();
+      @if (list.length === 0) {
+        <div class="empty empty--boxed">
+          <span class="empty-icon">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+          </span>
+          <h2>No keypoints yet</h2>
+          @if (draft) {
+            <p>Add the first stop of the tour on the map.</p>
+            <a class="button button--primary" [routerLink]="['/exploration/tour', id(), 'add-keypoint']">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+              Add keypoint
+            </a>
+          }
+        </div>
+      } @else {
+        @if (draft && list.length < keypointsToPublish) {
+          <div class="alert alert--info" role="status">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+            <p>
+              Add at least <strong>{{ keypointsToPublish }} keypoints</strong> before publishing. This tour
+              has {{ list.length }}.
+            </p>
+          </div>
+        }
+
+        <section class="card card--flush" aria-labelledby="keypoints-title">
+          <div class="card-head">
+            <h2 id="keypoints-title" class="card-title">Keypoints</h2>
+            <span class="meta">In the order they were added</span>
+          </div>
+
+          <ol class="kp-list">
+            @for (keypoint of list; track keypoint.id; let position = $index) {
+              <li class="kp-row">
+                <span class="kp-row__num" aria-hidden="true">{{ position + 1 }}</span>
+                <app-protected-image class="thumb thumb--landscape" [src]="imageUrl(keypoint)" />
+                <div class="kp-row__main">
+                  <h3>{{ keypoint.name }}</h3>
+                  <p>{{ keypoint.description }}</p>
+                </div>
+                <div class="kp-row__flags">
+                  @if (keypoint.publiclyVisible) {
+                    <span class="badge badge--published">
+                      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                      Public
+                    </span>
+                  } @else {
+                    <span class="badge">
+                      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10 10 0 0 1 12 19c-7 0-11-7-11-7a18 18 0 0 1 5.1-5.9M9.9 4.2A9 9 0 0 1 12 4c7 0 11 7 11 7a18 18 0 0 1-2.2 3.2M1 1l22 22" /></svg>
+                      Hidden
+                    </span>
                   }
-                  <button
-                    class="button button--small visibility-toggle"
-                    type="button"
-                    [disabled]="pending()"
-                    (click)="setVisibility(keypoint)"
-                  >
-                    {{ keypoint.publiclyVisible ? 'Make private' : 'Make public' }}
-                  </button>
-                  @if (details.status === 'Draft') {
+                  @if (keypoint.secret) {
+                    <span class="badge badge--accent">
+                      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+                      Secret
+                    </span>
+                  }
+                </div>
+                @if (details.status !== 'Archived') {
+                  <div class="row-actions">
+                    @if (draft) {
+                      <a
+                        class="button button--small"
+                        [routerLink]="['/exploration/tour', id(), 'keypoint', keypoint.id, 'edit']"
+                        [attr.aria-label]="'Edit ' + keypoint.name"
+                      >
+                        Edit
+                      </a>
+                    }
                     <button
-                      class="button button--small button--danger"
+                      class="button button--small"
                       type="button"
                       [disabled]="pending()"
-                      (click)="remove(keypoint)"
+                      [attr.aria-label]="(keypoint.publiclyVisible ? 'Hide ' : 'Show ') + keypoint.name"
+                      (click)="setVisibility(keypoint)"
                     >
-                      Remove
+                      {{ keypoint.publiclyVisible ? 'Hide' : 'Show' }}
                     </button>
-                  }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td class="empty" colspan="4">This tour has no keypoints yet.</td>
-              </tr>
+                    @if (draft) {
+                      <button
+                        class="button button--small button--danger"
+                        type="button"
+                        [disabled]="pending()"
+                        [attr.aria-label]="'Remove ' + keypoint.name"
+                        (click)="remove(keypoint)"
+                      >
+                        Remove
+                      </button>
+                    }
+                  </div>
+                }
+              </li>
             }
-          </tbody>
-        </table>
-      </section>
+          </ol>
+        </section>
+      }
     } @else if (keypoints.isLoading()) {
-      <p class="meta">Loading the keypoints...</p>
+      <p class="empty empty--boxed" role="status">Loading the keypoints…</p>
     } @else {
-      <p class="alert alert--danger">Could not load the keypoints.</p>
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>Couldn’t load the keypoints.</p>
+      </div>
     }
   } @else if (tour.isLoading()) {
-    <p class="meta">Loading the tour...</p>
+    <p class="empty empty--boxed" role="status">Loading the tour…</p>
   } @else {
-    <p class="alert alert--danger">Could not load the tour.</p>
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load the tour.</p>
+    </div>
   }
 </div>
