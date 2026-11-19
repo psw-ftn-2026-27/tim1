@@ -1,12 +1,16 @@
-<article class="card row">
-  <h3>{{ user().displayName }}</h3>
-
-  <button
-    class="button button--primary button--small"
-    type="button"
-    [disabled]="disabled()"
-    (click)="sendClicked.emit(user().id)"
-  >
-    Send request
-  </button>
-</article>
+<div class="list-card">
+  <span class="list-card__avatar" aria-hidden="true">{{ user().displayName.charAt(0) }}</span>
+  <div class="list-card__main">
+    <strong>{{ user().displayName }}</strong>
+  </div>
+  <div class="list-card__end">
+    <button
+      class="badge badge--info badge-button"
+      type="button"
+      [disabled]="disabled()"
+      (click)="sendClicked.emit(user().id)"
+    >
+      Send request
+    </button>
+  </div>
+</div>

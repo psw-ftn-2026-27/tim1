@@ -1,36 +1,29 @@
-<article class="card row">
-  <h3>{{ request().recipientDisplayName }}</h3>
-
-  <span
-    class="badge status"
-    [class.badge--warning]="request().status === 'Pending'"
-    [class.badge--success]="request().status === 'Accepted'"
-    [class.badge--danger]="request().status === 'Rejected'"
-  >
+<div class="list-card">
+  <span class="list-card__avatar" aria-hidden="true">{{ request().recipientDisplayName.charAt(0) }}</span>
+  <div class="list-card__main">
+    <strong>{{ request().recipientDisplayName }}</strong>
+    <span class="meta">Sent {{ formatDate(request().createdAt) }}</span>
+  </div>
+  <div class="list-card__end">
     @switch (request().status) {
       @case ('Pending') {
-        Pending
+        <span class="badge badge--warning">Pending</span>
+        <button
+          class="icon-btn icon-btn--danger"
+          type="button"
+          [attr.aria-label]="'Delete request to ' + request().recipientDisplayName"
+          [disabled]="disabled()"
+          (click)="deleteClicked.emit(request().id)"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
       }
       @case ('Accepted') {
-        Following
+        <span class="badge">Following</span>
       }
       @case ('Rejected') {
-        Rejected
+        <span class="badge badge--danger">Rejected</span>
       }
     }
-  </span>
-</article>
-
-<span class="slot">
-  @if (request().status === 'Pending') {
-    <button
-      class="button"
-      type="button"
-      aria-label="Delete request"
-      [disabled]="disabled()"
-      (click)="deleteClicked.emit(request().id)"
-    >
-      ✗
-    </button>
-  }
-</span>
+  </div>
+</div>

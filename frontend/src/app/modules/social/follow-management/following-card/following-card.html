@@ -1,12 +1,17 @@
-<article class="card row">
-  <h3>{{ following().displayName }}</h3>
-
-  <button
-    class="button button--small"
-    type="button"
-    [disabled]="disabled()"
-    (click)="stopClicked.emit(following().id)"
-  >
-    Unfollow
-  </button>
-</article>
+<div class="list-card">
+  <span class="list-card__avatar" aria-hidden="true">{{ following().displayName.charAt(0) }}</span>
+  <div class="list-card__main">
+    <strong>{{ following().displayName }}</strong>
+    <span class="meta">You follow them</span>
+  </div>
+  <div class="list-card__end">
+    <button
+      class="button button--secondary button--small"
+      type="button"
+      [disabled]="disabled()"
+      (click)="stopClicked.emit(following().id)"
+    >
+      Unfollow
+    </button>
+  </div>
+</div>
