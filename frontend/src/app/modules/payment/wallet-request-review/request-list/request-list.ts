@@ -1,5 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { FormField, form, required } from '@angular/forms/signals';
+import { formatAmount } from '../../../../shared/util/format-amount';
 import { WalletRequestReviewDto, WalletRequestStatus } from '../../api/payment-api-types';
 
 export interface RequestRejection {
@@ -11,6 +12,12 @@ const STATUS_LABELS: Record<WalletRequestStatus, string> = {
   Pending: 'na čekanju',
   Approved: 'odobren',
   Rejected: 'odbijen',
+};
+
+const STATUS_BADGES: Record<WalletRequestStatus, string> = {
+  Pending: 'badge--warning',
+  Approved: 'badge--success',
+  Rejected: 'badge--danger',
 };
 
 @Component({
@@ -33,8 +40,14 @@ export class RequestList {
     required(path.reason, { message: 'A reason is required.' });
   });
 
+  protected readonly formatAmount = formatAmount;
+
   protected statusLabel(status: WalletRequestStatus): string {
     return STATUS_LABELS[status];
+  }
+
+  protected statusBadge(status: WalletRequestStatus): string {
+    return STATUS_BADGES[status];
   }
 
   protected startReject(request: WalletRequestReviewDto): void {

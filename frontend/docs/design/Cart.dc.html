@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cart</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 16px;border-radius:10px;color:#a9b6b1;text-decoration:none;font-weight:600;font-size:14px}
+.tab:hover{color:#fff}
+.tab[aria-current="page"]{background:#24332e;color:#fff}
+.count{min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#F08A3C;color:#1e1206;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:700 12px Inter,sans-serif;white-space:nowrap}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;font-size:14px;line-height:1.5}
+.alert-err{background:rgba(235,100,100,.1);border:1px solid rgba(235,110,110,.4);color:#f4b3b3}
+.alert-ok{background:rgba(74,190,130,.1);border:1px solid rgba(74,190,130,.4);color:#a8e8c4}
+.card{transition:border-color .15s}
+.card:hover{border-color:#3d5650}
+.input{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#eef2ef;font:400 14px Inter,sans-serif}
+.input::placeholder{color:#8d9b96}
+.input:focus{outline:2px solid #F08A3C;outline-offset:1px;border-color:transparent}
+.avatar{flex:0 0 auto;width:36px;height:36px;border-radius:999px;background:#24332e;color:#eef2ef;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.pick{width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;border:1px solid transparent;background:transparent;color:#eef2ef;font:500 14px Inter,sans-serif;text-align:left;cursor:pointer}
+.pick:hover{background:#1f2c28}
+.pick[aria-pressed="true"]{background:rgba(240,138,60,.1);border-color:rgba(240,138,60,.55)}
+.chip{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid #2f413b;background:#131c1a;color:#d6dedb;font:600 14px Inter,sans-serif;cursor:pointer}
+.chip:hover{border-color:#47605a}
+.chip[aria-pressed="true"]{background:rgba(240,138,60,.14);border-color:rgba(240,138,60,.6);color:#F5A262}
+.btn-sm{min-height:40px;padding:0 12px;font-size:13px;border-radius:10px}
+.btn-ghost{background:transparent;border-color:transparent;color:#cfd8d4}
+.btn-ghost:hover{background:rgba(235,100,100,.1);color:#f4b3b3}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+.th{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8d9b96}
+.opt{position:relative;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;cursor:pointer}
+.opt:hover{border-color:#47605a}
+.opt:has(input:checked){border-color:#F08A3C;background:rgba(240,138,60,.08)}
+.opt:has(input:focus-visible){outline:2px solid #F08A3C;outline-offset:2px}
+.opt input{accent-color:#F08A3C;width:18px;height:18px;margin:0;flex:0 0 auto}
+.lbl{font-size:13px;font-weight:600;color:#d6dedb}
+.hint{font-size:12px;line-height:1.5;color:#8d9b96}
+.pg{min-width:40px;min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 13px Inter,sans-serif;cursor:pointer}
+.pg[aria-current="page"]{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.pg[disabled]{opacity:.4;cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="#">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="Wallet.dc.html" aria-current="page">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+<main style="max-width: 1240px; margin: 0 auto; padding: 40px 24px 72px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 900; font-size: 44px; line-height: 1.05">Cart</h1>
+<p style="margin: 0; font-size: 15px; color: #a9b6b1">Review your products, add a coupon or gift card, and pay for everything at once.</p>
+</div>
+<nav aria-label="Payment" style="display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 14px; background: #182320; border: 1px solid #24332e"><a class="tab" href="Wallet.dc.html">Wallet</a><a class="tab" href="Products.dc.html">Products</a><a class="tab" href="Cart.dc.html" aria-current="page">Cart</a><a class="tab" href="GiftCards.dc.html">Gift cards</a><a class="tab" href="Coupons.dc.html">My coupons</a></nav>
+</div>
+
+<div aria-live="polite" style="display: flex; flex-direction: column; gap: 8px">
+<sc-if value="{{isSuccess}}" hint-placeholder-val="{{ false }}"><div class="alert alert-ok"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto; margin-top: 2px"><path d="m5 12 5 5 9-10"></path></svg><span><strong>Purchase complete.</strong> The products are now yours and the payment is in your <a href="Wallet.dc.html">wallet history</a>.</span></div></sc-if>
+<sc-if value="{{hasBuyError}}" hint-placeholder-val="{{ false }}"><div class="alert alert-err" role="alert"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg><span>{{buyError}} Nothing was charged. <a href="Wallet.dc.html">Top up your wallet</a></span></div></sc-if>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+<section aria-label="Cart items" style="background: #182320; border: 1px solid #24332e; border-radius: 20px; overflow: hidden">
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{ true }}">
+<ul style="list-style: none; margin: 0; padding: 0">
+<sc-for list="{{items}}" as="i" hint-placeholder-count="3">
+<li style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 22px; border-bottom: 1px solid #1f2c28">
+<span style="flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px; background: #24332e; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<div style="flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<strong style="font-size: 15px">{{i.name}}</strong>
+<span style="font-size: 13px; color: #a9b6b1">Tour · by {{i.owner}}</span>
+<sc-if value="{{i.hasCoupon}}" hint-placeholder-val="{{ false }}"><span class="badge" style="align-self: flex-start; background: rgba(74,190,130,.16); color: #8fe0b4">Coupon −{{i.percent}}%</span></sc-if>
+</div>
+<span style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px">
+<sc-if value="{{i.hasCoupon}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #8d9b96; text-decoration: line-through">{{i.priceLabel}} EC</span></sc-if>
+<sc-if value="{{i.free}}" hint-placeholder-val="{{ false }}"><span style="font-weight: 800; color: #8fe0b4">Free</span></sc-if>
+<sc-if value="{{i.paid}}" hint-placeholder-val="{{ true }}"><span style="font-weight: 800; font-size: 16px">{{i.finalLabel}} EC</span></sc-if>
+</span>
+<button class="btn btn-sm btn-ghost" type="button" disabled="{{busy}}" onClick="{{i.remove}}" aria-label="Remove {{i.name}}"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg>Remove</button>
+</li>
+</sc-for>
+</ul>
+</sc-if>
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 56px 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<h2 style="margin: 0; font-size: 20px; font-weight: 800">Your cart is empty</h2>
+<p style="margin: 0; font-size: 14px; color: #a9b6b1">Find a tour you like and add it to your cart.</p>
+<a class="btn" href="Products.dc.html" style="margin-top: 6px">Browse products</a>
+</div>
+</sc-if>
+</section>
+
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{ true }}">
+<section aria-labelledby="disc-h" style="background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 22px; display: flex; flex-direction: column; gap: 22px">
+<h2 id="disc-h" style="margin: 0; font-size: 18px; font-weight: 800">Discounts</h2>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<label class="lbl" for="code">Coupon code</label>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<input id="code" class="input mono" type="text" maxlength="8" autocomplete="off" placeholder="e.g. FRUSKA20" value="{{code}}" onInput="{{onCode}}" onKeyDown="{{onCodeKey}}" style="flex: 1 1 200px; width: auto; text-transform: uppercase; letter-spacing: .12em">
+<button class="btn" type="button" onClick="{{applyCoupon}}">Apply coupon</button>
+</div>
+<sc-if value="{{couponOk}}" hint-placeholder-val="{{ false }}"><div class="alert alert-ok" role="status" style="align-items: center"><span style="flex: 1 1 auto"><strong class="mono">{{appliedCode}}</strong> · {{couponText}}</span><button class="btn btn-sm btn-ghost" type="button" onClick="{{clearCoupon}}" style="color: #a8e8c4">Remove</button></div></sc-if>
+<sc-if value="{{couponErr}}" hint-placeholder-val="{{ false }}"><div class="alert alert-err" role="alert">{{couponErrText}} You can still buy without a coupon.</div></sc-if>
+</div>
+
+<fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+<legend class="lbl" style="padding: 0; margin-bottom: 10px">Gift card</legend>
+<label class="opt"><input type="radio" name="gc" checked="{{noCard}}" onChange="{{pickNone}}"><span style="font-size: 14px; font-weight: 600">No gift card</span></label>
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="2">
+<label class="opt"><input type="radio" name="gc" checked="{{c.on}}" onChange="{{c.pick}}">
+<span style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">{{c.amount}} EC <span style="font-weight: 500; color: #a9b6b1">from {{c.from}}</span></span><span class="hint">Expires {{c.expires}}</span></span>
+<svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"></rect><path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1.5S9 8 12 8c3 0 6-1 6-1.5S14 4 12 8z"></path></svg>
+</label>
+</sc-for>
+<span class="hint">A gift card is always used in full. If it’s worth more than what’s left to pay, the rest is lost.</span>
+</fieldset>
+</section>
+</sc-if>
+</div>
+
+<aside aria-label="Summary" style="flex: 1 1 320px; max-width: 100%; background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 800">Summary</h2>
+<dl style="margin: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px">
+<div style="display: flex; justify-content: space-between"><dt style="color: #cfd8d4">Total ({{count}} items)</dt><dd style="margin: 0">{{totalLabel}} EC</dd></div>
+<div style="display: flex; justify-content: space-between"><dt style="color: #cfd8d4">Coupon discount</dt><dd style="margin: 0; color: {{cdColor}}">−{{cdLabel}} EC</dd></div>
+<div style="display: flex; justify-content: space-between"><dt style="color: #cfd8d4">Gift card</dt><dd style="margin: 0; color: {{gdColor}}">−{{gdLabel}} EC</dd></div>
+</dl>
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 14px; border-top: 1px solid #24332e"><span style="font-size: 15px; font-weight: 600">To pay</span><span><span style="font-family: Nunito, sans-serif; font-size: 34px; font-weight: 900">{{finalLabel}}</span> <span style="font-size: 14px; font-weight: 700; color: #a9b6b1">EC</span></span></div>
+<sc-if value="{{hasLost}}" hint-placeholder-val="{{ false }}">
+<div role="note" style="display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; background: rgba(232,190,90,.1); border: 1px solid rgba(232,190,90,.35); color: #f0d79a; font-size: 13px; line-height: 1.5"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17v.5"></path></svg><span><strong>{{lostLabel}} EC of the gift card will be lost.</strong> Choose “No gift card” to keep it for a bigger purchase.</span></div>
+</sc-if>
+<sc-if value="{{hasItems}}" hint-placeholder-val="{{ true }}">
+<button class="btn btn-primary" type="button" disabled="{{busy}}" onClick="{{buy}}" style="width: 100%; min-height: 50px; font-size: 15px">{{buyLabel}}</button>
+</sc-if>
+<span class="hint">Prices are calculated by the server and paid from your wallet’s available EC.</span>
+</aside>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"checkoutResult":{"editor":"enum","options":["success","insufficient funds","already owned","failed"],"default":"success","section":"What Buy does"},"$preview":{"width":1440,"height":1500}}'>
+function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+var ITEMS = [
+  { id: 1, name: 'Biciklom preko Fruške gore', price: 1200, owner: 'explorer1@explorer.dev' },
+  { id: 2, name: 'Manastiri Fruške gore', price: 900, owner: 'explorer2@explorer.dev' },
+  { id: 3, name: 'Šetnja Petrovaradinskom tvrđavom', price: 0, owner: 'explorer1@explorer.dev' }
+];
+var COUPONS = {
+  FRUSKA20: { percent: 20, productId: 1 },
+  EXPL10AN: { percent: 10, ownerAny: 'explorer1@explorer.dev' },
+  MANAS15X: { percent: 15, productId: 7 },
+  USED1234: { used: true },
+  OLDCODE1: { expired: true }
+};
+var CARDS = [
+  { id: 'g1', amount: 100, from: 'explorer1@explorer.dev', expires: '2. 12. 2029.' },
+  { id: 'g2', amount: 2500, from: 'explorer3@explorer.dev', expires: '20. 3. 2029.' }
+];
+var BUY_ERR = { 'insufficient funds': 'You don’t have enough EC to pay for this cart.', 'already owned': 'You already own “Manastiri Fruške gore”. Remove it from the cart and try again.', failed: 'The purchase didn’t go through.' };
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { items: ITEMS, code: '', applied: null, couponError: '', card: null, busy: false, result: null }; }
+  componentWillUnmount() { if (this.t) clearTimeout(this.t); }
+  resolve(code, items) {
+    var c = COUPONS[code];
+    if (!c) return { error: 'Coupon “' + code + '” doesn’t exist.' };
+    if (c.used) return { error: 'This coupon has already been used.' };
+    if (c.expired) return { error: 'This coupon has expired.' };
+    var target = null;
+    if (c.productId) target = items.filter(function (i) { return i.id === c.productId; })[0];
+    else target = items.filter(function (i) { return i.owner === c.ownerAny; }).sort(function (a, b) { return b.price - a.price; })[0];
+    if (!target) return { error: c.productId ? 'The product this coupon is for isn’t in your cart.' : 'None of this coupon owner’s products are in your cart.' };
+    return { code: code, percent: c.percent, itemId: target.id, name: target.name, discount: Math.round(target.price * c.percent / 100) };
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    var applied = s.applied ? this.resolve(s.applied, s.items) : null;
+    if (applied && applied.error) applied = null;
+    var total = s.items.reduce(function (a, i) { return a + i.price; }, 0);
+    var cd = applied ? applied.discount : 0;
+    var after = total - cd;
+    var card = CARDS.filter(function (c) { return c.id === s.card; })[0];
+    var gd = card ? Math.min(card.amount, after) : 0;
+    var lost = card ? card.amount - gd : 0;
+    var fin = after - gd;
+    var outcome = this.props.checkoutResult ?? 'success';
+    var apply = function () {
+      var code = s.code.trim().toUpperCase();
+      if (!code) return;
+      var r = self.resolve(code, s.items);
+      if (r.error) self.setState({ couponError: r.error, applied: null }); else self.setState({ applied: code, couponError: '' });
+    };
+    return {
+      count: s.items.length, hasItems: s.items.length > 0, isEmpty: s.items.length === 0, busy: s.busy,
+      isSuccess: s.result === 'success', hasBuyError: !!s.result && s.result !== 'success', buyError: BUY_ERR[s.result] || '',
+      items: s.items.map(function (i) {
+        var has = applied && applied.itemId === i.id;
+        return Object.assign({}, i, {
+          free: i.price === 0, paid: i.price > 0, priceLabel: fmt(i.price), finalLabel: fmt(has ? i.price - applied.discount : i.price),
+          hasCoupon: !!has, percent: has ? applied.percent : 0,
+          remove: function () { self.setState({ items: s.items.filter(function (x) { return x.id !== i.id; }), result: null }); }
+        });
+      }),
+      code: s.code,
+      onCode: function (e) { self.setState({ code: e.target.value.toUpperCase(), couponError: '' }); },
+      onCodeKey: function (e) { if (e.key === 'Enter') { e.preventDefault(); apply(); } },
+      applyCoupon: apply,
+      clearCoupon: function () { self.setState({ applied: null, code: '' }); },
+      couponOk: !!applied, appliedCode: applied ? applied.code : '',
+      couponText: applied ? applied.percent + '% off ' + applied.name + ': −' + fmt(applied.discount) + ' EC' : '',
+      couponErr: !!s.couponError, couponErrText: s.couponError,
+      noCard: !s.card,
+      pickNone: function () { self.setState({ card: null }); },
+      cards: CARDS.map(function (c) { return Object.assign({}, c, { on: s.card === c.id, pick: function () { self.setState({ card: c.id }); } }); }),
+      totalLabel: fmt(total), cdLabel: fmt(cd), gdLabel: fmt(gd), finalLabel: fmt(fin), lostLabel: fmt(lost), hasLost: lost > 0,
+      cdColor: cd ? '#8fe0b4' : '#8d9b96', gdColor: gd ? '#8fe0b4' : '#8d9b96',
+      buyLabel: s.busy ? 'Paying…' : 'Buy products · ' + fmt(fin) + ' EC',
+      buy: function () {
+        self.setState({ busy: true, result: null });
+        self.t = setTimeout(function () {
+          if (outcome === 'success') self.setState({ busy: false, result: 'success', items: [], applied: null, code: '', card: null });
+          else self.setState({ busy: false, result: outcome });
+        }, 900);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

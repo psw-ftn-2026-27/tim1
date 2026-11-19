@@ -1,11 +1,13 @@
 import { httpResource } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PageResult } from '../../../../shared/api/page-result';
 import { serverMessage } from '../../../../shared/util/server-message';
-import { FollowerDto } from '../../api/social-api-types';
+import { FollowCountsDto, FollowerDto } from '../../api/social-api-types';
 import { FollowManagement } from '../follow-management';
 import { FollowerCard } from '../follower-card/follower-card';
+
+const PAGE_SIZE = 20;
 
 @Component({
   imports: [FollowerCard, RouterLink],
@@ -16,8 +18,17 @@ import { FollowerCard } from '../follower-card/follower-card';
 export class Followers {
   private readonly followManagement = inject(FollowManagement);
 
+  // Changing the page changes the address, so the resource loads that page.
+  protected readonly page = signal(1);
+
   protected readonly followers = httpResource<PageResult<FollowerDto>>(
-    () => '/api/social/followers?page=1&pageSize=20',
+    () => `/api/social/followers?page=${this.page()}&pageSize=${PAGE_SIZE}`,
+  );
+
+  protected readonly counts = httpResource<FollowCountsDto>(() => '/api/social/follow-counts');
+
+  protected readonly pageCount = computed(() =>
+    Math.max(1, Math.ceil((this.followers.value()?.totalCount ?? 0) / PAGE_SIZE)),
   );
 
   protected readonly pending = signal(false);
@@ -29,6 +40,7 @@ export class Followers {
     try {
       await this.followManagement.removeFollower(requestId);
       this.followers.reload();
+      this.counts.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Follower was not removed.'));
     } finally {

@@ -1,52 +1,86 @@
-.links {
+// Tabovi levo, zvonce desno
+.page-top {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+}
+
+.network {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.bell {
-  position: relative;
-  font-size: 1.5rem;
-  line-height: 1;
-  text-decoration: none;
-}
-
-.dot {
-  position: absolute;
-  top: 0.15rem;
-  right: 0.2rem;
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--color-danger) 30%, red);
-}
-
-.side {
-  display: flex;
+.network-title {
   align-items: center;
-  gap: var(--space-7);
-}
-
-.profile {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
-.profile-icon {
-  font-size: var(--font-size-xl);
-  line-height: 1;
+.network-title h2 {
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+.network-icon {
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.counts {
+  border-bottom: 1px solid var(--color-border);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr 1fr;
+  padding-bottom: var(--space-4);
 }
 
 .count {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-decoration: none;
   font-size: var(--font-size-sm);
+  padding: var(--space-3);
+  text-decoration: none;
+}
+
+.count strong {
+  color: var(--color-text);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+}
+
+.count:hover {
+  background: var(--color-surface-hover);
+}
+
+.side-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.side-links a {
+  align-items: center;
+  display: inline-flex;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  text-decoration: none;
+}
+
+.blog-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+}
+
+// Prazno stanje zauzima ceo red mreže
+.blog-grid > .empty {
+  grid-column: 1 / -1;
 }

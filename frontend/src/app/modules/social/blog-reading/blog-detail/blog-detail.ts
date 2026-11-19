@@ -23,50 +23,74 @@ export class BlogDetail {
 
   protected readonly detail = httpResource<BlogDetailDto>(() => `/api/social/blogs/${this.id()}`);
 
+  protected readonly pending = signal(false);
   protected readonly error = signal<string | null>(null);
 
+  // Index of the image shown large in the gallery.
+  protected readonly activeImage = signal(0);
+
   protected async add(text: string): Promise<void> {
+    this.pending.set(true);
     this.error.set(null);
     try {
       await this.blogReading.addComment(this.id(), { text });
       this.detail.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not add the comment.'));
+    } finally {
+      this.pending.set(false);
     }
   }
 
   protected async edit(edit: CommentEdit): Promise<void> {
+    this.pending.set(true);
     this.error.set(null);
     try {
       await this.blogReading.updateComment(this.id(), edit.commentId, { text: edit.text });
       this.detail.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not update the comment.'));
+    } finally {
+      this.pending.set(false);
     }
   }
 
   protected async remove(commentId: string): Promise<void> {
+    this.pending.set(true);
     this.error.set(null);
     try {
       await this.blogReading.deleteComment(this.id(), commentId);
       this.detail.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not delete the comment.'));
+    } finally {
+      this.pending.set(false);
     }
   }
 
   protected async vote(type: VoteType): Promise<void> {
+    this.pending.set(true);
     this.error.set(null);
     try {
       await this.blogReading.vote(this.id(), { type });
       this.detail.reload();
     } catch (failure) {
       this.error.set(serverMessage(failure, 'Could not save the vote.'));
+    } finally {
+      this.pending.set(false);
     }
   }
 
-  // The server sends dates as ISO text; this shows them in the reader's local time.
+  // The server sends dates as ISO text; this shows the date in the reader's local time.
   protected formatDate(value: string): string {
-    return new Date(value).toLocaleString('sr-Latn');
+    return new Date(value).toLocaleDateString('en-US', { dateStyle: 'medium' });
+  }
+
+  // A positive score gets a plus sign, a negative one a real minus sign.
+  protected formatScore(score: number): string {
+    if (score > 0) {
+      return `+${score}`;
+    }
+    return score < 0 ? `−${Math.abs(score)}` : '0';
   }
 }

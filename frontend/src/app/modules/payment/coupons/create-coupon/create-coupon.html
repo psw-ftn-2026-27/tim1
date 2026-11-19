@@ -1,45 +1,107 @@
-<div class="stack">
-  <h1>Create coupon</h1>
+<div class="page">
+  <a class="back" routerLink="/payment/coupons">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+    My coupons
+  </a>
 
-  @if (error()) {
-    <p class="alert alert--danger">{{ error() }}</p>
-  }
+  <div class="intro">
+    <h1>Create coupon</h1>
+    <p class="meta">A code is generated for you. Share it with the people you choose.</p>
+  </div>
 
-  <form class="card stack" (submit)="submit($event)">
-    <div class="field">
-      <label for="product">Product</label>
-      <select id="product" [formField]="form.productId">
-        <option value="">Any of my products</option>
-        @for (product of ownedProducts.value() ?? []; track product.id) {
-          <option [value]="product.id">{{ product.name }}</option>
-        }
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="percent">Discount percent</label>
-      <input id="percent" type="number" [formField]="form.percent" />
-      @if (form.percent().touched()) {
-        @for (message of form.percent().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
+  <div class="columns">
+    <form class="card coupon-form" (submit)="submit($event)">
+      @if (error()) {
+        <p class="alert alert--danger" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v6M12 16.5v.5" />
+          </svg>
+          <span>{{ error() }}</span>
+        </p>
       }
-    </div>
 
-    <div class="field">
-      <label for="expires-on">Valid until</label>
-      <input id="expires-on" type="date" [min]="today" [formField]="form.expiresOn" />
-      @if (form.expiresOn().touched()) {
-        @for (message of form.expiresOn().errors(); track $index) {
-          <p class="error">{{ message.message }}</p>
-        }
-      }
-    </div>
+      <fieldset class="group">
+        <legend class="label">Applies to</legend>
 
-    <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
-      Create
-    </button>
-  </form>
+        <label class="option">
+          <input type="radio" value="one" [formField]="form.scope" />
+          <span class="option-text">
+            <strong>One of my products</strong>
+            <span class="hint">The discount applies only to this product.</span>
+            @if (form.scope().value() === 'one') {
+              <span class="field">
+                <select aria-label="Product" [formField]="form.productId">
+                  <option value="">Choose a product…</option>
+                  @for (product of ownedProducts.value() ?? []; track product.id) {
+                    <option [value]="product.id">{{ product.name }}</option>
+                  }
+                </select>
+              </span>
+            }
+          </span>
+        </label>
 
-  <a routerLink="/payment/coupons">Back to my coupons</a>
+        <label class="option">
+          <input type="radio" value="any" [formField]="form.scope" />
+          <span class="option-text">
+            <strong>Any of my products</strong>
+            <span class="hint">The discount applies to one of your products in the buyer's cart.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="row">
+        <div class="field" [class.field--error]="form.percent().touched() && form.percent().invalid()">
+          <label for="percent">Discount</label>
+          <div class="suffix-input">
+            <input id="percent" type="number" aria-describedby="percent-hint" [formField]="form.percent" />
+            <span class="suffix" aria-hidden="true">%</span>
+          </div>
+          <span id="percent-hint" class="hint">A whole number from 1 to 100.</span>
+          @if (form.percent().touched()) {
+            @for (message of form.percent().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
+          }
+        </div>
+
+        <div class="field" [class.field--error]="form.expiresOn().touched() && form.expiresOn().invalid()">
+          <label for="expires-on">Valid until</label>
+          <input id="expires-on" type="date" aria-describedby="expires-hint" [min]="today" [formField]="form.expiresOn" />
+          <span id="expires-hint" class="hint">Must be a date in the future.</span>
+          @if (form.expiresOn().touched()) {
+            @for (message of form.expiresOn().errors(); track $index) {
+              <p class="error">{{ message.message }}</p>
+            }
+          }
+        </div>
+      </div>
+
+      <div class="form-actions actions">
+        <a class="button" routerLink="/payment/coupons">Cancel</a>
+        <button class="button button--primary" type="submit" [disabled]="!form().valid() || pending()">
+          Create
+        </button>
+      </div>
+    </form>
+
+    <aside class="preview" aria-label="Preview">
+      <span class="hint preview-label">Preview</span>
+      <div class="ticket">
+        <span class="ticket-percent">
+          {{ form.percent().valid() ? form.percent().value() : '—' }}%
+          <span class="ticket-off">off</span>
+        </span>
+        <span class="ticket-product">{{ previewProduct() }}</span>
+        <div class="ticket-bottom">
+          <span class="ticket-code" aria-hidden="true">• • • • • • • •</span>
+          <span class="meta">Valid until {{ form.expiresOn().value() ? formatDate(form.expiresOn().value()) : '—' }}</span>
+        </div>
+        <span class="hint">The code appears after you create the coupon.</span>
+      </div>
+    </aside>
+  </div>
 </div>

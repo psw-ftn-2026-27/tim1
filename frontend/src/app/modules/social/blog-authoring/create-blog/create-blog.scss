@@ -1,10 +1,17 @@
-.card {
-  margin-inline: auto;
-  max-width: 32rem;
-}
-
-// Looks like the other field labels; a <label> needs one control, and "Slike" has several.
+// Looks like the other field labels; a <label> needs one control, and the images have several.
 .label {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+// Opis se piše u markdown-u, pa je polje u monospace fontu
+.markdown {
+  font-family: var(--font-family-mono);
+  min-height: 13.75rem;
+  resize: vertical;
+}
+
+.end {
+  justify-content: flex-end;
 }

@@ -1,27 +1,32 @@
-<article class="card row">
-  <h3>{{ follower().displayName }}</h3>
-
-  @if (follower().isFollowedByUser) {
-    <span class="badge">Following each other</span>
-  } @else if (follower().hasPendingRequest) {
-    <span class="badge badge--warning">Requested</span>
-  } @else {
+<div class="list-card">
+  <span class="list-card__avatar" aria-hidden="true">{{ follower().displayName.charAt(0) }}</span>
+  <div class="list-card__main">
+    <strong>{{ follower().displayName }}</strong>
+    <span class="meta">Follows you</span>
+  </div>
+  <div class="list-card__end">
+    <!-- The server says whether the user already follows this person or has a request pending. -->
+    @if (follower().isFollowedByUser) {
+      <span class="badge">Following</span>
+    } @else if (follower().hasPendingRequest) {
+      <span class="badge badge--warning">Pending</span>
+    } @else {
+      <button
+        class="badge badge--info badge-button"
+        type="button"
+        [disabled]="disabled()"
+        (click)="sendClicked.emit(follower().userId)"
+      >
+        Send request
+      </button>
+    }
     <button
-      class="button button--primary button--small"
+      class="button button--danger button--small"
       type="button"
       [disabled]="disabled()"
-      (click)="sendClicked.emit(follower().userId)"
+      (click)="removeClicked.emit(follower().id)"
     >
-      Send request
+      Remove
     </button>
-  }
-
-  <button
-    class="button button--small"
-    type="button"
-    [disabled]="disabled()"
-    (click)="removeClicked.emit(follower().id)"
-  >
-    Remove
-  </button>
-</article>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormField, form } from '@angular/forms/signals';
+import { FormField, debounce, form } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { PageResult } from '../../../../shared/api/page-result';
 import { serverMessage } from '../../../../shared/util/server-message';
@@ -17,7 +17,11 @@ import { UserCard } from '../user-card/user-card';
 export class People {
   private readonly followRequesting = inject(FollowRequesting);
 
-  protected readonly form = form(signal({ text: '' }));
+  // The list refreshes while the user types, but only after a short pause (300 ms),
+  // so the server does not get a request for every key.
+  protected readonly form = form(signal({ text: '' }), (path) => {
+    debounce(path.text, 300);
+  });
 
   protected readonly users = httpResource<PageResult<UserToFollowDto>>(
     () =>

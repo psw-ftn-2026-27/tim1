@@ -1,25 +1,72 @@
-.header {
+.page {
   display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+// Tabela se ne sabija ispod ove širine; na telefonu se pomera vodoravno
+.table {
+  min-width: 52rem;
+}
+
+td {
+  font-size: var(--font-size-sm);
+}
+
+.code-cell {
   align-items: center;
-  gap: var(--space-4);
-}
-
-.back {
-  font-size: var(--font-size-lg);
-  line-height: 1;
-  text-decoration: none;
-}
-
-.actions {
   display: flex;
-  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
-// A link that looks like a button: no underline, and the button's text colour on hover.
-.create {
-  text-decoration: none;
+// Kod kupona u isprekidanom okviru, kao na odsečku
+.code {
+  align-items: center;
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--space-2);
+  color: var(--color-link);
+  display: inline-flex;
+  font-family: var(--font-family-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  height: 2.125rem;
+  letter-spacing: 0.12em;
+  padding: 0 var(--space-3);
 }
 
-.create:hover {
-  color: var(--color-accent-text);
+.percent {
+  color: var(--color-link);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-display);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+// Iskorišćen ili istekao kupon: prigušen kod i popust
+.inactive .code {
+  border-color: var(--color-border-field);
+  color: var(--color-text-subtle);
+}
+
+.inactive .percent {
+  color: var(--color-text-muted);
+}
+
+.table-footer {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+}
+
+.pages {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
 }

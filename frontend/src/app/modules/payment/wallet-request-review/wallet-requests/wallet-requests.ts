@@ -1,12 +1,13 @@
 import { httpResource } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { WalletRequestReviewDto, WalletRequestsDto } from '../../api/payment-api-types';
 import { RequestList, RequestRejection } from '../request-list/request-list';
 import { WalletRequestReview } from '../wallet-request-review';
 
 @Component({
-  imports: [RequestList],
+  imports: [RequestList, RouterLink],
   selector: 'app-wallet-requests',
   styleUrl: './wallet-requests.scss',
   templateUrl: './wallet-requests.html',

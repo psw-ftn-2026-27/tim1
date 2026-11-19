@@ -1,13 +1,27 @@
-<article class="card stack">
-  <h3>{{ club().name }}</h3>
+<article class="card club-card">
+  <div class="cover">
+    @if (club().images[0]; as image) {
+      <img class="thumb thumb--wide" [src]="image" alt="" />
+    } @else {
+      <span class="thumb thumb--wide"></span>
+    }
+    @if (mine() || club().status === 'Closed') {
+      <div class="cover-badges">
+        @if (mine()) {
+          <span class="plate"><span class="badge badge--accent">Your club</span></span>
+        }
+        @if (club().status === 'Closed') {
+          <span class="plate"><span class="badge badge--danger">Closed</span></span>
+        }
+      </div>
+    }
+  </div>
 
-  @if (club().status === 'Closed') {
-    <span class="badge">Closed</span>
-  }
-
-  @if (club().images[0]; as image) {
-    <img [src]="image" [alt]="club().name" />
-  }
-
-  <a [routerLink]="['/social/clubs', club().id]">Details</a>
+  <div class="body">
+    <h2>{{ club().name }}</h2>
+    <a class="details" [routerLink]="['/social/clubs', club().id]">
+      <span>Details</span>
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+    </a>
+  </div>
 </article>

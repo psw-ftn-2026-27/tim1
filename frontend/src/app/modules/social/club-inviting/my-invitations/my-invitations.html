@@ -1,57 +1,61 @@
-<div class="stack">
-  <p><a routerLink="/social/clubs">Back to clubs</a></p>
+<div class="page-narrow">
+  <a class="back" routerLink="/social/clubs">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>Clubs</span>
+  </a>
 
-  <h1>My invitations</h1>
+  <div class="page-header">
+    <div>
+      <h1>My invitations</h1>
+      <p>Clubs that invited you to join.</p>
+    </div>
+  </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (invitations.isLoading()) {
-    <p>Loading invitations...</p>
+    <p class="empty empty--boxed">Loading invitations…</p>
   } @else if (invitations.error()) {
-    <p class="error">Could not load your invitations. Log in and try again.</p>
+    <p class="alert alert--danger">Could not load your invitations. Log in and try again.</p>
   } @else {
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Club</th>
-          <th scope="col">Invited at</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (invitation of invitations.value() ?? []; track invitation.clubId) {
-          <tr>
-            <td>{{ invitation.clubName }}</td>
-            <td>{{ invitation.createdAt }}</td>
-            <td>
-              <div class="actions">
-                <button
-                  class="button button--primary"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="accept(invitation.clubId)"
-                >
-                  Accept
-                </button>
-                <button
-                  class="button"
-                  type="button"
-                  [disabled]="pending()"
-                  (click)="reject(invitation.clubId)"
-                >
-                  Reject
-                </button>
-              </div>
-            </td>
-          </tr>
-        } @empty {
-          <tr>
-            <td colspan="3">No pending invitations.</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <div class="stack">
+      @for (invitation of invitations.value() ?? []; track invitation.clubId) {
+        <div class="list-card">
+          <!-- Čeka backend: MyInvitationDto nema slike kluba, pa umesto sličice stoji prvo slovo imena. -->
+          <span class="list-card__avatar" aria-hidden="true">{{ invitation.clubName.charAt(0) }}</span>
+          <div class="list-card__main">
+            <strong><a [routerLink]="['/social/clubs', invitation.clubId]">{{ invitation.clubName }}</a></strong>
+            <span class="meta">Invited {{ formatDate(invitation.createdAt) }}</span>
+          </div>
+          <div class="list-card__end">
+            <button
+              class="button button--primary button--small"
+              type="button"
+              [disabled]="pending()"
+              (click)="accept(invitation.clubId)"
+            >
+              Accept
+            </button>
+            <button
+              class="button button--danger button--small"
+              type="button"
+              [disabled]="pending()"
+              (click)="reject(invitation.clubId)"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty empty--boxed">
+          <span class="empty-icon">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z" /><path d="M4 7l8 6 8-6" /></svg>
+          </span>
+          <p>You have no club invitations.</p>
+        </div>
+      }
+    </div>
   }
 </div>

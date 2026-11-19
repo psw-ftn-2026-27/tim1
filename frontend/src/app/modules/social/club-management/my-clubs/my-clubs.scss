@@ -1,19 +1,91 @@
-.actions {
-  align-items: center;
-  display: flex;
-  gap: var(--space-2);
+.table td {
+  vertical-align: middle;
 }
 
+.club-cell {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  min-width: 16rem;
+}
+
+.club-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.club-name a {
+  color: var(--color-text);
+}
+
+// Opis u jednom redu, skraćen sa „…"
+.description {
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-links {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--font-size-sm);
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.actions-col {
+  text-align: right;
+}
+
+.actions-col .confirm {
+  justify-content: flex-end;
+  margin-left: auto;
+  max-width: 22rem;
+}
+
+.end {
+  justify-content: flex-end;
+}
+
+.actions-col .end {
+  flex-wrap: nowrap;
+}
+
+// Red sa formom za izmenu stoji ispod reda kluba
+.edit-row,
+.table tbody tr.edit-row:hover {
+  background: var(--color-surface-raised);
+}
+
+.edit-columns {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+// Looks like the other field labels; a <label> needs one control, and the URLs have several.
 .label {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
-.image-row {
+.url-row {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.image-row input {
-  flex: 1;
+.url-label {
+  flex-basis: 100%;
+  font-weight: var(--font-weight-normal);
+}
+
+.url-row input {
+  flex: 1 1 12rem;
+  min-width: 0;
 }

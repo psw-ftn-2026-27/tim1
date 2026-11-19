@@ -1,45 +1,38 @@
-<article class="card row">
-  <h3>{{ request().senderDisplayName }}</h3>
-
-  @if (request().status === 'Pending') {
-    <div class="actions">
-      <button
-        class="button"
-        type="button"
-        aria-label="Prihvati"
-        [disabled]="disabled()"
-        (click)="acceptClicked.emit(request().id)"
-      >
-        ✓
-      </button>
-      <button
-        class="button"
-        type="button"
-        aria-label="Reject"
-        [disabled]="disabled()"
-        (click)="rejectClicked.emit(request().id)"
-      >
-        ✗
-      </button>
-    </div>
-  }
-
-  <span
-    class="badge"
-    [class.pending]="request().status === 'Pending'"
-    [class.accepted]="request().status === 'Accepted'"
-    [class.rejected]="request().status === 'Rejected'"
-  >
+<div class="list-card">
+  <span class="list-card__avatar" aria-hidden="true">{{ request().senderDisplayName.charAt(0) }}</span>
+  <div class="list-card__main">
+    <strong>{{ request().senderDisplayName }}</strong>
+    <span class="meta">Sent {{ formatDate(request().createdAt) }}</span>
+  </div>
+  <div class="list-card__end">
     @switch (request().status) {
       @case ('Pending') {
-        Pending
+        <span class="badge badge--warning">Pending</span>
+        <button
+          class="icon-btn icon-btn--success"
+          type="button"
+          [attr.aria-label]="'Accept request from ' + request().senderDisplayName"
+          [disabled]="disabled()"
+          (click)="acceptClicked.emit(request().id)"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7" /></svg>
+        </button>
+        <button
+          class="icon-btn icon-btn--danger"
+          type="button"
+          [attr.aria-label]="'Reject request from ' + request().senderDisplayName"
+          [disabled]="disabled()"
+          (click)="rejectClicked.emit(request().id)"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
       }
       @case ('Accepted') {
-        Accepted
+        <span class="badge badge--success">Accepted</span>
       }
       @case ('Rejected') {
-        Rejected
+        <span class="badge badge--danger">Rejected</span>
       }
     }
-  </span>
-</article>
+  </div>
+</div>

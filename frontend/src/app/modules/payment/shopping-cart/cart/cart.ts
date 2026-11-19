@@ -1,14 +1,15 @@
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, form } from '@angular/forms/signals';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Analytics } from '../../../../core/analytics/analytics';
+import { formatAmount } from '../../../../shared/util/format-amount';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { CartDto, CartItemDto, PriceDto, UsableGiftCardDto } from '../../api/payment-api-types';
 import { ShoppingCart } from '../shopping-cart';
 
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, RouterLink, RouterLinkActive],
   selector: 'app-cart',
   styleUrl: './cart.scss',
   templateUrl: './cart.html',
@@ -55,6 +56,18 @@ export class Cart {
   protected readonly error = signal<string | null>(null);
   protected readonly bought = signal<string | null>(null);
   protected readonly buyError = signal<string | null>(null);
+
+  protected readonly formatAmount = formatAmount;
+
+  // Popust kupona u procentima za stavku na koju se kupon odnosi. Server vraća naziv
+  // proizvoda i iznos popusta, pa se stavka prepoznaje po nazivu; za ostale stavke null.
+  protected couponPercent(item: CartItemDto): number | null {
+    const price = this.price.value();
+    if (!price?.couponProductName || price.couponProductName !== item.name || item.price === 0) {
+      return null;
+    }
+    return Math.round((price.couponDiscount / item.price) * 100);
+  }
 
   protected formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('sr-Latn-RS', { timeZone: 'UTC' });

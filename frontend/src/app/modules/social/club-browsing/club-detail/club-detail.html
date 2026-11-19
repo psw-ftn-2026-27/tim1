@@ -1,171 +1,211 @@
-<div class="stack">
-  <p><a routerLink="/social/clubs">Back to clubs</a></p>
+<div class="page-narrow">
+  <a class="back" routerLink="/social/clubs">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>Back to clubs</span>
+  </a>
 
   @if (detail.isLoading()) {
-    <p>Loading club...</p>
+    <p class="empty empty--boxed">Loading club…</p>
   } @else if (detail.error()) {
-    <p class="error">Could not load the club. It may not exist, or you may need to log in.</p>
+    <div class="empty empty--boxed">
+      <p>Could not load the club. It may not exist, or you may need to log in.</p>
+    </div>
   } @else {
     @if (detail.value(); as club) {
-      <h1>{{ club.name }}</h1>
-
-      @if (club.status === 'Closed') {
-        <p><span class="badge">Closed</span></p>
-      }
-
-      <p>{{ club.description }}</p>
-
-      @for (image of club.images; track $index) {
-        <img [src]="image" [alt]="club.name" />
-      }
-
-      <section class="stack">
-        <h2>Membership</h2>
-
-        @if (error()) {
-          <p class="error">{{ error() }}</p>
+      <div class="page-header">
+        <div class="title-row">
+          <h1>{{ club.name }}</h1>
+          @if (club.status === 'Active') {
+            <span class="badge badge--success">Active</span>
+          } @else {
+            <span class="badge badge--danger">Closed</span>
+          }
+        </div>
+        <!-- The server sends the signed-in user's role; only the owner and moderators see the requests. -->
+        @if (canSeeRequests()) {
+          <a class="button" [routerLink]="['/social/clubs', club.id, 'requests']">
+            <span>Requests</span>
+            @if ((requests.value() ?? []).length > 0) {
+              <span class="tab-count">{{ requests.value()?.length }}</span>
+            }
+          </a>
         }
+      </div>
 
-        @if (membership.isLoading()) {
-          <p>Loading membership...</p>
-        } @else if (membership.error()) {
-          <p class="error">Could not load your membership. Log in and try again.</p>
-        } @else {
-          @switch (membership.value()?.status) {
-            @case ('NotMember') {
-              @if (club.status === 'Active') {
-                <div>
-                  <button
-                    class="button button--primary"
-                    type="button"
-                    [disabled]="pending()"
-                    (click)="join()"
-                  >
-                    Join
-                  </button>
-                </div>
-              }
-            }
-            @case ('PendingRequest') {
-              <div class="actions">
-                <span>Your request is waiting for a response.</span>
-                <button class="button" type="button" [disabled]="pending()" (click)="withdraw()">
-                  Withdraw
+      @if (club.images.length > 0) {
+        <section class="gallery" aria-label="Images">
+          <img
+            class="thumb thumb--wide gallery-main"
+            [src]="club.images[activeImage()] ?? club.images[0]"
+            [alt]="club.name"
+          />
+          @if (club.images.length > 1) {
+            <div class="gallery-thumbs">
+              @for (image of club.images; track $index; let index = $index) {
+                <button
+                  class="gallery-thumb"
+                  type="button"
+                  [class.is-active]="index === activeImage()"
+                  [attr.aria-label]="'Show image ' + (index + 1)"
+                  [attr.aria-pressed]="index === activeImage()"
+                  (click)="activeImage.set(index)"
+                >
+                  <img class="thumb" [src]="image" alt="" />
                 </button>
-              </div>
-            }
-            @case ('Member') {
-              <p>You are a member of this club.</p>
-              @if (canSeeRequests()) {
-                <p><a [routerLink]="['/social/clubs', club.id, 'requests']">Requests</a></p>
               }
+            </div>
+          }
+        </section>
+      }
+
+      <p class="description">{{ club.description }}</p>
+
+      @if (error()) {
+        <p class="alert alert--danger" role="alert">{{ error() }}</p>
+      }
+
+      <section class="card membership" aria-label="Your membership">
+        @if (membership.isLoading()) {
+          <p class="meta">Loading your membership…</p>
+        } @else if (membership.error()) {
+          <p class="meta">Could not load your membership. Log in and try again.</p>
+        } @else if (membership.value(); as mine) {
+          @if (mine.role === 'Owner') {
+            <span class="badge badge--accent">Owner</span>
+            <p class="membership-text">You own this club.</p>
+          } @else if (mine.status === 'Member') {
+            @if (mine.role === 'Moderator') {
+              <span class="badge badge--info">Moderator</span>
+            } @else {
+              <span class="badge">Member</span>
             }
+            <p class="membership-text">You are a member of this club.</p>
+          } @else if (mine.status === 'PendingRequest') {
+            <span class="badge badge--warning">Pending</span>
+            <p class="membership-text">Your request to join is waiting for a response.</p>
+            <button class="button" type="button" [disabled]="pending()" (click)="withdraw()">
+              Withdraw
+            </button>
+          } @else if (club.status === 'Active') {
+            <p class="membership-text">You are not a member yet. Send a request to join.</p>
+            <button class="button button--primary" type="button" [disabled]="pending()" (click)="join()">
+              Join
+            </button>
+          } @else {
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+            <p class="membership-text">This club is closed.</p>
           }
         }
       </section>
 
-      <section class="stack">
-        <h2>Members</h2>
+      <section class="stack" aria-labelledby="members-title">
+        <h2 id="members-title">Members ({{ (members.value() ?? []).length }})</h2>
 
         @if (roleError()) {
-          <p class="error">{{ roleError() }}</p>
+          <p class="alert alert--danger" role="alert">{{ roleError() }}</p>
         }
 
         @if (members.isLoading()) {
-          <p>Loading members...</p>
+          <p class="empty empty--boxed">Loading members…</p>
         } @else if (members.error()) {
-          <p class="error">Could not load the members.</p>
+          <p class="alert alert--danger">Could not load the members.</p>
         } @else {
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">User</th>
-                <th scope="col">Role</th>
-                @if (isOwner() || isModerator()) {
-                  <th scope="col">Actions</th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              @for (member of members.value() ?? []; track member.userId) {
-                <tr>
-                  <td>{{ member.displayName }}</td>
-                  <td>{{ member.role }}</td>
-                  @if (isOwner() || isModerator()) {
-                    <td>
-                      @if (transferringToUserId() === member.userId) {
-                        <div class="actions">
-                          <span>Are you sure?</span>
-                          <button
-                            class="button button--primary"
-                            type="button"
-                            [disabled]="pending()"
-                            (click)="confirmTransfer(member.userId)"
-                          >
-                            Confirm
-                          </button>
-                          <button class="button" type="button" (click)="cancelTransfer()">
-                            Cancel
-                          </button>
-                        </div>
-                      } @else if (removingUserId() === member.userId) {
-                        <div class="actions">
-                          <span>Are you sure?</span>
-                          <button
-                            class="button button--primary"
-                            type="button"
-                            [disabled]="pending()"
-                            (click)="confirmRemove(member.userId)"
-                          >
-                            Confirm
-                          </button>
-                          <button class="button" type="button" (click)="cancelRemove()">
-                            Cancel
-                          </button>
-                        </div>
-                      } @else {
-                        <div class="actions">
-                          @if (isOwner() && member.role === 'Member') {
-                            <button
-                              class="button"
-                              type="button"
-                              [disabled]="pending()"
-                              (click)="promote(member.userId)"
-                            >
-                              Make moderator
-                            </button>
-                          }
-                          @if (isOwner() && member.role !== 'Owner') {
-                            <button
-                              class="button"
-                              type="button"
-                              (click)="startTransfer(member.userId)"
-                            >
-                              Transfer ownership
-                            </button>
-                          }
-                          @if (canRemove(member.role)) {
-                            <button
-                              class="button"
-                              type="button"
-                              [disabled]="pending()"
-                              (click)="startRemove(member.userId)"
-                            >
-                              Remove
-                            </button>
-                          }
-                        </div>
-                      }
-                    </td>
+          <div class="stack">
+            @for (member of members.value() ?? []; track member.userId) {
+              <div class="list-card">
+                <span class="list-card__avatar" aria-hidden="true">{{ member.displayName.charAt(0) }}</span>
+                <div class="list-card__main">
+                  <strong>
+                    {{ member.displayName }}
+                    @if (member.userId === auth.user()?.id) {
+                      <span class="meta">(you)</span>
+                    }
+                  </strong>
+                </div>
+                <div class="list-card__end">
+                  @switch (member.role) {
+                    @case ('Owner') {
+                      <span class="badge badge--accent">
+                        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z" /></svg>
+                        Owner
+                      </span>
+                    }
+                    @case ('Moderator') {
+                      <span class="badge badge--info">
+                        <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" /></svg>
+                        Moderator
+                      </span>
+                    }
+                    @case ('Member') {
+                      <span class="badge">Member</span>
+                    }
                   }
-                </tr>
-              } @empty {
-                <tr>
-                  <td [attr.colspan]="isOwner() || isModerator() ? 3 : 2">No members yet.</td>
-                </tr>
-              }
-            </tbody>
-          </table>
+
+                  @if (transferringToUserId() !== member.userId && removingUserId() !== member.userId) {
+                    @if (isOwner() && member.role === 'Member') {
+                      <button
+                        class="button button--small"
+                        type="button"
+                        [disabled]="pending()"
+                        (click)="promote(member.userId)"
+                      >
+                        Make moderator
+                      </button>
+                    }
+                    @if (isOwner() && member.role !== 'Owner') {
+                      <button class="button button--small" type="button" (click)="startTransfer(member.userId)">
+                        Transfer ownership
+                      </button>
+                    }
+                    @if (canRemove(member.role)) {
+                      <button
+                        class="button button--danger button--small"
+                        type="button"
+                        (click)="startRemove(member.userId)"
+                      >
+                        Remove
+                      </button>
+                    }
+                  }
+                </div>
+
+                @if (transferringToUserId() === member.userId) {
+                  <div class="confirm">
+                    <span class="confirm__text">Transfer ownership to {{ member.displayName }}? Are you sure?</span>
+                    <button
+                      class="button button--small button--primary"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="confirmTransfer(member.userId)"
+                    >
+                      Confirm
+                    </button>
+                    <button class="button button--small" type="button" (click)="cancelTransfer()">Cancel</button>
+                  </div>
+                } @else if (removingUserId() === member.userId) {
+                  <div class="confirm">
+                    <span class="confirm__text">Remove {{ member.displayName }} from the club? Are you sure?</span>
+                    <button
+                      class="button button--small button--primary"
+                      type="button"
+                      [disabled]="pending()"
+                      (click)="confirmRemove(member.userId)"
+                    >
+                      Confirm
+                    </button>
+                    <button class="button button--small" type="button" (click)="cancelRemove()">Cancel</button>
+                  </div>
+                }
+              </div>
+            } @empty {
+              <div class="empty empty--boxed">
+                <span class="empty-icon">
+                  <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /></svg>
+                </span>
+                <p>This club has no members yet.</p>
+              </div>
+            }
+          </div>
         }
       </section>
     }

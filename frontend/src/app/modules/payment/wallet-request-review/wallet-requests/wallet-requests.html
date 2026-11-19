@@ -1,29 +1,60 @@
 <div class="stack">
-  <h1>Wallet requests</h1>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/payment">Payment</a>
+    <span aria-hidden="true">/</span>
+    <span>Wallet requests</span>
+  </nav>
+
+  <div class="page-header">
+    <div>
+      <h1>Wallet requests</h1>
+      <p>Approve or reject top-ups and withdrawals. Each request can be decided only once.</p>
+    </div>
+  </div>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v6M12 16.5v.5" />
+      </svg>
+      {{ error() }}
+    </p>
   }
 
   @if (requests.isLoading()) {
-    <p>Loading wallet requests...</p>
+    <p class="empty empty--boxed" role="status">Loading wallet requests...</p>
   } @else if (requests.error()) {
-    <p class="error">
+    <p class="alert alert--danger" role="alert">
       Could not load the wallet requests. Log in as an administrator and try again.
     </p>
   } @else {
-    <h2>Pending</h2>
+    <section class="table-card" aria-labelledby="pending-title">
+      <div class="table-card-header">
+        <div class="title">
+          <h2 id="pending-title">Pending</h2>
+          <span class="badge badge--warning">{{ requests.value()?.pending?.length ?? 0 }}</span>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <app-request-list
+          [requests]="requests.value()?.pending ?? []"
+          [decidable]="true"
+          [pending]="pending()"
+          (approveRequest)="approve($event)"
+          (rejectRequest)="reject($event)"
+        />
+      </div>
+    </section>
 
-    <app-request-list
-      [requests]="requests.value()?.pending ?? []"
-      [decidable]="true"
-      [pending]="pending()"
-      (approveRequest)="approve($event)"
-      (rejectRequest)="reject($event)"
-    />
-
-    <h2>Decided</h2>
-
-    <app-request-list [requests]="requests.value()?.decided ?? []" />
+    <section class="table-card" aria-labelledby="decided-title">
+      <div class="table-card-header">
+        <h2 id="decided-title">Decided</h2>
+        <span class="meta">{{ requests.value()?.decided?.length ?? 0 }} requests</span>
+      </div>
+      <div class="table-scroll">
+        <app-request-list [requests]="requests.value()?.decided ?? []" />
+      </div>
+    </section>
   }
 </div>

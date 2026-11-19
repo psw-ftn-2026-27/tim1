@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wallet requests – admin</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.btn-sm{min-height:40px;padding:0 14px;font-size:13px;border-radius:10px}
+.btn-danger{color:#f4b3b3;border-color:rgba(235,110,110,.45)}
+.btn-danger:hover{background:rgba(235,100,100,.12);color:#ffd0d0}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font:700 12px Inter,sans-serif;white-space:nowrap}
+.k-TopUp{background:#24332e;color:#d6dedb}
+.k-Withdrawal{background:rgba(240,138,60,.14);color:#F5A262}
+.s-Approved{background:rgba(74,190,130,.16);color:#8fe0b4}
+.s-Rejected{background:rgba(235,100,100,.14);color:#f4b3b3}
+.th{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8d9b96}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;color:#cfd8d4}
+.input{width:100%;padding:10px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#eef2ef;font:400 14px Inter,sans-serif;line-height:1.5}
+.input:focus{outline:2px solid #F08A3C;outline-offset:1px;border-color:transparent}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="#">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="Wallet.dc.html" aria-current="page">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">A</span>
+<span style="font-size: 14px; color: #cfd8d4">admin@example.com</span>
+<span class="badge" style="height: 22px; background: rgba(110,170,240,.14); color: #b9d4f7; font-size: 11px; letter-spacing: .05em">ADMIN</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 28px 24px 72px; display: flex; flex-direction: column; gap: 24px">
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #a9b6b1">
+<a href="Wallet.dc.html" style="text-decoration: none">Payment</a><span aria-hidden="true">/</span><span style="color: #eef2ef">Wallet requests</span>
+</nav>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: -8px">
+<h1 style="margin: 0; font-family: Nunito, sans-serif; font-weight: 900; font-size: 44px; line-height: 1.05">Wallet requests</h1>
+<p style="margin: 0; font-size: 15px; color: #a9b6b1">Approve or reject top-ups and withdrawals. Each request can be decided only once.</p>
+</div>
+
+<sc-if value="{{showError}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 12px; padding: 14px 16px; border-radius: 14px; background: rgba(235,100,100,.1); border: 1px solid rgba(235,110,110,.4); color: #f4b3b3; font-size: 14px; line-height: 1.55">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+<span><strong>This request was already decided.</strong> Another administrator decided it in the meantime, so both lists have been reloaded.</span>
+</div>
+</sc-if>
+
+<section aria-labelledby="p-h" style="background: #182320; border: 1px solid #24332e; border-radius: 20px; overflow: hidden">
+<div style="display: flex; align-items: center; gap: 10px; padding: 20px 22px; border-bottom: 1px solid #24332e">
+<h2 id="p-h" style="margin: 0; font-size: 20px; font-weight: 800">Pending</h2>
+<span class="badge" style="background: rgba(232,190,90,.14); color: #f0cf78">{{pendingCount}}</span>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 860px">
+<div aria-hidden="true" style="display: grid; grid-template-columns: 0.9fr 0.8fr 0.9fr 1.3fr 1.6fr; gap: 16px; padding: 12px 22px; border-bottom: 1px solid #24332e"><span class="th">Kind</span><span class="th">User</span><span class="th" style="text-align: right">Amount</span><span class="th">Submitted</span><span class="th" style="text-align: right">Decision</span></div>
+<sc-for list="{{pending}}" as="r" hint-placeholder-count="4">
+<div style="border-bottom: 1px solid #1f2c28">
+<div style="display: grid; grid-template-columns: 0.9fr 0.8fr 0.9fr 1.3fr 1.6fr; gap: 16px; align-items: center; padding: 12px 22px; font-size: 14px">
+<span><span class="badge k-{{r.kind}}">{{r.kindLabel}}</span></span>
+<span class="mono">{{r.user}}</span>
+<span style="text-align: right; font-weight: 700">{{r.amountLabel}} EC</span>
+<span style="color: #cfd8d4">{{r.date}}</span>
+<span style="display: flex; justify-content: flex-end; gap: 8px">
+<button class="btn btn-sm btn-primary" type="button" disabled="{{busy}}" onClick="{{r.approve}}" aria-label="Approve {{r.kindLabel}} of {{r.amountLabel}} EC for {{r.user}}">{{r.approveLabel}}</button>
+<button class="btn btn-sm btn-danger" type="button" disabled="{{busy}}" aria-expanded="{{r.open}}" onClick="{{r.openReject}}">Reject</button>
+</span>
+</div>
+<sc-if value="{{r.open}}" hint-placeholder-val="{{ false }}">
+<form onSubmit="{{r.sendReject}}" style="margin: 0 22px 16px; padding: 18px; border-radius: 14px; background: #1d2a26; border: 1px solid #2f413b; display: flex; flex-direction: column; gap: 10px">
+<label for="reason-{{r.id}}" style="font-size: 13px; font-weight: 600; color: #d6dedb">Reason for rejection</label>
+<textarea id="reason-{{r.id}}" class="input" rows="2" placeholder="The user will see this in their wallet" value="{{reason}}" onInput="{{onReason}}" style="resize: vertical"></textarea>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px">
+<span style="font-size: 12px; color: #8d9b96">{{rejectHint}}</span>
+<span style="display: flex; gap: 8px">
+<button class="btn btn-sm" type="button" onClick="{{closeReject}}">Cancel</button>
+<button class="btn btn-sm btn-danger" type="submit" disabled="{{reasonEmpty}}" style="background: rgba(235,100,100,.14)">Send rejection</button>
+</span>
+</div>
+</form>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{noPending}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 40px 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8fe0b4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"></path></svg><strong style="font-size: 15px">All caught up</strong><span style="font-size: 14px; color: #a9b6b1">No requests are waiting for a decision.</span></div>
+</sc-if>
+</section>
+
+<section aria-labelledby="d-h" style="background: #182320; border: 1px solid #24332e; border-radius: 20px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 22px; border-bottom: 1px solid #24332e">
+<h2 id="d-h" style="margin: 0; font-size: 20px; font-weight: 800">Decided</h2>
+<span style="font-size: 13px; color: #a9b6b1">{{decidedCount}} requests</span>
+</div>
+<div style="overflow-x: auto">
+<div style="min-width: 920px">
+<div aria-hidden="true" style="display: grid; grid-template-columns: 0.8fr 0.7fr 0.8fr 1.2fr 0.8fr 2fr; gap: 16px; padding: 12px 22px; border-bottom: 1px solid #24332e"><span class="th">Kind</span><span class="th">User</span><span class="th" style="text-align: right">Amount</span><span class="th">Submitted</span><span class="th">Outcome</span><span class="th">Reason</span></div>
+<sc-for list="{{decided}}" as="r" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 0.8fr 0.7fr 0.8fr 1.2fr 0.8fr 2fr; gap: 16px; align-items: center; padding: 13px 22px; border-bottom: 1px solid #1f2c28; font-size: 14px">
+<span><span class="badge k-{{r.kind}}">{{r.kindLabel}}</span></span>
+<span class="mono">{{r.user}}</span>
+<span style="text-align: right; font-weight: 700">{{r.amountLabel}} EC</span>
+<span style="color: #cfd8d4">{{r.date}}</span>
+<span><span class="badge s-{{r.status}}">{{r.statusLabel}}</span></span>
+<span style="color: {{r.reasonColor}}">{{r.reasonText}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"showServerError":{"editor":"boolean","default":false,"section":"States"},"$preview":{"width":1440,"height":1600}}'>
+function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+var KIND = { TopUp: 'Top-up', Withdrawal: 'Withdrawal' };
+var STATUS = { Approved: 'odobren', Rejected: 'odbijen' };
+var PENDING = [
+  { id: 'p1', kind: 'Withdrawal', user: 'u-1043', amount: 1000, date: '10 Nov 2026 · 10:15' },
+  { id: 'p2', kind: 'TopUp', user: 'u-2210', amount: 2500, date: '10 Nov 2026 · 16:02' },
+  { id: 'p3', kind: 'Withdrawal', user: 'u-1987', amount: 1200, date: '11 Nov 2026 · 07:45' },
+  { id: 'p4', kind: 'TopUp', user: 'u-1043', amount: 1500, date: '11 Nov 2026 · 08:50' }
+];
+var DECIDED = [
+  { kind: 'TopUp', user: 'u-1043', amount: 2000, date: '8 Nov 2026 · 18:40', status: 'Approved' },
+  { kind: 'TopUp', user: 'u-1043', amount: 3000, date: '7 Nov 2026 · 11:05', status: 'Rejected', reason: 'Uplata nije pronađena na računu platforme.' },
+  { kind: 'Withdrawal', user: 'u-1043', amount: 800, date: '5 Nov 2026 · 14:30', status: 'Approved' },
+  { kind: 'Withdrawal', user: 'u-2210', amount: 400, date: '4 Nov 2026 · 12:00', status: 'Rejected', reason: 'Nedovoljno podataka o autoru.' },
+  { kind: 'TopUp', user: 'u-1987', amount: 6000, date: '3 Nov 2026 · 09:10', status: 'Approved' },
+  { kind: 'TopUp', user: 'u-1043', amount: 5000, date: '1 Nov 2026 · 09:20', status: 'Approved' }
+];
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pending: PENDING, decided: DECIDED, open: null, reason: '', busy: null };
+  }
+  componentWillUnmount() { if (this.t) clearTimeout(this.t); }
+  decide(r, status, reason) {
+    var self = this;
+    this.setState({ busy: r.id });
+    this.t = setTimeout(function () {
+      var s = self.state;
+      self.setState({
+        busy: null, open: null, reason: '',
+        pending: s.pending.filter(function (x) { return x.id !== r.id; }),
+        decided: [Object.assign({}, r, { status: status, reason: reason })].concat(s.decided)
+      });
+    }, 700);
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    return {
+      showError: this.props.showServerError ?? false,
+      busy: s.busy !== null,
+      pendingCount: s.pending.length, noPending: s.pending.length === 0,
+      decidedCount: s.decided.length,
+      reason: s.reason, reasonEmpty: !s.reason.trim(),
+      rejectHint: s.reason.trim() ? 'The user will see this reason.' : 'Enter a reason to enable sending.',
+      onReason: function (e) { self.setState({ reason: e.target.value }); },
+      closeReject: function () { self.setState({ open: null, reason: '' }); },
+      pending: s.pending.map(function (r) {
+        return Object.assign({}, r, {
+          kindLabel: KIND[r.kind], amountLabel: fmt(r.amount),
+          open: s.open === r.id,
+          approveLabel: s.busy === r.id ? 'Saving…' : 'Approve',
+          approve: function () { self.decide(r, 'Approved', ''); },
+          openReject: function () { self.setState({ open: s.open === r.id ? null : r.id, reason: '' }); },
+          sendReject: function (e) { e.preventDefault(); if (s.reason.trim()) self.decide(r, 'Rejected', s.reason.trim()); }
+        });
+      }),
+      decided: s.decided.map(function (r) {
+        return Object.assign({}, r, { kindLabel: KIND[r.kind], amountLabel: fmt(r.amount), statusLabel: STATUS[r.status], reasonText: r.reason || '—', reasonColor: r.reason ? '#eef2ef' : '#8d9b96' });
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

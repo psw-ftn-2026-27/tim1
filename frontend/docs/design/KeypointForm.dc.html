@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Add or edit keypoint</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#131c1a;color:#eef2ef;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#F5A262}a:hover{color:#FFC08E}
+:focus-visible{outline:2px solid #F08A3C;outline-offset:2px}
+.nav{padding:8px 14px;border-radius:10px;color:#cfd8d4;text-decoration:none;font-weight:600;font-size:15px}
+.nav:hover{background:#1f2c28;color:#fff}
+.nav[aria-current="page"]{background:rgba(240,138,60,.14);color:#F5A262}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:1px solid #2f413b;background:#182320;color:#eef2ef;font:600 14px Inter,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#21302b;color:#fff}
+.btn-primary{background:#F08A3C;border-color:#F08A3C;color:#1e1206}
+.btn-primary:hover{background:#F59B55;color:#1e1206}
+.input{width:100%;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #2f413b;background:#131c1a;color:#eef2ef;font:400 14px Inter,sans-serif}
+.input::placeholder{color:#8d9b96}
+.input:focus{outline:2px solid #F08A3C;outline-offset:1px;border-color:transparent}
+.input[aria-invalid="true"]{border-color:#e98a8a}
+.lbl{font-size:13px;font-weight:600;color:#d6dedb}
+.hint{font-size:12px;line-height:1.5;color:#8d9b96}
+.err{font-size:13px;color:#f2a8a8}
+.seg{min-height:40px;padding:0 14px;border-radius:10px;border:0;background:transparent;color:#a9b6b1;font:600 13px Inter,sans-serif;cursor:pointer}
+.seg:hover{color:#fff}
+.seg[aria-pressed="true"]{background:#F08A3C;color:#1e1206}
+.drop{position:relative;display:flex;align-items:center;gap:14px;padding:14px;border-radius:14px;border:1px dashed #3a4c46;background:#131c1a;cursor:pointer}
+.drop:hover{border-color:#F08A3C}
+.drop:has(input:focus-visible){outline:2px solid #F08A3C;outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.toggle{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;border:1px solid #2f413b;background:#131c1a;cursor:pointer}
+.toggle:has(input:checked){border-color:rgba(74,190,130,.55);background:rgba(74,190,130,.07)}
+.toggle input{accent-color:#F08A3C;width:20px;height:20px;margin:1px 0 0;flex:0 0 auto}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #131c1a; color: #eef2ef">
+
+<header style="border-bottom: 1px solid #22302c">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #eef2ef">
+<span style="width: 36px; height: 36px; border-radius: 999px; background: #F08A3C; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e1206" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19 10 7l4 6 2-3 5 9z"></path></svg></span>
+<span style="font-family: Nunito, sans-serif; font-weight: 900; font-size: 22px">Explorer</span>
+</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto">
+<a class="nav" href="#">Home</a>
+<a class="nav" href="Main.dc.html" aria-current="page">Exploration</a>
+<a class="nav" href="#">Games</a>
+<a class="nav" href="#">Social</a>
+<a class="nav" href="#">Payment</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 999px; background: #24332e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">S</span>
+<span style="font-size: 14px; color: #cfd8d4">student1@example.com</span>
+<button class="btn" type="button" style="min-height: 40px">Logout</button>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 28px 24px 72px">
+<nav aria-label="Breadcrumb" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; color: #a9b6b1; margin-bottom: 16px">
+<a href="MyTours.dc.html" style="text-decoration: none">My tours</a><span aria-hidden="true">/</span><a href="ManageTour.dc.html" style="text-decoration: none">Šetnja Petrovaradinskom tvrđavom</a><span aria-hidden="true">/</span><span style="color: #eef2ef">{{title}}</span>
+</nav>
+<h1 style="margin: 0 0 24px; font-family: Nunito, sans-serif; font-weight: 900; font-size: 38px; line-height: 1.1">{{title}}</h1>
+
+<sc-if value="{{showError}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 12px; padding: 14px 16px; margin-bottom: 20px; border-radius: 14px; background: rgba(235,100,100,.1); border: 1px solid rgba(235,110,110,.4); color: #f4b3b3; font-size: 14px; line-height: 1.55">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5v.5"></path></svg>
+<span><strong>Keypoint not saved.</strong> The tour was archived in another window, and keypoints of an archived tour can’t be changed.</span>
+</div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<form onSubmit="{{submit}}" novalidate="novalidate" style="flex: 2 1 420px; min-width: 0; background: #182320; border: 1px solid #24332e; border-radius: 20px; padding: 26px; display: flex; flex-direction: column; gap: 22px">
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="kname" class="lbl">Name</label>
+<input id="kname" class="input" type="text" placeholder="e.g. Sahat kula" value="{{name}}" onInput="{{onName}}" aria-invalid="{{nameInvalid}}">
+<sc-if value="{{nameInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">Enter a name.</span></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="kdesc" class="lbl">Description</label>
+<textarea id="kdesc" class="input" rows="4" placeholder="What will tourists see here?" value="{{desc}}" onInput="{{onDesc}}" aria-invalid="{{descInvalid}}" style="resize: vertical; line-height: 1.6"></textarea>
+<sc-if value="{{descInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">Enter a description.</span></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span class="lbl" id="photo-l">Photo</span>
+<label class="drop" aria-labelledby="photo-l">
+<input class="sr-only" type="file" accept="image/*" onChange="{{onPhoto}}">
+<sc-if value="{{hasPhoto}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="88" height="64" viewBox="0 0 88 64" style="flex: 0 0 auto; border-radius: 10px"><rect width="88" height="64" fill="#2b4a55"></rect><circle cx="66" cy="20" r="9" fill="#f0c58f"></circle><path d="M0 50 L24 28 L42 44 L60 24 L88 48 L88 64 L0 64Z" fill="#20403f"></path></svg></sc-if>
+<sc-if value="{{noPhoto}}" hint-placeholder-val="{{ true }}"><span style="flex: 0 0 auto; width: 64px; height: 64px; border-radius: 12px; background: #1f2c28; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"></path></svg></span></sc-if>
+<span style="display: flex; flex-direction: column; gap: 2px"><strong style="font-size: 14px">{{photoTitle}}</strong><span class="hint">JPG or PNG, up to 5 MB</span></span>
+</label>
+<sc-if value="{{photoInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">Add a photo of the keypoint.</span></sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<label for="ksecret" class="lbl">Secret <span style="font-weight: 400; color: #8d9b96">(optional)</span></label>
+<textarea id="ksecret" class="input" rows="3" placeholder="A hidden fact or task, revealed when a buyer reaches this point" value="{{secret}}" onInput="{{onSecret}}" aria-invalid="{{secretInvalid}}" aria-describedby="secret-hint" style="resize: vertical; line-height: 1.6"></textarea>
+<span id="secret-hint" class="hint">{{secretHint}}</span>
+<sc-if value="{{secretInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">This tour has buyers, so an existing secret can’t be removed. You can change its text.</span></sc-if>
+</div>
+
+<label class="toggle">
+<input type="checkbox" checked="{{pub}}" onChange="{{togglePub}}">
+<span style="display: flex; flex-direction: column; gap: 3px"><strong style="font-size: 14px">Keypoint is publicly visible</strong><span class="hint">Public keypoints are shown to tourists before they buy the tour, without the secret. Others stay hidden until purchase.</span></span>
+</label>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span class="lbl">Location</span>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 44px; padding: 10px 14px; border-radius: 12px; border: 1px solid {{locBorder}}; background: #131c1a; font-size: 14px">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A262" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>
+<span style="color: {{locColor}}">{{locLabel}}</span>
+</div>
+<sc-if value="{{locInvalid}}" hint-placeholder-val="{{ false }}"><span class="err">Choose a location on the map.</span></sc-if>
+</div>
+
+<sc-if value="{{saved}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="padding: 14px 16px; border-radius: 14px; background: rgba(74,190,130,.12); border: 1px solid rgba(74,190,130,.4); color: #a8e8c4; font-size: 14px">Keypoint saved. <a href="ManageTour.dc.html">Back to Manage tour</a></div>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding-top: 8px; border-top: 1px solid #24332e">
+<a class="btn" href="ManageTour.dc.html">Cancel</a>
+<button class="btn btn-primary" type="submit">Save keypoint</button>
+</div>
+</form>
+
+<section aria-label="Choose location" style="flex: 3 1 520px; min-width: 0; background: #182320; border: 1px solid #24332e; border-radius: 20px; overflow: hidden">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #24332e">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 800">Click the map to place the keypoint</h2>
+<span style="font-size: 12px; color: #a9b6b1">Existing keypoints and the route are shown for orientation</span>
+</div>
+<div role="group" aria-label="Travel mode" style="display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: #131c1a; border: 1px solid #24332e">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<button class="seg" type="button" aria-pressed="{{m.on}}" onClick="{{m.pick}}">{{m.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{noRoute}}" hint-placeholder-val="{{ false }}">
+<div role="status" style="display: flex; gap: 10px; padding: 12px 16px; background: rgba(232,190,90,.1); border-bottom: 1px solid rgba(232,190,90,.3); color: #f0d79a; font-size: 13px; line-height: 1.5"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="flex: 0 0 auto; margin-top: 2px"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17v.5"></path></svg><span>A route for {{modeName}} can’t be drawn between these points. Straight lines are shown instead.</span></div>
+</sc-if>
+<svg role="img" aria-label="Map. Click to choose the keypoint location." width="100%" height="520" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice" onClick="{{onMapClick}}" style="display: block; cursor: crosshair"><rect width="800" height="520" fill="#1a2724"></rect><path d="M-20 400 C 150 360, 260 450, 420 400 S 700 320, 830 370 L830 520 L-20 520Z" fill="#20404a"></path><path d="M0 60 H800 M0 150 H800 M0 230 H800 M0 310 H800 M100 0 V520 M260 0 V520 M410 0 V520 M560 0 V520 M700 0 V520" stroke="#22332f" stroke-width="8"></path><path d="M240 70 L400 64 L420 200 L270 210Z" fill="#1f3329" stroke="#2c4a3c" stroke-width="2"></path><path d="{{routeD}}" fill="none" stroke="#F5A262" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{{dash}}" opacity="0.9"></path><circle cx="180" cy="120" r="15" fill="#3a4c46" stroke="#131c1a" stroke-width="4"></circle><text x="180" y="125" text-anchor="middle" font-family="Inter" font-weight="700" font-size="13" fill="#eef2ef">1</text><circle cx="330" cy="90" r="15" fill="{{pin2Fill}}" stroke="#131c1a" stroke-width="4"></circle><text x="330" y="95" text-anchor="middle" font-family="Inter" font-weight="700" font-size="13" fill="#eef2ef">2</text><circle cx="480" cy="190" r="15" fill="#3a4c46" stroke="#131c1a" stroke-width="4"></circle><text x="480" y="195" text-anchor="middle" font-family="Inter" font-weight="700" font-size="13" fill="#eef2ef">3</text><circle cx="640" cy="270" r="15" fill="#3a4c46" stroke="#131c1a" stroke-width="4"></circle><text x="640" y="275" text-anchor="middle" font-family="Inter" font-weight="700" font-size="13" fill="#eef2ef">4</text><g visibility="{{newVis}}"><circle cx="{{px}}" cy="{{py}}" r="26" fill="#F08A3C" opacity="0.25"></circle><circle cx="{{px}}" cy="{{py}}" r="14" fill="#F08A3C" stroke="#131c1a" stroke-width="4"></circle></g></svg>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 16px; border-top: 1px solid #24332e; font-size: 13px; color: #a9b6b1">
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #3a4c46"></span>Existing keypoints</span>
+<span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 12px; height: 12px; border-radius: 999px; background: #F08A3C"></span>{{pinLegend}}</span>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["add","edit","edit-with-buyers"],"default":"add","section":"States"},"routeUnavailable":{"editor":"boolean","default":false,"section":"States"},"showServerError":{"editor":"boolean","default":false,"section":"States"},"$preview":{"width":1440,"height":1500}}'>
+var PTS = [{ x: 180, y: 120 }, { x: 330, y: 90 }, { x: 480, y: 190 }, { x: 640, y: 270 }];
+var EDIT = { name: 'Sahat kula', desc: 'Simbol tvrđave sa obrnutim kazaljkama. Odavde se pruža pogled na Stari grad i Dunav.', secret: 'Mala kazaljka pokazuje minute, a velika sate, da bi ih ribari videli sa reke.', pub: true, photo: true, loc: { x: 330, y: 90 } };
+function toLat(y) { return (45.2580 - y * 0.000035).toFixed(5); }
+function toLng(x) { return (19.8560 + x * 0.000048).toFixed(5); }
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var editing = (props.mode ?? 'add') !== 'add';
+    this.state = editing
+      ? { name: EDIT.name, desc: EDIT.desc, secret: EDIT.secret, pub: EDIT.pub, photo: true, loc: EDIT.loc, travel: 'walk', touched: false, saved: false, forMode: props.mode }
+      : { name: '', desc: '', secret: '', pub: false, photo: false, loc: null, travel: 'walk', touched: false, saved: false, forMode: 'add' };
+  }
+  componentDidUpdate() {
+    var m = this.props.mode ?? 'add';
+    if (m !== this.state.forMode) {
+      var editing = m !== 'add';
+      this.setState(editing
+        ? { name: EDIT.name, desc: EDIT.desc, secret: EDIT.secret, pub: EDIT.pub, photo: true, loc: EDIT.loc, touched: false, saved: false, forMode: m }
+        : { name: '', desc: '', secret: '', pub: false, photo: false, loc: null, touched: false, saved: false, forMode: m });
+    }
+  }
+  renderVals() {
+    var s = this.state, self = this;
+    var m = this.props.mode ?? 'add';
+    var editing = m !== 'add', buyers = m === 'edit-with-buyers';
+    var straight = s.travel === 'car' || (this.props.routeUnavailable ?? false);
+    var pts = PTS.slice();
+    if (!editing && s.loc) pts.push(s.loc);
+    var d = pts.map(function (p, i) { return i === 0 ? 'M' + p.x + ' ' + p.y : straight ? 'L' + p.x + ' ' + p.y : (s.travel === 'walk' ? 'H' + p.x + ' V' + p.y : 'V' + p.y + ' H' + p.x); }).join(' ');
+    var bad = { name: !s.name.trim(), desc: !s.desc.trim(), photo: !s.photo, loc: !s.loc, secret: buyers && !s.secret.trim() };
+    var show = s.touched;
+    var names = { walk: 'walking', bike: 'bicycle', car: 'car' };
+    return {
+      title: editing ? 'Edit keypoint' : 'Add keypoint',
+      showError: this.props.showServerError ?? false,
+      name: s.name, desc: s.desc, secret: s.secret, pub: s.pub,
+      onName: function (e) { self.setState({ name: e.target.value, saved: false }); },
+      onDesc: function (e) { self.setState({ desc: e.target.value, saved: false }); },
+      onSecret: function (e) { self.setState({ secret: e.target.value, saved: false }); },
+      togglePub: function () { self.setState({ pub: !s.pub }); },
+      onPhoto: function () { self.setState({ photo: true }); },
+      hasPhoto: s.photo, noPhoto: !s.photo, photoTitle: s.photo ? 'sahat-kula.jpg · Replace photo' : 'Upload a photo',
+      nameInvalid: show && bad.name, descInvalid: show && bad.desc, photoInvalid: show && bad.photo, locInvalid: show && bad.loc, secretInvalid: bad.secret,
+      secretHint: buyers ? 'This tour has buyers: you can change the secret or add one, but not remove it.' : 'Buyers see the secret only when they reach this keypoint.',
+      locLabel: s.loc ? 'Lat ' + toLat(s.loc.y) + ' · Lng ' + toLng(s.loc.x) : 'No location yet. Click on the map.',
+      locColor: s.loc ? '#eef2ef' : '#8d9b96',
+      locBorder: show && bad.loc ? '#e98a8a' : '#2f413b',
+      saved: s.saved,
+      modes: [['walk', 'Walking'], ['bike', 'Bicycle'], ['car', 'Car']].map(function (x) { return { label: x[1], on: s.travel === x[0] ? 'true' : 'false', pick: function () { self.setState({ travel: x[0] }); } }; }),
+      noRoute: straight, modeName: names[s.travel], routeD: d, dash: straight ? '4 12' : 'none',
+      pin2Fill: editing ? '#F08A3C' : '#3a4c46',
+      newVis: s.loc && !(editing && s.loc === EDIT.loc) ? 'visible' : 'hidden',
+      px: s.loc ? s.loc.x : 0, py: s.loc ? s.loc.y : 0,
+      pinLegend: editing ? 'Keypoint you are editing' : 'New keypoint',
+      onMapClick: function (e) {
+        var svg = e.currentTarget, pt = svg.createSVGPoint();
+        pt.x = e.clientX; pt.y = e.clientY;
+        var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+        self.setState({ loc: { x: Math.round(p.x), y: Math.round(p.y) }, saved: false });
+      },
+      submit: function (e) {
+        e.preventDefault();
+        var ok = !(bad.name || bad.desc || bad.photo || bad.loc || bad.secret);
+        self.setState({ touched: true, saved: ok });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

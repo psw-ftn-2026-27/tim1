@@ -1,55 +1,114 @@
-<div class="stack">
-  <p><a routerLink="/social">Back to blogs</a></p>
+<div class="page-narrow">
+  <a class="back" routerLink="/social">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+    <span>All blogs</span>
+  </a>
 
   @if (error()) {
-    <p class="error">{{ error() }}</p>
+    <p class="alert alert--danger" role="alert">{{ error() }}</p>
   }
 
   @if (detail.isLoading()) {
-    <p>Loading blog...</p>
+    <p class="empty empty--boxed">Loading blog…</p>
   } @else if (detail.error()) {
-    <p class="error">Could not load the blog. Log in and try again.</p>
+    <div class="empty empty--boxed">
+      <p>Could not load the blog. Log in and try again.</p>
+    </div>
   } @else {
     @if (detail.value(); as blog) {
-      <h1>{{ blog.title }}</h1>
+      <header class="blog-header">
+        <div class="title-row">
+          <h1>{{ blog.title }}</h1>
+          @if (blog.status === 'Published') {
+            <span class="badge badge--success">Published</span>
+          } @else if (blog.status === 'Archived') {
+            <span class="badge">Archived</span>
+          }
+        </div>
+        <!-- Čeka backend: BlogDetailDto ima samo authorId, pa avatar i ime autora za sada ne mogu da se prikažu. -->
+        <p class="meta">
+          Created {{ formatDate(blog.createdAt) }} · Updated {{ formatDate(blog.lastModifiedAt) }}
+        </p>
+      </header>
+
+      @if (blog.status === 'Archived') {
+        <p class="notice">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1" /><path d="M5 9v10h14V9M10 13h4" /></svg>
+          <span>This blog is archived. Its content may no longer be accurate, and comments and voting are closed.</span>
+        </p>
+      }
+
+      @if (blog.images.length > 0) {
+        <section class="gallery" aria-label="Images">
+          <app-protected-image
+            class="thumb thumb--wide gallery-main"
+            [src]="'/api/social/blogs/' + blog.id + '/images/' + (blog.images[activeImage()] ?? blog.images[0])"
+          />
+          @if (blog.images.length > 1) {
+            <div class="gallery-thumbs">
+              @for (imageId of blog.images; track imageId; let index = $index) {
+                <button
+                  class="gallery-thumb"
+                  type="button"
+                  [class.is-active]="index === activeImage()"
+                  [attr.aria-label]="'Show image ' + (index + 1)"
+                  [attr.aria-pressed]="index === activeImage()"
+                  (click)="activeImage.set(index)"
+                >
+                  <app-protected-image
+                    class="thumb"
+                    [src]="'/api/social/blogs/' + blog.id + '/images/' + imageId"
+                  />
+                </button>
+              }
+            </div>
+          }
+        </section>
+      }
 
       <app-blog-description [markdown]="blog.description" />
 
-      @for (imageId of blog.images; track imageId) {
-        <app-protected-image [src]="'/api/social/blogs/' + blog.id + '/images/' + imageId" />
-      }
-
-      <p class="meta">Status: {{ blog.status }}</p>
-
-      <p class="meta">Created: {{ formatDate(blog.createdAt) }}</p>
-
-      <p class="meta">Last modified: {{ formatDate(blog.lastModifiedAt) }}</p>
-
-      <section class="votes">
-        @if (blog.status !== 'Archived') {
-          <button
-            class="button"
-            type="button"
-            [class.button--primary]="blog.myVote === 'Upvote'"
-            [attr.aria-pressed]="blog.myVote === 'Upvote'"
-            (click)="vote('Upvote')"
+      <section class="card votes" aria-label="Voting">
+        <div class="score-box">
+          <strong
+            class="score"
+            [class.score--positive]="blog.score > 0"
+            [class.score--negative]="blog.score < 0"
           >
-            Upvote
-          </button>
-        }
+            {{ formatScore(blog.score) }}
+          </strong>
+          <span class="meta">score</span>
+        </div>
 
-        <span>Score: {{ blog.score }}</span>
-
-        @if (blog.status !== 'Archived') {
-          <button
-            class="button"
-            type="button"
-            [class.button--primary]="blog.myVote === 'Downvote'"
-            [attr.aria-pressed]="blog.myVote === 'Downvote'"
-            (click)="vote('Downvote')"
-          >
-            Downvote
-          </button>
+        @if (blog.status === 'Archived') {
+          <p class="votes-text meta">Voting is closed on archived blogs.</p>
+        } @else {
+          <p class="votes-text">Was this blog worth reading?</p>
+          <div class="form-actions">
+            <!-- Ponovni klik na isti glas ga uklanja; to odlučuje server, klijent samo šalje. -->
+            <button
+              class="button"
+              type="button"
+              [class.is-selected]="blog.myVote === 'Upvote'"
+              [attr.aria-pressed]="blog.myVote === 'Upvote'"
+              [disabled]="pending()"
+              (click)="vote('Upvote')"
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l7 8h-4.5v6h-5v-6H5z" /></svg>
+              <span>Upvote</span>
+            </button>
+            <button
+              class="button"
+              type="button"
+              [class.is-selected]="blog.myVote === 'Downvote'"
+              [attr.aria-pressed]="blog.myVote === 'Downvote'"
+              [disabled]="pending()"
+              (click)="vote('Downvote')"
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-8h-4.5V5h-5v6H5z" /></svg>
+              <span>Downvote</span>
+            </button>
+          </div>
         }
       </section>
 
@@ -57,6 +116,7 @@
         [comments]="blog.comments"
         [currentUserId]="auth.user()?.id ?? null"
         [archived]="blog.status === 'Archived'"
+        [disabled]="pending()"
         (addComment)="add($event)"
         (editComment)="edit($event)"
         (deleteComment)="remove($event)"

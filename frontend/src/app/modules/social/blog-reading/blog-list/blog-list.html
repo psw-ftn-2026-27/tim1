@@ -1,55 +1,88 @@
 <div class="stack">
-  <div class="header">
-    <h1>Blogs</h1>
+  <div class="page-top">
+    <nav class="tabs" aria-label="Social">
+      <a routerLink="/social" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">All blogs</a>
+      <a routerLink="/social/mine" routerLinkActive="active" ariaCurrentWhenActive="page">My blogs</a>
+      <a routerLink="/social/clubs" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Clubs</a>
+      <a routerLink="/social/clubs/mine" routerLinkActive="active" ariaCurrentWhenActive="page">My clubs</a>
+    </nav>
 
     @if (auth.isLoggedIn()) {
-      <div class="side">
-        <div class="profile">
-          <span class="profile-icon" aria-hidden="true">👤</span>
-          <a class="count" routerLink="/social/followers">
-            <strong>{{ counts.value()?.followerCount ?? 0 }}</strong>
-            <span>followers</span>
-          </a>
-          <a class="count" routerLink="/social/following">
-            <strong>{{ counts.value()?.followingCount ?? 0 }}</strong>
-            <span>following</span>
-          </a>
-        </div>
-
-        <a
-          class="bell"
-          routerLink="/social/received-requests"
-          aria-label="Received requests"
-        >
-          🔔
-          @if ((pendingCount.value() ?? 0) > 0) {
-            <span class="dot"></span>
-          }
-        </a>
-      </div>
+      <a
+        class="icon-btn"
+        routerLink="/social/received-requests"
+        [attr.aria-label]="'Received follow requests, ' + (pendingCount.value() ?? 0) + ' pending'"
+      >
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2z" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>
+        @if ((pendingCount.value() ?? 0) > 0) {
+          <span class="dot"></span>
+        }
+      </a>
     }
   </div>
 
-  @if (auth.isLoggedIn()) {
-    <p class="links">
-      <a routerLink="/social/mine">My blogs</a>
-      <a routerLink="/social/create">Create blog</a>
-      <a routerLink="/social/follow-requests">Requests</a>
-      <a routerLink="/social/clubs">Clubs</a>
-    </p>
-  }
+  <div class="page-header">
+    <div>
+      <h1>Blogs</h1>
+      <p>Experiences from the community – what places look like and what you can do there.</p>
+    </div>
+  </div>
 
-  @if (blogs.isLoading()) {
-    <p>Loading blogs...</p>
-  } @else if (blogs.error()) {
-    <p class="error">Could not load blogs. Log in and try again.</p>
-  } @else {
-    <div class="grid">
-      @for (blog of blogs.value()?.items ?? []; track blog.id) {
-        <app-blog-card [blog]="blog" />
-      } @empty {
-        <p>No blogs published yet.</p>
+  <div class="layout-side">
+    @if (auth.isLoggedIn()) {
+      <aside class="layout-side__aside">
+        <section class="card network" aria-labelledby="network-title">
+          <div class="network-title">
+            <span class="empty-icon network-icon">
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" /></svg>
+            </span>
+            <h2 id="network-title">Your network</h2>
+          </div>
+
+          <div class="counts">
+            <a class="count" routerLink="/social/followers">
+              <strong>{{ counts.value()?.followerCount ?? 0 }}</strong>
+              <span>Followers</span>
+            </a>
+            <a class="count" routerLink="/social/following">
+              <strong>{{ counts.value()?.followingCount ?? 0 }}</strong>
+              <span>Following</span>
+            </a>
+          </div>
+
+          <div class="side-links">
+            <a routerLink="/social/follow-requests">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4z" /></svg>
+              <span>Sent requests</span>
+            </a>
+            <a routerLink="/social/people">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6" /></svg>
+              <span>Find people</span>
+            </a>
+          </div>
+        </section>
+      </aside>
+    }
+
+    <div class="layout-side__main">
+      @if (blogs.isLoading()) {
+        <p class="empty empty--boxed">Loading blogs…</p>
+      } @else if (blogs.error()) {
+        <p class="alert alert--danger">Could not load blogs. Log in and try again.</p>
+      } @else {
+        <div class="blog-grid">
+          @for (blog of blogs.value()?.items ?? []; track blog.id) {
+            <app-blog-card [blog]="blog" />
+          } @empty {
+            <div class="empty empty--boxed">
+              <span class="empty-icon">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12l4 4v12H4z" /><path d="M8 12h8M8 16h5" /></svg>
+              </span>
+              <p>No blogs have been published yet.</p>
+            </div>
+          }
+        </div>
       }
     </div>
-  }
+  </div>
 </div>

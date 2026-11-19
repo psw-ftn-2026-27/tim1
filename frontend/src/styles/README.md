@@ -4,8 +4,8 @@ Ovaj direktorijum drži izgled cele aplikacije. Pripada platformskom timu; timov
 koriste, ali ga ne menjaju. Ako vam treba nova boja ili nova globalna klasa, uputite zahtev
 po protokolu `docs/protocols/zahtevi-platformskom-timu.md`.
 
-> **Status:** nacrt (W1, D11 – Projektovanje teme i UI komponenti). Grana `platform/tema`,
-> još nije spojena u `development`. Otvorena pitanja su na kraju.
+> **Status:** paleta i klase su usklađene sa dizajnom u `frontend/docs/design/` (redizajn
+> Payment modula, grana `frontend/desing`). Otvorena pitanja su na kraju.
 
 ## Datoteke
 
@@ -16,11 +16,11 @@ po protokolu `docs/protocols/zahtevi-platformskom-timu.md`.
 | `_layout.scss` | `.container`, `.stack`, `.grid` i prelaz između stranica |
 | `_components.scss` | globalne klase: dugme, kartica, polje, tabela, poruka, bedž, iznos |
 
-Zaglavlje aplikacije (navigacija) nije ovde, već u `src/app/app.scss`. Levo je logo, isti
-SVG kao na naslovnoj, i vodi na početnu stranicu. Deo aplikacije u kom
-se korisnik nalazi označen je narandžastom bojom i linijom ispod linka; klasu `active`
-dodaje `routerLinkActive` (asistent ga je odobrio i dodat je u podskup u
-`frontend/AGENTS.md`).
+Zaglavlje aplikacije (navigacija) nije ovde, već u `src/app/app.scss`. Levo je logo
+(planina u narandžastom krugu i naziv) i vodi na početnu stranicu. Deo aplikacije u kom
+se korisnik nalazi ima blagu narandžastu podlogu; klasu `active` dodaje `routerLinkActive`
+(asistent ga je odobrio i dodat je u podskup u `frontend/AGENTS.md`). Desno su „Kolačići",
+krug sa prvim slovom emaila, email i Logout. Na uskom ekranu delovi prelaze u novi red.
 
 Prelaz između stranica je u `_layout.scss`: nova stranica se pojavi postepeno (250 ms, samo
 providnost). Bez pomeranja, jer bi `transform` poremetio pozadinu naslovne stranice koja
@@ -38,79 +38,77 @@ koristi `position: fixed`. Ko u sistemu uključi „smanji animacije", prelaz ne
 
 ## Paleta: „Noćna ekspedicija"
 
-Paleta je preuzeta sa naslovne stranice (`core/home`), da bi cela aplikacija izgledala kao
-njen nastavak. Osećaj: šuma u sumrak, logorska vatra, avantura.
+Tamna zeleno-narandžasta paleta, kao na naslovnoj stranici, u nijansama iz dizajna
+(`frontend/docs/design/`). Osećaj: šuma u sumrak, logorska vatra, avantura.
 
 ### Boje
 
 | Token | Vrednost | Upotreba |
 |---|---|---|
-| `--color-accent` | `#f28b43` narandžasta | **primarna**: primarna dugmad, linkovi, istaknute reči, fokus polja |
-| `--color-accent-hover` | `#f5a066` | primarna na hover (svetlija) |
-| `--color-accent-text` | `#101d1b` | tekst na primarnoj boji (**tamni**, ne beli) |
-| `--color-secondary` | `transparent` | sekundarno dugme je obrubljeno, bez pozadine |
-| `--color-secondary-hover` | `#273d37` | pozadina sekundarnog dugmeta na hover |
-| `--color-secondary-text` | `#f5f5ef` | tekst i ivica sekundarnog dugmeta |
-| `--color-gold` | `#e3a72f` senf | bedževi, titule, pečati „otkriveno"; kao pozadina **uvek sa tamnim tekstom** |
-| `--color-bg` | `#101d1b` tamna šumsko-zelena | pozadina stranice |
-| `--color-surface` | `#1c302c` | kartice, forme, polja za unos |
-| `--color-surface-hover` | `#273d37` | hover na dugmetu i redu tabele |
-| `--color-border` | `#424c4a` | ivice i linije |
-| `--color-text` | `#f5f5ef` topla bela | glavni tekst i naslovi |
-| `--color-text-muted` | `#c3c5c0` | opisi, oznake, `.meta` |
-| `--color-text-disabled` | `#7d8a86` | neaktivni elementi |
+| `--color-bg` | `#131c1a` | pozadina stranice i polja za unos |
+| `--color-surface` | `#182320` | kartice, paneli, dugme |
+| `--color-surface-raised` | `#1d2a26` | površina unutar kartice (npr. forma ispod reda tabele) |
+| `--color-surface-hover` | `#21302b` | hover na dugmetu i redu tabele |
+| `--color-surface-gift` | `#1d3a35` | tamnozelena površina: poklon kartica kupljena za drugog |
+| `--color-border` | `#24332e` | ivice kartica i linije |
+| `--color-border-field` | `#2f413b` | ivica polja i dugmeta |
+| `--color-text` | `#eef2ef` | glavni tekst i naslovi |
+| `--color-text-muted` | `#a9b6b1` | opisi, oznake, `.meta` |
+| `--color-text-subtle` | `#8d9b96` | najslabiji: zaglavlja tabela, napomene |
+| `--color-text-disabled` | `#8d9b96` | neaktivni elementi |
+| `--color-accent` | `#f08a3c` narandžasta | **primarna**: primarna dugmad, fokus, broj na tabu |
+| `--color-accent-hover` | `#f59b55` | primarna na hover |
+| `--color-accent-text` | `#1e1206` | tekst na primarnoj boji (**tamni**, ne beli) |
+| `--color-accent-bg` | narandžasta 14 % | blaga podloga: aktivni meni, bedž `--accent` |
+| `--color-link` / `-hover` | `#f5a262` / `#ffc08e` | narandžasta kao tekst: linkovi |
+| `--color-secondary` / `-hover` / `-text` | providna / narandžasta 10 % / `#f5a262` | sekundarno (obrubljeno) dugme |
+| `--color-gold` | `#e3a72f` senf | titule, pečati; kao pozadina **uvek sa tamnim tekstom** |
 
 Tema je tamna, pa `_tokens.scss` postavlja i `color-scheme: dark`: browser tada sam crta
 tamne scrollbarove, padajuće liste i kalendar u poljima za unos.
 
 ### Statusne boje
 
-Na tamnoj pozadini statusna boja je **svetla** (koristi se za tekst i ivicu), a njena
-pozadina (`-bg`) je tamna nijansa iste boje.
+Statusna boja je **svetla** i koristi se za tekst; pozadina (`-bg`) i ivica (`-border`) su
+ista boja, ali providna.
 
-| Token | Vrednost | Pozadina (`-bg`) |
-|---|---|---|
-| `--color-success` | `#7dd3a0` | `#18392c` |
-| `--color-warning` | `#e3a72f` senf | `#3a3018` |
-| `--color-danger` | `#ff8a7a` | `#3d1f1c` |
-| `--color-info` | `#7cc4e8` | `#16323f` |
+| Token | Tekst | Pozadina (`-bg`) | Ivica (`-border`) |
+|---|---|---|---|
+| `--color-success` | `#8fe0b4` | zelena 16 % | zelena 40 % |
+| `--color-warning` | `#f0cf78` | žuta 14 % | (boja teksta) |
+| `--color-danger` | `#f4b3b3` | crvena 10 % | crvena 40 % |
+| `--color-info` | `#c4dbf8` | plava 10 % | (boja teksta) |
+
+`--color-notification` (`#e5484d`) je crveni krug na ikonici kada ima nešto novo (npr. važeća
+primljena poklon kartica na ikonici poklona uz naslov „Wallet").
 
 ### Kontrast
 
-Tekst mora imati kontrast najmanje 4.5:1 prema pozadini (standard WCAG AA). Provereno:
-
-| Kombinacija | Kontrast | |
-|---|---|---|
-| `--color-text` na `--color-bg` / `--color-surface` | ~14:1 / ~11:1 | prolazi |
-| `--color-text-muted` na `--color-surface` | ~8:1 | prolazi |
-| tamni tekst (`--color-accent-text`) na `--color-accent` | ~7:1 | prolazi |
-| `--color-accent` kao tekst na `--color-bg` / `--color-surface` | ~7:1 / ~5.7:1 | prolazi |
-| `--color-accent` kao tekst na `--color-surface-hover` | ~4.7:1 | prolazi, tesno |
-| tamni tekst (`--color-bg`) na `--color-gold` | ~8:1 | prolazi |
-| statusna boja na svojoj `-bg` pozadini (sve četiri) | 6–7:1 | prolazi |
-| beli tekst na `--color-accent` | ~2:1 | **ne prolazi**, zato je tekst na narandžastoj tamni |
-| `--color-text-disabled` na `--color-surface` | nizak | dozvoljeno, pravilo ne važi za neaktivne elemente |
+Tekst mora imati kontrast najmanje 4.5:1 prema pozadini (standard WCAG AA). Tamni tekst na
+narandžastoj (`#1e1206` na `#f08a3c`) ima kontrast oko 7:1, a beli oko 2:1, zato je tekst
+na narandžastoj tamni. `--color-text-subtle` je samo za sporedan tekst (zaglavlja tabela,
+napomene), ne za sadržaj.
 
 ### Tipografija
 
 | Token | Vrednost | Upotreba |
 |---|---|---|
-| `--font-family` | Segoe UI, sistemski | sav tekst |
-| `--font-family-heading` | isto što i `--font-family` | naslovi `h1`–`h3` (boja: `--color-text`) |
-| `--font-weight-normal` / `-bold` / `-heading` | 400 / 600 / 800 | običan / istaknut / naslov |
-| `--letter-spacing-heading` | -0.01em | malo zbijenija slova u naslovima |
-| `--font-size-xs` … `-xl` | 0.75 / 0.875 / 1 / 1.25 / 1.75rem | xs bedž, sm oznake, md tekst, lg `h2`, xl `h1` |
+| `--font-family` | Inter | sav tekst |
+| `--font-family-heading` | Nunito | naslovi `h1`–`h3`, veliki iznosi |
+| `--font-family-mono` | sistemski monospace | identifikatori (npr. ID korisnika) |
+| `--font-weight-normal` / `-bold` / `-heading` / `-display` | 400 / 600 / 800 / 900 | običan / istaknut / naslov / `h1` i veliki iznosi |
+| `--font-size-xs` … `-xl`, `-2xl` | 0.75 / 0.875 / 1 / 1.25 / 1.75 / 2.75rem | xs bedž, sm oznake, md tekst, lg `h2`, 2xl `h1` (na telefonu xl) |
 
-Font već postoji na računaru korisnika, ništa se ne preuzima sa interneta. Istaknutu reč u
-naslovu, kao „poznato." na naslovnoj, obojite primarnom bojom u `.scss` svoje komponente:
-`color: var(--color-accent)`.
+Fontovi se učitavaju sa Google Fonts u `src/index.html` (Inter 400–700, Nunito 700–900;
+uključuju slova č, ć, đ, š, ž).
 
 ### Razmaci, zaobljenja, senke
 
 | Token | Vrednosti |
 |---|---|
 | `--space-1` … `--space-7` | 0.25 / 0.5 / 0.75 / 1 / 1.5 / 2 / 3rem |
-| `--radius-sm` / `--radius` / `--radius-lg` / `--radius-pill` | 0.25 / 0.5 / 1rem / potpuno zaobljeno |
+| `--radius-sm` / `--radius` / `--radius-lg` / `--radius-pill` | 0.25 / 0.75rem (dugme, polje) / 1.25rem (kartica) / potpuno zaobljeno (bedž) |
+| `--control-height` | 2.75rem (44px): najmanja visina dugmeta i polja |
 | `--shadow-sm` / `--shadow-md` | senka kartice / izraženija, na hover (jače nego na svetloj temi, inače se ne vide) |
 
 ## Katalog klasa
@@ -119,14 +117,15 @@ naslovu, kao „poznato." na naslovnoj, obojite primarnom bojom u `.scss` svoje 
 
 | Varijanta | Kada |
 |---|---|
-| `.button` | obična radnja („Otkaži", „Izmeni") |
+| `.button` | obična radnja („Otkaži", „Izmeni"): tamna površina sa ivicom |
 | `.button--primary` | glavna radnja na stranici („Sačuvaj", „Kupi turu", „Istraži ture") — jedna po formi |
-| `.button--secondary` | obrubljeno dugme uz primarno („Pogledaj blogove", „Registruj se") |
-| `.button--danger` | brisanje, arhiviranje |
+| `.button--secondary` | obrubljeno narandžasto dugme uz primarno („Request withdrawal") |
+| `.button--danger` | obrubljeno crveno: odbijanje, brisanje, arhiviranje |
 | `.button--ghost` | sporedna radnja koja ne sme da odvlači pažnju |
 | `.button--small` | dugme u redu tabele ili na kartici |
 
-Stanja su automatska: hover, fokus tastaturom (`:focus-visible`), `disabled`.
+Stanja su automatska: hover, fokus tastaturom (`:focus-visible`), `disabled` (dugme izbledi).
+Klasa važi i za link: `<a class="button" routerLink="…">`.
 **Učitavanje:** dugme dobija `disabled`, a tekst se menja, npr. „Čuvanje…".
 
 ```html
@@ -178,8 +177,45 @@ na koje se klikće.
 <p class="empty">Još nemaš nijednu kupovinu.</p>
 ```
 
-Red se osenči na hover. `.table--compact` daje manje razmake. `.empty` je poruka kada lista
-ili tabela nema stavki.
+Red se osenči na hover. `.table--compact` daje manje razmake. Zaglavlje kolona je malim
+velikim slovima.
+
+Tabela u kartici, sa naslovom i vodoravnim pomeranjem na telefonu:
+
+```html
+<section class="table-card">
+  <div class="table-card-header"><h2>My requests</h2><span class="meta">3 requests</span></div>
+  <div class="table-scroll"><table class="table">…</table></div>
+</section>
+```
+
+### Prazno stanje `.empty`
+
+```html
+<p class="empty">Još nemaš nijednu kupovinu.</p>
+
+<div class="empty empty--boxed">
+  <span class="empty-icon"><svg>…</svg></span>
+  <h2>Your cart is empty</h2>
+  <p>Find a tour you like and add it to your cart.</p>
+  <a class="button" routerLink="…">Browse products</a>
+</div>
+```
+
+`--boxed` dobija isprekidan okvir kada prazno stanje stoji samo, van kartice. Isti izgled
+ima i poruka o učitavanju. U tabeli prazno stanje ide u ćeliju:
+`<td colspan="4"><p class="empty">…</p></td>`.
+
+### Tabovi `.tabs`
+
+```html
+<nav class="tabs" aria-label="Payment">
+  <a routerLink="/payment" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Wallet</a>
+  <a routerLink="/payment/cart" routerLinkActive="active">Cart <span class="tab-count">2</span></a>
+</nav>
+```
+
+Za prelaz između srodnih stranica jednog modula. `.tab-count` je broj uz tab.
 
 ### Poruka na stranici `.alert`
 
@@ -189,6 +225,8 @@ ili tabela nema stavki.
 <p class="alert alert--danger">Kupon je istekao.</p>
 <p class="alert alert--info">Tura je dostupna i bez interneta.</p>
 ```
+
+Ikonica na početku poruke je inline SVG sa `stroke="currentColor"`, pa uzima boju poruke.
 
 Za grešku jednog polja koristite `.error` ispod polja, ne `.alert`.
 
@@ -200,6 +238,7 @@ Za grešku jednog polja koristite `.error` ispod polja, ne `.alert`.
 <span class="badge badge--warning">Na čekanju</span>
 <span class="badge badge--danger">Arhivirana</span>
 <span class="badge badge--info">Član kluba</span>
+<span class="badge badge--accent">U korpi</span>
 <span class="badge badge--gold">Otkriveno</span>
 ```
 
@@ -208,19 +247,104 @@ Za grešku jednog polja koristite `.error` ispod polja, ne `.alert`.
 ### Iznos `.amount`
 
 ```html
-<span class="amount">1.200,00 RSD</span>
-<span class="amount amount--old">1.500,00 RSD</span>
-<span class="amount amount--positive">+500,00 RSD</span>
-<span class="amount amount--negative">−1.200,00 RSD</span>
+<span class="amount">{{ formatAmount(price) }} EC</span>
+<span class="amount amount--old">1.500 EC</span>
+<span class="amount amount--positive">+500 EC</span>
+<span class="amount amount--negative">−1.200 EC</span>
 ```
+
+Broj se formatira funkcijom `formatAmount` iz `shared/util/format-amount.ts` (tačka za
+hiljade, zarez za decimale: `5.200`, `1.200,5`). Komponenta je izloži šablonu kao
+`protected readonly formatAmount = formatAmount;`.
 
 Cifre su iste širine, pa se iznosi u koloni tabele poravnavaju. `--old` je precrtana cena
 pored cene sa kuponom.
 
+### Izabrano dugme `.button.is-selected`
+
+```html
+<button class="button" [class.is-selected]="myVote() === 'Upvote'" [attr.aria-pressed]="myVote() === 'Upvote'">Upvote</button>
+```
+
+Dugme iz grupe koje je trenutno izabrano (npr. glas korisnika). Uvek ide uz `aria-pressed`.
+
+### Dugme sa ikonicom `.icon-btn` i kružić `.dot`
+
+```html
+<button class="icon-btn icon-btn--success" type="button" aria-label="Accept request from Ana">…svg…</button>
+<button class="icon-btn icon-btn--danger" type="button" aria-label="Reject request from Ana">…svg…</button>
+<a class="icon-btn" routerLink="/social/received-requests" aria-label="Received follow requests, 2 pending">
+  …svg…
+  <span class="dot"></span>
+</a>
+```
+
+Kvadrat 40×40 sa samo ikonicom, zato je `aria-label` obavezan. `.dot` je crveni kružić
+(`--color-notification`) u gornjem desnom uglu kad ima nešto novo.
+
+### Kartica u redu `.list-card`
+
+```html
+<div class="list-card">
+  <span class="list-card__avatar">A</span>
+  <div class="list-card__main"><strong>Ana</strong><span class="meta">Sent Nov 18, 2026</span></div>
+  <div class="list-card__end"><span class="badge badge--warning">Pending</span>…dugmad…</div>
+</div>
+```
+
+Za liste ljudi (zahtevi, pratioci, članovi, pozivi). Na uskom ekranu `__end` prelazi u novi
+red. `.confirm` unutar kartice zauzima ceo red.
+
+### Potvrda u redu `.confirm`
+
+```html
+<div class="confirm">
+  <span class="confirm__text">Archive this blog? It can’t be edited afterwards.</span>
+  <button class="button button--small button--primary" type="button">Confirm</button>
+  <button class="button button--small" type="button">Cancel</button>
+</div>
+```
+
+Projekat nema dijaloge: potvrda zamenjuje dugmad u istom redu tabele ili na istoj kartici.
+Otvorena je najviše jedna potvrda na stranici.
+
+### Sličica `.thumb`
+
+```html
+<img class="thumb" [src]="club.images[0]" alt="" />
+<app-protected-image class="thumb thumb--sm" [src]="…" />
+```
+
+Kvadrat 56px (`--sm`: 44px), slika ispunjava kvadrat (`object-fit: cover`). `--wide` je slika
+pune širine u odnosu 16:9 (naslovna slika kartice, velika slika galerije).
+
+### Obaveštenje `.notice`
+
+```html
+<p class="notice">…svg… This blog is archived. Comments and voting are closed.</p>
+```
+
+Neutralna traka za stanje koje nije greška (arhiviran blog, zatvoren klub). Za grešku se
+koristi `.alert--danger`.
+
+### Straničenje `.pager`
+
+```html
+<nav class="pager" aria-label="Pages">
+  <button class="button button--small" type="button">Previous</button>
+  <span class="meta">Page 1 of 3</span>
+  <button class="button button--small" type="button">Next</button>
+</nav>
+```
+
 ### Ostalo
 
-`.error` (tekst greške), `.meta` (sporedan tekst), a iz `_layout.scss`: `.container`,
-`.stack` (vertikalni razmak između dece), `.grid` (mreža kartica).
+`.error` (tekst greške), `.meta` (sporedan tekst), `.back` (veza nazad na vrhu stranice,
+„← Blogs"), a iz `_layout.scss`: `.container`, `.stack` (vertikalni razmak između dece),
+`.grid` (mreža kartica), `.page-header` (vrh stranice: levo `h1` i podnaslov u `p`, desno
+tabovi ili dugmad), `.page-narrow` (uska kolona do 820px) i `.layout-side` sa `__aside`
+(oko 260px) i `__main` (dve kolone koje se na telefonu slažu jedna ispod druge; kolona koja
+je prva u kodu stoji levo).
 
 ## Odluke
 
@@ -232,14 +356,25 @@ pored cene sa kuponom.
 - **Tekst na narandžastoj je tamni.** Beli tekst na `#f28b43` ima kontrast oko 2:1, a tamni
   oko 7:1. Isto važi za senf.
 - **Kartica je neutralna površina.** Boju nose sadržaj i dugmad, ne kartica.
-- **Sistemski font, bez web fonta.** Naslovi se izdvajaju debljinom (800), kao na naslovnoj,
-  a ne posebnim fontom. Nema nove zavisnosti ni zahteva ka spoljnom servisu.
+- **Web fontovi (Inter, Nunito) umesto sistemskog fonta**, da bi aplikacija izgledala kao
+  dizajn. Ranija odluka (sistemski font, bez zahteva ka spoljnom servisu) je napuštena;
+  posledica je da browser pri svakom učitavanju šalje zahtev serverima Google Fonts.
 - **Nazivi tokena se ne menjaju.** Primarna boja i dalje je `--color-accent`, jer je moduli
   već koriste; promenjene su samo vrednosti.
 - **`--color-highlight` je uklonjen.** Imao je istu vrednost kao primarna boja i nije ga
   koristila nijedna klasa. Ako ikonice kasnije dobiju posebnu boju, token se vraća.
-- **Sekundarno dugme je obrubljeno**, kao „Pogledaj blogove" na naslovnoj. Druga puna boja
-  pored narandžaste bi se otimala za pažnju.
+- **Sekundarno dugme je obrubljeno narandžastom**, a obično dugme (`.button`) je tamna
+  površina sa ivicom. Druga puna boja pored narandžaste bi se otimala za pažnju.
+- **Neaktivno dugme samo izbledi** (`opacity: 0.4`), pa se i dalje vidi koje je vrste.
+- **Klase iz redizajna Social-a su globalne iako ih za sada koristi samo Social.**
+  `.list-card`, `.icon-btn`, `.dot`, `.confirm`, `.thumb`, `.notice`, `.pager`, `.back`,
+  `.page-narrow` i `.layout-side` koriste dve ili više stranica, a isti obrasci (lista
+  ljudi, potvrda u redu, veza nazad) postoje i u Payment-u i Games-u. Zato su odmah
+  globalne, a ne kopirane u petnaestak komponenti. Ovo je izuzetak od pravila „više od
+  jednog modula" iz `frontend/AGENTS.md`.
+- **Statusni tokeni se nisu menjali u redizajnu Social-a.** Skica ima malo drugačije
+  vrednosti (npr. `#7fd6a4` za uspeh), ali tokeni `--color-success`, `-warning`, `-danger`
+  i `-info` već postoje i važe za celu aplikaciju.
 
 ## Za timove modula
 
@@ -248,18 +383,16 @@ modulu:
 
 | Modul | Lokalno | Globalna zamena |
 |---|---|---|
-| Payment (`wallet`) | `.balance` | `.amount` |
-| Exploration (`my-tours`), Social (`my-clubs`, grana `social/vodjenje-klubova`) | `.actions` | `.form-actions` |
+| Exploration (`my-tours`) | `.actions` | `.form-actions` |
 | Exploration (`tour-card`) | `.tags li` | `.badge` |
-| Social (`blog-comments`) | stil `input` u komentarima | `.field` |
 
 ## Otvorena pitanja
 
 - **Modal.** `<dialog>` zahteva referencu na element, što podskup ne dozvoljava. Do odluke:
   potvrda na samoj stranici ili posebna stranica.
 - **Toast obaveštenja.** Zahtevaju komponentu u `shared/ui` i servis. Do odluke: `.alert`.
-- **Formatiranje iznosa** („1.200,00 RSD"). Stil postoji (`.amount`), ali formatiranje je
-  kod; Angular `currency` pipe nije na spisku podskupa.
+- **Formatiranje iznosa** je rešeno običnom funkcijom `formatAmount` u `shared/util/`, bez
+  pipe-a. Za sada je koristi samo Payment.
 - **Lokalni tokeni na naslovnoj.** `core/home/home.scss` na `:host` ponovo definiše
   `--color-bg`, `--color-surface`, `--color-text`, `--color-accent` i ostale. Naslovna treba
   da koristi globalne tokene; vrednosti su sada iste, pa se te linije brišu u posebnoj

@@ -2,12 +2,14 @@ import { httpResource } from '@angular/common/http';
 import { Component, inject, input, signal } from '@angular/core';
 import { FormField, form, max, maxLength, min, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
+import { formatAmount } from '../../../../shared/util/format-amount';
 import { serverMessage } from '../../../../shared/util/server-message';
 import { RecipientDto } from '../../api/payment-api-types';
+import { GiftCardArt } from '../gift-card-art/gift-card-art';
 import { GiftCards } from '../gift-cards';
 
 @Component({
-  imports: [FormField, RouterLink],
+  imports: [FormField, GiftCardArt, RouterLink],
   selector: 'app-buy-gift-card',
   styleUrl: './buy-gift-card.scss',
   templateUrl: './buy-gift-card.html',
@@ -33,6 +35,15 @@ export class BuyGiftCard {
     max(path.amount, 1000, { message: 'The amount can be at most 1000 EC.' });
     maxLength(path.message, 200, { message: 'The message can have at most 200 characters.' });
   });
+
+  protected readonly formatAmount = formatAmount;
+
+  // Brzi izbor iznosa samo upisuje vrednost u polje forme
+  protected readonly quickAmounts = [10, 25, 50, 100];
+
+  protected pickAmount(amount: number): void {
+    this.purchaseForm.amount().value.set(amount);
+  }
 
   protected async purchase(event: Event): Promise<void> {
     event.preventDefault();
