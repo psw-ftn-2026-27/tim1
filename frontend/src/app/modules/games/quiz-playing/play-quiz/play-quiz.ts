@@ -28,6 +28,17 @@ export class PlayQuiz {
     () => `/api/games/play/quizzes/${this.id()}`,
   );
 
+  // Questions answered so far: the current question is not answered yet.
+  protected answeredCount(state: QuizPlayStateDto): number {
+    return Math.max(0, (state.questionNumber ?? 1) - 1);
+  }
+
+  // How far through the quiz the player is, for the progress bar.
+  protected percentAnswered(state: QuizPlayStateDto): number {
+    const count = state.questionCount ?? 0;
+    return count === 0 ? 0 : (this.answeredCount(state) / count) * 100;
+  }
+
   protected async activate(position: MapPin): Promise<void> {
     if (this.pending()) {
       return;

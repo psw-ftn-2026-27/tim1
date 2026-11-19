@@ -1,31 +1,36 @@
-<section class="card stack" aria-label="Start the quiz">
-  @if (quizPin().length > 0) {
-    <p class="group-label">
-      Where are you? <span class="hint">· click the map to set your position</span>
-    </p>
-    <app-map [pins]="quizPin()" [selectionEnabled]="!pending()" (locationSelected)="position.set($event)" />
-    @if (position(); as chosen) {
-      <p class="meta">Your position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+<section class="card card--flush" aria-label="Start the quiz">
+  <div class="card-body activation">
+    @if (quizPin().length > 0) {
+      <div class="field">
+        <span class="label">Where are you? <span class="label-hint">· click the map to set your position</span></span>
+        <app-map [pins]="quizPin()" [selectionEnabled]="!pending()" (locationSelected)="position.set($event)" />
+      </div>
+      @if (position(); as chosen) {
+        <p class="help">Your position: {{ chosen.latitude.toFixed(5) }}, {{ chosen.longitude.toFixed(5) }}</p>
+      }
     } @else {
-      <p class="meta">No position set yet.</p>
+      <p class="help">This quiz has no location, so you can start it right away.</p>
     }
-  } @else {
-    <p class="meta">This quiz has no location, so you can start it right away.</p>
-  }
 
-  @if (error(); as message) {
-    <p class="alert alert--danger" role="alert">{{ message }}</p>
-  }
+    @if (error(); as message) {
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+      </div>
+    }
+  </div>
 
   <div class="card-footer">
-    <p class="meta">Once started, you can leave and continue later from the list.</p>
-    <button
-      type="button"
-      class="button button--primary"
-      [disabled]="pending() || (quizPin().length > 0 && !position())"
-      (click)="activate()"
-    >
-      {{ pending() ? 'Activating…' : 'Activate' }}
-    </button>
+    <span class="meta">Once started, you can leave and continue later from the list.</span>
+    <div class="form-actions">
+      <button
+        type="button"
+        class="button button--primary"
+        [disabled]="pending() || (quizPin().length > 0 && !position())"
+        (click)="activate()"
+      >
+        {{ pending() ? 'Activating…' : 'Activate' }}
+      </button>
+    </div>
   </div>
 </section>

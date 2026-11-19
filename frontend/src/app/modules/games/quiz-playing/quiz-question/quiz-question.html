@@ -1,38 +1,23 @@
-<section class="stack" aria-labelledby="question-text">
-  <div class="progress-head">
-    <p class="meta">{{ quizName() }}</p>
-    <div class="progress-row">
-      <span>Question <strong>{{ questionNumber() }}</strong> of {{ questionCount() }}</span>
-      <span class="xp">★ {{ points() }} {{ points() === 1 ? 'point' : 'points' }}</span>
-    </div>
-    <div
-      class="progress"
-      role="progressbar"
-      aria-label="Quiz progress"
-      aria-valuemin="0"
-      [attr.aria-valuemax]="questionCount()"
-      [attr.aria-valuenow]="questionNumber()"
-    >
-      <div class="progress__fill" [style.width.%]="percentDone()"></div>
-    </div>
-  </div>
-
-  <div class="card stack">
-    <h1 id="question-text" class="question-title">{{ question().text }}</h1>
+<section class="card card--flush" aria-labelledby="question-text">
+  <div class="card-body">
+    <h1 id="question-text" class="question-text">{{ question().text }}</h1>
 
     @if (error(); as message) {
-      <p class="alert alert--danger" role="alert">{{ message }}</p>
+      <div class="alert alert--danger" role="alert">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+        <p>{{ message }}</p>
+      </div>
     }
 
-    <div class="options">
+    <div class="options" role="group" aria-label="Answers">
       @for (answer of question().answers; track $index) {
         <button type="button" class="option" [disabled]="pending()" (click)="answered.emit($index)">
           <span class="option-key" aria-hidden="true">{{ letters[$index] ?? $index + 1 }}</span>
-          <span>{{ answer }}</span>
+          {{ answer }}
         </button>
       }
     </div>
 
-    <p class="meta">Your answer is saved as soon as you pick it and can't be changed.</p>
+    <p class="help">Your answer is saved as soon as you pick it and can’t be changed.</p>
   </div>
 </section>

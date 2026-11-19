@@ -1,5 +1,8 @@
-<div class="page-narrow">
-  <a class="back" routerLink="/games/play/quizzes">← Quizzes</a>
+<div class="games games--narrow">
+  <a class="back" routerLink="/games/play/quizzes">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Quizzes
+  </a>
 
   @if (quiz.isLoading() && !quiz.hasValue()) {
     <p class="empty empty--boxed" role="status">Loading quiz…</p>
@@ -11,42 +14,60 @@
           <div>
             <h1>{{ state.quizName }}</h1>
             @if (state.latitude !== null) {
-              <p>Get within 50 m of the pin to start. Up to <strong class="xp">{{ state.experiencePoints }} XP</strong>.</p>
+              <p>Get within 50 m of the pin to start. Up to <span class="xp">{{ state.experiencePoints }} XP</span>.</p>
             } @else {
-              <p>This quiz can be played anywhere. Up to <strong class="xp">{{ state.experiencePoints }} XP</strong>.</p>
+              <p>This quiz can be played anywhere. Up to <span class="xp">{{ state.experiencePoints }} XP</span>.</p>
             }
           </div>
         </div>
         <app-quiz-activation [state]="state" [pending]="pending()" [error]="error()" (activated)="activate($event)" />
       }
       @case ('InProgress') {
+        <div class="play-head">
+          <p class="play-name">{{ state.quizName }}</p>
+          <div class="play-meta">
+            <span>Question <b>{{ state.questionNumber }}</b> of {{ state.questionCount }}</span>
+            <span class="points">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" /></svg>
+              {{ state.points }} {{ state.points === 1 ? 'point' : 'points' }}
+            </span>
+          </div>
+          <div
+            class="progress"
+            role="progressbar"
+            aria-label="Answered questions"
+            aria-valuemin="0"
+            [attr.aria-valuemax]="state.questionCount"
+            [attr.aria-valuenow]="answeredCount(state)"
+          >
+            <div class="progress__fill" [style.width.%]="percentAnswered(state)"></div>
+          </div>
+        </div>
+
         @if (showFeedback()) {
-          <section class="card outcome" aria-live="polite">
-            @if (state.lastAnswerWasCorrect) {
-              <span class="outcome__icon outcome__icon--success">
-                <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7" /></svg>
-              </span>
-              <h2>Correct!</h2>
-            } @else {
-              <span class="outcome__icon outcome__icon--danger">
-                <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
-              </span>
-              <h2>Not this time</h2>
-            }
-            <p>You now have <strong>{{ state.points }} {{ state.points === 1 ? 'point' : 'points' }}</strong>.</p>
-            <button type="button" class="button button--primary" (click)="showFeedback.set(false)">Next →</button>
+          <section class="card card--flush" aria-live="polite">
+            <div class="outcome">
+              @if (state.lastAnswerWasCorrect) {
+                <span class="outcome__icon outcome__icon--success">
+                  <svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+                </span>
+                <h2>Correct!</h2>
+                <p>You now have <b class="points">{{ state.points }} {{ state.points === 1 ? 'point' : 'points' }}</b>.</p>
+              } @else {
+                <span class="outcome__icon outcome__icon--danger">
+                  <svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                </span>
+                <h2>Not this time</h2>
+                <p>You still have <b class="points">{{ state.points }} {{ state.points === 1 ? 'point' : 'points' }}</b>.</p>
+              }
+              <button type="button" class="button button--primary next" (click)="showFeedback.set(false)">
+                Next
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              </button>
+            </div>
           </section>
         } @else if (state.question; as question) {
-          <app-quiz-question
-            [quizName]="state.quizName ?? ''"
-            [question]="question"
-            [questionNumber]="state.questionNumber ?? 0"
-            [questionCount]="state.questionCount ?? 0"
-            [points]="state.points ?? 0"
-            [pending]="pending()"
-            [error]="error()"
-            (answered)="answer(question.id, $event)"
-          />
+          <app-quiz-question [question]="question" [pending]="pending()" [error]="error()" (answered)="answer(question.id, $event)" />
         }
       }
       @case ('Completed') {
@@ -55,16 +76,22 @@
       @case ('Unavailable') {
         <div class="empty empty--boxed">
           <span class="empty-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9 9l6 6M15 9l-6 6" /></svg>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
           </span>
           <h2>This quiz is no longer available</h2>
           <p>Your saved answers stay, but no XP is awarded for it.</p>
-          <a class="button" routerLink="/games/play/quizzes">← Back to quizzes</a>
+          <a class="button" routerLink="/games/play/quizzes">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+            Back to quizzes
+          </a>
         </div>
       }
     }
   } @else {
-    <p class="alert alert--danger" role="alert">Couldn't load the quiz. Check your connection and try again.</p>
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load the quiz. Check your connection and try again.</p>
+    </div>
     <div>
       <button type="button" class="button" (click)="quiz.reload()">Try again</button>
     </div>
