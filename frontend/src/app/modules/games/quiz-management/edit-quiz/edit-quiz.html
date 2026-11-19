@@ -1,5 +1,8 @@
-<div class="page-narrow">
-  <a class="back" routerLink="/games/quizzes">← Quizzes</a>
+<div class="games games--narrow">
+  <a class="back" routerLink="/games/quizzes">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Quizzes
+  </a>
 
   @if (quiz.isLoading() && !quiz.hasValue()) {
     <p class="empty empty--boxed" role="status">Loading quiz…</p>
@@ -8,10 +11,10 @@
 
     <div class="page-header">
       <div>
-        <div class="title-row">
-          <h1>{{ details.name }}</h1>
+        <h1 class="title-row">
+          {{ details.name }}
           <span [class]="'badge badge--' + details.status.toLowerCase()">{{ details.status }}</span>
-        </div>
+        </h1>
         @if (editing()) {
           <p>Editing the draft. Nothing changes until you save.</p>
         } @else {
@@ -40,22 +43,35 @@
         note="Cancel discards unsaved changes, including the location."
         (save)="update($event)"
         (cancelled)="cancelEdit()"
+        (dismissed)="error.set(null)"
       />
     } @else {
       @if (success(); as message) {
-        <p class="alert alert--success" role="status">{{ message }}</p>
+        <div class="alert alert--success" role="status">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+          <p>{{ message }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="success.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
       }
       @if (error(); as message) {
-        <p class="alert alert--danger" role="alert">{{ message }}</p>
+        <div class="alert alert--danger" role="alert">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+          <p>{{ message }}</p>
+          <button class="alert__dismiss" type="button" aria-label="Dismiss" (click)="error.set(null)">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
       }
 
-      <section class="card stack" aria-labelledby="details-title">
-        <h2 id="details-title">Details</h2>
-        <div class="layout-side">
-          <dl class="data-list layout-side__main">
+      <section class="card card--flush" aria-labelledby="details-title">
+        <div class="card-head"><h2 id="details-title" class="card-title">Details</h2></div>
+        <div class="card-body split">
+          <dl class="data-list">
             <div>
               <dt>XP</dt>
-              <dd><span class="xp">{{ details.experiencePoints }}</span></dd>
+              <dd class="xp">{{ details.experiencePoints }}</dd>
             </div>
             <div>
               <dt>Questions</dt>
@@ -63,7 +79,7 @@
             </div>
             <div class="data-list__wide">
               <dt>Instructions</dt>
-              <dd>{{ details.instructions }}</dd>
+              <dd class="data-list__text">{{ details.instructions }}</dd>
             </div>
             <div class="data-list__wide">
               <dt>Location</dt>
@@ -76,65 +92,72 @@
               </dd>
             </div>
           </dl>
-          <div class="layout-side__aside">
-            @if (locationPins().length > 0) {
-              <app-map [pins]="locationPins()" />
-            } @else {
-              <div class="empty empty--boxed">
-                <span class="empty-icon">
-                  <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
-                </span>
-                <p>Location not assigned</p>
-              </div>
-            }
-          </div>
+          @if (locationPins().length > 0) {
+            <app-map [pins]="locationPins()" />
+          } @else {
+            <div class="empty empty--boxed">
+              <span class="empty-icon">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              </span>
+              <p>Location not assigned</p>
+            </div>
+          }
         </div>
       </section>
 
-      <section class="card stack" aria-labelledby="questions-title">
-        <h2 id="questions-title">Questions</h2>
-        @if (details.questions.length > 0) {
-          <ol class="questions">
-            @for (question of details.questions; track question.id) {
-              <li class="question">
-                <div class="question-text">
-                  <strong>{{ question.text || 'Untitled question' }}</strong>
-                  @if (!hasCorrectAnswer(question)) {
-                    <span class="badge badge--warning">No correct answer</span>
-                  }
-                </div>
-                @if (question.answers.length > 0) {
-                  <ul class="answers">
-                    @for (answer of question.answers; track $index) {
-                      <li class="answer" [class.answer--correct]="answer.isCorrect">
-                        <span>{{ answer.text || 'Untitled answer' }}</span>
-                        @if (answer.isCorrect) {
-                          <span class="badge badge--success">Correct</span>
-                        }
-                      </li>
+      <section class="card card--flush" aria-labelledby="questions-title">
+        <div class="card-head"><h2 id="questions-title" class="card-title">Questions</h2></div>
+        <div class="card-body">
+          @if (details.questions.length > 0) {
+            <ol class="q-list">
+              @for (question of details.questions; track question.id; let number = $index) {
+                <li class="q-item">
+                  <h3>
+                    <span class="q-num">{{ number + 1 }}.</span>
+                    {{ question.text || 'Untitled question' }}
+                    @if (!hasCorrectAnswer(question)) {
+                      <span class="badge badge--draft">No correct answer</span>
                     }
-                  </ul>
-                } @else {
-                  <p class="meta">No answers yet.</p>
-                }
-              </li>
-            }
-          </ol>
-        } @else {
-          <p class="meta">No questions yet.</p>
-        }
+                  </h3>
+                  @if (question.answers.length > 0) {
+                    <ul class="a-list">
+                      @for (answer of question.answers; track $index) {
+                        <li [class.is-correct]="answer.isCorrect">
+                          {{ answer.text || 'Untitled answer' }}
+                          @if (answer.isCorrect) {
+                            <span class="badge badge--published">Correct</span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="help">No answers yet.</p>
+                  }
+                </li>
+              }
+            </ol>
+          } @else {
+            <p class="help">No questions yet.</p>
+          }
+        </div>
       </section>
     }
   } @else if (missing()) {
     <div class="empty empty--boxed">
       <span class="empty-icon">
-        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9 9l6 6M15 9l-6 6" /></svg>
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
       </span>
       <h2>Quiz is no longer available</h2>
-      <a class="button" routerLink="/games/quizzes">← Back to quizzes</a>
+      <a class="button" routerLink="/games/quizzes">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+        Back to quizzes
+      </a>
     </div>
   } @else {
-    <p class="alert alert--danger" role="alert">Couldn't load the quiz. Check your connection and try again.</p>
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load the quiz. Check your connection and try again.</p>
+    </div>
     <div>
       <button type="button" class="button" (click)="quiz.reload()">Try again</button>
     </div>

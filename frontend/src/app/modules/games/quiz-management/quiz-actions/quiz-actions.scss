@@ -1,9 +1,10 @@
-// Akcije stoje desno, i u redu tabele i u zaglavlju stranice
+// Akcije stoje desno, i u redu tabele i u zaglavlju stranice; u redu se ne prelamaju
 :host {
   display: block;
 }
 
-.form-actions,
+.row-actions,
 .confirm {
-  justify-content: flex-end;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }

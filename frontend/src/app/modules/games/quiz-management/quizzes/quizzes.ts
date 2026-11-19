@@ -34,7 +34,6 @@ export class Quizzes {
   }
 
   protected setDeleting(id: string, confirming: boolean): void {
-    this.rowFailure.set(null);
     this.deletingId.set(confirming ? id : null);
   }
 

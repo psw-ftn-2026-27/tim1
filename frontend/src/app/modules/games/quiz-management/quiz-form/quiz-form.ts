@@ -11,13 +11,18 @@ interface QuizQuestionForm {
   correctAnswer: string;
 }
 
+function emptyQuestion(): QuizQuestionForm {
+  return { id: null, text: '', answers: [{ text: '' }, { text: '' }], correctAnswer: '' };
+}
+
 export function createQuizForm() {
   return form(
     signal({
       name: '',
       instructions: '',
       experiencePoints: null as number | null,
-      questions: [] as QuizQuestionForm[],
+      // A new quiz starts with one empty question and two empty answers.
+      questions: [emptyQuestion()] as QuizQuestionForm[],
       location: null as MapPin | null,
     }),
     (path) => {
@@ -61,6 +66,8 @@ export class QuizForm {
   readonly cancelLink = input<string | null>(null);
   readonly save = output<SaveQuizDto>();
   readonly cancelled = output<void>();
+  // The × on the server error at the top of the form.
+  readonly dismissed = output<void>();
 
   // The map shows the picked location as its only pin.
   protected readonly locationPins = computed<MapPin[]>(() => {
@@ -68,13 +75,17 @@ export class QuizForm {
     return location === null ? [] : [location];
   });
 
+  // The yellow reminder shows once a question has content but cannot be published yet:
+  // no answer is marked correct, or it has fewer than two answers.
+  protected needsReminder(question: QuizQuestionForm): boolean {
+    const started = question.text.trim() !== '' || question.answers.some((answer) => answer.text.trim() !== '');
+    return started && (question.correctAnswer === '' || question.answers.length < 2);
+  }
+
   protected addQuestion(): void {
     this.fields()
       .questions()
-      .value.update((questions) => [
-        ...questions,
-        { id: null, text: '', answers: [], correctAnswer: '' },
-      ]);
+      .value.update((questions) => [...questions, emptyQuestion()]);
   }
 
   protected removeQuestion(index: number): void {
