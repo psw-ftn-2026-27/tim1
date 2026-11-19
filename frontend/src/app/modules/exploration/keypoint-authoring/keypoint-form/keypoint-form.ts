@@ -1,7 +1,9 @@
 import { Component, WritableSignal, computed, input, output, signal } from '@angular/core';
 import { FormField, form, required, validate } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
 import { ImageUpload } from '../../../../shared/ui/image-upload/image-upload';
-import { Map, type MapPin } from '../../../../shared/ui/map/map';
+import { Map, type MapPin, type MapRouteMode } from '../../../../shared/ui/map/map';
+import { ProtectedImage } from '../../../../shared/ui/protected-image/protected-image';
 
 export interface KeypointFormValue {
   name: string;
@@ -32,13 +34,13 @@ export function createKeypointForm(model: WritableSignal<KeypointFormModel>) {
     required(path.name, { message: 'Name is required.' });
     required(path.description, { message: 'Description is required.' });
     validate(path.location, ({ value }) =>
-      value() === null ? { kind: 'location', message: 'Choose a location on the map.' } : null,
+      value() === null ? { kind: 'location', message: 'Click the map to place the pin.' } : null,
     );
   });
 }
 
 @Component({
-  imports: [FormField, ImageUpload, Map],
+  imports: [FormField, ImageUpload, Map, ProtectedImage, RouterLink],
   selector: 'app-keypoint-form',
   styleUrl: './keypoint-form.scss',
   templateUrl: './keypoint-form.html',
@@ -53,15 +55,26 @@ export class KeypointForm {
   readonly upload = input.required<(file: File) => Promise<string>>();
   // The image the keypoint already has (edit), kept unless a new one is uploaded.
   readonly currentImageId = input<string | null>(null);
+  // Edit only: the address of the current image, shown in the image field.
+  readonly currentImageUrl = input<string | null>(null);
   readonly showVisibility = input(false);
   readonly pending = input(false);
   readonly saveLabel = input.required<string>();
+  // Where Cancel goes, as a routerLink value.
+  readonly cancelLink = input.required<string[]>();
   readonly save = output<KeypointFormValue>();
+
+  protected readonly modes: MapRouteMode[] = ['Walking', 'Bicycle', 'Car'];
 
   protected readonly imageIds = signal<string[]>([]);
   protected readonly imagesSending = signal(false);
-  // What the map last measured; it is null while the route is being calculated or cannot be found.
+  // True after the first Save, so the "image is required" message waits until then.
+  protected readonly submitted = signal(false);
+  // The last walking length the map measured; null while it is being measured or cannot be found.
   protected readonly routeLengthKm = signal<number | null>(null);
+
+  // The route mode only changes the line on the map. The tour length is always the walking route.
+  protected readonly routeForm = form(signal({ mode: 'Walking' as MapRouteMode }));
 
   // The pins the map shows: the tour's keypoints with the chosen location in them. On add the
   // chosen location is the new last pin; on edit it takes the place of the edited keypoint's pin.
@@ -77,10 +90,9 @@ export class KeypointForm {
     return this.pins().map((pin, position) => (position === index ? location : pin));
   });
 
-  // The tour length is always the walking route.
   protected readonly routeRequest = computed(() => ({
     points: this.mapPins(),
-    mode: 'Walking' as const,
+    mode: this.routeForm.mode().value(),
   }));
 
   // A single point has no route, so the tour is 0 km long; otherwise wait for the map.
@@ -104,16 +116,31 @@ export class KeypointForm {
     return this.imageId() === null ? 'An image is required.' : null;
   });
 
+  // The map measures the route of the mode on screen; only a walking length is kept.
+  protected measured(lengthKm: number | null): void {
+    if (this.routeForm.mode().value() === 'Walking') {
+      this.routeLengthKm.set(lengthKm);
+    }
+  }
+
+  // A new location changes the tour length, so the map goes back to the walking route to measure it.
   protected pickLocation(pin: MapPin): void {
+    this.routeForm.mode().value.set('Walking');
     this.fields().location().value.set(pin);
   }
 
   protected submit(event: Event): void {
     event.preventDefault();
+    this.submitted.set(true);
     const state = this.fields()();
     const imageId = this.imageId();
     const { name, description, secret, publiclyVisible, location } = state.value();
     const lengthKm = this.lengthKm();
+    if (!state.valid()) {
+      this.fields().name().markAsTouched();
+      this.fields().description().markAsTouched();
+      this.fields().location().markAsTouched();
+    }
     if (this.pending() || !state.valid() || imageId === null || location === null || lengthKm === null) {
       return;
     }

@@ -1,15 +1,20 @@
-.card {
-  margin-inline: auto;
-  max-width: 40rem;
-}
-
-// Room under the card, so it does not stick to the bottom of the window.
+// Room under the cards, so they do not stick to the bottom of the window.
 :host {
   display: block;
   padding-bottom: var(--space-7);
 }
 
-.back {
-  font-size: var(--font-size-sm);
-  text-decoration: none;
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4-5);
+}
+
+.secret p {
+  margin: 0;
+}
+
+.secret-title {
+  color: var(--color-text-strong);
+  display: block;
 }
