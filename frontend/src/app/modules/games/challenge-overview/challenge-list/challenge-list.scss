@@ -1,4 +1,4 @@
-// Tri polja u jednom redu; na užem ekranu prelaze u novi red
+// Tri polja u jednom redu (naziv se širi, izbori su do 200px); na užem ekranu prelaze u novi red
 .toolbar {
   align-items: flex-end;
   display: flex;
@@ -6,12 +6,12 @@
   gap: var(--space-3);
 }
 
-.toolbar .field {
-  flex: 1 1 10rem;
+.toolbar__name {
+  flex: 1 1 18.75rem;
 }
 
-.toolbar .toolbar__name {
-  flex: 3 1 16rem;
+.toolbar__select {
+  flex: 0 1 12.5rem;
 }
 
 // Lupa stoji u polju za pretragu, levo od teksta
@@ -20,8 +20,8 @@
 }
 
 .search-icon {
-  color: var(--color-text-subtle);
-  left: var(--space-3);
+  color: var(--color-text-muted);
+  left: var(--space-3-5);
   pointer-events: none;
   position: absolute;
   top: 50%;
@@ -29,12 +29,8 @@
 }
 
 .search-box input {
-  padding-left: 2.5rem;
+  padding-left: 2.625rem;
   width: 100%;
-}
-
-.name {
-  font-weight: var(--font-weight-bold);
 }
 
 .date {

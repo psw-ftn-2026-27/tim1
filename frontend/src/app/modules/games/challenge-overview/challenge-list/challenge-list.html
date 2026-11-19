@@ -1,5 +1,8 @@
-<div class="stack">
-  <a class="back" routerLink="/games">← Games</a>
+<div class="games">
+  <a class="back" routerLink="/games">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+    Games
+  </a>
 
   <div class="page-header">
     <div>
@@ -8,11 +11,11 @@
     </div>
   </div>
 
-  <form class="toolbar" (submit)="$event.preventDefault()">
+  <form class="toolbar" role="search" (submit)="$event.preventDefault()">
     <div class="field toolbar__name">
       <label for="challenge-name">Name</label>
       <div class="search-box">
-        <svg class="search-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+        <svg class="search-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
         <input
           id="challenge-name"
           type="search"
@@ -22,7 +25,7 @@
         />
       </div>
     </div>
-    <div class="field">
+    <div class="field toolbar__select">
       <label for="challenge-type">Type</label>
       <select id="challenge-type" [formField]="filters.type" (change)="page.set(1)">
         <option value="">All types</option>
@@ -31,7 +34,7 @@
         <option value="LocationChallenge">Location</option>
       </select>
     </div>
-    <div class="field">
+    <div class="field toolbar__select">
       <label for="challenge-state">State</label>
       <select id="challenge-state" [formField]="filters.status" (change)="page.set(1)">
         <option value="">All states</option>
@@ -43,21 +46,25 @@
     </div>
   </form>
 
-  @if (challenges.isLoading()) {
+  @if (challenges.isLoading() && !challenges.hasValue()) {
     <p class="empty empty--boxed" role="status">Loading challenges…</p>
   } @else if (challenges.error()) {
-    <p class="alert alert--danger" role="alert">
-      Couldn't load challenges. Check your connection and try again.
-    </p>
+    <div class="alert alert--danger" role="alert">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
+      <p>Couldn’t load challenges. Check your connection and try again.</p>
+    </div>
     <div>
-      <button class="button" type="button" (click)="challenges.reload()">Try again</button>
+      <button class="button" type="button" (click)="challenges.reload()">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M20.5 15a9 9 0 1 1-2.1-9.4L23 10" /></svg>
+        Try again
+      </button>
     </div>
   } @else if (challenges.hasValue()) {
     @let result = challenges.value();
     @if (!result.hasChallenges) {
       <div class="empty empty--boxed">
         <span class="empty-icon">
-          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11" /><path d="M4 6h.01M4 12h.01M4 18h.01" /></svg>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
         </span>
         <h2>No saved challenges</h2>
         <p>Create a quiz or a social challenge and it will show up here.</p>
@@ -65,10 +72,13 @@
     } @else if (result.page.totalCount === 0) {
       <div class="empty empty--boxed">
         <span class="empty-icon">
-          <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
         </span>
         <h2>No challenges match the criteria</h2>
-        <button class="button" type="button" (click)="clearFilters()">Clear criteria</button>
+        <button class="button" type="button" (click)="clearFilters()">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          Clear criteria
+        </button>
       </div>
     } @else {
       <section class="table-card">
@@ -86,14 +96,12 @@
               @for (challenge of result.page.items; track challenge.type + challenge.id) {
                 <tr>
                   <td class="name">
-                    <a [routerLink]="['/games', typePaths[challenge.type], challenge.id, 'edit']">
-                      {{ challenge.name }}
-                    </a>
+                    <a [routerLink]="['/games', typePaths[challenge.type], challenge.id, 'edit']">{{ challenge.name }}</a>
                   </td>
                   <td>
                     @switch (challenge.type) {
                       @case ('Quiz') {
-                        <span class="badge badge--info">Quiz</span>
+                        <span class="badge badge--quiz">Quiz</span>
                       }
                       @case ('SocialChallenge') {
                         <span class="badge badge--accent">Social</span>
@@ -104,9 +112,7 @@
                     }
                   </td>
                   <td>
-                    <span [class]="'badge badge--' + challenge.status.toLowerCase()">
-                      {{ challenge.status }}
-                    </span>
+                    <span [class]="'badge badge--' + challenge.status.toLowerCase()">{{ challenge.status }}</span>
                   </td>
                   <td class="date">
                     @if (challenge.createdAt) {
@@ -122,21 +128,16 @@
         </div>
 
         <div class="table-card-footer">
-          <p class="meta">
-            {{ firstShown() }}–{{ lastShown(result.page.items.length) }} of
-            {{ result.page.totalCount }}
+          <span>
+            {{ firstShown() }}–{{ lastShown(result.page.items.length) }} of {{ result.page.totalCount }}
             {{ result.page.totalCount === 1 ? 'challenge' : 'challenges' }}
-          </p>
+          </span>
 
           @if (totalPages(result.page.totalCount) > 1) {
-            <nav class="form-actions" aria-label="Challenge pages">
-              <button
-                class="button button--small"
-                type="button"
-                [disabled]="page() <= 1"
-                (click)="page.set(page() - 1)"
-              >
-                ← Previous
+            <nav class="pagination" aria-label="Pages">
+              <button class="button button--small" type="button" [disabled]="page() <= 1" (click)="page.set(page() - 1)">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+                Previous
               </button>
               @for (number of pageNumbers(result.page.totalCount); track number) {
                 <button
@@ -155,7 +156,8 @@
                 [disabled]="page() >= totalPages(result.page.totalCount)"
                 (click)="page.set(page() + 1)"
               >
-                Next →
+                Next
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </button>
             </nav>
           }

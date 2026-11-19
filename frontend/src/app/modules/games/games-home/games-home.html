@@ -1,83 +1,94 @@
-<div class="stack">
+<div class="games">
   <div class="page-header">
     <div>
       <h1>Games</h1>
       @if (isAdministrator()) {
-        <p>
-          Challenges that get people outside: quizzes at real places and meetups at the same time
-          and spot.
-        </p>
+        <p>Challenges that get people outside: quizzes at real places and meetups at the same time and spot.</p>
       } @else {
         <p>Go out, find a challenge and earn XP.</p>
       }
     </div>
   </div>
 
-  @if (isExplorer()) {
-    <section class="stack" aria-labelledby="play-title">
-      <h2 id="play-title" class="section-label">Play</h2>
-
-      <div class="tile-grid">
-        <a class="tile" routerLink="/games/play/quizzes">
-          <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14" /><path d="M12 17h.01" /></svg>
-          </span>
-          <h3 class="tile-title">Quizzes</h3>
-          <p class="tile-text">Answer questions about the places around you and earn XP for every correct one.</p>
-          <span class="tile-cta">Play quizzes →</span>
-        </a>
-        <a class="tile" routerLink="/games/location-challenges/nearby">
-          <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
-          </span>
-          <h3 class="tile-title">Location challenges</h3>
-          <p class="tile-text">Find the places where the photos were taken, starting near you.</p>
-          <span class="tile-cta">Find challenges →</span>
-        </a>
-      </div>
-    </section>
-  }
-
   @if (isAdministrator()) {
-    <section class="stack" aria-labelledby="administration-title">
-      <h2 id="administration-title" class="section-label">Administration</h2>
-
+    <section aria-labelledby="administration-title">
+      <h2 id="administration-title" class="section-title">Administration</h2>
       <div class="tile-grid">
         <a class="tile" routerLink="/games/challenges">
           <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11" /><path d="M4 6h.01M4 12h.01M4 18h.01" /></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" /></svg>
           </span>
           <h3 class="tile-title">All challenges</h3>
-          <p class="tile-text">Every quiz and social challenge in one list, searchable by name, type and state.</p>
-          <span class="tile-cta">Open the list →</span>
+          <p class="tile-text">Every quiz and social challenge in one list. Search by name and filter by type and state.</p>
+          <span class="tile-cta">
+            Open overview
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
         </a>
         <a class="tile" routerLink="/games/quizzes">
           <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14" /><path d="M12 17h.01" /></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01" /></svg>
           </span>
           <h3 class="tile-title">Quizzes</h3>
-          <p class="tile-text">Write questions for a real place, then publish, retire and archive the quiz.</p>
-          <span class="tile-cta">Manage quizzes →</span>
+          <p class="tile-text">Write questions and answers, pin the quiz to a place and move it from draft to published.</p>
+          <span class="tile-cta">
+            Manage quizzes
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
         </a>
         <a class="tile" routerLink="/games/social-challenges">
           <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3" /><circle cx="16" cy="8" r="3" /><path d="M2 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M10 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></svg>
           </span>
           <h3 class="tile-title">Social challenges</h3>
-          <p class="tile-text">Meetups where enough people must be at the same spot at the same time.</p>
-          <span class="tile-cta">Manage social challenges →</span>
+          <p class="tile-text">Meetups that pay out XP when enough people gather at one place during the active period.</p>
+          <span class="tile-cta">
+            Manage social challenges
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
         </a>
         <a class="tile" routerLink="/games/location-challenges">
           <span class="tile-icon">
-            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
           </span>
           <h3 class="tile-title">Location challenges</h3>
-          <p class="tile-text">Photos of hidden places that people find on the map.</p>
-          <span class="tile-cta">Manage location challenges →</span>
+          <p class="tile-text">Photos of hidden places that players find on the map, starting near them.</p>
+          <span class="tile-cta">
+            Manage location challenges
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
+        </a>
+      </div>
+    </section>
+  } @else if (isExplorer()) {
+    <section aria-labelledby="play-title">
+      <h2 id="play-title" class="section-title">Play</h2>
+      <div class="tile-grid">
+        <a class="tile" routerLink="/games/play/quizzes">
+          <span class="tile-icon">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01" /></svg>
+          </span>
+          <h3 class="tile-title">Quizzes</h3>
+          <p class="tile-text">Answer questions about the place you are at. The more answers you get right, the more XP you earn.</p>
+          <span class="tile-cta">
+            Find a quiz
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
+        </a>
+        <a class="tile" routerLink="/games/location-challenges/nearby">
+          <span class="tile-icon">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+          </span>
+          <h3 class="tile-title">Location challenges</h3>
+          <p class="tile-text">Find the places where the photos were taken, starting near you.</p>
+          <span class="tile-cta">
+            Find a challenge
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </span>
         </a>
       </div>
     </section>
   }
 
-  <p class="meta"><a routerLink="/examples/map-pins">Probni primer mape — pinovi</a></p>
+  <p class="help"><a routerLink="/examples/map-pins">Probni primer mape — pinovi</a></p>
 </div>
