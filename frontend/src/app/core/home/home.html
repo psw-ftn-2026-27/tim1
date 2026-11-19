@@ -58,11 +58,11 @@
         }
       </div>
       @if (!auth.user()) {
-        <p class="notice">
+        <p class="note">
           Već imaš nalog? <a class="text-link" routerLink="/login">Prijavi se</a>
         </p>
       }
-      <p id="hero-status" class="notice" role="status">{{ heroMessage() }}</p>
+      <p id="hero-status" class="note" role="status">{{ heroMessage() }}</p>
     </div>
   </section>
 
@@ -76,7 +76,7 @@
       @for (capability of capabilities; track capability.id) {
         @if (capability.id !== 'purchases' || paymentRoute()) {
           <a
-            class="card tile linked"
+            class="card capability linked"
             [routerLink]="
               capability.id === 'purchases'
                 ? paymentRoute()
@@ -94,7 +94,7 @@
           >
             <div class="media">
               <img
-                class="thumb"
+                class="photo"
                 [src]="'/images/home/' + capability.image"
                 [alt]="capability.imageAlt"
                 width="800"
@@ -117,7 +117,7 @@
           </a>
         } @else {
           <button
-            class="card tile linked"
+            class="card capability linked"
             type="button"
             [attr.aria-label]="capability.action + ': ' + capability.title"
             aria-describedby="payment-status"
@@ -125,7 +125,7 @@
           >
             <span class="media">
               <img
-                class="thumb"
+                class="photo"
                 [src]="'/images/home/' + capability.image"
                 [alt]="capability.imageAlt"
                 width="800"
@@ -134,7 +134,7 @@
               />
             </span>
             <span class="body">
-              <span class="tile-title">{{ capability.title }}</span>
+              <span class="capability-title">{{ capability.title }}</span>
               <span class="meta desc">{{ capability.description }}</span>
               <span class="hot">{{ capability.action }} <span aria-hidden="true">↗</span></span>
             </span>
@@ -142,7 +142,7 @@
         }
       }
     </div>
-    <div id="payment-status" class="notice" role="status">{{ paymentMessage() }}</div>
+    <div id="payment-status" class="note" role="status">{{ paymentMessage() }}</div>
   </section>
   <section
     class="home-section gallery"
@@ -165,7 +165,7 @@
           loading="lazy"
         />
         <div class="copy">
-          <p class="notice"><strong>{{ slide.label }}</strong></p>
+          <p class="note"><strong>{{ slide.label }}</strong></p>
           <h3>{{ slide.title }}</h3>
           <p>{{ slide.description }}</p>
         </div>
@@ -218,7 +218,7 @@
         <div>
           <a class="button cta button--primary" routerLink="/register">Pridruži se Exploreru</a>
         </div>
-        <p class="notice">Već imaš nalog? <a routerLink="/login">Prijavi se</a></p>
+        <p class="note">Već imaš nalog? <a routerLink="/login">Prijavi se</a></p>
       }
     </nav>
   </section>

@@ -91,7 +91,7 @@ describe('Explorer Home', () => {
 
     expect(links('.hero a')).toEqual(['/login', '/register', '/login']);
     expect(links('.join a')).toEqual(['/register', '/login']);
-    expect(links('.tile.linked')).toEqual(['/login', '/login', '/login', '/login']);
+    expect(links('.capability.linked')).toEqual(['/login', '/login', '/login', '/login']);
     expect(element.querySelector('#payment-status')?.textContent).toBe('');
     expect(links('a')).not.toContain('/exploration');
     expect(links('a')).not.toContain('/social');
@@ -102,7 +102,7 @@ describe('Explorer Home', () => {
     render();
 
     expect(links('.hero a')).toEqual(['/exploration', '/social']);
-    expect(links('.tile.linked')).toEqual(['/exploration', '/games', '/social', '/payment']);
+    expect(links('.capability.linked')).toEqual(['/exploration', '/games', '/social', '/payment']);
     expect(links('.join a')).toEqual(['/exploration', '/social']);
     expect(links('a')).not.toContain('/login');
     expect(links('a')).not.toContain('/register');
@@ -111,10 +111,10 @@ describe('Explorer Home', () => {
   it('keeps four complete cards without nested controls', () => {
     render();
 
-    const cards = element.querySelectorAll('.tile');
+    const cards = element.querySelectorAll('.capability');
     expect(cards).toHaveLength(4);
     for (const card of cards) {
-      expect(card.querySelector('.thumb')).not.toBeNull();
+      expect(card.querySelector('.photo')).not.toBeNull();
       expect(card.querySelector('.body')).not.toBeNull();
       expect(card.querySelector('a,button,[tabindex]')).toBeNull();
     }
@@ -130,8 +130,8 @@ describe('Explorer Home', () => {
       const router = TestBed.inject(Router);
       const navigate = vi.spyOn(router, 'navigateByUrl');
 
-      const card = element.querySelectorAll<HTMLAnchorElement>('.tile')[index];
-      card.querySelector<HTMLElement>('.thumb')!.click();
+      const card = element.querySelectorAll<HTMLAnchorElement>('.capability')[index];
+      card.querySelector<HTMLElement>('.photo')!.click();
       await navigate.mock.results[0].value;
 
       expect(router.url).toBe('/login');
@@ -150,8 +150,8 @@ describe('Explorer Home', () => {
     const router = TestBed.inject(Router);
     const navigate = vi.spyOn(router, 'navigateByUrl');
 
-    const card = element.querySelectorAll<HTMLAnchorElement>('.tile')[index];
-    card.querySelector<HTMLElement>('.thumb')!.click();
+    const card = element.querySelectorAll<HTMLAnchorElement>('.capability')[index];
+    card.querySelector<HTMLElement>('.photo')!.click();
     await navigate.mock.results[0].value;
 
     expect(router.url).toBe(destination);
@@ -165,7 +165,7 @@ describe('Explorer Home', () => {
       const router = TestBed.inject(Router);
       const navigate = vi.spyOn(router, 'navigateByUrl');
 
-      element.querySelectorAll<HTMLAnchorElement>('.tile')[3].click();
+      element.querySelectorAll<HTMLAnchorElement>('.capability')[3].click();
       await navigate.mock.results[0].value;
 
       expect(router.url).toBe('/payment/admin/requests');
@@ -178,10 +178,10 @@ describe('Explorer Home', () => {
       user.set({ id: 'member', email: 'member@example.test', roles });
       render();
       const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
-      const payment = element.querySelector<HTMLButtonElement>('button.tile')!;
+      const payment = element.querySelector<HTMLButtonElement>('button.capability')!;
       payment.focus();
 
-      payment.querySelector<HTMLElement>('.thumb')!.click();
+      payment.querySelector<HTMLElement>('.photo')!.click();
       TestBed.tick();
 
       expect(navigate).not.toHaveBeenCalled();
@@ -199,7 +199,7 @@ describe('Explorer Home', () => {
   it('clears the payment notice when Home is destroyed and opened again', () => {
     user.set({ id: 'member', email: 'member@example.test', roles: [] });
     render();
-    element.querySelector<HTMLButtonElement>('button.tile')!.click();
+    element.querySelector<HTMLButtonElement>('button.capability')!.click();
     TestBed.tick();
     expect(element.querySelector('#payment-status')?.textContent).not.toBe('');
 
@@ -207,7 +207,7 @@ describe('Explorer Home', () => {
     render();
 
     expect(element.querySelector('#payment-status')?.textContent).toBe('');
-    element.querySelector<HTMLButtonElement>('button.tile')!.click();
+    element.querySelector<HTMLButtonElement>('button.capability')!.click();
     TestBed.tick();
     expect(element.querySelector('#payment-status')?.textContent).not.toBe('');
   });
