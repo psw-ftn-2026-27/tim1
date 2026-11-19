@@ -547,6 +547,121 @@ dovoljno je potamneti `--color-danger-solid`.
 `.option` je visok najmanje 60px. Datum („03 Nov 2026") formatira `formatDate` iz
 `shared/util/format-date.ts`.
 
+## Exploration
+
+Reference su u `frontend/docs/design/exploration/`. `exploration-reference.css` je Games
+referenca sa dodatkom od 8 boja i desetak klasa, pa Exploration koristi isti izgled kao Games:
+svako pravilo `.games .x` u `_components.scss` ima i par `.exploration .x`. Koren svake
+Exploration stranice ima klasu `.exploration`, a stranica sa formom i `.exploration--narrow`
+(900px sadržaja).
+
+```html
+<div class="exploration">…lista, manage, forma ključne tačke (puna širina 1240px)…</div>
+<div class="exploration exploration--narrow">…forma ture, preferencije…</div>
+```
+
+### Boje reference → tokeni
+
+Sve boje koje su već u Games referenci koriste iste tokene kao Games (tabela iznad). Nove su:
+
+| Hex reference | Uloga | Token | ΔE | |
+|---|---|---|---|---|
+| `#3d2230` / `#f39ab8` | bedž „Hard" | `--color-difficulty-hard-bg` / `--color-difficulty-hard` | 0 | **novi** |
+| `#1f3a2c` / `#74d6a0` | bedž „Easy", oznaka „Public" | `--color-state-published-bg` / `--color-state-published` | 0 | postojeći |
+| `#3a3420` / `#ecc95f` | bedž „Medium" | `--color-state-draft-bg` / `--color-state-draft` | 0 | postojeći |
+| `#211b15` | podloga tajne | `--color-secret-bg` | 0 | **novi** (`--color-option-hover-bg` je na 2.4, ali je druge namene) |
+| `#5a4630` | isprekidan okvir tajne | `--color-secret-border` | 0 | **novi** |
+| `#f3d3b0` | tekst tajne | `--color-secret` | 0 | **novi** |
+| `#3a4844` | isprekidan okvir polja za sliku | `--color-border-dashed` | 0 | **novi** (`--color-border-field` je na 4.1) |
+| `#a14a4a` | ivica polja sa greškom | `--color-field-error-border` | 0 | **novi** |
+| `#2f3b37` | okvir odeljka u redu tabele | `--color-border-field` | 3.5 | postojeći |
+| `#dfe6e4` | tekst oznake (`.chip`) | `--color-text` | 4.6 | postojeći (razlika se ne vidi na maloj oznaci) |
+| `#3a2a1e` / `#f2913f` | izabrana opcija `.segmented`, krug rednog broja | `--color-accent-soft` / `--color-accent` | 0 / 3.3 | postojeći |
+
+### Klase reference → klase aplikacije
+
+| Referenca | Aplikacija | Kako |
+|---|---|---|
+| `.page`, `.page--narrow` | `.exploration`, `.exploration--narrow` | nove (par Games klasa) |
+| `.back-link`, `.page-header`, `.lead`, `h1` | `.back`, `.page-header` | postojeće, Games stil |
+| `.button`, `--primary`, `--sm`, `--danger` | `.button`, `--primary`, `--small`, `--danger` | postojeće, Games stil |
+| `.card`, `.card-head`, `.card-body`, `.card-foot`, `.card-title` | `.card card--flush` + `.card-head`, `.card-body`, `.card-footer`, `.card-title` | postojeće (Games) |
+| `.tabs`, `a.is-active` | `.tabs`, `a.active` (`routerLinkActive`) | postojeća, modifikator `.exploration .tabs` (12px) |
+| `.badge--draft`, `--published`, `--archived`, `--accent`, `--neutral` | iste (`--neutral` = `.badge`) | postojeće (Games) |
+| `.badge--easy`, `--medium`, `--hard` | iste | **nove** |
+| `.table-card`, `.table-scroll`, `.table`, `td.name`, `.num`, `.end` | iste | postojeće, Games stil |
+| `.table-foot` | `.table-card-footer` | postojeća (Games) |
+| `.table .actions` | `.row-actions` | postojeća, `.exploration .row-actions` ne prelama |
+| `.sub-row`, `.inline-panel` | `tr.sub-row`, `.inline-panel` | **nove** |
+| `.radio-row` | `.radio-row` (na `<fieldset>`) | **nova** |
+| `.alert`, `--error`, `--info`, `--inline` | `.alert`, `--danger`, `--info` (+ `.alert__dismiss`) | postojeće (Games) |
+| `.field`, `.label`, `.label-hint`, `.input`, `.help` | `.field`, `label`, `.label-hint`, `.help` | postojeće (Games) |
+| `.input.is-invalid`, `.field-error` | `.field--error`, `.error` | postojeće, modifikator `.exploration` (ivica `#a14a4a`, 13px, ikonica) |
+| `.counter` | `.help` desno poravnat (lokalno u formi ture) | lokalna |
+| `.chip`, `.chip--outline`, `.chips`, `.chip button` | iste | **nove** |
+| `.tag-input` | `.tag-input` | **nova** |
+| `.segmented`, `label.is-on` | `.segmented`, `label:has(input:checked)` | **nova** (bez klase za izbor) |
+| `.kp-list`, `.kp-row`, `.kp-num`, `.kp-main`, `.kp-flags` | `.kp-list`, `.kp-row`, `__num`, `__main`, `__flags` | **nove** |
+| `.thumb` (72×52) | `.thumb thumb--landscape` | postojeća + **novi** modifikator |
+| `.dropzone`, `.dropzone .thumb` | `.dropzone`, `.dropzone--error` | **nova** |
+| `.secret` | `.secret` | **nova** |
+| `.checkbox` | `.checkbox` | **nova** |
+| `.stat-row` | `.stat-row` (lokalno u `edit-tour`) | lokalna |
+| `.meta-row` | lokalno u kartici ture | lokalna |
+| `.two-col`, `.split` | `.split` | postojeća (Games) |
+| `.empty`, `--boxed`, `.empty-icon` | iste | postojeće, Games stil |
+| `.map` (SVG crtež) | `<app-map>` | zajednička komponenta, neizmenjena |
+| `.pagination .is-current` | `.button button--small button--primary` + `aria-current="page"` | postojeće |
+| `.hero-img`, `.price` | – | nisu korišćene (planirani ekrani nemaju backend) |
+
+### Katalog Exploration klasa
+
+```html
+<!-- Težina i stanje ture -->
+<span class="badge badge--easy">Easy</span> <span class="badge badge--medium">Medium</span>
+<span class="badge badge--hard">Hard</span> <span class="badge badge--draft">Draft</span>
+
+<!-- Oznake: tag i vreme prevoza -->
+<ul class="chips"><li class="chip">#istorija</li>
+  <li class="chip chip--outline"><svg aria-hidden="true">…</svg> Walking · 60 min</li></ul>
+
+<!-- Polje sa tagovima -->
+<div class="tag-input">
+  <span class="chip">#Dunav <button type="button" aria-label="Remove tag Dunav">×</button></span>
+  <input id="tags" placeholder="Type a tag and press Enter" [formField]="form.tagInput" />
+</div>
+
+<!-- Segmentirana grupa: način kretanja ili težina -->
+<div class="segmented" role="radiogroup" aria-label="Route mode">
+  <label><input type="radio" name="mode" value="Walking" [formField]="form.mode" /> Walking</label>
+  <label><input type="radio" name="mode" value="Car" [formField]="form.mode" /> Car</label>
+</div>
+
+<!-- Odeljak ispod reda tabele -->
+<tr class="sub-row"><td colspan="6"><form class="inline-panel">
+  <h3>Publish “Stari Novi Sad”</h3>
+  <div class="radio-row" role="radiogroup" aria-label="Price">…</div>
+</form></td></tr>
+
+<!-- Spisak ključnih tačaka -->
+<ol class="kp-list"><li class="kp-row">
+  <span class="kp-row__num">1</span>
+  <app-protected-image class="thumb thumb--landscape" [src]="…" />
+  <div class="kp-row__main"><h3>Sahat kula</h3><p>Sat sa obrnutim kazaljkama…</p></div>
+  <div class="kp-row__flags"><span class="badge badge--published">Public</span></div>
+  <div class="row-actions">…</div>
+</li></ol>
+
+<!-- Izbor slike, tajna, potvrdni okvir -->
+<div class="dropzone">…</div>
+<p class="secret"><svg aria-hidden="true">…</svg> Ispod sata potraži…</p>
+<label class="checkbox"><input type="checkbox" /><span>Keypoint is publicly visible
+  <span class="help">People who haven't bought the tour can see it.</span></span></label>
+```
+
+Dužina ture se piše funkcijom `formatLength` iz `shared/util/format-length.ts` („3,2 km",
+„42 km"), po uzoru na `formatAmount`.
+
 ## Odluke
 
 - **Tema prati naslovnu stranicu.** Prvi nacrt („Gradski putopis": svetla pozadina,

@@ -80,6 +80,16 @@
   --color-correct-bg: #1d3328;
   --color-option-hover-bg: #1d1a16; // odgovor na koji je pokazivač
 
+  // Exploration (frontend/docs/design/exploration): boje kojih nema u Games referenci.
+  // Tabela je u styles/README.md, odeljak „Exploration".
+  --color-difficulty-hard: #f39ab8; // roze bedž „Hard"
+  --color-difficulty-hard-bg: #3d2230;
+  --color-secret: #f3d3b0; // tekst tajne ključne tačke
+  --color-secret-bg: #211b15;
+  --color-secret-border: #5a4630; // isprekidan okvir tajne
+  --color-border-dashed: #3a4844; // isprekidan okvir polja za sliku
+  --color-field-error-border: #a14a4a; // ivica polja sa greškom
+
   // Razmaci
   --space-1: 0.25rem;
   --space-2: 0.5rem;

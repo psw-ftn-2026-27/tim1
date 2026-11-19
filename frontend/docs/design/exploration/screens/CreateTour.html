@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../exploration-reference.css">
+</head>
+<body>
+<div class="app">
+<header class="app-header"><div class="app-header__inner">
+<a class="brand" href="MyTours.html"><span class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19L10 7l4 7 2-3 5 8z"></path></svg></span><span>Explorer</span></a>
+<nav class="nav" aria-label="Main"><a href="#">Home</a><a class="active" href="MyTours.html" aria-current="page">Exploration</a><a href="#">Games</a><a href="#">Social</a><a href="#">Payment</a></nav>
+<div class="user"><span class="avatar" aria-hidden="true">S</span><span>student1@example.com</span><a class="button button--sm" href="#">Logout</a></div>
+</div></header>
+<main class="page page--narrow">
+
+<a class="back-link" href="MyTours.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>My tours</a>
+<div class="page-header"><div><h1>Create tour</h1><p class="lead">Start with the basics. Keypoints, travel times and the price come later, from My tours.</p></div></div>
+<form class="card"><div class="card-body stack">
+<div class="field"><label class="label" for="tn">Name</label><input class="input" id="tn" value="Večernja šetnja Limanom"></div>
+<div class="field"><label class="label" for="td">Description</label><textarea class="input" id="td" style="min-height:140px">Lagana večernja šetnja kroz Liman, od Sunčanog keja do Univerzitetskog parka.</textarea><p class="counter">78 / 100 characters needed to publish</p></div>
+<div class="field"><span class="label" id="diff-l">Difficulty</span><div class="segmented" role="radiogroup" aria-labelledby="diff-l"><label class="is-on"><input type="radio" name="diff" checked="checked">Easy</label><label><input type="radio" name="diff">Medium</label><label><input type="radio" name="diff">Hard</label></div></div>
+<div class="field"><label class="label" for="tags">Tags</label><div class="tag-input"><span class="chip">#šetnja<button type="button" aria-label="Remove tag šetnja"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span><span class="chip">#Dunav<button type="button" aria-label="Remove tag Dunav"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg></button></span><input id="tags" placeholder="Type a tag and press Enter"></div></div>
+<div class="field"><span class="label">Recommended group size</span>
+<div class="cols-2" style="max-width:420px"><div class="field"><label class="label-hint" for="gmin">From</label><input class="input" id="gmin" type="number" min="1" value="6"></div><div class="field"><label class="label-hint" for="gmax">To</label><input class="input is-invalid" id="gmax" type="number" value="4" aria-describedby="gmax-err"><p class="field-error" id="gmax-err"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>Must be at least the “From” value.</p></div></div></div>
+</div>
+<div class="card-foot"><span class="muted" style="font-size:14px">New tours start as drafts.</span><div class="actions"><a class="button" href="MyTours.html">Cancel</a><button class="button button--primary" type="submit">Create tour</button></div></div>
+</form>
+
+</main>
+</div>
+</body>
+</html>

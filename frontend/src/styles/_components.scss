@@ -667,7 +667,8 @@
 
 // Koren stranice: kolona sa razmakom 20px, tekst 15px. --narrow je uža kolona (900px) za formu
 // i detalje; lista koristi punu širinu kontejnera.
-.games {
+.games,
+.exploration {
   display: flex;
   flex-direction: column;
   font-size: var(--font-size-ui);
@@ -675,119 +676,143 @@
   padding-top: var(--space-2);
 }
 
-.games--narrow {
+.games--narrow,
+.exploration--narrow {
   margin-inline: auto;
   max-width: 56.25rem;
   width: 100%;
 }
 
 .games h2,
-.games h3 {
+.exploration h2,
+.games h3,
+.exploration h3 {
   line-height: 1.5;
 }
 
 // Na telefonu je bočni razmak 24px, kao u referenci (kontejner daje 16px)
 @media (max-width: 40rem) {
-  .games {
+  .games,
+  .exploration {
     padding-inline: var(--space-2);
   }
 }
 
-.games h1 {
+.games h1,
+.exploration h1 {
   color: var(--color-text-strong);
   font-size: var(--font-size-title);
   line-height: 1.15;
   margin: 0;
 }
 
-.games .page-header {
+.games .page-header,
+.exploration .page-header {
   margin-bottom: var(--space-1);
 }
 
-.games .page-header p {
+.games .page-header p,
+.exploration .page-header p {
   font-size: var(--font-size-md);
   margin-top: var(--space-1-5);
 }
 
 // Naslov stranice i bedž stanja u istom redu
-.games .title-row {
+.games .title-row,
+.exploration .title-row {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3-5);
 }
 
-.games .back {
+.games .back,
+.exploration .back {
   color: var(--color-accent);
   gap: var(--space-1-5);
 }
 
-.games .back:hover {
+.games .back:hover,
+.exploration .back:hover {
   color: var(--color-accent-hover);
 }
 
 // Dugmad: tamnija podloga, 10px zaobljenje, tekst 15px (malo dugme 13px, 8px)
-.games .button {
+.games .button,
+.exploration .button {
   background: var(--color-bg);
   border-radius: var(--radius-control);
   font-size: var(--font-size-ui);
 }
 
-.games .button:hover {
+.games .button:hover,
+.exploration .button:hover {
   background: var(--color-bg);
   border-color: var(--color-text-subtle);
   color: var(--color-text-strong);
 }
 
 .games .button--primary,
-.games .button--primary:hover {
+.exploration .button--primary,
+.games .button--primary:hover,
+.exploration .button--primary:hover {
   color: var(--color-accent-text);
 }
 
-.games .button--primary {
+.games .button--primary,
+.exploration .button--primary {
   background: var(--color-accent);
 }
 
-.games .button--primary:hover {
+.games .button--primary:hover,
+.exploration .button--primary:hover {
   background: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
 }
 
-.games .button--danger {
+.games .button--danger,
+.exploration .button--danger {
   background: transparent;
   border-color: var(--color-error-border);
   color: var(--color-error-strong);
 }
 
-.games .button--danger:hover {
+.games .button--danger:hover,
+.exploration .button--danger:hover {
   background: var(--color-error-bg);
   border-color: var(--color-error-border);
   color: var(--color-error-strong);
 }
 
 .games .button--danger-solid,
-.games .button--danger-solid:hover {
+.exploration .button--danger-solid,
+.games .button--danger-solid:hover,
+.exploration .button--danger-solid:hover {
   background: var(--color-danger-solid);
   border-color: var(--color-danger-solid);
   color: var(--color-danger-solid-text);
 }
 
-.games .button--small {
+.games .button--small,
+.exploration .button--small {
   border-radius: var(--radius-xs);
   font-size: var(--font-size-caption);
 }
 
-.games .button:disabled:hover {
+.games .button:disabled:hover,
+.exploration .button:disabled:hover {
   background: var(--color-bg);
 }
 
-.games .button--primary:disabled:hover {
+.games .button--primary:disabled:hover,
+.exploration .button--primary:disabled:hover {
   background: var(--color-accent);
 }
 
 // Kartica: 14px zaobljenje. --flush nema unutrašnji razmak i deli se na .card-head,
 // .card-body i .card-footer.
-.games .card {
+.games .card,
+.exploration .card {
   border-radius: var(--radius-card);
 }
 
@@ -836,12 +861,15 @@
 }
 
 // Polja: oznaka svetla i podebljana, polje 46px, 10px zaobljenje
-.games .field {
+.games .field,
+.exploration .field {
   gap: var(--space-1-5);
 }
 
 .games .field label,
-.games .label {
+.exploration .field label,
+.games .label,
+.exploration .label {
   color: var(--color-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
@@ -849,15 +877,20 @@
 
 // Sporedni deo oznake („· optional", „· every day…") i oznaka manjeg polja („Starts at")
 .games .label-hint,
-.games .field label.label-hint {
+.exploration .label-hint,
+.games .field label.label-hint,
+.exploration .field label.label-hint {
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-normal);
 }
 
 .games .field input,
+.exploration .field input,
 .games .field select,
-.games .field textarea {
+.exploration .field select,
+.games .field textarea,
+.exploration .field textarea {
   border-radius: var(--radius-control);
   font-size: var(--font-size-ui);
   min-height: var(--control-height-field);
@@ -865,11 +898,14 @@
 }
 
 .games .field input::placeholder,
-.games .field textarea::placeholder {
+.exploration .field input::placeholder,
+.games .field textarea::placeholder,
+.exploration .field textarea::placeholder {
   color: var(--color-text-placeholder);
 }
 
-.games .help {
+.games .help,
+.exploration .help {
   color: var(--color-text-muted);
   font-size: var(--font-size-caption);
   margin: 0;
@@ -928,11 +964,13 @@
 }
 
 // Tabela: tekst 15px, zaglavlje prigušeno i podebljano, ime je beli podebljan link
-.games .table {
+.games .table,
+.exploration .table {
   font-size: var(--font-size-ui);
 }
 
-.games .table th {
+.games .table th,
+.exploration .table th {
   color: var(--color-text-muted);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.06em;
@@ -940,36 +978,43 @@
   white-space: nowrap;
 }
 
-.games .table td {
+.games .table td,
+.exploration .table td {
   padding: calc(var(--space-3) + 0.0625rem) var(--space-4-5);
   vertical-align: middle;
 }
 
-.games .table-card {
+.games .table-card,
+.exploration .table-card {
   border-radius: var(--radius-card);
 }
 
-.games .table-card .table tr:last-child td {
+.games .table-card .table tr:last-child td,
+.exploration .table-card .table tr:last-child td {
   border-bottom: 1px solid var(--color-border);
 }
 
-.games .table td.name a {
+.games .table td.name a,
+.exploration .table td.name a {
   color: var(--color-text-strong);
   font-weight: 700;
   text-decoration: none;
 }
 
-.games .table td.name a:hover {
+.games .table td.name a:hover,
+.exploration .table td.name a:hover {
   color: var(--color-accent);
 }
 
-.games .table .num {
+.games .table .num,
+.exploration .table .num {
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
 }
 
-.games .table .end {
+.games .table .end,
+.exploration .table .end {
   text-align: right;
 }
 
@@ -1020,38 +1065,45 @@
   justify-content: flex-end;
 }
 
-.games .confirm {
+.games .confirm,
+.exploration .confirm {
   justify-content: flex-end;
 }
 
-.games .confirm__text {
+.games .confirm__text,
+.exploration .confirm__text {
   color: var(--color-confirm);
   font-size: var(--font-size-sm);
 }
 
 // Poruke: 10px zaobljenje; greška, uspeh i info u bojama reference. Tekst je u <p>, a
 // .alert__dismiss je dugme × na kraju poruke (površina za dodir 44px, ikonica 16px).
-.games .alert {
+.games .alert,
+.exploration .alert {
   align-items: flex-start;
   border-radius: var(--radius-control);
 }
 
-.games .alert p {
+.games .alert p,
+.exploration .alert p {
   flex: 1;
   margin: 0;
 }
 
-.games .alert--danger {
+.games .alert--danger,
+.exploration .alert--danger {
   background: var(--color-error-bg);
   border-color: var(--color-error-border);
   color: var(--color-error);
 }
 
-.games .alert--success {
+.games .alert--success,
+.exploration .alert--success {
   color: var(--color-alert-success);
 }
 
-.games .alert--info {
+.games .alert--info,
+.exploration .alert--info {
   background: var(--color-alert-info-bg);
   border-color: var(--color-alert-info-border);
 }
@@ -1077,18 +1129,21 @@
 }
 
 // Bedž: neutralni je svetlije siv; „Quiz" plavi, --accent puna narandžasto-smeđa podloga
-.games .badge {
+.games .badge,
+.exploration .badge {
   color: var(--color-text-soft);
   min-height: 1.375rem;
   padding: 0 var(--space-2);
 }
 
-.games .badge--accent {
+.games .badge--accent,
+.exploration .badge--accent {
   background: var(--color-accent-soft);
   color: var(--color-link);
 }
 
 .games .badge--quiz,
+.exploration .badge--quiz,
 .badge--quiz {
   background: var(--color-type-quiz-bg);
   color: var(--color-type-quiz);
@@ -1097,24 +1152,28 @@
 // Bedževi stanja izazova, isti na svim ekranima:
 // <span [class]="'badge badge--' + status.toLowerCase()">{{ status }}</span>
 .games .badge--draft,
+.exploration .badge--draft,
 .badge--draft {
   background: var(--color-state-draft-bg);
   color: var(--color-state-draft);
 }
 
 .games .badge--published,
+.exploration .badge--published,
 .badge--published {
   background: var(--color-state-published-bg);
   color: var(--color-state-published);
 }
 
 .games .badge--retired,
+.exploration .badge--retired,
 .badge--retired {
   background: var(--color-state-retired-bg);
   color: var(--color-state-retired);
 }
 
 .games .badge--archived,
+.exploration .badge--archived,
 .badge--archived {
   background: var(--color-state-archived-bg);
   color: var(--color-state-archived);
@@ -1129,28 +1188,33 @@
 }
 
 // Prazno stanje: ikonica u sivom krugu, beli naslov, 14px zaobljen isprekidan okvir
-.games .empty {
+.games .empty,
+.exploration .empty {
   gap: var(--space-2-5);
   padding: var(--space-6-5) var(--space-5);
 }
 
-.games .empty--boxed {
+.games .empty--boxed,
+.exploration .empty--boxed {
   border-color: var(--color-border-field);
   border-radius: var(--radius-card);
 }
 
-.games .empty h2 {
+.games .empty h2,
+.exploration .empty h2 {
   color: var(--color-text-strong);
   font-family: var(--font-family);
   font-size: var(--font-size-md);
   font-weight: 700;
 }
 
-.games .empty p {
+.games .empty p,
+.exploration .empty p {
   max-width: 26.25rem;
 }
 
-.games .empty-icon {
+.games .empty-icon,
+.exploration .empty-icon {
   background: var(--color-border);
   color: var(--color-text-soft);
   height: 3rem;
@@ -1285,14 +1349,16 @@
 }
 
 // Dugme sa samo ikonicom u formi (ukloni pitanje, ukloni odgovor): 44×44, prigušeno
-.games .icon-btn {
+.games .icon-btn,
+.exploration .icon-btn {
   background: transparent;
   border-color: var(--color-border-field);
   border-radius: var(--radius-control);
   color: var(--color-text-muted);
 }
 
-.games .icon-btn:hover {
+.games .icon-btn:hover,
+.exploration .icon-btn:hover {
   background: var(--color-surface-hover);
   color: var(--color-text);
 }
@@ -1414,7 +1480,8 @@
   height: 100%;
 }
 
-.games .question-text {
+.games .question-text,
+.exploration .question-text {
   color: var(--color-text-strong);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-heading);
@@ -1554,4 +1621,379 @@
   .stats {
     grid-template-columns: 1fr;
   }
+}
+
+// ============================================================================================
+// Exploration (reference: frontend/docs/design/exploration)
+//
+// Exploration referenca ima iste mere i boje kao Games, pa svako pravilo „.games .x" iznad
+// važi i za „.exploration .x". Koren svake Exploration stranice ima klasu .exploration
+// (forma: .exploration--narrow). Ispod su samo pravila kojih u Games referenci nema.
+// ============================================================================================
+
+// Tabovi „All tours" / „My tours": 12px okvir, 8px stavka
+.exploration .tabs {
+  border-radius: var(--radius);
+}
+
+.exploration .tabs a {
+  border-radius: var(--radius-xs);
+}
+
+// Polje sa greškom: tamnocrvena ivica; poruka ispod polja je crvena, 13px, sa ikonicom
+.exploration .field--error input,
+.exploration .field--error select,
+.exploration .field--error textarea {
+  border-color: var(--color-field-error-border);
+}
+
+.exploration .error {
+  align-items: center;
+  color: var(--color-error-strong);
+  display: flex;
+  font-size: var(--font-size-caption);
+  gap: var(--space-1-5);
+}
+
+.exploration .error svg {
+  flex: none;
+}
+
+// Dugmad u redu tabele ostaju u jednom redu
+.exploration .row-actions {
+  flex-wrap: nowrap;
+}
+
+// Bedževi težine ture: Easy zeleni, Medium žuti, Hard roze
+.badge--easy {
+  background: var(--color-state-published-bg);
+  color: var(--color-state-published);
+}
+
+.badge--medium {
+  background: var(--color-state-draft-bg);
+  color: var(--color-state-draft);
+}
+
+.badge--hard {
+  background: var(--color-difficulty-hard-bg);
+  color: var(--color-difficulty-hard);
+}
+
+// Oznaka (tag, vreme prevoza): siva pill; --outline je samo obrub. Grupa oznaka je .chips.
+// <span class="chip chip--outline"><svg aria-hidden="true">…</svg> Walking · 60 min</span>
+.chips {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chip {
+  align-items: center;
+  background: var(--color-border);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  display: inline-flex;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-1-5);
+  padding: 0.125rem var(--space-2-5);
+  white-space: nowrap;
+}
+
+.chip--outline {
+  background: transparent;
+  border-color: var(--color-border-field);
+}
+
+// Dugme × u oznaci (ukloni tag)
+.chip button {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  height: 1.125rem;
+  justify-content: center;
+  padding: 0;
+  width: 1.125rem;
+}
+
+.chip button:hover {
+  color: var(--color-text-strong);
+}
+
+// Polje sa tagovima: dodati tagovi su .chip sa ×, a unos novog taga ide na Enter
+// <div class="tag-input"><span class="chip">#Dunav <button aria-label="Remove tag Dunav">×</button></span>
+//   <input id="tags" placeholder="Type a tag and press Enter" /></div>
+.tag-input {
+  align-items: center;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-control);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  min-height: var(--control-height-field);
+  padding: var(--space-1-5) var(--space-2-5);
+}
+
+.tag-input:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.field .tag-input input,
+.field .tag-input input:focus {
+  background: transparent;
+  border: 0;
+  flex: 1 1 10rem;
+  min-height: 2rem;
+  outline: none;
+  padding: 0;
+}
+
+// Segmentirana grupa radio dugmadi (način kretanja, težina). Izabrana opcija ima
+// narandžasto-smeđu podlogu i narandžast tekst. Radio je skriven, ali radi tastaturom.
+// <div class="segmented" role="radiogroup" aria-label="Transport">
+//   <label><input type="radio" name="mode" value="Walking" [formField]="…" /> Walking</label>
+// </div>
+.segmented {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius-control);
+  display: inline-flex;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.segmented label {
+  align-items: center;
+  border-right: 1px solid var(--color-border-field);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-1-5);
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  position: relative;
+  white-space: nowrap;
+}
+
+.segmented label:last-child {
+  border-right: 0;
+}
+
+.segmented label:hover {
+  color: var(--color-text-strong);
+}
+
+.segmented input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.segmented label:has(input:checked) {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.segmented label:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+// Odeljak ispod reda tabele (Publish, Add time): kartica u ćeliji preko svih kolona
+// <tr class="sub-row"><td colspan="6"><form class="inline-panel"><h3>…</h3>…</form></td></tr>
+.inline-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-field);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3-5);
+  padding: var(--space-4) var(--space-4-5);
+}
+
+.inline-panel h3 {
+  color: var(--color-text-strong);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.table tbody tr.sub-row:hover {
+  background: none;
+}
+
+// Radio dugmad u jednom redu („Free tour", „Paid tour"), svako visoko 44px
+.radio-row {
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4-5);
+  margin: 0;
+  padding: 0;
+}
+
+.radio-row label {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2);
+  min-height: var(--control-height);
+}
+
+.radio-row input {
+  accent-color: var(--color-accent);
+  height: 1.125rem;
+  width: 1.125rem;
+}
+
+// Potvrdni okvir sa objašnjenjem ispod oznake
+// <label class="checkbox"><input type="checkbox" /><span>Keypoint is publicly visible
+//   <span class="help">…</span></span></label>
+.checkbox {
+  align-items: flex-start;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  font-weight: var(--font-weight-bold);
+  gap: var(--space-2-5);
+  min-height: var(--control-height);
+}
+
+.field .checkbox input {
+  accent-color: var(--color-accent);
+  flex: none;
+  height: 1.25rem;
+  margin: 0.0625rem 0 0;
+  min-height: 0;
+  padding: 0;
+  width: 1.25rem;
+}
+
+.checkbox .help {
+  display: block;
+  font-weight: var(--font-weight-normal);
+}
+
+// Isprekidan okvir oko izbora slike: ikonica ili sličica, tekst i dugme; --error crven
+.dropzone {
+  align-items: center;
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border-dashed);
+  border-radius: var(--radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.dropzone--error {
+  border-color: var(--color-field-error-border);
+}
+
+// Tajna ključne tačke: isprekidan narandžasto-smeđ okvir sa katancem
+.secret {
+  align-items: flex-start;
+  background: var(--color-secret-bg);
+  border: 1px dashed var(--color-secret-border);
+  border-radius: var(--radius-control);
+  color: var(--color-secret);
+  display: flex;
+  font-size: var(--font-size-sm);
+  gap: var(--space-2-5);
+  margin: 0;
+  padding: var(--space-2-5) var(--space-3-5);
+}
+
+.secret svg {
+  color: var(--color-accent);
+  flex: none;
+  margin-top: 0.125rem;
+}
+
+// Sličica 72×52 u redu spiska (ključna tačka)
+.thumb--landscape {
+  border-radius: var(--radius-xs);
+  height: 3.25rem;
+  width: 4.5rem;
+}
+
+// Spisak ključnih tačaka: redni broj u narandžastom krugu, sličica, naziv i opis, oznake, dugmad.
+// <ol class="kp-list"><li class="kp-row"><span class="kp-row__num">1</span>
+//   <app-protected-image class="thumb thumb--landscape" …/>
+//   <div class="kp-row__main"><h3>…</h3><p>…</p></div>
+//   <div class="kp-row__flags">…bedževi…</div><div class="row-actions">…</div></li></ol>
+.kp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kp-row {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-3-5) var(--space-5);
+}
+
+.kp-row:first-child {
+  border-top: 0;
+}
+
+.kp-row__num {
+  align-items: center;
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-pill);
+  color: var(--color-accent);
+  display: flex;
+  flex: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-heading);
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}
+
+.kp-row__main {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.kp-row__main h3 {
+  color: var(--color-text-strong);
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.kp-row__main p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0.125rem 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kp-row__flags {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
 }
