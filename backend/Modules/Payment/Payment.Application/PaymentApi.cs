@@ -50,6 +50,7 @@ public sealed class PaymentApi : IPaymentApi
             .Select(product => new ProductOfferDto(
                 product.Id,
                 ToContractType(product.Type),
+                product.EntityId,
                 product.Name,
                 product.Price,
                 product.OwnerId,
@@ -61,6 +62,12 @@ public sealed class PaymentApi : IPaymentApi
     {
         return _purchaseVerificationQueries.HasPurchasedAsync(
             userId, new DomainProductReference(ToDomainType(type), entityId));
+    }
+
+    public Task<bool> HasAnyPurchaseAsync(ContractProductType type, Guid entityId)
+    {
+        return _purchaseVerificationQueries.HasAnyPurchaseAsync(
+            new DomainProductReference(ToDomainType(type), entityId));
     }
 
     private static DomainProductType ToDomainType(ContractProductType type)

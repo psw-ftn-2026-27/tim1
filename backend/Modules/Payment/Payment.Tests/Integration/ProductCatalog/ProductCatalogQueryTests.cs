@@ -123,6 +123,7 @@ public class ProductCatalogQueryTests : BaseIntegrationTest
         var tour = products.Should().ContainSingle().Which;
         tour.Id.Should().Be(ProductSeed.DemoExplorersTour.Id);
         tour.Type.Should().Be(ContractProductType.Tour);
+        tour.EntityId.Should().Be(ProductSeed.DemoExplorersTour.Reference.EntityId);
         tour.Name.Should().Be(ProductSeed.DemoExplorersTour.Name);
         tour.Price.Should().Be(ProductSeed.DemoExplorersTour.Price);
         tour.OwnerId.Should().Be(ProductSeed.DemoExplorersTour.OwnerId);
