@@ -30,4 +30,12 @@ public interface IPaymentApi
     /// reports an error to the caller.
     /// </summary>
     Task<bool> HasPurchasedAsync(Guid userId, ProductType type, Guid entityId);
+
+    /// <summary>
+    /// Whether anyone has bought the product of the given kind and entity ID, so the module that
+    /// owns the content knows the entity is already sold. An entity nobody bought and an entity
+    /// Payment never sold both answer false. Asking about an unknown kind reports an error to
+    /// the caller.
+    /// </summary>
+    Task<bool> HasAnyPurchaseAsync(ProductType type, Guid entityId);
 }

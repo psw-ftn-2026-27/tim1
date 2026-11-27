@@ -55,6 +55,45 @@ public class PurchaseVerificationQueryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Tour_someone_bought_has_a_buyer()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var sold = await paymentApi.HasAnyPurchaseAsync(
+            ProductType.Tour,
+            PurchaseSeed.SecondExplorersRide.Reference.EntityId);
+
+        sold.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Tour_nobody_bought_has_no_buyer()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var sold = await paymentApi.HasAnyPurchaseAsync(
+            ProductType.Tour,
+            ProductSeed.DemoExplorersTour.Reference.EntityId);
+
+        sold.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Kind_of_content_the_platform_does_not_sell_cannot_have_a_buyer()
+    {
+        using var scope = Factory.Services.CreateScope();
+        var paymentApi = scope.ServiceProvider.GetRequiredService<IPaymentApi>();
+
+        var asking = async () => await paymentApi.HasAnyPurchaseAsync(
+            (ProductType)99,
+            PurchaseSeed.SecondExplorersRide.Reference.EntityId);
+
+        await asking.Should().ThrowAsync<DomainException>();
+    }
+
+    [Fact]
     public async Task Kind_of_content_the_platform_does_not_sell_cannot_be_owned()
     {
         using var scope = Factory.Services.CreateScope();

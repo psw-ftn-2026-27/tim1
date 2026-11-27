@@ -22,6 +22,13 @@ internal sealed class PurchaseReadRepository : IPurchaseReadRepository
             && purchase.Reference.EntityId == reference.EntityId);
     }
 
+    public Task<bool> HasAnyPurchaseAsync(ProductReference reference)
+    {
+        return _dbContext.Purchases.AnyAsync(purchase =>
+            purchase.Reference.EntityType == reference.EntityType
+            && purchase.Reference.EntityId == reference.EntityId);
+    }
+
     public Task<List<ProductReferenceDto>> GetPurchasedReferencesAsync(Guid buyerId)
     {
         return _dbContext.Purchases
